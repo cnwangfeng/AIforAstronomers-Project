@@ -1,0 +1,89 @@
+% ==========================================
+% CHAPTER 2
+% ==========================================
+\chapter{Basic Python} % 
+
+\section{Introduction} % 
+Programming is the type of thing whose uses and applicabilities seem extremely straightforward once you know how to do it, and extremely nebulous and intimidating before that point. %  
+
+\textbf{Definition 2.0.1} Python is a programming language (and yes, it's named for the sketch troupe Monty Python). It is an interpreted high-level programming language for general-purpose programming, and one of the most common languages used in astronomy. % 
+
+\section{Hello, World!} % 
+In Python, this is dead easy. From the terminal, simply type: % 
+
+\begin{lstlisting}
+ipython
+\end{lstlisting} % 
+
+Now, all you have to do is type: % 
+
+\begin{lstlisting}
+print('hello world!')
+\end{lstlisting} % 
+
+\textbf{Definition 2.1.1} A print statement is a line of code which tells the interpreter to output something to the screen. % 
+
+\section{Data types} % 
+Python, like most programming languages, divides up all the possible ``things'' you can play around with into what are called data types. % 
+
+Some basic data types are listed and defined below: % 
+\begin{itemize}
+    \item \textbf{Integers:} The counting numbers. Ex: -1, 0, 1, 2, 3... % 
+    \item \textbf{Floats:} Decimal numbers. Ex: 1.0, 2.345, 6.3... % 
+    \item \textbf{Strings:} An iterable data type most commonly used to hold words/phrases. Ex: \texttt{"cat"}, \texttt{"/home/ipasha"} % 
+    \item \textbf{Lists:} Stored lists of any combination of data types. Ex: \texttt{[1, 2, 'star', 'fish']} % 
+    \item \textbf{Dictionaries:} A collection of pairs, where one is a ``key'' and the other is a ``value.'' % 
+\end{itemize}
+
+\section{Basic Math} % 
+Within the python interpreter you can perform mathematical operations: % 
+
+\begin{lstlisting}
+[IN]: 3 + 5
+[OUT]: 8
+\end{lstlisting} % 
+
+\section{Variables} % 
+\textbf{Definition 2.4.1} A variable is a user-defined, symbolic name which points to a spot in a computer's memory where a value has been stored. % 
+
+Declaring variables in Python is easy: % 
+
+\begin{lstlisting}
+[IN]: x = 5.0
+[IN]: y = 'cat'
+\end{lstlisting} % 
+
+\section{Storing and Manipulating Data in Python} % 
+\subsection{Arrays vs Lists} % 
+Lists and numpy arrays are the natural data type with which to store data. %  Let's define a list to play with: % 
+
+\begin{lstlisting}
+[IN]: my_list = [1,5,2,7,3,7,8]
+\end{lstlisting} % 
+
+If we want to multiply all the distances by 2, numpy arrays make this much easier and faster than standard Python lists: % 
+
+\begin{lstlisting}
+[IN]: my_array = np.array([1,5,2,7,3,7,8])
+[IN]: my_array * 2
+[OUT]: array([2,10,4,14,6,14,16])
+\end{lstlisting} % 
+
+\section{Array, String, and List Indexing} % 
+The procedure by which we extract subsets of a larger array/list is known as slicing, or indexing. %  
+By convention, this index starts with 0. % 
+
+\begin{lstlisting}
+[IN]: list_1 = [1, 2, 4, 'cat', 5]
+[IN]: x = list_1[0]
+[IN]: print(x)
+[OUT]: 1
+\end{lstlisting} % 
+
+\section{Dictionaries} % 
+\textbf{Definition 2.8.1} A dictionary is a Python container, like a list or array, but which uses ``keys'' instead of indices to specify elements. % 
+
+\begin{lstlisting}
+simple_dict = {'key1': value1, 'key2': value2}
+pulled_value = simple_dict['key1']
+\end{lstlisting} % 

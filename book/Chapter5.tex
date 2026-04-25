@@ -1,0 +1,88 @@
+% ==========================================
+% CHAPTER 5
+% ==========================================
+\chapter{Data I/O (Input/Output)} % 
+
+\section{Loading and Writing Files} % 
+At numerous points in this text we have alluded to the ability for loops to aid in the process of loading multiples files of data. %  
+Now that you know how to concatenate strings and generate for-loops, we can cover the file loading/writing process. %  
+There are several ways of opening data files in python. %  
+Python itself has a built in mechanism for opening/writing files, and numpy also has support for file handling. %  
+To open a file in python's interface, we type: % 
+
+\begin{lstlisting}
+>> file1 = open('filename.txt','w')
+\end{lstlisting} % 
+
+where \texttt{'w'} indicates we plan to write to the file. %  
+(We could instead use \texttt{'r'} for read only, or \texttt{'a'} for appending to a file that already contains data). % 
+
+\textbf{Example 5.1 Writing to a File} % 
+\begin{lstlisting}
+>> file1 = open('file.txt','w')
+>> file1.write('this is a file')
+>> file1.write('this is not a drill')
+>> file1.close()
+\end{lstlisting} % 
+
+The close statement above tells python to close and save the file to the hard disk. % 
+
+\textbf{Exercise 5.1 Writing data to a file} % 
+\begin{lstlisting}
+for i in range(len(planet_dist)-1):
+    file.write(planet_dist[i] + planet_vel[i] + '\n')
+\end{lstlisting} % 
+
+where the \texttt{\textbackslash n} is necessary for us to create a new line when writing the file so the data will be properly divided into their respective row and column. % 
+
+Numpy also has a file input output framework that is often useful to use. %  
+The two we will discuss here are \texttt{np.loadtxt} and \texttt{np.genfromtxt}. %  
+
+\textbf{Example 5.2 Loading files using loadtxt} % 
+\begin{lstlisting}
+data = np.loadtxt('filename.txt')
+data = np.transpose(data)
+times = data[0]
+positions = data[1]
+velocities = data[2]
+\end{lstlisting} % 
+
+Oftentimes data files have headers and footers- text that tells you what data is stored in the file. %  
+For example, to skip a 5 line header and 3 line footer text, use: % 
+
+\begin{lstlisting}
+[IN]: data = np.genfromtxt('file.txt', skip_header=5, skip_footer=3)
+\end{lstlisting} % 
+
+\section{Loading Astronomical Fits Files} % 
+In astronomy, in particular, it is useful to work with FITS (flexible image transport system) files. %  
+FITS files are widely prevalent because of a feature they contain called a header. %  
+Headers often contain information about the image itself. % 
+
+To use them, we will have to import a library called pyfits (or on the lab computers, \texttt{astropy.io.fits}); %  
+The syntax for opening a fits file is: % 
+
+\begin{lstlisting}
+>> hdu = pf.open(path)
+\end{lstlisting} % 
+
+\subsection{The Header} % 
+The header is a dictionary containing a lot of useful information about the images stored in the fits file. %  
+
+\begin{lstlisting}
+>> head = hdu[0].header
+\end{lstlisting} % 
+
+\textbf{Example 5.3 Pulling from a header} % 
+\begin{lstlisting}
+ra = head['RA']
+dec = head['DEC']
+time = head['EXPTIME']
+\end{lstlisting} % 
+
+\subsection{The Image} % 
+To access the image itself, we call: % 
+
+\begin{lstlisting}
+>> img = hdu[0].data
+\end{lstlisting} % 

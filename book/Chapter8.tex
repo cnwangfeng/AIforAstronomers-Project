@@ -1,0 +1,71 @@
+
+% ==========================================
+% CHAPTER 8
+% ==========================================
+\chapter{Classes and Object Oriented Programming} % 
+
+\section{Defining Classes} % 
+Objects, or Classes, are useful for a variety of reasons; primarily we use them to easily organize groups of functions that act on a specific ``object'' that we define. %  
+There are two main components to a defined class: attributes and methods. %  
+Attributes are properties which are created when an instance of a class is initialized. %  
+Methods are functions which each instance of a class carries and can utilize. %  
+
+Say we want to create a class called \texttt{Planet} which has certain attributes such as planet name, revolution period, and mass. % 
+
+\textbf{Example 8.1 Defining a Planet Class} % 
+\begin{lstlisting}
+class Planet(object):
+    def __init__(self, planet_name, rev_period, mass):
+        self.planet_name = planet_name
+        self.rev_period = rev_period
+        self.mass = mass
+\end{lstlisting} % 
+
+The first function in a class is always the init function (which has a double underscore before and after the word init). %  
+The first argument of init is always ``self''. %  
+Once we have created an \texttt{\_\_init\_\_} function, we can put other functions in our class as well. %  
+These are known as methods. %  
+
+\textbf{Example 8.2 Methods} % 
+\begin{lstlisting}
+class Planet(object):
+    def __init__(self, planet_name, rev_period, mass):
+        self.system_name = '2014-B178h'
+        self.planet_name = planet_name
+        self.rev_period = rev_period
+        self.mass = mass
+
+    def semimajoraxis(self):
+        return self.rev_period**2 * (2./3)
+\end{lstlisting} % 
+
+\subsection{Subclasses} % 
+It is possible to make subclasses of your own, which inherit all the attributes and methods of their parent class, while having some specialized methods and attributes of their own. %  
+For example, we can make a subclass of \texttt{Planet} called \texttt{Dwarf}: % 
+
+\textbf{Example 8.3 Subclasses} % 
+\begin{lstlisting}
+class Dwarf(Planet):
+    def describe(self):
+        return self.name + ':' + 'Mass=' + str(self.mass)
+\end{lstlisting} % 
+
+\section{Initializing an Instance of a Class} % 
+We can initialize a variable as an object (say, a planet), like this: % 
+
+\begin{lstlisting}
+earth = Planet('Earth', 24, 5.9E24)
+\end{lstlisting} % 
+
+We can access those properties of any of our class objects using dot notation: % 
+
+\begin{lstlisting}
+print(earth.mass)
+\end{lstlisting} % 
+
+Now that we have the instance of the \texttt{Planet} class initialized as the variable \texttt{earth}, we can also execute the methods that we have defined for the given class. %  
+For example, using the method we defined above, we can call: % 
+
+\begin{lstlisting}
+print(earth.semimajoraxis())
+\end{lstlisting} % 

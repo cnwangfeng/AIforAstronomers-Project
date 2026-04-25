@@ -1,0 +1,1044 @@
+\chapter{Unix/Linux for Scientific Computing}
+
+Modern astronomy relies heavily on large datasets, remote servers,
+automated pipelines, and high-performance computing systems. Most
+scientific computing infrastructure in astronomy runs on Unix/Linux.
+For this reason, learning to use the Linux command line is an essential
+skill for modern astronomers.
+
+This chapter introduces the most important Unix/Linux commands needed
+for scientific work. Instead of treating Linux as a list of isolated
+commands, we will emphasize practical usage in a research environment:
+navigating directories, managing files, inspecting data, searching for
+information, connecting to remote servers, and running long computations.
+
+\section{Why Linux Matters in Astronomy}
+
+Astronomy is a data-intensive science. A single observing run may
+produce thousands of FITS files, while a numerical simulation may create
+many gigabytes of output. Graphical interfaces are often convenient for
+small tasks, but they become inefficient when the number of files grows
+large.
+
+Linux is especially useful in astronomy because it allows researchers to:
+
+\begin{itemize}
+\item manage large collections of files efficiently,
+\item automate repetitive tasks,
+\item process data on remote servers,
+\item combine many small tools into a powerful workflow,
+\item interact with shared computing clusters.
+\end{itemize}
+
+\begin{defbox}[Scientific Computing Environment]
+In astronomy, Linux is not merely another operating system. It is the
+standard working environment for data reduction, simulations, remote
+computing, and pipeline development.
+\end{defbox}
+
+\begin{examplebox}[A Typical Research Task]
+Suppose a telescope produces a large number of FITS images in a single
+night. A researcher may need to:
+
+\begin{itemize}
+\item log into a remote server,
+\item create directories for raw and processed data,
+\item move FITS files into the correct folder,
+\item inspect the first few lines of a log file,
+\item search for a target observation,
+\item compress and archive the final results.
+\end{itemize}
+
+Linux provides simple tools for each of these steps.
+\end{examplebox}
+
+\section{The Command Line Interface}
+
+A graphical user interface (GUI) allows a user to click icons and open
+menus. A command-line interface (CLI) allows the user to type commands
+directly in a terminal.
+
+\begin{defbox}[Command-Line Interface]
+A command-line interface is a text-based way of interacting with the
+operating system. Instead of selecting actions from menus, the user
+enters commands explicitly.
+\end{defbox}
+
+The CLI is especially valuable in scientific computing because it is:
+
+\begin{itemize}
+\item efficient,
+\item scriptable,
+\item flexible,
+\item well suited for remote access.
+\end{itemize}
+
+For example, moving many FITS files into a directory is a one-line task:
+
+\begin{lstlisting}
+$ mkdir raw_data
+$ mv *.fits raw_data/
+\end{lstlisting}
+
+\section{The Linux File System}
+
+Linux organizes files using a hierarchical tree structure.
+
+\begin{defbox}[Root Directory]
+The top of the Linux file system is called the root directory, written
+as \texttt{/}. Every file and directory belongs somewhere under this root.
+\end{defbox}
+
+For example:
+
+\begin{lstlisting}
+/home/student/project/data
+\end{lstlisting}
+
+Here:
+
+\begin{itemize}
+\item \texttt{/} is the root directory,
+\item \texttt{home} contains user home directories,
+\item \texttt{student} is the user's home directory,
+\item \texttt{project/data} are subdirectories.
+\end{itemize}
+
+Some common directories are:
+
+\begin{itemize}
+\item \texttt{/home}: user home directories
+\item \texttt{/bin}: basic executable programs
+\item \texttt{/etc}: configuration files
+\item \texttt{/tmp}: temporary files
+\item \texttt{/usr}: installed software and libraries
+\end{itemize}
+
+\subsection{Absolute and Relative Paths}
+
+An \textbf{absolute path} starts from the root directory:
+
+\begin{lstlisting}
+/home/student/project/data
+\end{lstlisting}
+
+A \textbf{relative path} starts from the current working directory:
+
+\begin{lstlisting}
+project/data
+\end{lstlisting}
+
+Understanding the difference between absolute and relative paths is one
+of the most important early steps in learning Linux.
+
+\section{Navigating Directories}
+
+\subsection{\texttt{pwd}: Print Working Directory}
+
+The command \texttt{pwd} shows the full path of the current directory.
+
+\begin{lstlisting}
+$ pwd
+\end{lstlisting}
+
+Example output:
+
+\begin{lstlisting}
+/home/student/project
+\end{lstlisting}
+
+This command is especially useful when you are working on a remote server
+and want to confirm your location before copying or deleting files.
+
+\subsection{\texttt{ls}: List Directory Contents}
+
+The command \texttt{ls} lists files and directories.
+
+\begin{lstlisting}
+$ ls
+\end{lstlisting}
+
+Some commonly used options are:
+
+\begin{itemize}
+\item \texttt{-l}: long listing format
+\item \texttt{-h}: human-readable file sizes
+\item \texttt{-a}: include hidden files
+\item \texttt{-t}: sort by modification time
+\item \texttt{-r}: reverse the sorting order
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ ls -l
+$ ls -lh
+$ ls -la
+$ ls -ltr
+\end{lstlisting}
+
+The long listing format provides much more information, for example:
+
+\begin{lstlisting}
+-rw-r--r-- 1 user group 2.1G catalog.fits
+drwxr-xr-x 2 user group 4.0K scripts
+\end{lstlisting}
+
+This includes file permissions, number of links, owner, group, file size,
+modification time, and file name.
+
+Files beginning with a dot, such as \texttt{.bashrc}, are hidden files.
+These are usually configuration files.
+
+\begin{protip}[A Very Common Combination]
+The command
+\begin{lstlisting}
+$ ls -lh
+\end{lstlisting}
+is one of the most useful ways to inspect files, because it combines a
+detailed view with readable file sizes such as \texttt{K}, \texttt{M},
+and \texttt{G}.
+\end{protip}
+
+\subsection{\texttt{cd}: Change Directory}
+
+The command \texttt{cd} changes the current working directory.
+
+\begin{lstlisting}
+$ cd data
+$ cd ..
+$ cd ~
+$ cd /
+\end{lstlisting}
+
+Common patterns:
+
+\begin{itemize}
+\item \texttt{cd data}: enter the directory \texttt{data}
+\item \texttt{cd ..}: move to the parent directory
+\item \texttt{cd ~}: return to the home directory
+\item \texttt{cd /}: go to the root directory
+\item \texttt{cd -}: return to the previous directory
+\end{itemize}
+
+The command \texttt{cd -} is especially helpful when moving back and forth
+between two locations.
+
+\begin{protip}[Tab Completion]
+When typing a file or directory name, press the \texttt{Tab} key to
+auto-complete it. This reduces typing mistakes and speeds up navigation.
+\end{protip}
+
+\subsection{\texttt{tree}: Display Directory Structure}
+
+If available on your system, \texttt{tree} shows the directory hierarchy
+in a visually clear way.
+
+\begin{lstlisting}
+$ tree
+\end{lstlisting}
+
+This is helpful when you want to understand the structure of a project.
+
+\section{Managing Files and Directories}
+
+\subsection{\texttt{mkdir}: Make Directories}
+
+The command \texttt{mkdir} creates directories.
+
+\begin{lstlisting}
+$ mkdir project
+\end{lstlisting}
+
+A very useful option is:
+
+\begin{itemize}
+\item \texttt{-p}: create parent directories if needed
+\end{itemize}
+
+Example:
+
+\begin{lstlisting}
+$ mkdir -p project/data/raw
+\end{lstlisting}
+
+This creates multiple nested directories at once.
+
+\subsection{\texttt{cp}: Copy Files and Directories}
+
+The command \texttt{cp} copies files or directories.
+
+Copy one file:
+
+\begin{lstlisting}
+$ cp script.py backup_script.py
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-r}: copy directories recursively
+\item \texttt{-i}: ask before overwriting
+\item \texttt{-v}: show what is being copied
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ cp -i report.txt backup.txt
+$ cp -r old_run new_run
+$ cp -rv source_dir target_dir
+\end{lstlisting}
+
+For beginners, \texttt{-i} is a very useful safety option because it
+helps prevent accidental overwriting.
+
+\subsection{\texttt{mv}: Move or Rename Files}
+
+The command \texttt{mv} can move a file to another directory or rename it.
+
+Rename a file:
+
+\begin{lstlisting}
+$ mv old_name.txt new_name.txt
+\end{lstlisting}
+
+Move files into a directory:
+
+\begin{lstlisting}
+$ mv *.fits raw_data/
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-i}: ask before overwriting
+\item \texttt{-v}: show what is being moved
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ mv -i draft.txt final.txt
+$ mv -v *.log logs/
+\end{lstlisting}
+
+\subsection{\texttt{rm}: Remove Files and Directories}
+
+The command \texttt{rm} removes files.
+
+\begin{lstlisting}
+$ rm file.txt
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-r}: remove directories recursively
+\item \texttt{-f}: force removal without asking
+\item \texttt{-i}: ask before removing
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ rm -i file.txt
+$ rm -r old_directory
+$ rm -ri old_project
+\end{lstlisting}
+
+\begin{warnbox}[Dangerous Command]
+The command
+\begin{lstlisting}
+$ rm -rf *
+\end{lstlisting}
+can permanently delete all files in the current directory. In Linux,
+deleted files usually do not go to a recycle bin. Always check your
+location with \texttt{pwd} and inspect the directory with \texttt{ls}
+before using \texttt{rm}.
+\end{warnbox}
+
+\section{Viewing and Inspecting Files}
+
+In scientific work, it is often useful to inspect a file before using it
+in analysis.
+
+\subsection{\texttt{cat}: Display a File}
+
+The command \texttt{cat} prints the contents of a file.
+
+\begin{lstlisting}
+$ cat file.txt
+\end{lstlisting}
+
+This is useful for short text files, configuration files, or scripts.
+For very large files, \texttt{less} is usually better.
+
+\subsection{\texttt{less}: View a File Interactively}
+
+The command \texttt{less} opens a file in an interactive viewer.
+
+\begin{lstlisting}
+$ less large_file.txt
+\end{lstlisting}
+
+Inside \texttt{less}, you can scroll, search, and quit with \texttt{q}.
+
+A useful pattern is:
+
+\begin{lstlisting}
+$ less run.log
+\end{lstlisting}
+
+which lets you inspect a long log file without printing everything to
+the terminal at once.
+
+\subsection{\texttt{head}: Show the Beginning of a File}
+
+The command \texttt{head} shows the first lines of a file.
+
+\begin{lstlisting}
+$ head catalog.txt
+\end{lstlisting}
+
+Useful option:
+
+\begin{itemize}
+\item \texttt{-n}: specify the number of lines
+\end{itemize}
+
+Example:
+
+\begin{lstlisting}
+$ head -20 catalog.txt
+\end{lstlisting}
+
+This is very useful for checking whether a file has a header and for
+inspecting the general structure of tabular data.
+
+\subsection{\texttt{tail}: Show the End of a File}
+
+The command \texttt{tail} shows the last lines of a file.
+
+\begin{lstlisting}
+$ tail run.log
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-n}: specify the number of lines
+\item \texttt{-f}: follow a growing file
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ tail -50 run.log
+$ tail -f run.log
+\end{lstlisting}
+
+The option \texttt{-f} is especially useful when monitoring a log file
+while a program is still running.
+
+\subsection{\texttt{wc}: Count Lines, Words, and Characters}
+
+The command \texttt{wc} counts lines, words, and characters.
+
+\begin{lstlisting}
+$ wc catalog.txt
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-l}: count lines only
+\item \texttt{-w}: count words only
+\item \texttt{-c}: count bytes only
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ wc -l catalog.txt
+$ wc -c image_header.txt
+\end{lstlisting}
+
+For data analysis, \texttt{wc -l} is often used to estimate how many rows
+a text catalog contains.
+
+\subsection{\texttt{file}: Identify File Type}
+
+The command \texttt{file} tries to identify the type of a file.
+
+\begin{lstlisting}
+$ file image.fits
+$ file archive.tar.gz
+\end{lstlisting}
+
+This is useful when the file extension is missing or unreliable.
+
+\section{Searching for Information}
+
+\subsection{\texttt{grep}: Search Text Patterns}
+
+The command \texttt{grep} searches for lines containing a pattern.
+
+\begin{lstlisting}
+$ grep SN catalog.txt
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-i}: ignore case
+\item \texttt{-n}: show line numbers
+\item \texttt{-r}: search recursively in directories
+\item \texttt{-v}: show lines that do not match
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ grep -i galaxy notes.txt
+$ grep -n ERROR run.log
+$ grep -r "target_name" project/
+$ grep -v "#" data.txt
+\end{lstlisting}
+
+The last example is often useful when removing comment lines from a text file.
+
+\subsection{\texttt{find}: Search for Files}
+
+The command \texttt{find} searches for files and directories in a directory tree.
+
+\begin{lstlisting}
+$ find . -name "*.fits"
+\end{lstlisting}
+
+Useful patterns include:
+
+\begin{itemize}
+\item \texttt{-name}: search by name
+\item \texttt{-type f}: search only files
+\item \texttt{-type d}: search only directories
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ find . -name "*.fits"
+$ find . -type f -name "*.log"
+$ find . -type d -name "results"
+\end{lstlisting}
+
+This command is very important when working with large project directories.
+
+\section{Wildcards, Pipes, and Redirection}
+
+\subsection{Wildcards}
+
+Wildcards allow one command to match many filenames.
+
+\begin{itemize}
+\item \texttt{*}: match any sequence of characters
+\item \texttt{?}: match exactly one character
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ ls *.fits
+$ ls image_?.fits
+\end{lstlisting}
+
+Wildcards are essential when dealing with many similar files.
+
+\subsection{Pipes}
+
+A pipe, written as \texttt{|}, sends the output of one command into another.
+
+\begin{lstlisting}
+$ cat catalog.txt | grep SN
+\end{lstlisting}
+
+This means: first display the file, then filter lines containing
+\texttt{SN}.
+
+Another example:
+
+\begin{lstlisting}
+$ ls -lh | less
+\end{lstlisting}
+
+Here the output of \texttt{ls -lh} is passed into \texttt{less} so that
+it can be viewed page by page.
+
+\subsection{Redirection}
+
+Redirection writes command output into a file.
+
+\begin{itemize}
+\item \texttt{>}: overwrite a file
+\item \texttt{>>}: append to a file
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ grep SN catalog.txt > sn_list.txt
+$ grep galaxy catalog.txt >> result.txt
+\end{lstlisting}
+
+This is useful when building simple command-line workflows.
+
+\section{Remote Login and File Transfer}
+
+Many astronomical computations are performed on remote servers rather than
+on a local laptop.
+
+\subsection{\texttt{ssh}: Secure Shell}
+
+The command \texttt{ssh} logs into a remote machine.
+
+\begin{lstlisting}
+$ ssh user@server
+\end{lstlisting}
+
+Example:
+
+\begin{lstlisting}
+$ ssh wangf@astrocluster.edu
+\end{lstlisting}
+
+Common option:
+
+\begin{itemize}
+\item \texttt{-X}: enable X11 forwarding on some systems
+\end{itemize}
+
+Example:
+
+\begin{lstlisting}
+$ ssh -X user@server
+\end{lstlisting}
+
+\subsection{\texttt{scp}: Secure Copy}
+
+The command \texttt{scp} copies files between computers.
+
+Upload a file:
+
+\begin{lstlisting}
+$ scp data.fits user@server:/home/user/
+\end{lstlisting}
+
+Download a file:
+
+\begin{lstlisting}
+$ scp user@server:/home/user/result.txt .
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-r}: copy directories recursively
+\item \texttt{-P}: specify a custom port
+\end{itemize}
+
+Examples:
+
+\begin{lstlisting}
+$ scp -r results/ user@server:/home/user/
+$ scp -P 2222 data.fits user@server:/home/user/
+\end{lstlisting}
+
+\subsection{\texttt{ssh-keygen}: Create SSH Keys}
+
+SSH keys allow password-free login.
+
+\begin{lstlisting}
+$ ssh-keygen
+\end{lstlisting}
+
+This generates a private key and a public key. The public key can be
+copied to a server for authentication.
+
+\begin{protip}[Remote Computing Is Standard]
+Many students first encounter Linux through remote login to a department
+server or cluster. Learning \texttt{ssh}, \texttt{scp}, and SSH keys
+early is extremely valuable.
+\end{protip}
+
+\section{Permissions}
+
+Every file and directory in Linux has permissions.
+
+A typical permission string looks like:
+
+\begin{lstlisting}
+-rwxr-xr--
+\end{lstlisting}
+
+This can be read as:
+
+\begin{itemize}
+\item first character: file type
+\item next three characters: owner permissions
+\item next three characters: group permissions
+\item last three characters: permissions for others
+\end{itemize}
+
+The symbols mean:
+
+\begin{itemize}
+\item \texttt{r}: read
+\item \texttt{w}: write
+\item \texttt{x}: execute
+\end{itemize}
+
+\subsection{\texttt{chmod}: Change Permissions}
+
+The command \texttt{chmod} changes permissions.
+
+Examples:
+
+\begin{lstlisting}
+$ chmod +x run.sh
+$ chmod o-w file.txt
+$ chmod u+r script.py
+\end{lstlisting}
+
+Here:
+
+\begin{itemize}
+\item \texttt{u} means user (owner)
+\item \texttt{g} means group
+\item \texttt{o} means others
+\item \texttt{a} means all
+\end{itemize}
+
+\subsection{\texttt{chown}: Change Ownership}
+
+On systems where you have permission, \texttt{chown} changes file ownership.
+
+\begin{lstlisting}
+$ chown user file.txt
+\end{lstlisting}
+
+This command is more common in system administration than in ordinary
+student work, but it is useful to recognize it.
+
+\section{Disk Usage and Storage}
+
+Astronomical datasets can quickly consume large amounts of storage.
+
+\subsection{\texttt{du}: Disk Usage}
+
+The command \texttt{du} shows directory sizes.
+
+\begin{lstlisting}
+$ du -sh *
+\end{lstlisting}
+
+Useful options include:
+
+\begin{itemize}
+\item \texttt{-s}: summary only
+\item \texttt{-h}: human-readable sizes
+\end{itemize}
+
+This helps identify which directories occupy the most space.
+
+\subsection{\texttt{df}: Disk Free Space}
+
+The command \texttt{df} shows available disk space.
+
+\begin{lstlisting}
+$ df -h
+\end{lstlisting}
+
+This is important on shared systems, where storage quotas are often limited.
+
+\section{Monitoring and Managing Processes}
+
+Many scientific programs run for a long time, so it is important to
+check and manage active processes.
+
+\subsection{\texttt{top}: Monitor Running Processes}
+
+The command \texttt{top} shows running processes in real time.
+
+\begin{lstlisting}
+$ top
+\end{lstlisting}
+
+It provides information about CPU usage, memory usage, and active tasks.
+
+\subsection{\texttt{ps}: List Processes}
+
+The command \texttt{ps} lists active processes.
+
+\begin{lstlisting}
+$ ps
+$ ps -u username
+$ ps aux
+\end{lstlisting}
+
+The version \texttt{ps aux} is widely used because it provides a detailed
+overview of running processes.
+
+\subsection{\texttt{kill}: Terminate a Process}
+
+The command \texttt{kill} stops a process by its process ID.
+
+\begin{lstlisting}
+$ kill PID
+\end{lstlisting}
+
+If necessary, force termination:
+
+\begin{lstlisting}
+$ kill -9 PID
+\end{lstlisting}
+
+\begin{warnbox}[Use \texttt{kill -9} Carefully]
+The option \texttt{-9} forces a process to stop immediately. This can
+sometimes leave incomplete output or corrupted temporary files. Use
+ordinary \texttt{kill} first whenever possible.
+\end{warnbox}
+
+\section{Terminal Productivity Tools}
+
+\subsection{\texttt{history}}
+
+The command \texttt{history} lists previously used commands.
+
+\begin{lstlisting}
+$ history
+\end{lstlisting}
+
+This is useful when you want to repeat or modify earlier commands.
+
+\subsection{\texttt{clear}}
+
+The command \texttt{clear} clears the terminal screen.
+
+\begin{lstlisting}
+$ clear
+\end{lstlisting}
+
+\subsection{Command Recall}
+
+In most terminals, the up-arrow key retrieves earlier commands. This is
+one of the simplest but most useful command-line habits.
+
+\section{Long-Running Jobs and Persistent Sessions}
+
+Many astronomical calculations run for hours or days. If you are connected
+through \texttt{ssh}, a network interruption may stop your work unless you
+use a persistent session manager.
+
+\subsection{\texttt{tmux}}
+
+The command \texttt{tmux} starts a persistent terminal session.
+
+\begin{lstlisting}
+$ tmux
+\end{lstlisting}
+
+Create a named session:
+
+\begin{lstlisting}
+$ tmux new -s reduction
+\end{lstlisting}
+
+Useful commands:
+
+\begin{itemize}
+\item detach from a session: \texttt{Ctrl-b d}
+\item list sessions: \texttt{tmux ls}
+\item reattach to a session: \texttt{tmux attach -t reduction}
+\end{itemize}
+
+\begin{protip}[Why \texttt{tmux} Matters]
+If you start a long-running program through \texttt{ssh} and then lose
+your connection, the program may stop. Running it inside \texttt{tmux}
+protects you from this problem.
+\end{protip}
+
+\section{Archiving and Compression}
+
+Scientific projects often contain many files that need to be archived or shared.
+
+\subsection{\texttt{tar}: Archive Files}
+
+Create a compressed archive:
+
+\begin{lstlisting}
+$ tar -czvf project.tar.gz project/
+\end{lstlisting}
+
+Extract an archive:
+
+\begin{lstlisting}
+$ tar -xzvf project.tar.gz
+\end{lstlisting}
+
+Common options include:
+
+\begin{itemize}
+\item \texttt{-c}: create archive
+\item \texttt{-x}: extract archive
+\item \texttt{-z}: use gzip compression
+\item \texttt{-v}: verbose output
+\item \texttt{-f}: specify archive filename
+\end{itemize}
+
+\subsection{\texttt{gzip}: Compress Files}
+
+Compress a file:
+
+\begin{lstlisting}
+$ gzip large_file.txt
+\end{lstlisting}
+
+Decompress it:
+
+\begin{lstlisting}
+$ gunzip large_file.txt.gz
+\end{lstlisting}
+
+\section{Basic HPC Cluster Commands}
+
+Many astronomy students eventually use a computing cluster. Different
+clusters use different schedulers, but one common system is SLURM.
+
+Some useful SLURM commands are:
+
+\begin{lstlisting}
+$ squeue
+$ sbatch job.sh
+$ scancel JOBID
+\end{lstlisting}
+
+Meaning:
+
+\begin{itemize}
+\item \texttt{squeue}: list queued and running jobs
+\item \texttt{sbatch job.sh}: submit a batch script
+\item \texttt{scancel JOBID}: cancel a job
+\end{itemize}
+
+At this stage, you do not need to master SLURM in detail, but you should
+be aware that modern astronomy often relies on job schedulers.
+
+\section{A Typical Astronomy Workflow}
+
+A typical research workflow may look like this:
+
+\begin{enumerate}
+\item Log into a remote cluster using \texttt{ssh}.
+\item Create a project directory using \texttt{mkdir}.
+\item Transfer data using \texttt{scp}.
+\item Inspect files using \texttt{ls}, \texttt{head}, and \texttt{wc}.
+\item Search for target files using \texttt{find}.
+\item Run a long analysis inside \texttt{tmux}.
+\item Monitor processes using \texttt{top} or \texttt{squeue}.
+\item Archive the final results using \texttt{tar}.
+\end{enumerate}
+
+This workflow is much closer to actual scientific practice than learning
+commands in isolation.
+
+\section{Command Summary}
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Command} & \textbf{Purpose} \\
+\hline
+\texttt{pwd}   & show current directory \\
+\texttt{ls}    & list files and directories \\
+\texttt{cd}    & change directory \\
+\texttt{mkdir} & create directories \\
+\texttt{cp}    & copy files and directories \\
+\texttt{mv}    & move or rename files \\
+\texttt{rm}    & remove files and directories \\
+\texttt{cat}   & display a file \\
+\texttt{less}  & view a file interactively \\
+\texttt{head}  & show the beginning of a file \\
+\texttt{tail}  & show the end of a file \\
+\texttt{wc}    & count lines, words, and bytes \\
+\texttt{grep}  & search text patterns \\
+\texttt{find}  & search for files \\
+\texttt{ssh}   & log into a remote server \\
+\texttt{scp}   & transfer files securely \\
+\texttt{chmod} & change permissions \\
+\texttt{du}    & inspect disk usage \\
+\texttt{df}    & check free disk space \\
+\texttt{top}   & monitor running processes \\
+\texttt{ps}    & list processes \\
+\texttt{kill}  & stop a process \\
+\texttt{tmux}  & create persistent terminal sessions \\
+\texttt{tar}   & create or extract archives \\
+\texttt{gzip}  & compress files \\
+\end{tabular}
+\end{center}
+
+\section{Exercises}
+
+\begin{exercisebox}[Create a Project Directory]
+Create the following directory structure in your home directory:
+
+\begin{lstlisting}
+astro_project/
+    data/
+    scripts/
+    results/
+\end{lstlisting}
+
+Then verify the structure using \texttt{ls} or \texttt{tree}.
+\end{exercisebox}
+
+\begin{exercisebox}[Practice File Operations]
+Create a text file, copy it, rename it, and move it into another directory.
+Write down the commands you used.
+\end{exercisebox}
+
+\begin{exercisebox}[Inspect a Data File]
+Take a text file or catalog and use the following commands on it:
+
+\begin{lstlisting}
+$ head file.txt
+$ tail file.txt
+$ wc -l file.txt
+$ less file.txt
+\end{lstlisting}
+
+Explain what information each command provides.
+\end{exercisebox}
+
+\begin{exercisebox}[Search for FITS Files]
+Use the \texttt{find} command to search for all FITS files in a directory.
+Save the output into a file named \texttt{fits\_list.txt}.
+\end{exercisebox}
+
+\begin{exercisebox}[Remote Login and Transfer]
+Log into a remote machine using \texttt{ssh}. Then transfer one file using
+\texttt{scp}. Record both commands.
+\end{exercisebox}
+
+\begin{exercisebox}[Disk Usage]
+Use \texttt{du -sh *} to inspect the sizes of directories in a project folder.
+Then use \texttt{df -h} to check the available disk space on the system.
+\end{exercisebox}
+
+\begin{exercisebox}[Persistent Session]
+Start a \texttt{tmux} session, create a file inside it, detach from the
+session, and then reattach to confirm that the session remains active.
+\end{exercisebox}
+
+\begin{exercisebox}[Archive a Project]
+Create a compressed archive of a directory using \texttt{tar}. Then extract
+it and verify that the files are present.
+\end{exercisebox}

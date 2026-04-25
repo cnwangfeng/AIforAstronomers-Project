@@ -1,0 +1,191 @@
+% ==========================================
+% CHAPTER 2: VERSION CONTROL WITH GIT
+% ==========================================
+\chapter{Version Control with Git} %
+
+\section{The Philosophy of Version Control}
+In modern astronomical research, software development is rarely a solitary endeavor. Whether you are drafting a collaborative lab report in LaTeX, writing a script to analyze telescope data, or working on a group coding project for a class, you need a safe way to track your changes.
+
+\begin{defbox}[Definition 2.1.1: Version Control System (VCS)]
+A Version Control System records changes to a file or set of files over time so that you can recall specific versions later. It acts as a "time machine" for your code, allowing you to revert mistakes, compare historical changes, and collaborate without overwriting your classmates' work.
+\end{defbox}
+
+Git is the most widely used distributed version control system in the world. Unlike centralized systems, when you use Git, you mirror the entire repository locally. This means you have the complete history of the project right on your laptop, allowing you to work offline and merge your changes later.
+
+\section{The Three States of Git}
+To understand Git, you must understand its architecture. Git thinks about its data like a stream of snapshots. The core of Git's workflow relies on three distinct local areas.
+
+% Placeholder for Nano Banana 2 Image 1: The Local Three-Tree Architecture
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{VersionControl/git_three_states.png}
+    \caption{The three main states in a local Git workflow: the Working Directory, the Staging Area (Index), and the Local Repository (.git directory).}
+    \label{fig:git_states}
+\end{figure}
+
+\begin{description}
+    \item[1. The Working Directory:] This is a single checkout of one version of the project. These files are pulled out of the compressed database in the Git directory and placed on disk for you to use or modify.
+    \item[2. The Staging Area:] Also known as the "index," this is a simple file that stores information about what will go into your next commit. It is your drafting board.
+    \item[3. The Local Repository (\texttt{.git} directory):] This is where Git stores the metadata and object database for your project. This is the most important part of Git, and it is what is copied when you clone a repository from another computer.
+\end{description}
+
+\section{Local Operations: Init, Add, and Commit}
+Let's walk through the basic lifecycle of tracking your files locally.
+
+\subsection{Initializing and Tracking}
+To start tracking an existing folder on your computer, navigate to it in the terminal and type:
+\begin{lstlisting}[language=bash]
+>> git init
+\end{lstlisting}
+This creates a hidden \texttt{.git} subdirectory that contains all of your necessary repository files. 
+
+When you create or modify a file (e.g., \texttt{data\_analysis.py}), Git notices the change but does not immediately track it. You must stage it:
+\begin{lstlisting}[language=bash]
+>> git add data_analysis.py   # Stages a specific file
+>> git add .                  # Stages ALL modified files in the current directory
+\end{lstlisting}
+
+\begin{protip}[Checking Your Status]
+Always use \texttt{git status} before and after adding files. It tells you exactly which branch you are on, which files are modified, and which files are currently in the Staging Area waiting to be committed.
+\end{protip}
+
+\subsection{Committing Your Changes}
+Once your Staging Area is set up the way you want it, you commit the changes. A commit takes a permanent snapshot of your staged files.
+\begin{lstlisting}[language=bash]
+>> git commit -m "Fix a bug in the flux calculation function"
+\end{lstlisting}
+The \texttt{-m} flag allows you to pass a descriptive message. A good commit message explains \textit{why} the change was made, not just \textit{what} was changed.
+
+\subsection{Viewing the History}
+To see the history of your snapshots, use the \texttt{git log} command. A very useful combination of flags is:
+\begin{lstlisting}[language=bash]
+>> git log --oneline --graph --decorate
+\end{lstlisting}
+This prints a clean, visual text-based graph of your commit history, showing exactly where branches diverge and merge.
+
+\section{Undoing Mistakes}
+Everyone makes mistakes. Git provides several mechanisms to undo them, depending on which "state" the mistake is currently in.
+
+\textbf{1. Discarding Uncommitted Changes (\texttt{git restore})} \\
+If you modified a file in your Working Directory but broke the code and want to revert it back to exactly how it looked at your last commit:
+\begin{lstlisting}[language=bash]
+>> git restore broken_script.py
+\end{lstlisting}
+
+\textbf{2. Reverting a Committed Snapshot (\texttt{git revert})} \\
+If you committed a change that turned out to be a bad idea, \textbf{do not} delete the commit. Instead, use \texttt{git revert}. This creates a \textit{new} commit that perfectly undoes the changes introduced by the bad commit, preserving the history for your colleagues.
+\begin{lstlisting}[language=bash]
+>> git revert <commit_hash>
+\end{lstlisting}
+
+\textbf{3. The Nuclear Option (\texttt{git reset})} \\
+If you accidentally committed a large file locally and want to erase the commit entirely before pushing it to the server:
+\begin{lstlisting}[language=bash]
+>> git reset --soft HEAD~1   # Undoes the commit, but keeps your file changes
+>> git reset --hard HEAD~1   # DESTROYS the commit AND your local file changes
+\end{lstlisting}
+
+\section{Branching and Merging: Parallel Development}
+One of Git's killer features is its branching model. A branch represents an independent line of development. 
+
+Suppose you are working on a homework assignment to calculate planetary orbits. You want to experiment with a new plotting method, but you do not want to break your currently working code. You can create a new branch:
+
+\begin{lstlisting}[language=bash]
+>> git checkout -b feature/new-plot-style
+\end{lstlisting}
+
+% Placeholder for Nano Banana 2 Image 3: Branching and Merging
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{VersionControl/git_branching.png}
+    \caption{Parallel development using Git branches. The feature branch allows safe experimentation before merging changes back into the main branch.}
+    \label{fig:git_branching}
+\end{figure}
+
+You can now freely make changes, add, and commit on this new branch. If the experiment fails, you can simply delete the branch. If it succeeds, you can merge it back into your primary branch:
+\begin{lstlisting}[language=bash]
+>> git checkout main                      # Switch back to the main branch
+>> git merge feature/new-plot-style       # Merge the successful experiment
+\end{lstlisting}
+
+\section{Remote Repositories: Collaborating with Others}
+Local version control is great, but modern science is collaborative. To work with colleagues—like sharing code with a lab partner or submitting a group project—you must utilize Remote Repositories hosted on platforms like GitHub or GitLab.
+
+% Placeholder for Nano Banana 2 Image 2: Remote Collaboration Cycle
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{VersionControl/git_remote.png}
+    \caption{The remote collaboration cycle. \texttt{git push} uploads local commits to the remote server, while \texttt{git pull} downloads and merges updates from collaborators.}
+    \label{fig:git_remote}
+\end{figure}
+
+\subsection{Cloning, Pushing, and Pulling}
+To download a repository from a server, use \texttt{git clone}:
+\begin{lstlisting}[language=bash]
+>> git clone https://github.com/astronomy-class/final-project.git
+\end{lstlisting}
+
+After making local commits, you upload them to the remote server using \texttt{push}:
+\begin{lstlisting}[language=bash]
+>> git push origin main
+\end{lstlisting}
+
+Before you start working for the day, you should always download the latest updates pushed by your team members:
+\begin{lstlisting}[language=bash]
+>> git pull origin main
+\end{lstlisting}
+
+\section{Handling Merge Conflicts}
+When you run \texttt{git merge} or \texttt{git pull}, Git attempts to automatically combine your code with your collaborator's code. However, if you both edited the \textbf{exact same line} in a file, Git will pause and throw a \textbf{Merge Conflict}. It cannot guess which version to keep.
+
+Git will modify the conflicting file to show you both versions. If you open the file in a text editor, it will look like this:
+
+\begin{lstlisting}[language=python]
+def calculate_flux(data):
+<<<<<<< HEAD
+    flux = data * 1.05 + background_noise
+=======
+    flux = data * 1.05  # Removed background noise term for simplicity
+>>>>>>> feature/new-calibration
+    return flux
+\end{lstlisting}
+
+\textbf{How to resolve it:}
+\begin{enumerate}
+    \item Open the file and manually edit the code to the final state you want. Delete the Git markers (\texttt{<<<<<<<}, \texttt{=======}, and \texttt{>>>>>>>}).
+    \item Once the code looks correct, save the file.
+    \item Tell Git that the conflict is resolved by staging the file: \texttt{git add <filename>}.
+    \item Finalize the merge by committing: \texttt{git commit}.
+\end{enumerate}
+
+\begin{protip}[Don't Panic During a Conflict]
+If you trigger a massive merge conflict and feel overwhelmed, you can always abort the merge and return your code to how it was before you tried to pull/merge by typing: \texttt{git merge --abort}.
+\end{protip}
+
+\section{Advanced Lifesavers: Stash and .gitignore}
+
+\subsection{Git Stash}
+Imagine you are halfway through rewriting a script, and a lab partner urgently asks you to pull their bug fix. You cannot pull if you have uncommitted changes. 
+\begin{lstlisting}[language=bash]
+>> git stash           # Temporarily shelves your uncommitted changes
+>> git pull            # Safely download the updates
+>> git stash pop       # Re-applies your half-finished work on top of the new code
+\end{lstlisting}
+
+\subsection{The .gitignore File}
+Git is designed for tracking plain text. It is \textbf{not} designed for binary data. 
+
+\begin{warnbox}[Never Commit Astronomical Data!]
+Do not commit massive \texttt{.fits} images, or \texttt{.dat} data files. Doing so will permanently bloat the repository size, making it excruciatingly slow for your classmates to clone.
+\end{warnbox}
+
+To prevent accidental data tracking, create a hidden file named \texttt{.gitignore} in your repository's root directory and list the extensions Git should ignore:
+\begin{lstlisting}[language=bash]
+# Standard .gitignore for an astronomy project
+*.fits
+*.dat
+*.pdf
+*.png
+__pycache__/
+data_raw/
+\end{lstlisting}

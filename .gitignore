@@ -1,0 +1,57 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Jupyter / generated notebooks
+*.nbconvert.ipynb
+
+# Data caches and large local artifacts
+data/external/*
+!data/external/.gitkeep
+*.fits
+*.fit
+*.fz
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pkl
+*.joblib
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+*.pdf
+
+# Keep source PDFs if explicitly placed under book/figures.
+!book/figures/**/*.pdf
+!book/**/figures/**/*.pdf
+
+# Generated figures can be rebuilt unless copied into book/.
+figures/generated/*
+!figures/generated/.gitkeep
+

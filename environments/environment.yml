@@ -1,0 +1,27 @@
+name: aiforastronomers
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - jupyterlab
+  - notebook
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - astropy
+  - astroquery
+  - photutils
+  - specutils
+  - lightkurve
+  - tqdm
+  - joblib
+  - pooch
+  - requests
+  - pyyaml
+  - pip:
+      - jupytext
+

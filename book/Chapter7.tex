@@ -1,0 +1,89 @@
+% ==========================================
+% CHAPTER 7
+% ==========================================
+\chapter{Plotting} % 
+
+\section{Basic Plotting} % 
+While we introduced the matplotlib library, and occasionally used plotting in examples, we'd like to go into more detail about plotting here. %  
+Let's start with the basics. Say we have an independent variable (like time), and a measured variable (like position). % 
+
+\textbf{Exercise 7.1 Plotting x vs. y} % 
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+file_name = '/home/sally/data.txt'
+data = np.loadtxt(file_name)
+times = data[0]
+positions = data[1]
+
+# Now let's plot the data
+plt.plot(times, positions)
+plt.show()
+\end{lstlisting} % 
+
+You can use a matplotlib shortcut to simultaneously choose a color and linestyle as follows: % 
+
+\begin{lstlisting}
+[IN]: plt.plot(times, positions, 'ro')
+[IN]: plt.show()
+\end{lstlisting} % 
+
+would plot the discrete points as red circles. %  
+You can also specify the size of the symbol by including the argument \texttt{ms=10}. % 
+
+If you are plotting multiple dependent variables against one axis, you'll want to create a legend to show which is which. %  
+To do so, use the optional command ``label'' within your \texttt{plt.plot} as follows: % 
+
+\begin{lstlisting}
+[IN]: plt.plot(times, positions_obj_1, 'k+', label='car one')
+[IN]: plt.plot(times, positions_obj_2, 'bo', label='car two')
+[IN]: plt.legend()
+[IN]: plt.show()
+\end{lstlisting} % 
+
+\section{Plotting in Detail} % 
+Typing \texttt{plt.plot} actually does several steps for you, including setting up a figure object and axis object. %  
+The most straightforward way to do this is the following: % 
+
+\begin{lstlisting}
+fig, ax = plt.subplots()
+\end{lstlisting} % 
+
+This command has multiple arguments you can feed it, which allows you to set up multiple axes in the same figure (i.e., multiple plots), as well as set the size of the figures. %  
+For example, we can set a size by using: % 
+
+\begin{lstlisting}
+fig, ax = plt.subplots(figsize=(5,5))
+\end{lstlisting} % 
+
+Once we have created a figure and axis as shown above, we can plot data in it directly by using the \texttt{ax.plot} command: % 
+
+\begin{lstlisting}
+fig, ax = plt.subplots()
+ax.plot(x,y,'ro')
+\end{lstlisting} % 
+
+We can also make all the standard adjustments that we used to do using \texttt{plt} commands, e.g., % 
+
+\begin{lstlisting}
+ax.set_xlim([1,10])
+ax.set_ylim([20,100])
+ax.set_xscale('log')
+\end{lstlisting} % 
+
+\section{Plotting 2D Images} % 
+Pyfits/the Astropy libraries have a way of displaying these as images. %  
+The easiest way to think about a 2-D array in terms of plotting is to pretend it is a black and white image. %  
+Lets say we used astropy to read in a fits image, and turn it into a 2-D array. %  
+To plot it, we would type: % 
+
+\begin{lstlisting}
+[IN]: plt.imshow(array, cmap='gray_r')
+[IN]: plt.show()
+\end{lstlisting} % 
+
+In this example, we chose a \texttt{cmap} (color map) to be \texttt{gray\_r}, which is essentially ``reversed black and white''. %  
+An easy way to start pulling useful ranges within an images are the \texttt{vmin} and \texttt{vmax} commands. %  
+They are used to set the upper and lower range of the linear (by default) scale between black and white. % 
+

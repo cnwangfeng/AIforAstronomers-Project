@@ -1,6 +1,13 @@
 # AIforAstronomers-Project
 
-面向天文与物理本科生的 AI 实战教材项目。
+教材正式题目：面向天文与物理本科生的 AI 科研实战
+
+英文副标题：Practical AI for Astronomy and Physics
+
+仓库命名约定：
+
+- 完整项目仓库保留 `AIforAstronomers-Project`
+- Overleaf 书稿仓库保留 `AIforAstronomers`
 
 本仓库是完整项目仓库，保存中文教材、配套 notebooks、教学数据、脚本、环境文件和课程资源。Overleaf 只同步轻量书稿仓库，不直接同步本仓库。
 
@@ -75,4 +82,3 @@ bash scripts/sync_book_to_overleaf.sh --apply
 - 代码许可证
 - 教学数据许可证
 - 外部材料引用和改写授权
-

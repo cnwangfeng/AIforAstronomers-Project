@@ -7,7 +7,7 @@
 暂定书名：
 
 - 中文：面向天文与物理本科生的 AI 科研实战
-- 英文：Practical AI for Astronomy and Physics Undergraduates
+- 英文：Practical AI for Astronomy and Physics
 - 仓库名沿用：AIforAstronomers
 
 核心定位：

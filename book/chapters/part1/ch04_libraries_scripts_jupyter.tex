@@ -1,0 +1,179 @@
+\chapter{库、脚本与 Jupyter}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解标准库、第三方库、模块、脚本和 notebook 的区别；
+    \item 解释为什么科研项目需要环境管理与依赖记录；
+    \item 判断一段代码更适合放在 notebook 中，还是更适合整理成脚本；
+    \item 建立最基本的可复现意识，例如固定随机种子、记录依赖版本。
+\end{itemize}
+
+\section{为什么这一章重要}
+
+很多初学者会把“会写几行 Python”误认为“已经会做科研编程”。真正进入科研工作后，你很快就会发现，更大的挑战往往不是语法，而是工作流：
+
+\begin{itemize}
+    \item 这段代码依赖哪些库？
+    \item 别人的电脑为什么能运行，你的电脑却报错？
+    \item 这份分析是课堂演示，还是可以反复执行的正式流程？
+    \item 三周之后，你还能不能看懂自己今天写的 notebook？
+\end{itemize}
+
+这一章的目标，就是让你把代码放回到完整工作流中去理解。
+
+\section{标准库与第三方库}
+
+Python 自带一组非常有用的标准库，例如：
+
+\begin{itemize}
+    \item \texttt{math}：基础数学函数；
+    \item \texttt{random}：随机数；
+    \item \texttt{csv}：CSV 文件读写；
+    \item \texttt{pathlib}：路径处理；
+    \item \texttt{statistics}：简单统计量。
+\end{itemize}
+
+这些库不需要额外安装，只要安装了 Python 就可以直接使用。
+
+而在科学计算中，更常见的是第三方库。例如：
+
+\begin{itemize}
+    \item \texttt{numpy}：数组计算；
+    \item \texttt{matplotlib}：绘图；
+    \item \texttt{pandas}：表格数据处理；
+    \item \texttt{astropy}：天文数据与单位、坐标、FITS 等处理；
+    \item \texttt{scikit-learn}：机器学习；
+    \item \texttt{pytorch}：深度学习。
+\end{itemize}
+
+\begin{defbox}[库]
+一个库是围绕某类任务组织起来的代码集合。调用库不是为了“少打字”，而是为了复用已经被大量用户检验过的功能。
+\end{defbox}
+
+\section{导入与使用}
+
+在配套 notebook 中，我们先从标准库示例开始：
+
+\begin{examplebox}[使用标准库]
+\begin{lstlisting}[style=pythonstyle]
+from importlib.util import find_spec
+import math
+import random
+import statistics
+
+random.seed(42)
+values = [x**2 + math.sin(3 * x) for x in range(5)]
+print(statistics.mean(values))
+\end{lstlisting}
+\end{examplebox}
+
+这里的几个动作都很典型：
+
+\begin{itemize}
+    \item \texttt{import} 负责把库引入当前程序；
+    \item \texttt{random.seed(42)} 固定了随机种子，使结果可复现；
+    \item 列表推导式让我们能够紧凑地生成一个数列；
+    \item \texttt{statistics.mean} 直接复用了现成的统计函数。
+\end{itemize}
+
+\section{环境检查}
+
+科研项目经常因为“环境不一致”而出问题。最简单的一步，就是先检查常用库是否已经安装：
+
+\begin{examplebox}[检查模块可用性]
+\begin{lstlisting}[style=pythonstyle]
+optional_modules = ["numpy", "matplotlib", "astropy", "pandas"]
+availability = {}
+
+for module_name in optional_modules:
+    availability[module_name] = find_spec(module_name) is not None
+
+availability
+\end{lstlisting}
+\end{examplebox}
+
+如果某个库没有安装，应该去补环境，而不是临时删掉依赖、随意改代码，直到“看起来能跑”为止。
+
+\begin{protip}[课程项目中的好习惯]
+每个教材项目都应该配一份环境文件，例如 \texttt{environment.yml} 或 \texttt{requirements.txt}。这样别人拿到仓库后，才能尽量在相同依赖下重现实验。
+\end{protip}
+
+\section{notebook 与脚本的分工}
+
+这是一条非常关键的边界。
+
+\subsection{什么时候适合 notebook}
+
+notebook 更适合：
+
+\begin{itemize}
+    \item 课堂演示；
+    \item 探索性分析；
+    \item 带文字说明的教学过程；
+    \item 快速画图和记录中间想法。
+\end{itemize}
+
+\subsection{什么时候适合脚本}
+
+脚本更适合：
+
+\begin{itemize}
+    \item 批量处理；
+    \item 反复运行的流程；
+    \item 自动化下载、预处理和绘图；
+    \item 与 Git、测试和命令行工具集成。
+\end{itemize}
+
+\begin{examplebox}[一个极简脚本雏形]
+\begin{lstlisting}[style=pythonstyle]
+script_lines = [
+    "import math",
+    "for x in range(5):",
+    "    print(x, x**2 + math.sin(3*x))",
+]
+
+print("\n".join(script_lines))
+\end{lstlisting}
+\end{examplebox}
+
+真正的教学重点不是把这几行代码背下来，而是理解：当某段逻辑准备被重复运行、被别人复用，或者要进入正式项目时，它通常应该逐步从 notebook 中抽离出来。
+
+\section{常见错误}
+
+\begin{warnbox}[工作流层面的常见错误]
+\begin{itemize}
+    \item 只在自己电脑上跑通过一次，就以为代码已经“完成”；
+    \item 不记录依赖版本，导致下周或换电脑后无法复现；
+    \item 在 notebook 里反复修改单元执行顺序，最后自己也搞不清真实流程；
+    \item 把探索阶段代码直接当成长期维护脚本使用。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手比较适合帮助你：
+
+\begin{itemize}
+    \item 解释某个库的作用与典型用法；
+    \item 帮你把 notebook 中重复的代码整理成函数或脚本；
+    \item 检查依赖是否齐全，或者根据报错分析缺了什么包。
+\end{itemize}
+
+但你仍然需要自己回答一个更根本的问题：这段代码到底属于探索、演示，还是正式流程？AI 可以帮你写代码，但不能代替你判断工作流边界。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+检查你的环境中是否已经安装 \texttt{numpy}、\texttt{matplotlib} 和 \texttt{astropy}。把结果记录成一小段文字说明。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把一个 notebook 中重复出现的代码单元提炼成一个独立脚本，并说明这样做对可复现性有什么帮助。
+\end{exercisebox}
+
+\section{本章小结}
+
+当你开始接触更多科学数据和机器学习任务时，代码规模会迅速增长。到那时，真正决定你能否持续推进项目的，往往不是语法，而是环境管理、依赖记录，以及 notebook 与脚本的合理分工。

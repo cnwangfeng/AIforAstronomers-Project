@@ -21,3 +21,6 @@ jobs:
 
       - name: Run notebook smoke tests
         run: python scripts/smoke_test_notebooks.py
+
+      - name: Validate data manifest
+        run: python scripts/validate_data_manifest.py

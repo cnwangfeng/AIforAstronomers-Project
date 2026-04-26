@@ -10,9 +10,11 @@ legacy Overleaf-compatible flat structure remains stable.
 Current draft targets:
 
 - `ch03_basic_python.tex`
+- `ch04_libraries_scripts_jupyter.tex`
+- `ch08_plotting_scientific_figures.tex`
 
 Planned next drafts:
 
-- `ch04_libraries_scripts_jupyter.tex`
 - `ch05_conditionals_loops.tex`
 - `ch06_data_io_fits.tex`
+- `ch07_functions_modules.tex`

@@ -1,0 +1,136 @@
+\chapter{可视化与科研图表}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 说清楚一张合格科学图表至少应包含哪些元素；
+    \item 从一份简单教学数据生成可解释的散点图；
+    \item 理解坐标轴、单位、标题、标注和网格线对科学交流的重要性；
+    \item 为后续的 HR 图、光谱图、时间序列图和模型诊断图打下基础。
+\end{itemize}
+
+\section{为什么科研图表不能只求“好看”}
+
+科研图表的主要任务不是装饰，而是传达信息。一个图做得再精致，如果读者看不出横轴是什么、单位是什么、图中趋势代表什么，它就没有完成任务。
+
+在科研训练中，我们更关心这些问题：
+
+\begin{itemize}
+    \item 这张图在说明什么科学关系？
+    \item 横轴和纵轴分别是什么量，单位是什么？
+    \item 图中的趋势是物理规律、选择效应，还是作图方式造成的假象？
+    \item 图是否足够清楚，让别人可以快速复现你的结论？
+\end{itemize}
+
+\section{一个最小绘图示例}
+
+本教材使用一个简单的行星教学数据表，包含半长轴与轨道周期两列。即使这是一个非常小的样本，也足够用来说明可视化的基本原则。
+
+\begin{examplebox}[读取数据并准备绘图]
+\begin{lstlisting}[style=pythonstyle]
+import csv
+from pathlib import Path
+
+data_path = Path("../../data/small/planetary_orbits_demo.csv")
+with data_path.open(newline="", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+planet_names = [row["planet"] for row in rows]
+x_values = [float(row["semi_major_axis_au"]) for row in rows]
+y_values = [float(row["orbital_period_years"]) for row in rows]
+\end{lstlisting}
+\end{examplebox}
+
+在这一阶段，数据准备和绘图同样重要。图表质量往往不是输在 \texttt{plt.scatter} 这一行，而是输在前面数据读错、单位搞混、变量命名不清。
+
+\section{图表的最小规范}
+
+一张最基本的教学图通常应包含：
+
+\begin{itemize}
+    \item 清楚的标题；
+    \item 横轴和纵轴标签；
+    \item 明确单位；
+    \item 必要时的图例；
+    \item 适度的网格线或标注；
+    \item 如果样本点少且彼此差异重要，适当加上对象名称标注。
+\end{itemize}
+
+\begin{defbox}[科学图表]
+科学图表的目标是帮助读者从视觉上理解数据关系，并为进一步的物理解释提供证据。
+\end{defbox}
+
+\section{绘图代码示例}
+
+在配套 notebook 中，我们使用如下代码生成一张基础散点图：
+
+\begin{examplebox}[绘制轨道周期与半长轴]
+\begin{lstlisting}[style=pythonstyle]
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.scatter(x_values, y_values, color="tab:blue")
+
+for name, x_value, y_value in zip(planet_names, x_values, y_values):
+    ax.annotate(name, (x_value, y_value), fontsize=8,
+                xytext=(4, 4), textcoords="offset points")
+
+ax.set_title("Orbital Period vs. Semi-major Axis")
+ax.set_xlabel("Semi-major axis [au]")
+ax.set_ylabel("Orbital period [yr]")
+ax.grid(alpha=0.3)
+\end{lstlisting}
+\end{examplebox}
+
+这段代码里值得注意的不是语法本身，而是它如何把“科学量”和“图形元素”一一对应起来：
+
+\begin{itemize}
+    \item 标题说明图在比较什么；
+    \item 轴标签说明量的名称和单位；
+    \item 标注帮助我们识别少数关键样本；
+    \item 网格线提升读图效率，但不应过重以至于分散注意力。
+\end{itemize}
+
+\section{图表解读}
+
+在这张图中，随着半长轴增大，轨道周期也明显增大。即使不做严格拟合，读者也能一眼看到“更远的行星通常转得更慢”这一趋势。
+
+这一步非常重要。画图不是为了完成一道命令，而是为了形成科学判断。后面的机器学习诊断图也是一样：图表的价值在于帮助你解释结果，而不是制造视觉负担。
+
+\section{常见错误}
+
+\begin{warnbox}[绘图中的典型问题]
+\begin{itemize}
+    \item 没有标题或没有坐标轴标签；
+    \item 标签有量名但没有单位；
+    \item 一张图里元素太多，却没有图例或说明；
+    \item 把默认参数生成的图直接放进报告，而不检查是否真的可读；
+    \item 只展示模型分数，不展示任何诊断图和样本分布图。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手可以帮你：
+
+\begin{itemize}
+    \item 把基础绘图代码改写得更整洁；
+    \item 提醒你图表中缺少了哪些基本元素；
+    \item 给出更合适的配色、标注和布局建议。
+\end{itemize}
+
+但图表是否真的表达了正确的科学含义，仍然要靠你自己判断。AI 能帮你“把图画出来”，却不能替你决定这张图是否回答了正确的问题。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+将纵轴改为对数坐标，并观察图形的变化。说明为什么在一些天文问题中，对数坐标更有帮助。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+尝试将内行星和外行星用不同颜色显示，并写一段简短说明，解释你希望读者从这张图中看到什么。
+\end{exercisebox}
+
+\section{本章小结}
+
+一张好的科研图，应该让读者在很短时间内回答三个问题：画的是什么、单位是什么、趋势意味着什么。后面的 HR 图、光谱图、时间域图和模型评估图，都会沿着这一原则继续展开。

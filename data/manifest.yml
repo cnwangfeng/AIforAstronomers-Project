@@ -63,3 +63,23 @@ datasets:
       specz: redshift
     used_by:
       - notebooks/part3_machine_learning/ch18_regression_workflow.ipynb
+  - name: object_classification_demo
+    path: data/small/object_classification_demo.csv
+    type: csv
+    source: "Small synthetic SDSS-style object-classification teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - object_id
+      - u_g
+      - g_r
+      - r_i
+      - i_z
+      - object_class
+    units:
+      u_g: mag
+      g_r: mag
+      r_i: mag
+      i_z: mag
+    used_by:
+      - notebooks/part3_machine_learning/ch19_classification_workflow.ipynb

@@ -8,7 +8,8 @@ Current draft targets:
 - `ch16_ai_ml_scientific_inference.tex`
 - `ch17_ml_workflow.tex`
 - `ch18_regression.tex`
+- `ch19_classification.tex`
 
 Planned next drafts:
 
-- `ch19_classification.tex`
+- `ch20_model_evaluation.tex`

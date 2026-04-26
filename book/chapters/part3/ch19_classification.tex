@@ -1,0 +1,145 @@
+\chapter{分类}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解分类任务与回归任务的根本差别；
+    \item 用一个教学数据集走通“规则 baseline -> 数据驱动分类器 -> 误差诊断”的最小流程；
+    \item 理解 kNN、逻辑回归、决策树这些常见分类模型各自适合解决什么问题；
+    \item 初步读懂混淆矩阵，并知道它为什么比单一准确率更有信息；
+    \item 认识小样本分类结果只能用于教学演示，不能直接当作科学结论。
+\end{itemize}
+
+\section{为什么科学问题里也经常需要分类}
+
+很多天文与物理任务不是预测一个连续值，而是判断一个对象更可能属于哪一类。例如：
+
+\begin{itemize}
+    \item 星、系外星系和类星体的粗分类；
+    \item 光谱类型或目标类型的自动初筛；
+    \item 信号与背景事件的区分；
+    \item 暂现源候选体的优先级判别。
+\end{itemize}
+
+这些任务的共同点是：目标输出是一个离散标签，而不是一个连续实数，因此更适合被视为分类问题。
+
+\section{一个教学版天体分类示例}
+
+在配套 notebook 中，我们使用了一个小型 SDSS 风格教学数据文件 \nolinkurl{object_classification_demo.csv}。它包含若干对象的颜色指数，以及一个教学用标签：
+
+\begin{itemize}
+    \item \texttt{star}；
+    \item \texttt{galaxy}；
+    \item \texttt{quasar}。
+\end{itemize}
+
+这个数据集并不试图复现真实巡天中的全部复杂边界，而是为了帮助你把分类问题拆成几个清楚的步骤：
+
+\begin{itemize}
+    \item 选择特征；
+    \item 划分训练集和测试集；
+    \item 建立一个规则 baseline；
+    \item 训练一个简单的数据驱动分类器；
+    \item 用混淆矩阵和按类别指标检查错误。
+\end{itemize}
+
+\section{为什么先从规则 baseline 开始}
+
+在教学场景里，我们先写一个简单规则分类器：
+
+\begin{examplebox}[规则 baseline]
+\begin{lstlisting}[style=pythonstyle]
+def classify_rule(row):
+    if row["u_g"] < 0.5 and row["g_r"] < 0.1:
+        return "quasar"
+    if row["g_r"] > 0.7 and row["r_i"] > 0.3:
+        return "galaxy"
+    return "star"
+\end{lstlisting}
+\end{examplebox}
+
+这一步的意义不是为了追求最高分数，而是为了让你先拥有一个可解释、可讨论、可比较的出发点。后面如果更复杂的模型只比这个 baseline 好一点点，就说明问题也许并不值得立刻上复杂方法。
+
+\section{kNN 的直觉是什么}
+
+\textbf{k 最近邻（kNN）} 是本科教学里很适合入门的一类分类器。它的想法非常直观：
+
+\begin{itemize}
+    \item 把每个训练样本看成特征空间中的一个点；
+    \item 对于一个新样本，寻找离它最近的若干个已知样本；
+    \item 用这些邻居的多数标签作为预测结果。
+\end{itemize}
+
+如果我们把颜色指数看成特征，那么颜色相近的对象，往往也更有可能属于同一类。虽然这个想法在真实数据中不一定总是成立，但它非常适合帮助学生理解“决策边界不是凭空出现的，而是由训练样本组织出来的”。
+
+\section{为什么还要讲逻辑回归和决策树}
+
+配套 notebook 的可选部分会用 \texttt{scikit-learn} 演示两个常见模型：
+
+\begin{itemize}
+    \item \textbf{逻辑回归}：适合建立线性可分或近似线性的分类边界；
+    \item \textbf{决策树}：适合用一系列阈值规则拆分特征空间；
+    \item \textbf{随机森林}：作为多个树的集成，往往能提供更稳健的分类表现。
+\end{itemize}
+
+教学重点不是记住模型名称，而是理解：
+
+\begin{itemize}
+    \item 线性模型更容易解释；
+    \item 树模型更容易表达非线性边界；
+    \item 不同模型会在偏差、方差和可解释性之间做不同取舍。
+\end{itemize}
+
+\section{为什么混淆矩阵值得提前认识}
+
+分类任务里，单独报告准确率常常不够。例如，一个模型可能整体准确率不低，但总是把某一类对象错分为另一类。这时，\textbf{混淆矩阵} 就能帮我们看清错误分布。
+
+\begin{examplebox}[一个最小混淆矩阵结构]
+\begin{lstlisting}[style=pythonstyle]
+{
+    "star":   {"star": 2, "galaxy": 0, "quasar": 0},
+    "galaxy": {"star": 1, "galaxy": 1, "quasar": 0},
+    "quasar": {"star": 0, "galaxy": 0, "quasar": 2},
+}
+\end{lstlisting}
+\end{examplebox}
+
+这类结果可以帮助我们回答更重要的问题：模型到底是“随机错”，还是“系统性地把某两类混起来了”。
+
+\section{分类结果为什么不能脱离样本分布解释}
+
+哪怕一个分类器在测试集上表现不错，也不代表它一定适合真实科学数据。需要特别警惕的情形包括：
+
+\begin{itemize}
+    \item 训练集没有覆盖真实观测中的全部对象类型；
+    \item 训练集和测试集来自相同的人工规则，导致任务过于简单；
+    \item 某些类别样本太少，分数被多数类掩盖；
+    \item 颜色特征受观测误差、消光或仪器系统差异影响。
+\end{itemize}
+
+\begin{warnbox}[分类中的常见误区]
+\begin{itemize}
+    \item 只看准确率，不检查哪一类最容易被错分；
+    \item 训练集中根本没有出现某一类，却仍然把预测结果当真；
+    \item 用测试集反复修改模型规则；
+    \item 把教学样本上的高分直接误认为真实巡天可用的分类器。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在分类任务里，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查某个 baseline 规则是否自洽；
+    \item 把 kNN 或混淆矩阵代码整理得更清楚；
+    \item 对比逻辑回归、决策树和随机森林的优缺点。
+\end{itemize}
+
+但分类边界是否合理、某类样本为何总被错分、模型是否还能外推到新观测条件，这些判断仍然需要你自己结合数据来源和科学目标来完成。
+
+\section{本章小结}
+
+分类问题的关键不只是“选一个模型”，而是明确标签定义、建立 baseline、观察错误分布并理解样本边界。一个清楚的分类流程，比一个复杂但不可解释的模型更适合本科阶段的科研训练。

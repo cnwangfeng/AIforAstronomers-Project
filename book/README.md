@@ -13,9 +13,15 @@
 中文编译入口准备：
 
 - `main.tex` 继续作为当前稳定入口；
-- `main_zh.tex` 作为中文草稿入口，供 Overleaf/XeLaTeX 试编译；
+- `main_zh.tex` 作为中文正文主线入口，供 Overleaf/XeLaTeX 试编译；
 - `main.tex` 已在本机通过 `latexmk -pdf` 编译验证；
 - `main_zh.tex` 已在本机通过 `latexmk -xelatex` 编译验证。
+
+正文结构说明：
+
+- 通用 Python 入门内容正在迁移到 `Part 0` 先修模块；
+- `main_zh.tex` 默认不再承载 Python 零基础教学，而是从科研工作流主线进入；
+- `Part 0` 更适合以 notebook-first 形式组织，必要时再补充独立文字材料。
 
 推荐的本地编译方式：
 

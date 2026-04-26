@@ -18,16 +18,17 @@ Planned migration map:
 
 - `UnixLinux.tex` -> `chapters/part1/ch01_unix_linux.tex`
 - `VersionControl/VersionControl.tex` -> `chapters/part1/ch02_git.tex`
-- `Chapter2.tex` -> `chapters/part1/ch03_basic_python.tex`
+- `Chapter2.tex` -> `chapters/part0/ch03_basic_python_prereq.tex`
 - `Chapter3.tex` -> `chapters/part1/ch04_libraries_and_scripts.tex`
-- `Chapter4.tex` -> `chapters/part1/ch05_conditionals_and_loops.tex`
+- `Chapter4.tex` -> `chapters/part0/ch05_conditionals_and_loops.tex`
 - `Chapter5.tex` -> `chapters/part1/ch06_data_io_and_fits.tex`
-- `Chapter6.tex` -> `chapters/part1/ch07_functions_and_code_organization.tex`
+- `Chapter6.tex` -> `chapters/part0/ch07_functions_and_code_organization.tex`
 - `Chapter7.tex` -> `chapters/part1/ch08_plotting.tex`
-- `Chapter8.tex` -> `chapters/part1/ch09_object_oriented_programming.tex`
+- `Chapter8.tex` -> `chapters/part0/ch09_object_oriented_programming.tex`
 
 Later parts will be added under:
 
+- `chapters/part0/`
 - `chapters/part2/`
 - `chapters/part3/`
 - `chapters/part4/`
@@ -36,5 +37,6 @@ Later parts will be added under:
 
 Current draft progress:
 
-- Part I has active Chinese drafts for chapters 3, 4, and 8
+- Part 0 has begun absorbing the generic Python prerequisite materials
+- Part I currently focuses on Linux, Git, Jupyter, data I/O, and plotting
 - Part II is beginning with uncertainty and HR-diagram chapter drafts

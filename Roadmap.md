@@ -19,7 +19,7 @@
 - 天文、物理、空间科学、应用物理等专业本科生。
 - 大二到大四为主，也可供低年级研究生补基础。
 - 默认具备大学物理、微积分、线性代数和基础概率统计背景。
-- Python 可以从零或近零开始，但课程后半部分要求能独立阅读和修改 notebook。
+- 建议在进入正文前先完成 Part 0 的 Python 先修模块；进入正文后，学生应能独立阅读和修改基础 notebook。
 
 学习产出：
 
@@ -40,7 +40,7 @@
 
 1. **中文教材正文**
    - 教材主体必须采用中文编写。
-   - 教材内容必须覆盖本路线图提出的全部六个部分：科研计算基础、天文/物理数据处理、机器学习实战主线、天文与物理案例、深度学习与现代 AI、Capstone 项目。
+   - 教材内容必须覆盖本路线图提出的六个正文部分：科研计算基础、天文/物理数据处理、机器学习实战主线、天文与物理案例、深度学习与现代 AI、Capstone 项目；并额外提供 Part 0 Python 先修模块。
    - 教材应具有足够深度：不能停留在工具调用层面，必须解释核心概念、适用条件、失效场景、科学解释和误差/不确定度。
    - 教材应具有足够广度：覆盖表格、图像、光谱、时间序列、物理实验/模拟数据，以及监督学习、无监督学习、深度学习和生成式 AI 辅助科研。
    - 教材必须图文并茂。每个核心章节原则上至少包含 2 到 4 张高质量图表、流程图或数据可视化；案例章节应包含真实数据图、模型诊断图和结果解释图。
@@ -79,13 +79,16 @@
 
 保留策略：
 
-- 保留现有“科研计算基础”部分作为 Part I 的核心资产。
+- 保留现有 Linux、Git、Jupyter、数据 I/O、绘图等内容作为 Part I 的核心资产。
+- 将更通用的 Python 基础语法、条件循环、函数组织和轻量 OOP 逐步下沉到 Part 0 先修模块。
 - 新增 AI/ML 内容时采用 notebook-first：每章书稿配一个或多个可运行 notebook。
 - LaTeX 继续作为正式书稿格式；中长期可评估是否并行生成 Jupyter Book 或 Quarto 网站。
 
 ## 4. 教学结构
 
-整本书采用六部分结构：
+整本书采用“Part 0 先修 + 六部分正文”结构：
+
+0. Python 先修模块（正文外）
 
 1. 科研计算基础
 2. 天文/物理数据处理
@@ -142,6 +145,7 @@ AIforAstronomers-Project/
     ...
     VersionControl/
   notebooks/
+    part0_python_prereq/
     part1_scientific_computing/
     part2_data_processing/
     part3_machine_learning/
@@ -185,9 +189,43 @@ AIforAstronomers/
 
 ## 6. 完整内容规划
 
+### Part 0. Python 先修模块（正文外）
+
+目标：用尽可能短的路径补齐进入本书所需的 Python 基础，不让正文主线被通用编程入门吞没。
+
+组织原则：
+
+- 以 notebook-first 为主。
+- 只覆盖进入正文所需的最低限度语法与代码组织能力。
+- 完成后应能读懂并修改基础 notebook，而不是成为一门独立的 Python 课程。
+
+预备单元 A：Python 入门
+
+- 主题：变量、数据类型、容器、索引、基础数学。
+- 实验：用 Python 计算开普勒第三定律、黑体辐射或简单误差传播。
+- 当前资源：`notebooks/part0_python_prereq/ch03_basic_python_prereq.ipynb`
+
+预备单元 B：条件、循环与批处理
+
+- 主题：if、for、while、列表推导、批量处理。
+- 实验：批量筛选一组恒星或实验测量数据。
+- 当前资源：`notebooks/part0_python_prereq/ch05_conditionals_loops_batch_processing.ipynb`
+
+预备单元 C：函数、模块与最小代码组织
+
+- 主题：函数、参数、返回值、模块、最小复用结构。
+- 实验：把重复的数据清洗流程封装成函数。
+- 当前资源：`notebooks/part0_python_prereq/ch07_functions_modules.ipynb`
+
+预备单元 D：轻量 OOP 与读懂库接口
+
+- 主题：类、对象、方法，以及如何读懂科学库中的对象接口。
+- 实验：构造一个最小类，并理解为何真实项目中常见对象方法调用。
+- 当前资源：`notebooks/part0_python_prereq/ch09_object_oriented_programming.ipynb`
+
 ### Part I. 科研计算基础
 
-目标：把没有科研编程经验的学生带到可以独立运行 notebook、管理代码、读取数据和画图的水平。
+目标：默认学生已经具备基础 Python 阅读能力，继续把他们带到可以独立运行 notebook、管理代码、读取数据、画图并保持可复现的水平。
 
 第 1 章：Unix/Linux 与科研计算环境
 
@@ -203,13 +241,6 @@ AIforAstronomers/
 - 实验：把一个 notebook 项目纳入版本控制，模拟协作冲突。
 - 交付：一次规范 Git 提交历史。
 
-第 3 章：Python 入门
-
-- 现有基础：`Chapter2.tex`
-- 主题：变量、数据类型、容器、索引、基础数学。
-- 实验：用 Python 计算开普勒第三定律、黑体辐射或简单误差传播。
-- 交付：一个基础计算 notebook。
-
 第 4 章：库、脚本与 Jupyter
 
 - 现有基础：`Chapter3.tex`
@@ -217,36 +248,17 @@ AIforAstronomers/
 - 新增重点：Jupyter cell 执行顺序、随机种子、环境记录。
 - 实验：把交互式代码整理为可重复运行 notebook 和脚本。
 
-第 5 章：条件、循环与批处理
-
-- 现有基础：`Chapter4.tex`
-- 主题：if、for、while、列表推导、批量处理。
-- 实验：批量筛选一组恒星或实验测量数据。
-
 第 6 章：文件 I/O、FITS 与数据格式
 
 - 现有基础：`Chapter5.tex`
 - 主题：文本、CSV、FITS、HDF5 简介、元数据。
 - 实验：读取 FITS 图像和表格，检查 header，提取观测信息。
 
-第 7 章：函数、模块与代码组织
-
-- 现有基础：`Chapter6.tex`
-- 主题：函数、docstring、参数、模块、简单测试。
-- 实验：把重复的数据清洗流程封装成函数。
-
 第 8 章：可视化与科研图表
 
 - 现有基础：`Chapter7.tex`
 - 主题：Matplotlib、误差棒、直方图、二维图像、颜色映射。
 - 实验：制作一张接近论文质量的图。
-
-第 9 章：面向对象与科研管线
-
-- 现有基础：`Chapter8.tex`
-- 主题：类、对象、方法、轻量 pipeline。
-- 实验：构建一个简单光谱或图像处理类。
-- 说明：本科教材中 OOP 不宜过深，重点是读懂常见库接口和组织较长项目。
 
 ### Part II. 天文/物理数据处理
 
@@ -534,10 +546,11 @@ Milestone 0：仓库整理
 - 添加 `notebooks/`、`data/`、`environments/`。
 - 明确教材许可证。
 
-Milestone 1：Part I 清理与改写
+Milestone 1：Part 0 与 Part I 重构
 
-- 将现有章节改为统一格式。
-- 移除手写编号，使用自动编号环境。
+- 将通用 Python 基础内容下沉为 Part 0 先修模块。
+- 把 Part I 收束为 Linux、Git、Jupyter、数据 I/O、绘图等科研工作流主线。
+- 将现有章节改为统一格式，并明确正文默认前提。
 - 补充每章 learning objectives、exercise、notebook。
 - 完成授权检查和必要改写。
 - 明确每章需要的图表清单，并补充基础图示、命令行截图或流程图。
@@ -573,9 +586,11 @@ Milestone 6：Capstone 与试教
 
 ## 10. 16 周课程建议
 
+课前预备：Part 0 Python 先修模块。
+
 第 1 周：Linux、环境安装、Jupyter。
 
-第 2 周：Git、Python 基础、项目目录规范。
+第 2 周：Git、项目目录规范、notebook 工作流。
 
 第 3 周：NumPy、Pandas、Matplotlib。
 
@@ -650,15 +665,12 @@ data 完成标准：
 
 建议下一轮工作按这个顺序进行：
 
-1. 修复 LaTeX 主文件和章节引用问题。
-2. 新建 `README.md`，明确教材定位和当前状态。
-3. 新建 `references.bib`，加入核心参照书目。
-4. 选择教材许可证，决定是否允许商业出版。
-5. 建立 `notebooks/`、`data/` 和 `figures/` 的目录规范。
-6. 将现有 Chapter2 到 Chapter8 重新编号为 Part I 的章节。
-7. 为 Part I 每章补一个最小 notebook。
-8. 为每章列出图表需求清单。
-9. 选择第一条 AI 实战数据线：建议从 Gaia HR 图或 SDSS/LAMOST 光谱分类开始。
+1. 明确 Part 0 先修模块与正文主线的边界。
+2. 将现有 Python 基础 notebook 和草稿逐步迁移到 Part 0。
+3. 把 Part I 固定为 Linux、Git、Jupyter、数据 I/O 与绘图主线。
+4. 为每个先修单元补齐学习目标和完成标准。
+5. 为正文每章列出图表需求清单。
+6. 继续推进 Part III 到 Part IV 的 AI 实战数据线：优先 Gaia HR 图、光度红移和光谱分类。
 
 首个新增章节建议：
 

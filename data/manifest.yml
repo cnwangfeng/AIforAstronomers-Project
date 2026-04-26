@@ -17,7 +17,7 @@ datasets:
       mass_earth: Earth mass
       radius_earth: Earth radius
     used_by:
-      - notebooks/part1_scientific_computing/ch03_basic_python.ipynb
+      - notebooks/part0_python_prereq/ch03_basic_python_prereq.ipynb
       - notebooks/part1_scientific_computing/ch06_data_io_fits.ipynb
       - notebooks/part1_scientific_computing/ch08_plotting_scientific_figures.ipynb
   - name: stellar_photometry_demo

@@ -6,6 +6,7 @@
 
 ```text
 notebooks/
+  part0_python_prereq/
   part1_scientific_computing/
   part2_data_processing/
   part3_machine_learning/
@@ -13,6 +14,11 @@ notebooks/
   part5_deep_learning_ai/
   part6_capstone/
 ```
+
+说明：
+
+- `part0_python_prereq/` 是进入教材正文前的先修模块；
+- `part1_scientific_computing/` 开始进入正文主线，默认读者已经能阅读和修改基础 Python 代码。
 
 命名规范：
 
@@ -31,7 +37,8 @@ notebooks/
 
 当前进展：
 
-- `part1_scientific_computing/` 已创建 9 个章节骨架 notebook。
+- `part0_python_prereq/` 已开始接收 Python 入门、条件循环、函数与轻量 OOP 材料。
+- `part1_scientific_computing/` 已从“Python 零基础”调整为“科研计算与可复现工作流”主线。
 - `part2_data_processing/` 已开始加入误差传播与 HR 图 notebook。
 - `part3_machine_learning/` 已开始加入规则 baseline 和最小分类工作流 notebook。
 - 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。

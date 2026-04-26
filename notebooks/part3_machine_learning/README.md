@@ -15,6 +15,7 @@ Current notebook plan in progress:
 - `ch22_model_selection_hyperparameters.ipynb`
 - `ch23_unsupervised_learning.ipynb`
 - `ch24_anomaly_detection.ipynb`
+- `ch25_uncertainty_interpretability_trust.ipynb`
 
 Later this directory will grow into:
 

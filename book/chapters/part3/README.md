@@ -14,7 +14,8 @@ Current draft targets:
 - `ch22_model_selection_hyperparameters.tex`
 - `ch23_unsupervised_learning.tex`
 - `ch24_anomaly_detection.tex`
+- `ch25_uncertainty_interpretability_trust.tex`
 
 Planned next drafts:
 
-- `ch25_uncertainty_interpretability_trust.tex`
+- `part4/ch26_gaia_hr_case_study.tex`

@@ -1,0 +1,179 @@
+\chapter{不确定度、解释性与科学可信度}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解为什么一个单独的预测值不足以支撑科学结论；
+    \item 区分 bootstrap 区间、模型误差和数据分布外失效各自描述的是什么风险；
+    \item 理解特征重要性和局部解释回答的是“模型如何用信息”，而不是“物理规律是什么”；
+    \item 知道 SHAP 更像一种归因框架，而不是“证明某特征真实决定了结果”的证据；
+    \item 建立一个基本判断：机器学习输出只有在误差、覆盖范围和选择效应一起被检查后，才谈得上可信。
+\end{itemize}
+
+\section{为什么“预测出来了”还远远不够}
+
+前面的章节已经让我们看到，模型可以在小型教学数据上给出相当不错的分类或回归结果。但只要进入真实科学场景，一个更难的问题马上出现：\textbf{这个结果到底可信到什么程度？}
+
+可信度至少涉及三层不同的问题：
+
+\begin{itemize}
+    \item \textbf{不确定度}：如果重新抽样或重新观测，结果会波动多大？
+    \item \textbf{解释性}：模型主要依赖了哪些特征、在哪些样本上这样做？
+    \item \textbf{失效边界}：样本是否已经跑到训练数据覆盖范围之外？
+\end{itemize}
+
+如果这三层没有分开看，你很容易把一个表面稳定的预测当成可靠知识。
+
+\section{一个教学版光度红移可信度例子}
+
+配套 notebook 使用 \nolinkurl{photoz_trust_demo.csv}。这个小数据集包含：
+
+\begin{itemize}
+    \item 四个测光颜色特征：\texttt{u\_g}、\texttt{g\_r}、\texttt{r\_i}、\texttt{i\_z}；
+    \item 一个参考光谱红移 \texttt{specz}；
+    \item 三种角色：训练集、普通测试集、边界外样本。
+\end{itemize}
+
+这个设置很重要，因为它让我们在同一个例子里同时看到：
+
+\begin{itemize}
+    \item 域内样本上的正常误差；
+    \item bootstrap 区间的宽度；
+    \item 边界外样本虽然也能被预测，但误差会显著变大。
+\end{itemize}
+
+\section{Bootstrap：回答“如果训练集稍有变化，结果会怎样”}
+
+\textbf{Bootstrap} 的核心做法，是从训练集反复有放回重采样，每次都重新训练模型，再观察预测结果如何波动。
+
+\begin{examplebox}[bootstrap 的直觉]
+\begin{lstlisting}[style=pythonstyle]
+for repeat in range(B):
+    resampled_train = sample_with_replacement(train)
+    fit model
+    predict target
+\end{lstlisting}
+\end{examplebox}
+
+它能帮助你估计：
+
+\begin{itemize}
+    \item 模型对训练样本扰动是否敏感；
+    \item 某个预测值附近大致有多少统计波动；
+    \item 哪些点的区间较窄、哪些点的区间较宽。
+\end{itemize}
+
+但 bootstrap 也有明确边界：\textbf{它主要在回答“在训练分布附近重采样会怎样”，并不自动知道你是否已经跑出训练分布。}
+
+\section{预测区间不是万能保证}
+
+在 notebook 里，你会看到普通测试样本的 bootstrap 区间比较窄，而且预测误差也较小。但对边界外样本，即使 bootstrap 区间看起来并不离谱，模型仍然可能出现明显偏差。
+
+这提醒我们：一个窄区间并不一定说明模型“靠谱”，它也可能只是说明：
+
+\begin{itemize}
+    \item 所有 bootstrap 模型都在同一个方向上做了相似的外推；
+    \item 模型在分布外区域很自信，但自信错了。
+\end{itemize}
+
+所以，\textbf{预测区间描述的是波动，不等于全面可信度。}
+
+\section{特征重要性：模型主要依赖了什么}
+
+很多时候，我们想知道模型到底最看重哪些输入特征。一个常见而直接的起点是\textbf{permutation importance}：
+
+\begin{itemize}
+    \item 先计算正常情况下的误差；
+    \item 再把某个特征打乱；
+    \item 观察误差恶化了多少。
+\end{itemize}
+
+如果打乱某个特征后误差明显上升，说明模型较依赖这个特征。
+
+这个指标很有用，但也必须小心理解：
+
+\begin{itemize}
+    \item 它反映的是\textbf{模型依赖}，不是物理因果；
+    \item 高相关特征可能互相替代，导致重要性被分散或低估；
+    \item 结果依赖于你选的模型、数据切分和评价指标。
+\end{itemize}
+
+\section{局部解释与 SHAP 概念}
+
+全局重要性告诉你“整体上模型看重什么”，但很多科学场景还会问：\textbf{为什么这个具体样本得到这个预测？}
+
+SHAP 之类的方法，就是试图把单个预测拆成若干特征贡献，并与一个基线值比较。它的吸引力在于：
+
+\begin{itemize}
+    \item 既能做单样本解释；
+    \item 又能把解释结果汇总成整体模式；
+    \item 形式上很适合可视化与沟通。
+\end{itemize}
+
+但在本科阶段，最重要的不是马上掌握完整的 Shapley 计算，而是先建立正确态度：\textbf{解释方法是在描述模型行为，不是在直接证明物理机制。}
+
+本章 notebook 用的是一个更朴素的“均值替换增量”解释，只作为 SHAP 思想的直觉近似：看某个特征被替换成训练均值后，预测会变化多少。
+
+\section{模型失效边界：最容易被忽略的一层}
+
+如果一个样本在特征空间里离训练集非常远，那么无论你的误差条看起来多漂亮、解释图做得多细致，模型都可能已经进入失效区域。
+
+在 notebook 里，我们会计算每个样本到训练集最近邻的标准化距离。你会发现：
+
+\begin{itemize}
+    \item 域内测试样本距离较小；
+    \item 边界外样本距离非常大；
+    \item 恰恰是这些距离很大的点，回归误差明显恶化。
+\end{itemize}
+
+这一步的意义非常大，因为它告诉我们：\textbf{可信度不是只看模型输出本身，还要看样本是否在模型“见过的世界”里。}
+
+\section{选择效应和观测条件也会伪装成“规律”}
+
+真实科学数据里，模型失败不仅来自分布外样本，还来自更隐蔽的选择效应。例如：
+
+\begin{itemize}
+    \item 高红移样本更暗，导致测光误差系统增大；
+    \item 训练集主要覆盖亮源，而测试时却去预测暗源；
+    \item 某些类型只在特定巡天或特定信噪比下出现。
+\end{itemize}
+
+如果这些效应没有被记录下来，模型就可能把观测条件学成“物理规律”。
+
+\section{可信的机器学习结果，至少要同时过三道检查}
+
+\begin{enumerate}
+    \item \textbf{误差检查}：训练、验证、测试上的误差是否合理；
+    \item \textbf{解释检查}：模型依赖的特征是否符合你对问题的基本理解；
+    \item \textbf{覆盖检查}：待预测样本是否还处在训练分布附近。
+\end{enumerate}
+
+只有三者一起过关，模型输出才有资格进入科学解释。
+
+\begin{warnbox}[可信度评估中的常见误区]
+\begin{itemize}
+    \item 把 bootstrap 区间当作“已经包含全部不确定度”；
+    \item 把特征重要性直接解释为因果关系；
+    \item 看到解释图很漂亮，就忽略样本是否已经分布外；
+    \item 只报告模型分数，不报告覆盖范围与选择效应；
+    \item 对边界外样本给出很具体的数值预测，却不提醒用户风险。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 整理 bootstrap 结果与预测区间表格；
+    \item 检查 permutation importance 或局部解释代码是否写对；
+    \item 帮你草拟“模型适用范围”与“结果限制”说明文字。
+\end{itemize}
+
+但哪些误差来源尚未覆盖、某个解释是否可能只是选择效应、以及这份模型结果能不能写进科学结论，仍然必须由你自己判断。
+
+\section{本章小结}
+
+不确定度、解释性和可信度不是模型训练后的附属装饰，而是决定结果能否真正进入科学论证的核心环节。bootstrap 告诉你结果会如何波动，特征重要性和局部解释告诉你模型如何使用输入，而覆盖范围和选择效应则提醒你：再稳定、再可解释的输出，也可能在分布外区域失效。

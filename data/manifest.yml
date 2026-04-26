@@ -160,3 +160,25 @@ datasets:
       snr: unitless
     used_by:
       - notebooks/part3_machine_learning/ch24_anomaly_detection.ipynb
+  - name: photoz_trust_demo
+    path: data/small/photoz_trust_demo.csv
+    type: csv
+    source: "Small synthetic photometric-redshift trust and uncertainty teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - galaxy_id
+      - u_g
+      - g_r
+      - r_i
+      - i_z
+      - specz
+      - role
+    units:
+      u_g: mag
+      g_r: mag
+      r_i: mag
+      i_z: mag
+      specz: redshift
+    used_by:
+      - notebooks/part3_machine_learning/ch25_uncertainty_interpretability_trust.ipynb

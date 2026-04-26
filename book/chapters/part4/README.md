@@ -7,7 +7,8 @@ Current draft targets:
 
 - `ch26_gaia_hr_case_study.tex`
 - `ch27_photometric_redshift_case_study.tex`
+- `ch28_spectral_classification_case_study.tex`
 
 Planned next drafts:
 
-- spectral-classification case study drafts
+- galaxy-morphology case study drafts

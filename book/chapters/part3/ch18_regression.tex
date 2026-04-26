@@ -1,0 +1,150 @@
+\chapter{回归}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解回归任务和分类任务的差别；
+    \item 用一个小型教学数据集走通最小线性回归流程；
+    \item 解释 MAE 和 RMSE 这两个常见回归指标；
+    \item 理解多项式回归为什么既能提高拟合能力，也会带来过拟合风险；
+    \item 明白回归模型的预测值需要结合物理背景和样本覆盖范围解释。
+\end{itemize}
+
+\section{为什么回归在天文和物理里很常见}
+
+很多科学任务并不是判断“属于哪一类”，而是预测一个连续量。例如：
+
+\begin{itemize}
+    \item 根据测光颜色估计星系红移；
+    \item 根据光谱特征估计恒星温度、金属丰度或表面重力；
+    \item 根据实验观测数据拟合某个物理参数。
+\end{itemize}
+
+这些问题的共同点是：目标值可以在一个连续区间内变化，因此更适合被视为回归任务。
+
+\section{一个教学版光度红移示例}
+
+在配套 notebook 中，我们使用了一个小型 SDSS 风格教学数据文件 \nolinkurl{photometric_redshift_demo.csv}。它包含若干星系的颜色指数和一个教学用红移标签 \texttt{specz}。
+
+这个数据集不是为了模拟真实巡天中的全部复杂性，而是为了帮助你在可控范围内理解回归流程：
+
+\begin{itemize}
+    \item 选择输入特征；
+    \item 划分训练集和测试集；
+    \item 建立线性回归 baseline；
+    \item 用指标评估误差；
+    \item 讨论更复杂模型何时值得引入。
+\end{itemize}
+
+\section{从一元线性回归开始}
+
+在最小例子里，我们先只用一个颜色特征 \texttt{g-r} 预测红移。这样做并不是因为它一定最好，而是因为它最容易帮助学生理解“输入变量”和“输出变量”之间的映射关系。
+
+\begin{examplebox}[最小线性回归]
+\begin{lstlisting}[style=pythonstyle]
+def fit_line(xs, ys):
+    x_mean = sum(xs) / len(xs)
+    y_mean = sum(ys) / len(ys)
+
+    numerator = sum((x - x_mean) * (y - y_mean)
+                    for x, y in zip(xs, ys))
+    denominator = sum((x - x_mean) ** 2 for x in xs)
+
+    slope = numerator / denominator
+    intercept = y_mean - slope * x_mean
+    return slope, intercept
+\end{lstlisting}
+\end{examplebox}
+
+这段代码体现了一个重要思想：回归首先是一个可解释的基线模型，而不是默认从黑箱模型开始。
+
+\section{怎样评估回归结果}
+
+对回归问题来说，我们不能只说“预测对了多少个”，而要关心预测值和真实值之间差了多少。配套 notebook 里使用了两个最常见的指标：
+
+\begin{itemize}
+    \item \textbf{MAE}：平均绝对误差，直观反映平均偏差大小；
+    \item \textbf{RMSE}：均方根误差，对大误差更敏感。
+\end{itemize}
+
+\begin{examplebox}[一个最小 MAE 函数]
+\begin{lstlisting}[style=pythonstyle]
+def mean_absolute_error(y_true, y_pred):
+    return sum(abs(a - b) for a, b in zip(y_true, y_pred)) / len(y_true)
+\end{lstlisting}
+\end{examplebox}
+
+如果 RMSE 比 MAE 大得多，往往说明测试集中存在少数误差较大的样本，值得单独检查。
+
+\section{为什么还要讲多项式回归}
+
+真实数据中的关系不一定是直线。颜色和红移之间、某些实验量与参数之间，都可能表现出弯曲趋势。于是我们常会引入多项式特征，例如：
+
+\begin{itemize}
+    \item $x$；
+    \item $x^2$；
+    \item 更高阶的组合项。
+\end{itemize}
+
+这会提升模型的表达能力，但也会同时增加过拟合风险。教学中最重要的不是把阶数堆高，而是让学生观察：
+
+\begin{itemize}
+    \item 训练误差和测试误差是否一起下降；
+    \item 改进是否真实稳定；
+    \item 模型是否开始在样本边界外给出不可信预测。
+\end{itemize}
+
+\section{更复杂模型什么时候值得引入}
+
+在 notebook 的可选部分中，我们提供了 \texttt{scikit-learn} 的对照实现，例如：
+
+\begin{itemize}
+    \item \texttt{LinearRegression}；
+    \item \texttt{Ridge}；
+    \item \texttt{RandomForestRegressor}。
+\end{itemize}
+
+这一步的教学重点不是“库更高级”，而是帮助学生理解：
+
+\begin{itemize}
+    \item 标准工具如何组织回归流程；
+    \item 正则化为何可以抑制过拟合；
+    \item 非线性模型何时可能优于简单线性模型。
+\end{itemize}
+
+\section{回归结果为什么不能脱离物理背景}
+
+哪怕一个模型在测试集上误差很小，也不代表它可以脱离样本范围随意外推。例如：
+
+\begin{itemize}
+    \item 用低红移星系样本训练出来的模型，不应直接外推到高红移区域；
+    \item 用某台仪器测出来的数据，不应默认在另一台仪器上同样有效；
+    \item 一个经验模型的拟合成功，不等于它解释了背后的物理机制。
+\end{itemize}
+
+\begin{warnbox}[回归中的常见误区]
+\begin{itemize}
+    \item 只看训练误差，不看测试误差；
+    \item 用测试集反复调参；
+    \item 超出训练样本覆盖范围仍然过度相信预测结果；
+    \item 把经验回归关系直接当成物理定律。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在回归任务里，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查训练/测试切分是否合理；
+    \item 对比 MAE、RMSE 和残差图各自说明了什么；
+    \item 把手写的最小回归代码整理得更清楚。
+\end{itemize}
+
+但“这个模型是否能外推”“这个误差是否满足科学目标”，仍然需要由你结合数据来源和物理背景做判断。
+
+\section{本章小结}
+
+回归是天文和物理里最常见的机器学习任务之一。一个好的回归入门，不是从复杂模型开始，而是从可解释的 baseline、清楚的误差指标和谨慎的物理解释开始。

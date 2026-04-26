@@ -42,3 +42,24 @@ datasets:
       - notebooks/part2_data_processing/ch11_gaia_hr_diagram.ipynb
       - notebooks/part3_machine_learning/ch16_ai_ml_scientific_inference.ipynb
       - notebooks/part3_machine_learning/ch17_minimal_classification_workflow.ipynb
+  - name: photometric_redshift_demo
+    path: data/small/photometric_redshift_demo.csv
+    type: csv
+    source: "Small synthetic SDSS-style teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - galaxy_id
+      - u_g
+      - g_r
+      - r_i
+      - i_z
+      - specz
+    units:
+      u_g: mag
+      g_r: mag
+      r_i: mag
+      i_z: mag
+      specz: redshift
+    used_by:
+      - notebooks/part3_machine_learning/ch18_regression_workflow.ipynb

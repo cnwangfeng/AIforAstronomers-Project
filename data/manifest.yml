@@ -122,3 +122,20 @@ datasets:
       teff_k: K
     used_by:
       - notebooks/part3_machine_learning/ch22_model_selection_hyperparameters.ipynb
+  - name: stellar_hr_unsupervised_demo
+    path: data/small/stellar_hr_unsupervised_demo.csv
+    type: csv
+    source: "Small synthetic HR-diagram teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - source_id
+      - label
+      - bp_rp
+      - absolute_g_mag
+      - reference_group
+    units:
+      bp_rp: mag
+      absolute_g_mag: mag
+    used_by:
+      - notebooks/part3_machine_learning/ch23_unsupervised_learning.ipynb

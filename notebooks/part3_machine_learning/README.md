@@ -13,6 +13,7 @@ Current notebook plan in progress:
 - `ch20_model_evaluation_diagnostics.ipynb`
 - `ch21_feature_engineering_preprocessing.ipynb`
 - `ch22_model_selection_hyperparameters.ipynb`
+- `ch23_unsupervised_learning.ipynb`
 
 Later this directory will grow into:
 

@@ -1,0 +1,187 @@
+\chapter{无监督学习与降维}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 区分监督学习与无监督学习各自回答什么问题；
+    \item 理解 PCA 为什么可以用更少的坐标描述主要结构；
+    \item 了解 $k$-means、DBSCAN 和 Gaussian mixture 各自适合什么样的聚类情形；
+    \item 理解 t-SNE 与 UMAP 更适合做可视化，而不是直接当作科学结论；
+    \item 知道无监督学习在 HR 图结构分析、光谱分群和异常样本初筛中的价值与边界。
+\end{itemize}
+
+\section{没有标签时，我们还能问什么问题}
+
+前面的章节里，我们一直在做“给定输入，预测标签或数值”的任务。但在真实的天文与物理数据里，常常没有现成标签，或者标签本身很昂贵。这时我们仍然会有很多值得问的问题：
+
+\begin{itemize}
+    \item 数据中是否自然分成若干群体？
+    \item 哪些维度真正承载了主要变化？
+    \item 有没有显著偏离主体结构的样本值得人工复核？
+    \item 某些我们习惯用文字描述的“序列”或“支”，是否能被算法自动识别出来？
+\end{itemize}
+
+这类问题就是无监督学习的典型工作场景。
+
+\section{一个 HR 图结构的教学例子}
+
+配套 notebook 使用 \nolinkurl{stellar_hr_unsupervised_demo.csv}。这个小数据集用颜色 \texttt{bp\_rp} 和绝对星等 \texttt{absolute\_g\_mag} 构造出一个教学版 HR 图，包含：
+
+\begin{itemize}
+    \item 主序星；
+    \item 红巨星；
+    \item 白矮星；
+    \item 一个刻意放进去的异常亮蓝目标。
+\end{itemize}
+
+在这个例子里，我们不会把参考类别直接交给聚类算法，而是只在事后用它来解释聚类结果。这正符合无监督学习的工作方式：\textbf{算法先看结构，人再解释结构。}
+
+\section{PCA：找出变化最大的方向}
+
+很多高维数据里，真正重要的变化方向并没有你想象得那么多。\textbf{主成分分析（PCA）}做的事情，就是在保持主要变化趋势的同时，寻找一组新的坐标轴，把数据投影到更低维空间。
+
+\begin{examplebox}[PCA 的核心想法]
+\begin{lstlisting}[style=pythonstyle]
+original features --> rotate axes --> keep the directions
+that explain the largest variance
+\end{lstlisting}
+\end{examplebox}
+
+在 HR 图例子里，颜色和绝对星等并不是独立变化的。PCA 会告诉我们：数据大部分方差集中在哪条方向上。这可以帮助你：
+
+\begin{itemize}
+    \item 压缩维度；
+    \item 观察主结构；
+    \item 为后续聚类或可视化提供更紧凑的表示。
+\end{itemize}
+
+\section{k-means：把样本分成若干“最近中心”群}
+
+\textbf{$k$-means} 的直觉很简单：先假设数据要分成 $k$ 群，再不断重复两步：
+
+\begin{enumerate}
+    \item 把每个样本分给最近的中心；
+    \item 用各组样本的均值更新中心。
+\end{enumerate}
+
+它的优点是：
+
+\begin{itemize}
+    \item 实现简单；
+    \item 速度快；
+    \item 对球状、大小接近的簇常常很有效。
+\end{itemize}
+
+但它也有明显限制：
+
+\begin{itemize}
+    \item 必须提前指定 $k$；
+    \item 对初始化敏感；
+    \item 会强制每个点都属于某个簇；
+    \item 对细长结构、不同密度结构和孤立异常点不够自然。
+\end{itemize}
+
+在本章 notebook 里，异常亮蓝目标就会被 $k$-means 强行吸收到某个簇里，这正好说明：\textbf{算法给出的分群不等于自然真实分类。}
+
+\section{DBSCAN：按密度而不是按中心来找结构}
+
+\textbf{DBSCAN} 的思路和 $k$-means 很不一样。它不问“最近中心是谁”，而是问“附近是否有足够多的邻居”。因此它有两个很有用的特点：
+
+\begin{itemize}
+    \item 可以把稀疏孤立的点标成噪声；
+    \item 不必事先指定簇数。
+\end{itemize}
+
+这使它很适合做：
+
+\begin{itemize}
+    \item 异常候选初筛；
+    \item 非球状结构识别；
+    \item 带有明显稀疏背景的数据探索。
+\end{itemize}
+
+在 HR 图教学数据里，DBSCAN 能比较自然地把主序星、红巨星和白矮星分开，并把那个人工放进去的异常源标记为噪声候选。
+
+\section{Gaussian mixture：允许“软归属”}
+
+$k$-means 默认每个样本只能属于一个簇，而且每个簇都像是“离哪个中心最近”这样的硬划分。\textbf{Gaussian mixture model（GMM）} 则更灵活：
+
+\begin{itemize}
+    \item 每个簇可以有不同形状和方向；
+    \item 一个样本可以同时对多个簇有不同概率的归属；
+    \item 更适合处理边界模糊、簇形状椭圆化的数据。
+\end{itemize}
+
+因此，如果你面对的是多种天体类型彼此过渡、测量误差较大、边界并不锐利的场景，GMM 往往比硬聚类更贴近实际。
+
+\section{t-SNE 与 UMAP 更像“看图工具”}
+
+t-SNE 和 UMAP 在现代天文数据分析里非常常见，因为它们常常能把高维数据压到二维，并把局部邻近关系展示得很清楚。但这里有一个特别重要的提醒：
+
+\begin{itemize}
+    \item 它们主要是\textbf{可视化工具}；
+    \item 图上簇与簇之间的距离不一定有可直接解释的物理含义；
+    \item 不同超参数会显著改变画面形状；
+    \item “看起来分得很开”不等于科学上真的存在离散类别。
+\end{itemize}
+
+所以，t-SNE/UMAP 很适合辅助你发现结构、提出假设，却不适合单独承担定量结论。
+
+\section{为什么无监督学习特别适合做初筛}
+
+在天文与物理项目里，我们常常并不是想让无监督学习直接给出最终标签，而是希望它帮助我们：
+
+\begin{itemize}
+    \item 先把大样本整理成更容易检查的结构；
+    \item 找出常见群体和少见群体；
+    \item 把最值得人工复核的离群点排在前面。
+\end{itemize}
+
+这意味着无监督学习最适合做的是：
+
+\begin{itemize}
+    \item 结构探索；
+    \item 样本整理；
+    \item 新奇目标候选生成。
+\end{itemize}
+
+真正的物理解释、类别命名和后续验证，仍然必须回到观测背景、误差分析和领域知识。
+
+\section{一个很常见的风险：把算法结构误当成自然分类}
+
+无监督学习最大的诱惑在于：它会很快给你一个“看起来很有结构”的结果。但你必须保持警惕：
+
+\begin{itemize}
+    \item 聚类结果是否只是尺度选择造成的？
+    \item PCA 压缩后丢掉了什么信息？
+    \item DBSCAN 标出的“噪声”是异常天体，还是测量误差？
+    \item 你看到的是物理群体，还是观测选择效应？
+\end{itemize}
+
+\begin{warnbox}[无监督学习中的常见误区]
+\begin{itemize}
+    \item 没有标准化就直接聚类；
+    \item 看到二维投影分开，就认定存在离散类别；
+    \item 把异常点直接当作新发现，而不先排查数据质量；
+    \item 用聚类标签替代科学解释；
+    \item 反复调参直到得到“好看”的图，再把它当成证据。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查 PCA、$k$-means 或 DBSCAN 的代码流程是否清楚；
+    \item 帮你整理不同聚类参数下的结果摘要；
+    \item 讨论某个离群点更像物理新奇目标还是数据质量问题。
+\end{itemize}
+
+但簇的命名、异常点的物理解释、以及可视化结果是否足以支持科学结论，仍然需要你自己作判断。
+
+\section{本章小结}
+
+无监督学习不是在“没有标签时勉强凑合”，而是在探索数据结构时非常重要的一类方法。PCA 帮你压缩和观察主要变化；$k$-means 擅长快速分群；DBSCAN 更适合识别密度结构和噪声；GMM 提供更柔和的概率归属；t-SNE/UMAP 则更适合辅助可视化。真正可靠的工作方式，是把这些工具当作提出问题和筛选候选的方法，而不是替代科学解释的自动答案。

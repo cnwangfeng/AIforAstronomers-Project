@@ -1,0 +1,19 @@
+source_id,label,bp_rp,absolute_g_mag,reference_group
+MS01,Blue main sequence,0.15,1.6,main_sequence
+MS02,F-type main sequence,0.35,2.6,main_sequence
+MS03,G-type main sequence,0.55,3.8,main_sequence
+MS04,Solar-like main sequence,0.75,4.9,main_sequence
+MS05,K-type main sequence,0.95,5.7,main_sequence
+MS06,Early M dwarf,1.15,6.8,main_sequence
+MS07,Late M dwarf,1.35,7.9,main_sequence
+RG01,Subgiant bridge,1.15,0.8,giant
+RG02,Red giant A,1.35,0.0,giant
+RG03,Red giant B,1.55,-0.7,giant
+RG04,Bright giant A,1.75,-1.3,giant
+RG05,Bright giant B,1.95,-1.8,giant
+WD01,Blue white dwarf,-0.15,11.7,white_dwarf
+WD02,White dwarf A,0.00,11.2,white_dwarf
+WD03,White dwarf B,0.10,11.8,white_dwarf
+WD04,Cool white dwarf A,0.22,12.4,white_dwarf
+WD05,Cool white dwarf B,0.35,12.8,white_dwarf
+PX01,Peculiar luminous blue source,0.55,-2.4,peculiar

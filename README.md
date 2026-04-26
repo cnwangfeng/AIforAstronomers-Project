@@ -74,6 +74,18 @@ bash scripts/sync_book_to_overleaf.sh --apply
 python scripts/smoke_test_notebooks.py
 ```
 
+7. 在同步书稿前，可先做本地 LaTeX 编译检查：
+
+```bash
+bash scripts/build_book_local.sh main
+bash scripts/build_book_local.sh zh
+```
+
+默认输出目录：
+
+- `main.tex` -> `/tmp/aifor_book_main/main.pdf`
+- `main_zh.tex` -> `/tmp/aifor_book_main_zh/main_zh.pdf`
+
 ## 数据原则
 
 - 小数据可以放在 `data/small/`。

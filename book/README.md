@@ -14,7 +14,22 @@
 
 - `main.tex` 继续作为当前稳定入口；
 - `main_zh.tex` 作为中文草稿入口，供 Overleaf/XeLaTeX 试编译；
-- 在本机尚未安装 LaTeX 工具链的情况下，`main_zh.tex` 还没有经过本地编译验证。
+- `main.tex` 已在本机通过 `latexmk -pdf` 编译验证；
+- `main_zh.tex` 已在本机通过 `latexmk -xelatex` 编译验证。
+
+推荐的本地编译方式：
+
+```bash
+bash scripts/build_book_local.sh main
+bash scripts/build_book_local.sh zh
+```
+
+编译结果默认写入系统临时目录：
+
+- 英文入口：`/tmp/aifor_book_main/`
+- 中文入口：`/tmp/aifor_book_main_zh/`
+
+如果第一次从零开始编译中文入口，`latexmk` 可能需要多轮生成目录和各章辅助文件；脚本已经处理了这类情况。
 
 当前内容来自原有书稿仓库，后续将逐步整理为：
 

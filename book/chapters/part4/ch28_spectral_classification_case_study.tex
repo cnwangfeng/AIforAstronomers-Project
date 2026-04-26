@@ -27,7 +27,24 @@
 
 \section{数据：从一维光谱矩阵开始}
 
-这个案例面向的是一个小型 SDSS 或 LAMOST 风格教学数据集。最常见的数据组织形式，是每个对象对应一行，而每一列对应某个波长处的归一化通量，外加一个标签字段。
+配套 notebook 使用教学数据文件 \texttt{spectral\_classification\_case\_demo.csv}。
+
+它是一个小型 SDSS/LAMOST 风格教学数据集，包含三类对象：
+
+\begin{itemize}
+    \item Balmer 吸收主导的恒星；
+    \item 金属线更强的冷恒星；
+    \item 具有明显 H$\beta$ 和 H$\alpha$ 发射的发射源。
+\end{itemize}
+
+数据的组织形式是“每个对象一行、每个波长点一列”，再加上 \texttt{snr} 和 \texttt{quality\_flag} 这样的辅助信息。对这个教学集来说，我们只保留 7 个波长采样点，但已经足够演示：
+
+\begin{itemize}
+    \item 连续谱斜率；
+    \item Balmer 吸收强弱；
+    \item H$\beta$/H$\alpha$ 发射增强；
+    \item 低信噪比和坏像元如何影响分类。
+\end{itemize}
 
 在真正项目里，你通常还会同时碰到：
 
@@ -59,7 +76,7 @@ feature_vector = flux
 \end{lstlisting}
 \end{examplebox}
 
-这里的关键不是“预处理越多越好”，而是要清楚每一步在解决什么问题。归一化是在减少亮度尺度差异，坏值处理是在避免极少数异常像元主导模型，而统一波长网格是在保证样本之间 truly comparable。
+这里的关键不是“预处理越多越好”，而是要清楚每一步在解决什么问题。归一化是在减少亮度尺度差异，坏值处理是在避免极少数异常像元主导模型，而统一波长网格是在保证样本之间 truly comparable。这个案例里就故意放入了一个 \texttt{flux\_4861} 为坏值的样本，用来演示错误修补会怎样影响后续分类。
 
 \section{第二步：先用 PCA 看结构，再谈分类}
 
@@ -82,7 +99,13 @@ plot(pc1, pc2, color=label)
 
 \section{第三步：建立一个中等复杂度分类 baseline}
 
-这一章最推荐的 baseline 不是一开始就上卷积网络，而是先在 PCA 压缩后的特征上建立一个中等复杂度分类器，例如：
+这一章最推荐的 baseline 不是一开始就上卷积网络，而是先在 PCA 压缩后的特征上建立一个中等复杂度分类器。配套 notebook 里，我们用的是 \textbf{PCA 前两维上的最近中心分类器}。它足够简单，但已经能回答一个很好的问题：
+
+\begin{quote}
+如果主结构真的已经被 PCA 提炼出来，那么只靠低维几何位置，能不能先把大部分对象分开？
+\end{quote}
+
+更一般地说，你也可以把这一步替换成：
 
 \begin{itemize}
     \item 线性或核 SVM；
@@ -109,6 +132,8 @@ plot(pc1, pc2, color=label)
     \item 某个类别是不是在训练集中数量太少；
     \item 真实光谱是否同时具有两类对象的特征。
 \end{itemize}
+
+在当前教学数据里，\texttt{E005} 就是一个典型例子：它既有坏像元修补，又只有较低信噪比，结果在 PCA 空间里落到了发射源和 Balmer 星之间。这样的样本特别适合做错误案例复查。
 
 这就是为什么本案例的最终产出不只是分类报告，而是\textbf{分类报告加错误案例复查}。在科学场景里，后者往往更重要。
 

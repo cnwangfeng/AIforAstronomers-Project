@@ -1,0 +1,16 @@
+spectrum_id,object_class,snr,quality_flag,flux_3900,flux_4100,flux_4300,flux_4861,flux_5175,flux_6563,flux_6800
+B001,balmer_star,28,clean,1.15,0.73,1.03,0.69,0.98,0.80,0.89
+B002,balmer_star,26,clean,1.12,0.75,1.01,0.71,0.96,0.82,0.90
+B003,balmer_star,24,clean,1.10,0.76,1.00,0.72,0.95,0.83,0.91
+B004,balmer_star,21,clean,1.08,0.79,0.98,0.74,0.94,0.85,0.92
+B005,balmer_star,18,low_snr,1.06,0.81,0.97,0.76,0.94,0.87,0.93
+M001,metal_rich_star,30,clean,0.87,0.95,0.73,0.92,0.71,1.00,1.08
+M002,metal_rich_star,27,clean,0.88,0.96,0.75,0.93,0.73,1.02,1.09
+M003,metal_rich_star,25,clean,0.90,0.98,0.76,0.95,0.74,1.03,1.10
+M004,metal_rich_star,22,clean,0.91,0.99,0.78,0.96,0.76,1.04,1.11
+M005,metal_rich_star,17,low_snr,0.93,1.00,0.81,0.97,0.79,1.05,1.12
+E001,emission_source,29,clean,0.96,1.00,0.95,1.38,0.97,1.54,1.02
+E002,emission_source,26,clean,0.97,1.01,0.96,1.35,0.98,1.50,1.03
+E003,emission_source,23,clean,0.99,1.02,0.97,1.31,0.99,1.46,1.04
+E004,emission_source,20,low_snr,1.01,1.01,0.98,1.22,1.00,1.32,1.05
+E005,emission_source,14,bad_pixel,1.04,0.90,0.98,-99.0,0.99,1.06,0.97

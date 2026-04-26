@@ -226,3 +226,32 @@ datasets:
       specz: redshift
     used_by:
       - notebooks/part4_cases/ch27_photometric_redshift_case_study.ipynb
+  - name: spectral_classification_case_demo
+    path: data/small/spectral_classification_case_demo.csv
+    type: csv
+    source: "Small synthetic SDSS/LAMOST-style spectral-classification case-study dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - spectrum_id
+      - object_class
+      - snr
+      - quality_flag
+      - flux_3900
+      - flux_4100
+      - flux_4300
+      - flux_4861
+      - flux_5175
+      - flux_6563
+      - flux_6800
+    units:
+      snr: unitless
+      flux_3900: normalized flux
+      flux_4100: normalized flux
+      flux_4300: normalized flux
+      flux_4861: normalized flux
+      flux_5175: normalized flux
+      flux_6563: normalized flux
+      flux_6800: normalized flux
+    used_by:
+      - notebooks/part4_cases/ch28_spectral_classification_case_study.ipynb

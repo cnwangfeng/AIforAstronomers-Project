@@ -107,3 +107,18 @@ datasets:
       detector_x: pixel
     used_by:
       - notebooks/part3_machine_learning/ch21_feature_engineering_preprocessing.ipynb
+  - name: stellar_teff_model_selection_demo
+    path: data/small/stellar_teff_model_selection_demo.csv
+    type: csv
+    source: "Small synthetic Gaia-style color-temperature teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - source_id
+      - bp_rp
+      - teff_k
+    units:
+      bp_rp: mag
+      teff_k: K
+    used_by:
+      - notebooks/part3_machine_learning/ch22_model_selection_hyperparameters.ipynb

@@ -11,7 +11,8 @@ Current draft targets:
 - `ch19_classification.tex`
 - `ch20_model_evaluation_diagnostics.tex`
 - `ch21_feature_engineering_preprocessing.tex`
+- `ch22_model_selection_hyperparameters.tex`
 
 Planned next drafts:
 
-- `ch22_model_selection_hyperparameters.tex`
+- `ch23_unsupervised_learning.tex`

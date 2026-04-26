@@ -68,6 +68,12 @@ bash scripts/sync_book_to_overleaf.sh --apply
 
 5. 在 `../AIforAstronomers/` 中提交书稿变化，并由 GitHub/Overleaf 同步。
 
+6. 在提交 notebook 变更前，可先运行轻量 smoke test：
+
+```bash
+python scripts/smoke_test_notebooks.py
+```
+
 ## 数据原则
 
 - 小数据可以放在 `data/small/`。

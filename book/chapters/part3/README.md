@@ -13,7 +13,8 @@ Current draft targets:
 - `ch21_feature_engineering_preprocessing.tex`
 - `ch22_model_selection_hyperparameters.tex`
 - `ch23_unsupervised_learning.tex`
+- `ch24_anomaly_detection.tex`
 
 Planned next drafts:
 
-- `ch24_anomaly_detection.tex`
+- `ch25_uncertainty_interpretability_trust.tex`

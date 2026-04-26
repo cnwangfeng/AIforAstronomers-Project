@@ -139,3 +139,24 @@ datasets:
       absolute_g_mag: mag
     used_by:
       - notebooks/part3_machine_learning/ch23_unsupervised_learning.ipynb
+  - name: spectral_anomaly_demo
+    path: data/small/spectral_anomaly_demo.csv
+    type: csv
+    source: "Small synthetic spectral-feature anomaly-detection teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - spectrum_id
+      - label
+      - halpha_ew
+      - caii_k_ew
+      - blue_red_ratio
+      - snr
+      - reference_flag
+    units:
+      halpha_ew: angstrom
+      caii_k_ew: angstrom
+      blue_red_ratio: flux ratio
+      snr: unitless
+    used_by:
+      - notebooks/part3_machine_learning/ch24_anomaly_detection.ipynb

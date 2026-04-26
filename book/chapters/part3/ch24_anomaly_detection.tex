@@ -1,0 +1,183 @@
+\chapter{异常检测与新奇发现}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 解释异常检测与普通分类任务的目标差别；
+    \item 理解基于距离、LOF 和 Isolation Forest 各自抓住了哪类“异常”；
+    \item 明白 autoencoder 更关注重构误差，而不是直接给出物理解释；
+    \item 认识到异常分数更适合做候选排序，而不是自动宣布“新发现”；
+    \item 建立人工复核、数据质量排查和后续观测验证的意识。
+\end{itemize}
+
+\section{异常点不一定是新物理，也可能是坏数据}
+
+在科学数据里，“异常”这个词很迷人，因为它总让人想到新现象、新天体或新机制。但在真实工作中，异常点通常至少可能来自三种来源：
+
+\begin{itemize}
+    \item \textbf{真正稀有的物理对象}，例如特殊光谱源、极端变量源；
+    \item \textbf{观测或处理伪影}，例如坏像元、减天光失败、宇宙线污染；
+    \item \textbf{样本边缘但并不错误的普通对象}，只是它们在当前数据集中比较少见。
+\end{itemize}
+
+因此，异常检测真正擅长的不是“宣布发现”，而是\textbf{把最值得你先看一眼的样本排到前面}。
+
+\section{一个教学版光谱特征例子}
+
+配套 notebook 使用 \nolinkurl{spectral_anomaly_demo.csv}。它不是完整光谱，而是从光谱里抽取出的几个教学特征：
+
+\begin{itemize}
+    \item \texttt{halpha\_ew}：H$\alpha$ 等效宽度；
+    \item \texttt{caii\_k\_ew}：Ca II K 吸收强度；
+    \item \texttt{blue\_red\_ratio}：蓝端与红端连续谱比值；
+    \item \texttt{snr}：信噪比。
+\end{itemize}
+
+在这组数据里，大多数样本形成两团正常恒星结构；另外有三类刻意设计的异常候选：
+
+\begin{itemize}
+    \item 发射线候选；
+    \item 热致密天体候选；
+    \item 一个光谱处理伪影。
+\end{itemize}
+
+这里的关键点是：\textbf{算法并不知道哪一个是“真实异常”，它只知道某些点和主体分布不一样。}
+
+\section{最朴素的起点：离邻居有多远}
+
+最简单的异常分数往往来自一个非常直观的问题：一个样本和它最近的几个邻居相比，到底有多远？
+
+\begin{examplebox}[距离型异常分数]
+\begin{lstlisting}[style=pythonstyle]
+anomaly_score = mean(distance to k nearest neighbors)
+\end{lstlisting}
+\end{examplebox}
+
+这种方法的优点是：
+
+\begin{itemize}
+    \item 直觉强；
+    \item 实现简单；
+    \item 在主体结构比较清楚时常常很有效。
+\end{itemize}
+
+但它也会遇到问题：如果数据本来就有多个正常群体，单纯看距离可能会把“小众但正常”的局部簇也误判成异常。
+
+\section{LOF：判断你所在区域是不是太稀疏}
+
+\textbf{Local Outlier Factor（LOF）} 的思路，是把一个点的局部密度和邻居的局部密度做比较。如果你周围明显比邻居周围更稀疏，那么你的 LOF 分数就会上升。
+
+它特别适合处理这种情况：
+
+\begin{itemize}
+    \item 数据有多个正常群体；
+    \item 不同区域的密度不完全一样；
+    \item 你想找的是“局部上显得格格不入”的样本。
+\end{itemize}
+
+在本章 notebook 里，LOF-like 分数会把两个物理异常候选和那个处理伪影同时排到前面，但它们的排序不完全一样，这正好说明：\textbf{异常的定义本身依赖你选择的视角。}
+
+\section{Isolation Forest：看一个点有多容易被单独切出来}
+
+\textbf{Isolation Forest} 背后的直觉也很漂亮：如果一个样本真的很孤立，那么用随机切分特征空间时，它往往会比较快被单独隔离出来。
+
+这类方法的特点是：
+
+\begin{itemize}
+    \item 不必显式估计整体密度；
+    \item 对高维数据通常更友好；
+    \item 更像是在问“一个点被单独拎出来需要几刀”。
+\end{itemize}
+
+在教学 notebook 里，我们用一个简化版的随机切分深度来模拟这个想法。结果会看到：
+
+\begin{itemize}
+    \item 处理伪影往往最容易被隔离；
+    \item 发射线候选和热致密候选也会得到较高异常分数；
+    \item 正常恒星样本通常需要更深的切分才会被单独分离。
+\end{itemize}
+
+\section{Autoencoder：重构不好的点值得多看一眼}
+
+\textbf{Autoencoder} 常被用于异常检测，因为它试图先把数据压缩到一个低维瓶颈，再从瓶颈重构回原输入。如果训练主要见到的是普通样本，那么非常不寻常的对象往往会重构得比较差，于是重构误差升高。
+
+但这里要特别小心：
+
+\begin{itemize}
+    \item 高重构误差不自动等于新物理；
+    \item 模型容量太大时，连异常也可能被“记住”；
+    \item 训练集污染会直接改变你对“正常”的定义。
+\end{itemize}
+
+所以在本科阶段，更重要的是先理解 autoencoder 的\textbf{逻辑角色}，而不是把它当成神秘黑箱。
+
+\section{异常检测更像候选排序，而不是最终判决}
+
+在科研流程里，异常分数最常见的用途是：
+
+\begin{itemize}
+    \item 从几十万条记录里先筛出最值得人工看图的前几百个；
+    \item 优先安排后续光谱检查、图像复核或交叉匹配；
+    \item 在数据清洗阶段及早发现管线问题。
+\end{itemize}
+
+这意味着一个成熟的异常检测流程通常包含两步：
+
+\begin{enumerate}
+    \item \textbf{排序}：让算法给出候选优先级；
+    \item \textbf{复核}：结合原始图像、原始光谱、观测条件和领域知识判断原因。
+\end{enumerate}
+
+\section{为什么人工复核不可省略}
+
+如果你只看异常分数，很容易把“稀有而真实”与“糟糕但无意义”混在一起。人工复核至少要回答这些问题：
+
+\begin{itemize}
+    \item 原始数据质量是否可靠？
+    \item 是否存在坏像元、饱和、背景扣除失败或管线拼接错误？
+    \item 这个样本在其他波段、其他巡天或其他时刻是否一致？
+    \item 它是新奇物理对象，还是只是训练集里不常见的已知类型？
+\end{itemize}
+
+真正的“新奇发现”往往诞生在这一步之后，而不是诞生在排行榜本身。
+
+\section{一个容易被忽略的问题：你到底在找什么异常}
+
+异常检测常常被误解成一个统一问题，但实际上“异常”可能有很多含义：
+
+\begin{itemize}
+    \item 与整体分布很远的全局异常；
+    \item 在局部邻域里不合群的局部异常；
+    \item 在某个时间窗口里突然偏离的时序异常；
+    \item 只在某些组合特征上显得奇怪的条件异常。
+\end{itemize}
+
+因此，方法选择必须回到你的科学目标，而不是看到哪个算法流行就直接套上去。
+
+\begin{warnbox}[异常检测中的常见误区]
+\begin{itemize}
+    \item 把高异常分数直接当作“新发现”；
+    \item 在没有标准化和特征审查的情况下直接跑算法；
+    \item 忽视数据质量问题，把伪影当作天体物理异常；
+    \item 用同一套阈值处理完全不同密度和噪声水平的数据；
+    \item 只展示最戏剧化的异常图，而不报告人工复核后的淘汰率。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查 LOF 或 Isolation Forest 的实现流程是否合理；
+    \item 帮你整理异常候选表格与人工复核记录模板；
+    \item 讨论某个高分样本更像物理异常还是数据质量问题。
+\end{itemize}
+
+但哪些特征用于排序、人工复核时先查什么、某个候选是否值得后续观测，这些决定仍然必须由你自己负责。
+
+\section{本章小结}
+
+异常检测的价值，不在于替你自动宣布发现，而在于把有限注意力集中到最值得先看的对象上。距离分数、LOF、Isolation Forest 和 autoencoder 关注的是不同意义上的“异常”；而真正可靠的科研流程，一定还要把人工复核、数据质量排查和后续验证接回来。

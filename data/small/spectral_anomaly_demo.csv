@@ -1,0 +1,20 @@
+spectrum_id,label,halpha_ew,caii_k_ew,blue_red_ratio,snr,reference_flag
+N001,F-type star A,5.1,4.2,1.00,24,normal
+N002,F-type star B,5.4,4.3,0.98,22,normal
+N003,F-type star C,5.0,4.0,1.04,25,normal
+N004,F/G transition star A,5.6,4.6,0.96,21,normal
+N005,F/G transition star B,5.3,4.4,1.01,23,normal
+N006,G-type star A,5.8,4.7,0.95,20,normal
+N007,Blue dwarf A,4.8,3.9,1.06,26,normal
+N008,Blue dwarf B,5.2,4.1,1.02,24,normal
+N009,K-type star A,6.2,5.2,0.90,18,normal
+N010,K-type star B,6.5,5.4,0.88,17,normal
+N011,K-type star C,6.1,5.0,0.92,19,normal
+N012,K/M transition star A,6.7,5.6,0.86,16,normal
+N013,K/M transition star B,6.4,5.3,0.89,18,normal
+N014,M-type star A,6.8,5.7,0.84,15,normal
+N015,K-type star D,6.0,4.9,0.93,19,normal
+N016,M-type star B,6.6,5.5,0.87,16,normal
+EM01,Emission-line candidate,-8.4,0.8,1.92,18,peculiar
+WD01,Hot compact candidate,2.0,0.4,2.25,24,peculiar
+CR01,Reduction artifact,15.3,9.6,0.42,6,artifact

@@ -1,0 +1,16 @@
+object_id,u_g,g_r,r_i,seeing_arcsec,detector_x,sky_region,object_class
+S001,1.08,0.41,0.17,1.20,120,north,star
+S002,1.13,0.45,0.19,,830,south,star
+S003,1.18,0.49,0.21,1.30,520,,star
+S004,1.24,0.55,0.24,1.40,820,equator,star
+S005,1.29,0.60,0.26,1.35,320,north,star
+G001,1.42,0.74,0.33,1.70,140,equator,galaxy
+G002,1.49,0.81,0.36,,850,north,galaxy
+G003,1.56,0.87,0.39,1.80,540,south,galaxy
+G004,1.63,0.94,0.43,1.90,840,,galaxy
+G005,1.71,1.02,0.47,1.85,340,equator,galaxy
+Q001,0.34,-0.05,0.03,1.10,160,south,quasar
+Q002,0.39,0.00,0.04,,870,equator,quasar
+Q003,0.45,0.05,0.06,1.05,560,north,quasar
+Q004,0.51,0.10,0.08,1.15,860,,quasar
+Q005,0.58,0.16,0.11,1.20,360,south,quasar

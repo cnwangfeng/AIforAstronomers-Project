@@ -10,7 +10,8 @@ Current draft targets:
 - `ch18_regression.tex`
 - `ch19_classification.tex`
 - `ch20_model_evaluation_diagnostics.tex`
+- `ch21_feature_engineering_preprocessing.tex`
 
 Planned next drafts:
 
-- `ch21_feature_engineering.tex`
+- `ch22_model_selection_hyperparameters.tex`

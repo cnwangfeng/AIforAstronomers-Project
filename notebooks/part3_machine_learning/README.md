@@ -11,6 +11,7 @@ Current notebook plan in progress:
 - `ch18_regression_workflow.ipynb`
 - `ch19_classification_workflow.ipynb`
 - `ch20_model_evaluation_diagnostics.ipynb`
+- `ch21_feature_engineering_preprocessing.ipynb`
 
 Later this directory will grow into:
 

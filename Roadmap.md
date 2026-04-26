@@ -1,6 +1,186 @@
 # Roadmap: 面向天文与物理本科生的 AI 实战教材
 
-版本日期：2026-04-25
+版本日期：2026-04-26
+
+## 0. 当前进展快照（2026-04-26）
+
+本节用于会话切换、阶段交接和快速恢复工作状态；后续如需继续编写，请优先阅读本节。
+
+### 0.1 仓库与同步状态
+
+当前项目采用双仓库架构：
+
+- `AIforAstronomers-Project/`：完整项目仓库，保存教材正文、notebooks、data、scripts、环境文件和课程资源。
+- `AIforAstronomers/`：Overleaf 同步书稿仓库，只保存 LaTeX 书稿和编译所需资源。
+
+截至本节编写前，最近完成的主题提交包括：
+
+- 完整项目仓库：`8fc2242`，提交信息 `Add Part IV galaxy-morphology case study draft`
+- Overleaf 书稿仓库：`9d4bd17`，提交信息 `Add Part IV galaxy-morphology case study draft`
+
+当前两个仓库工作区均为干净状态，暂无未提交改动。
+
+书稿同步方式：
+
+- 在完整项目仓库中维护 `book/` 目录。
+- 使用 `bash scripts/sync_book_to_overleaf.sh` 先做 dry-run 预览。
+- 使用 `bash scripts/sync_book_to_overleaf.sh --apply` 将 `book/` 同步到 `../AIforAstronomers/`。
+- 然后在 Overleaf 书稿仓库单独提交并推送。
+
+### 0.2 当前已完成的内容
+
+截至 2026-04-26，项目已经从“路线图”推进到“可持续扩展的教材原型”，并完成以下内容：
+
+- 中文教材正式题目已确定为《面向天文与物理本科生的 AI 科研实战》。
+- 英文副标题已确定为 `Practical AI for Astronomy and Physics`。
+- `Part 0` 已从正文主线中独立出来，作为 Python 先修模块。
+- `Part I` 到 `Part III` 已建立连续正文和 notebook 主线。
+- `Part IV` 已经启动，并完成多个连续案例章节。
+- 中文主书稿入口 `book/main_zh.tex` 已建立并保持可编译。
+- 本地 LaTeX 编译、notebook smoke test、data manifest 校验已接入日常工作流。
+
+当前资源规模：
+
+- 已通过 smoke test 的 notebook：`24` 个
+- 已登记并通过校验的教学数据集：`12` 个
+- 中文书稿当前页数：约 `92` 页
+
+### 0.3 各部分完成度
+
+`Part 0. Python 先修模块`
+
+- 已建立 notebook-first 结构。
+- 已有基础 notebook：Python 入门、条件与循环、函数与模块、轻量 OOP。
+- 角色定位已经明确：只承担先修，不再占用正文主线篇幅。
+
+`Part I. 科研计算基础`
+
+- 已有 Linux、Git、脚本/Jupyter、数据 I/O、科学绘图等内容。
+- 多个 notebook 已可运行。
+- 仍需继续把旧书稿内容系统整理到新的 `chapters/part1/` 结构中。
+
+`Part II. 天文/物理数据处理`
+
+- 已完成误差与不确定度、Gaia HR 图等基础内容。
+- 已建立配套小数据和 notebook。
+
+`Part III. 机器学习实战主线`
+
+- 已形成连续章节链条，包括：
+  - AI、机器学习与科学推断
+  - 最小分类 workflow
+  - 回归
+  - 分类
+  - 模型评估与诊断
+  - 特征工程与数据预处理
+  - 模型选择与超参数
+  - 无监督学习
+  - 异常检测
+  - 不确定度、解释性与科学可信度
+- 这一部分目前是全书最完整、最成体系的主干。
+
+`Part IV. 天文与物理案例`
+
+当前状态如下：
+
+- 第 26 章：Gaia HR 图与恒星分类
+  - 正文：已完成
+  - notebook：已完成
+  - data：已完成
+- 第 27 章：光度红移估计案例
+  - 正文：已完成
+  - notebook：已完成
+  - data：已完成
+- 第 28 章：光谱分类案例
+  - 正文：已完成
+  - notebook：已完成
+  - data：已完成
+- 第 29 章：星系形态分类案例
+  - 正文：已起草并接入 `main_zh.tex`
+  - notebook：待完成
+  - data：待完成
+
+`Part V. 深度学习与现代 AI`
+
+- 尚未系统展开。
+- 目前只在 roadmap 层面和若干正文片段中预留方向。
+
+`Part VI. Capstone 项目`
+
+- 尚未正式编写。
+- 仍以路线图和课程结构设计为主。
+
+### 0.4 已验证的本地环境与工作流
+
+当前本地环境已确认可支持后续持续编写：
+
+- 操作系统环境：macOS 本地开发环境
+- LaTeX：已安装 MacTeX，可用 `latexmk`
+- 中文编译：`XeLaTeX` 路径已跑通
+- Python 环境定义：`environments/environment.yml`
+
+当前 `environment.yml` 的核心依赖包括：
+
+- `python=3.12`
+- `jupyterlab`, `notebook`
+- `numpy`, `scipy`, `pandas`
+- `matplotlib`, `seaborn`
+- `scikit-learn`
+- `astropy`, `astroquery`, `photutils`, `specutils`, `lightkurve`
+- `tqdm`, `joblib`, `pooch`, `requests`, `pyyaml`
+- `jupytext`（通过 `pip`）
+
+已验证可用的本地命令：
+
+```bash
+python scripts/smoke_test_notebooks.py
+python scripts/validate_data_manifest.py
+bash scripts/build_book_local.sh main
+bash scripts/build_book_local.sh zh
+```
+
+默认输出位置：
+
+- `main.tex` PDF：`/tmp/aifor_book_main/main.pdf`
+- `main_zh.tex` PDF：`/tmp/aifor_book_main_zh/main_zh.pdf`
+
+截至 2026-04-26 的最近一次验证结果：
+
+- `python scripts/smoke_test_notebooks.py`：通过（`24` 个 notebook）
+- `python scripts/validate_data_manifest.py`：通过（`12` 个数据集）
+- `bash scripts/build_book_local.sh main`：通过
+- `bash scripts/build_book_local.sh zh`：通过
+
+当前编译中仍存在但不阻塞工作的提示：
+
+- 目录页附近偶发 `Underfull \vbox`
+- FontAwesome 相关 `ToUnicode CMap` warning
+
+这些提示目前不影响 PDF 生成，也不阻塞继续写作。
+
+### 0.5 当前主入口与关键文件
+
+当前最关键的工作入口：
+
+- 路线图与交接文档：`Roadmap.md`
+- 中文主书稿入口：`book/main_zh.tex`
+- 英文稳定入口：`book/main.tex`
+- 书稿目录说明：`book/README.md`
+- 项目总说明：`README.md`
+- 同步脚本：`scripts/sync_book_to_overleaf.sh`
+- 本地编译脚本：`scripts/build_book_local.sh`
+- notebook smoke test：`scripts/smoke_test_notebooks.py`
+- data manifest 校验：`scripts/validate_data_manifest.py`
+
+### 0.6 下一阶段建议优先级
+
+如果后续切换会话后继续推进，建议按以下顺序展开：
+
+1. 完成第 29 章“星系形态分类案例”的 notebook 与配套教学数据。
+2. 继续补齐 `Part IV` 后续案例，使案例部分形成稳定连续的章节组。
+3. 回头系统整理 `Part I` 和 `Part II` 的旧书稿资产，减少“旧结构”和“新结构”并存时间。
+4. 逐步为已完成章节补图表、练习、小结和参考文献，提升教材成书质量。
+5. 启动 `Part V`，引入 CNN、迁移学习、现代生成式 AI 辅助科研等内容。
 
 ## 1. 教材定位
 
@@ -59,7 +239,7 @@
 
 因此，本项目不是单一 PDF，也不是一组零散 notebook，而是一套完整的本科教学资源包：中文教材正文负责体系化讲解，notebook 负责可执行实践，data 负责可复现练习。
 
-## 3. 当前仓库基线
+## 3. 项目启动时仓库基线
 
 当前仓库已经具备科学计算入门教材雏形：
 
@@ -663,17 +843,19 @@ data 完成标准：
 
 ## 12. 近期下一步
 
-建议下一轮工作按这个顺序进行：
+根据 2026-04-26 的实际完成状态，建议下一轮工作按这个顺序进行：
 
-1. 明确 Part 0 先修模块与正文主线的边界。
-2. 将现有 Python 基础 notebook 和草稿逐步迁移到 Part 0。
-3. 把 Part I 固定为 Linux、Git、Jupyter、数据 I/O 与绘图主线。
-4. 为每个先修单元补齐学习目标和完成标准。
-5. 为正文每章列出图表需求清单。
-6. 继续推进 Part III 到 Part IV 的 AI 实战数据线：优先 Gaia HR 图、光度红移和光谱分类。
+1. 完成第 29 章“星系形态分类案例”的 notebook 与配套教学数据。
+2. 为第 29 章补齐图表输出、诊断结果和练习题，使其达到“正文 + notebook + data”完整交付标准。
+3. 继续推进 `Part IV` 后续案例，例如时间序列/暂现源、实验数据回归或模拟数据反演。
+4. 回头整理 `Part I` 与 `Part II`，把现有旧书稿内容更系统地迁入 `book/chapters/part1/` 和 `book/chapters/part2/`。
+5. 为已完成章节统一补充参考文献、图表清单、练习和“AI 助手如何使用与如何验证”小节。
+6. 在 `Part IV` 稳定后，正式启动 `Part V`，引入 CNN、迁移学习与现代生成式 AI 辅助科研。
 
-首个新增章节建议：
+如果需要从当前状态直接恢复工作，优先入口为：
 
-- 章节：什么是 AI、机器学习与科学推断
-- notebook：从一个小型星表或光谱数据集建立最小分类 baseline
-- 目标：让学生在第一章 AI 内容里看到完整流程，而不是先陷入公式
+- `Roadmap.md` 的“当前进展快照（2026-04-26）”
+- `book/main_zh.tex`
+- `book/chapters/part4/ch29_galaxy_morphology_case_study.tex`
+- `notebooks/part4_cases/`
+- `data/manifest.yml`

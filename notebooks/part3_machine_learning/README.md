@@ -10,6 +10,7 @@ Current notebook plan in progress:
 - `ch17_minimal_classification_workflow.ipynb`
 - `ch18_regression_workflow.ipynb`
 - `ch19_classification_workflow.ipynb`
+- `ch20_model_evaluation_diagnostics.ipynb`
 
 Later this directory will grow into:
 

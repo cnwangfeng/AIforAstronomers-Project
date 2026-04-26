@@ -1,0 +1,160 @@
+\chapter{模型评估与诊断}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 解释为什么模型评估不能只看单一分数；
+    \item 读懂混淆矩阵、precision、recall、F1 在科学场景中的含义；
+    \item 理解 ROC 曲线、PR 曲线和阈值选择之间的关系；
+    \item 知道交叉验证是在估计模型稳定性，而不是替代最终测试集；
+    \item 认识校准、类别不平衡和科学代价函数为什么会影响模型是否真正可用。
+\end{itemize}
+
+\section{为什么“准确率不错”远远不够}
+
+初学机器学习时，最容易出现的误区之一就是把一个看起来不错的准确率当成模型已经可靠的证据。但在真实科学问题里，我们通常还会关心：
+
+\begin{itemize}
+    \item 模型最容易错分的是哪一类？
+    \item 漏掉一个重要目标和误报一个普通目标，代价是否相同？
+    \item 这个分数是不是只是在某个幸运切分上看起来漂亮？
+    \item 模型输出的“概率”到底能不能当作概率解释？
+\end{itemize}
+
+因此，模型评估不是在训练完成后随手补一个数字，而是整个机器学习工作流中最决定可信度的一环。
+
+\section{一个教学版“类星体检索”任务}
+
+在配套 notebook 中，我们继续使用 \nolinkurl{object_classification_demo.csv}，但为了更清楚地展示阈值和评价指标的作用，我们把三分类任务临时改写为一个一对多问题：
+
+\begin{itemize}
+    \item 正类：\texttt{quasar}；
+    \item 负类：\texttt{star} 与 \texttt{galaxy}。
+\end{itemize}
+
+这样做不是因为真实科学问题一定只做二分类，而是因为 precision、recall、ROC 和 PR 的核心直觉在二分类设置里最容易建立。
+
+\section{混淆矩阵告诉我们错在哪里}
+
+混淆矩阵的价值在于：它不只是告诉我们“错了多少”，而是告诉我们“错成了什么样”。
+
+\begin{examplebox}[二分类混淆矩阵]
+\begin{lstlisting}[style=pythonstyle]
+{
+    "positive": {"positive": TP, "negative": FN},
+    "negative": {"positive": FP, "negative": TN},
+}
+\end{lstlisting}
+\end{examplebox}
+
+对于类星体检索问题：
+
+\begin{itemize}
+    \item \textbf{TP}：真正的类星体被成功找出；
+    \item \textbf{FN}：真正的类星体被漏掉；
+    \item \textbf{FP}：普通目标被误报成类星体；
+    \item \textbf{TN}：普通目标被正确排除。
+\end{itemize}
+
+不同科学任务里，这四类结果的代价往往并不一样。
+
+\section{Precision、Recall 和 F1 在科学上意味着什么}
+
+如果我们把“找类星体”当作一个检索任务，那么：
+
+\begin{itemize}
+    \item \textbf{precision} 反映“你报出来的候选里有多少是真的”；
+    \item \textbf{recall} 反映“真正存在的目标里你找回了多少”；
+    \item \textbf{F1} 试图在 precision 和 recall 之间做一个平衡。
+\end{itemize}
+
+\begin{examplebox}[三个基本指标]
+\begin{lstlisting}[style=pythonstyle]
+precision = TP / (TP + FP)
+recall = TP / (TP + FN)
+f1 = 2 * precision * recall / (precision + recall)
+\end{lstlisting}
+\end{examplebox}
+
+如果你的目标是做后续昂贵的光谱跟踪观测，通常会更关心 precision；如果你的目标是尽可能不漏掉稀有目标，通常会更关心 recall。
+
+\section{阈值不是细节，而是科学决策}
+
+很多模型输出的不是直接标签，而是一个分数或概率。只要改变阈值，precision 和 recall 就会一起变化：
+
+\begin{itemize}
+    \item 阈值更高：误报减少，但漏报增加；
+    \item 阈值更低：召回提高，但误报也会增加。
+\end{itemize}
+
+这说明阈值不是一个技术细节，而是把模型输出转换为科学行动时必须做出的决策。
+
+\section{ROC 与 PR 曲线各自强调什么}
+
+\textbf{ROC 曲线} 更关注真阳性率和假阳性率之间的关系；\textbf{PR 曲线} 更直接关注 precision 与 recall 的张力。
+
+在类别分布相对均衡时，ROC 往往足够有用；但在稀有目标检索、暂现源候选筛选等不平衡任务中，PR 曲线通常更能揭示模型在“少数类”上的实际表现。
+
+\section{为什么交叉验证很重要}
+
+一次训练/测试切分只能告诉我们“在这个切分上模型表现如何”。如果数据量不大，这个结果可能会对样本划分非常敏感。
+
+交叉验证的作用是：
+
+\begin{itemize}
+    \item 让模型在多个切分上重复训练和评估；
+    \item 观察分数的均值和波动；
+    \item 判断模型表现是否稳定。
+\end{itemize}
+
+但交叉验证不是测试集的替代品。真正的测试集仍然应该留到最后，用于报告最终结果。
+
+\section{校准：高分不一定等于高置信度}
+
+一个模型输出了 $0.9$，并不自动意味着“它有九成概率是真的”。这正是\textbf{校准}要回答的问题：模型分数是否真的对应了现实中的频率。
+
+在本科阶段，最重要的不是立刻掌握全部校准方法，而是先建立警觉：
+
+\begin{itemize}
+    \item 会排序的模型，不一定会给出可解释的概率；
+    \item 排名表现很好，不代表概率是可信的；
+    \item 如果后续决策依赖概率阈值，校准就会变得特别重要。
+\end{itemize}
+
+\section{类别不平衡与科学代价函数}
+
+在很多科学任务中，目标本来就是稀有的。此时，一个“全都预测成普通类”的模型也可能得到表面上不低的准确率。因此，必须把科学代价写进评估思路里：
+
+\begin{itemize}
+    \item 你更怕漏掉罕见目标，还是更怕误报太多候选？
+    \item 后续观测资源昂贵吗？
+    \item 一次错误分类会不会带来系统性偏差？
+\end{itemize}
+
+\begin{warnbox}[评估中的典型误区]
+\begin{itemize}
+    \item 只报告准确率，不报告按类别指标；
+    \item 在测试集上反复调阈值；
+    \item 把交叉验证均值当成最终测试结果；
+    \item 把未校准的分数直接当成概率解释；
+    \item 忽视类别不平衡，导致科学目标被“平均分数”掩盖。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查 precision、recall 和 F1 的代码是否写对；
+    \item 帮你解释某个混淆矩阵暗示了什么错误模式；
+    \item 对比 ROC 与 PR 在不平衡任务中的差别。
+\end{itemize}
+
+但阈值该如何设、哪类错误代价更高、最终应该报告哪些指标，这些判断仍然必须服从你的科学目标，而不是由模型或 AI 助手替你决定。
+
+\section{本章小结}
+
+模型评估的真正目标，不是为结果找一个好看的分数，而是判断它在你的科学问题里是否可信、稳定、可解释。混淆矩阵、precision/recall、阈值曲线、交叉验证和校准，都是为这个判断服务的工具。

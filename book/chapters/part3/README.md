@@ -9,7 +9,8 @@ Current draft targets:
 - `ch17_ml_workflow.tex`
 - `ch18_regression.tex`
 - `ch19_classification.tex`
+- `ch20_model_evaluation_diagnostics.tex`
 
 Planned next drafts:
 
-- `ch20_model_evaluation.tex`
+- `ch21_feature_engineering.tex`

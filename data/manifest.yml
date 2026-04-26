@@ -83,3 +83,4 @@ datasets:
       i_z: mag
     used_by:
       - notebooks/part3_machine_learning/ch19_classification_workflow.ipynb
+      - notebooks/part3_machine_learning/ch20_model_evaluation_diagnostics.ipynb

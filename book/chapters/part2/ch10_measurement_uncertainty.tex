@@ -1,0 +1,125 @@
+\chapter{科学数据、误差与单位}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解为什么一个测量值必须和单位、不确定度一起出现；
+    \item 使用最基本的视差关系估计恒星距离；
+    \item 对一个简单函数做数量级层面的误差传播估计；
+    \item 理解为什么单位错误和不确定度遗漏会直接破坏科学结论。
+\end{itemize}
+
+\section{为什么这一章是数据分析的起点}
+
+在天文和物理里，我们处理的从来不是“纯数字”，而是带着物理含义的量。比如：
+
+\begin{itemize}
+    \item 星等是一个有定义的观测量；
+    \item 视差通常以毫角秒（mas）表示；
+    \item 曝光时间有秒这一单位；
+    \item 流量、温度、波长都各自有规范单位。
+\end{itemize}
+
+如果把单位去掉，数字很快就会失去意义；如果把不确定度去掉，数字看起来会很精确，但其实无法判断它是否可信。
+
+\begin{defbox}[不确定度]
+不确定度描述的是测量结果可能偏离真实值的范围。它不是可有可无的附注，而是测量结果的一部分。
+\end{defbox}
+
+\section{从视差估计距离}
+
+在配套 notebook 中，我们用一个极简例子说明距离估计。假设某颗恒星的视差为 $10\,\mathrm{mas}$，那么它的距离近似为：
+
+\[
+d(\mathrm{pc}) = \frac{1000}{p(\mathrm{mas})}
+\]
+
+\begin{examplebox}[从视差估计距离]
+\begin{lstlisting}[style=pythonstyle]
+parallax_mas = 10.0
+distance_pc = 1000.0 / parallax_mas
+print(distance_pc)
+\end{lstlisting}
+\end{examplebox}
+
+这个公式本身不复杂，但它非常适合用来说明一个核心观念：你在做的不是纯算术，而是把一个观测量转换为另一个有物理意义的量。
+
+\section{误差传播的最小示例}
+
+如果视差测量本身有不确定度，例如：
+
+\[
+p = 10.0 \pm 0.2 \,\mathrm{mas}
+\]
+
+那么距离也会随之带有不确定度。对入门阶段来说，我们不必一开始就进入完整推导，而可以先用一个近似表达式理解数量级：
+
+\[
+\sigma_d \approx \frac{1000\,\sigma_p}{p^2}
+\]
+
+\begin{examplebox}[估计距离不确定度]
+\begin{lstlisting}[style=pythonstyle]
+parallax_mas = 10.0
+parallax_uncertainty_mas = 0.2
+
+distance_pc = 1000.0 / parallax_mas
+distance_uncertainty_pc = (
+    1000.0 * parallax_uncertainty_mas / (parallax_mas ** 2)
+)
+\end{lstlisting}
+\end{examplebox}
+
+这类例子很有教学价值，因为它让你看到：不确定度并不会自动消失，它会随着公式一起传播到最终结果中。
+
+\section{为什么单位不能丢}
+
+配套 notebook 还展示了一个非常直观的对比：如果把 $10.0$ 误当成角秒而不是毫角秒，距离结果会相差三个数量级。
+
+\begin{examplebox}[单位错误的后果]
+\begin{lstlisting}[style=pythonstyle]
+distance_if_arcsec = 1.0 / 10.0
+distance_if_mas = 1000.0 / 10.0
+\end{lstlisting}
+\end{examplebox}
+
+同一个数字，因为单位不同，物理意义完全不同。这也是为什么后面的表格处理、FITS 读取、坐标转换和机器学习特征工程中，我们都必须保留单位意识。
+
+\section{常见错误}
+
+\begin{warnbox}[误差与单位中的典型问题]
+\begin{itemize}
+    \item 只记录测量值，不记录误差；
+    \item 把毫角秒、角秒和度混为一谈；
+    \item 看到一个数就直接代入公式，没有先确认单位；
+    \item 给出模型预测结果，却没有任何不确定度估计。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手适合帮助你：
+
+\begin{itemize}
+    \item 检查公式里的单位是否一致；
+    \item 帮你解释误差传播的近似思路；
+    \item 生成几个类似但更简单的练习题。
+\end{itemize}
+
+但你不能把“AI 给出的公式看起来像真的”当作结论。涉及单位和误差时，必须由你亲自检查量纲、符号和数量级。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把视差改为 $5\,\mathrm{mas}$，重新计算距离和距离不确定度，并与 $10\,\mathrm{mas}$ 的结果做比较。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+写一段简短说明，解释为什么弱信号或远距离目标的误差传播通常更敏感。
+\end{exercisebox}
+
+\section{本章小结}
+
+一旦进入真实科学数据分析，“值、单位、不确定度”三者就必须一起出现。本章看似简单，但它决定了后续所有数据处理是否站得住脚。

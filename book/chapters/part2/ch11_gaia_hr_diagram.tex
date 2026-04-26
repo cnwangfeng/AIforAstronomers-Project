@@ -1,0 +1,143 @@
+\chapter{表格数据、星表与 HR 图}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 读取一个小型恒星测光表；
+    \item 计算颜色指数、视差和绝对星等之间的基本派生量；
+    \item 画出一个教学版 HR 图，并解释主序星、巨星和白矮星的大致位置；
+    \item 理解为什么表格数据处理是现代天文数据分析的核心能力之一。
+\end{itemize}
+
+\section{为什么从星表开始}
+
+星表是天文学中最常见的数据形态之一。与图像和光谱相比，星表更适合初学者进入真实数据世界，因为它已经把观测结果组织成了按行、按列排列的结构化数据。
+
+例如，一个恒星表中常见的字段可能包括：
+
+\begin{itemize}
+    \item 源编号；
+    \item 星等；
+    \item 颜色指数；
+    \item 视差；
+    \item 自行；
+    \item 分类标签。
+\end{itemize}
+
+当你能熟练处理这种表格数据后，后面的交叉匹配、样本筛选、统计分析和机器学习都会自然接上。
+
+\section{教学数据与派生量}
+
+在配套 notebook 中，我们使用了一个小型 Gaia 风格教学数据文件 \texttt{stellar\_photometry\_demo.csv}。它不是为了替代真实 Gaia 数据，而是为了在不增加过多复杂度的前提下，引入几个核心概念：
+
+\begin{itemize}
+    \item 颜色指数 \texttt{BP-RP}；
+    \item 视差 \texttt{parallax\_mas}；
+    \item 表观星等 \texttt{g\_mag}；
+    \item 绝对星等 \texttt{absolute\_g\_mag}。
+\end{itemize}
+
+\begin{examplebox}[读取星表并计算绝对星等]
+\begin{lstlisting}[style=pythonstyle]
+import csv
+import math
+from pathlib import Path
+
+data_path = Path("../../data/small/stellar_photometry_demo.csv")
+with data_path.open(newline="", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+for row in rows:
+    row["bp_rp"] = float(row["bp_rp"])
+    row["parallax_mas"] = float(row["parallax_mas"])
+    row["g_mag"] = float(row["g_mag"])
+    row["absolute_g_mag"] = (
+        row["g_mag"] - 10.0 + 5.0 * math.log10(row["parallax_mas"])
+    )
+\end{lstlisting}
+\end{examplebox}
+
+\section{绝对星等的意义}
+
+表观星等回答的是“从地球看起来有多亮”，而绝对星等更接近于“在统一距离标准下，本征上有多亮”。
+
+因此，绝对星等是构造 HR 图时非常关键的量。只有把距离效应部分校正掉，我们才能更直接地比较不同恒星本身的光度差异。
+
+\section{HR 图的物理含义}
+
+HR 图通常把颜色或温度放在横轴，把光度或绝对星等放在纵轴。虽然不同教材的具体轴定义略有变化，但它的核心作用始终一致：把恒星族群在“温度-光度”平面上组织起来。
+
+在这个平面上，常见的几个区域包括：
+
+\begin{itemize}
+    \item \textbf{主序星}：数量最多，构成从蓝到红的一条主带；
+    \item \textbf{巨星}：通常更亮，在图上位于主序带上方；
+    \item \textbf{白矮星}：通常更暗但可能较蓝，在图上形成另一片区域。
+\end{itemize}
+
+\section{教学版 HR 图}
+
+在 notebook 中，如果安装了 \texttt{matplotlib}，我们会进一步画出一个教学版 HR 图：
+
+\begin{examplebox}[绘制 HR 图]
+\begin{lstlisting}[style=pythonstyle]
+ax.scatter(color_values, absolute_magnitudes, color="tab:orange")
+ax.set_title("Teaching HR Diagram Demo")
+ax.set_xlabel("BP - RP [mag]")
+ax.set_ylabel("Absolute G magnitude [mag]")
+ax.invert_yaxis()
+\end{lstlisting}
+\end{examplebox}
+
+这里有一个初学者常常觉得反直觉的地方：绝对星等数值越小，天体越亮。因此在很多 HR 图中，纵轴会反向显示，使得更亮的恒星出现在图的上方。这不是作图技巧，而是与天文星等定义直接相关。
+
+\section{如何解读这张图}
+
+即使教学样本很小，我们仍然可以开始形成几个重要直觉：
+
+\begin{itemize}
+    \item 蓝色、亮的恒星通常位于图的一侧；
+    \item 红而亮的恒星可能是巨星；
+    \item 蓝而暗的恒星可能对应白矮星。
+\end{itemize}
+
+当样本规模扩大到真实 Gaia 数据时，这些区域会从少数几个点，变成具有统计结构的分布。到那时，图表就不只是“说明概念”，而会变成研究恒星族群的重要工具。
+
+\section{常见错误}
+
+\begin{warnbox}[星表处理中的典型问题]
+\begin{itemize}
+    \item 把表观星等当成绝对星等直接作图；
+    \item 忘记视差单位是毫角秒；
+    \item 只会画图，却说不出图中不同区域代表什么物理对象；
+    \item 在样本很小的情况下过度解读分布结构。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手可以帮你：
+
+\begin{itemize}
+    \item 解释表格字段的含义；
+    \item 帮你整理筛选和派生量计算代码；
+    \item 检查 HR 图绘图代码是否缺少标签、单位或纵轴反转。
+\end{itemize}
+
+但图中的恒星族群到底意味着什么，仍然需要你用天体物理知识去解释。AI 可以帮助你组织代码和语言，不能代替你完成物理判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把样本按 \texttt{stellar\_class} 分组，并写一段简短说明，比较三类恒星在颜色和绝对星等上的差异。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+尝试给不同恒星类别使用不同颜色绘图，并解释为什么在 HR 图中纵轴通常需要反向显示。
+\end{exercisebox}
+
+\section{本章小结}
+
+表格数据处理是现代天文计算的入口之一，而 HR 图则是把表格数据转化为物理直觉的经典例子。后续更复杂的数据分析与机器学习任务，都会继续建立在这种“从数据列到物理结构”的能力之上。

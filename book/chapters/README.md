@@ -33,3 +33,8 @@ Later parts will be added under:
 - `chapters/part4/`
 - `chapters/part5/`
 - `chapters/part6/`
+
+Current draft progress:
+
+- Part I has active Chinese drafts for chapters 3, 4, and 8
+- Part II is beginning with uncertainty and HR-diagram chapter drafts

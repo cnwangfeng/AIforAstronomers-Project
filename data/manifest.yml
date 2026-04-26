@@ -1,2 +1,22 @@
-datasets: []
-
+datasets:
+  - name: planetary_orbits_demo
+    path: data/small/planetary_orbits_demo.csv
+    type: csv
+    source: "Educational compilation based on standard Solar System reference values."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - planet
+      - semi_major_axis_au
+      - orbital_period_years
+      - mass_earth
+      - radius_earth
+    units:
+      semi_major_axis_au: au
+      orbital_period_years: yr
+      mass_earth: Earth mass
+      radius_earth: Earth radius
+    used_by:
+      - notebooks/part1_scientific_computing/ch03_basic_python.ipynb
+      - notebooks/part1_scientific_computing/ch06_data_io_fits.ipynb
+      - notebooks/part1_scientific_computing/ch08_plotting_scientific_figures.ipynb

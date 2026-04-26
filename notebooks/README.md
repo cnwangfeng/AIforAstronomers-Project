@@ -29,3 +29,7 @@ notebooks/
 - 输出图表必须有标题、坐标轴、单位和必要注释。
 - 最后一节用中文解释结果、局限性和下一步。
 
+当前进展：
+
+- `part1_scientific_computing/` 已创建 9 个章节骨架 notebook。
+- 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。

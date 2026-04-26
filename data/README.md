@@ -32,3 +32,7 @@ data/
 注意事项：
 ```
 
+当前进展：
+
+- `data/small/planetary_orbits_demo.csv`
+  已作为 Part I 的最小教学数据加入仓库，用于 Python、I/O 和绘图章节的早期 notebook 示例。

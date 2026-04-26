@@ -255,3 +255,275 @@ datasets:
       flux_6800: normalized flux
     used_by:
       - notebooks/part4_cases/ch28_spectral_classification_case_study.ipynb
+  - name: galaxy_morphology_case_demo
+    path: data/small/galaxy_morphology_case_demo.csv
+    type: csv
+    source: "Small synthetic Galaxy Zoo-style morphology case-study dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - galaxy_id
+      - morphology_label
+      - quality_flag
+      - redshift_bin
+      - seeing_arcsec
+      - snr_per_pixel
+      - axis_ratio
+      - concentration
+      - asymmetry
+      - smoothness
+      - gini
+      - m20
+      - spiral_arm_strength
+      - edge_on_score
+      - vote_fraction
+    units:
+      seeing_arcsec: arcsec
+      snr_per_pixel: unitless
+      axis_ratio: unitless
+      concentration: unitless
+      asymmetry: unitless
+      smoothness: unitless
+      gini: unitless
+      m20: unitless
+      spiral_arm_strength: unitless
+      edge_on_score: unitless
+      vote_fraction: unitless
+    used_by:
+      - notebooks/part4_cases/ch29_galaxy_morphology_case_study.ipynb
+  - name: neural_network_regression_demo
+    path: data/small/neural_network_regression_demo.csv
+    type: csv
+    source: "Small synthetic nonlinear-response teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - feature_x
+      - target_y
+      - split
+    units:
+      feature_x: unitless
+      target_y: unitless
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch30_neural_network_basics.ipynb
+  - name: cnn_cutout_demo
+    path: data/small/cnn_cutout_demo.csv
+    type: csv
+    source: "Small synthetic galaxy-cutout teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - morphology_label
+      - split
+      - p00_to_p55
+    units:
+      p00_to_p55: normalized intensity
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb
+  - name: cnn_transfer_learning_demo
+    path: data/small/cnn_transfer_learning_demo.csv
+    type: csv
+    source: "Small synthetic source/target galaxy-cutout teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - morphology_label
+      - domain_label
+      - split_role
+      - p00_to_p55
+    units:
+      p00_to_p55: normalized intensity
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb
+  - name: spectral_conv1d_demo
+    path: data/small/spectral_conv1d_demo.csv
+    type: csv
+    source: "Small synthetic spectral-window teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - spectral_label
+      - split
+      - f00_to_f13
+    units:
+      f00_to_f13: normalized flux
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch32_one_dimensional_convolutions_for_spectra.ipynb
+  - name: spectral_conv1d_workflow_demo
+    path: data/small/spectral_conv1d_workflow_demo.csv
+    type: csv
+    source: "Small synthetic spectral-window workflow dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - spectral_label
+      - split_role
+      - quality_flag
+      - f00_to_f17
+    units:
+      f00_to_f17: normalized flux
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch32_one_dimensional_convolutions_for_spectra.ipynb
+  - name: spectral_autoencoder_demo
+    path: data/small/spectral_autoencoder_demo.csv
+    type: csv
+    source: "Small synthetic spectral-window representation-learning teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - split
+      - spectrum_role
+      - pattern_label
+      - continuum_slope
+      - balmer_depth
+      - f00_to_f11
+    units:
+      continuum_slope: unitless
+      balmer_depth: unitless
+      f00_to_f11: normalized flux
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch33_representation_learning_autoencoders.ipynb
+  - name: spectral_token_attention_demo
+    path: data/small/spectral_token_attention_demo.csv
+    type: csv
+    source: "Small synthetic tokenized spectral-sequence teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - split
+      - sequence_label
+      - tok00
+      - tok01
+      - tok02
+      - tok03
+      - tok04
+      - tok05
+    units:
+      tok00: token
+      tok01: token
+      tok02: token
+      tok03: token
+      tok04: token
+      tok05: token
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch34_transformer_attention_foundation_models.ipynb
+  - name: spectral_masked_token_workflow_demo
+    path: data/small/spectral_masked_token_workflow_demo.csv
+    type: csv
+    source: "Small synthetic masked-token spectral-sequence workflow dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - sample_id
+      - split_role
+      - quality_flag
+      - target_token
+      - tok00
+      - tok01
+      - tok02
+      - tok03
+      - tok04
+      - tok05
+      - tok06
+      - tok07
+    units:
+      tok00: token
+      tok01: token
+      tok02: token
+      tok03: token
+      tok04: token
+      tok05: token
+      tok06: token
+      tok07: token
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch34_transformer_attention_foundation_models.ipynb
+  - name: lightcurve_debug_demo
+    path: data/small/lightcurve_debug_demo.csv
+    type: csv
+    source: "Small synthetic transit-light-curve debugging dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - cadence_id
+      - time_days
+      - relative_flux
+      - flux_error
+      - segment_label
+      - quality_flag
+    units:
+      time_days: day
+      relative_flux: normalized flux
+      flux_error: normalized flux
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch35_llm_assisted_research_programming.ipynb
+  - name: transient_agent_workflow_demo
+    path: data/small/transient_agent_workflow_demo.csv
+    type: csv
+    source: "Small synthetic transient-candidate triage dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - candidate_id
+      - alert_score
+      - rise_rate_mag_day
+      - color_g_r
+      - crossmatch_arcsec
+      - image_quality
+      - moving_object_flag
+      - reference_action
+    units:
+      alert_score: unitless
+      rise_rate_mag_day: mag/day
+      color_g_r: mag
+      crossmatch_arcsec: arcsec
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch36_agentic_research_assistants_tool_workflows.ipynb
+  - name: literature_reading_workflow_demo
+    path: data/small/literature_reading_workflow_demo.csv
+    type: csv
+    source: "Small synthetic paper-evidence-card dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - note_id
+      - section_label
+      - claim_id
+      - salience_score
+      - note_role
+      - citation_key
+      - citation_status
+      - reference_route
+      - human_check_required
+      - excerpt_text
+    units:
+      salience_score: unitless
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch37_llm_literature_reading_report_writing.ipynb
+  - name: ai_ethics_workflow_demo
+    path: data/small/ai_ethics_workflow_demo.csv
+    type: csv
+    source: "Small synthetic AI-usage-case workflow dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - case_id
+      - workflow_stage
+      - speed_gain_score
+      - ai_use_type
+      - source_material
+      - sharing_boundary
+      - claim_verification
+      - reference_route
+      - disclosure_required
+      - scenario_text
+    units:
+      speed_gain_score: unitless
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch38_ai_ethics_copyright_research_norms.ipynb

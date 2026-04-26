@@ -5,6 +5,15 @@ TARGET="${1:-main}"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BOOK_DIR="${PROJECT_ROOT}/book"
 
+if [[ -d "/Library/TeX/texbin" ]]; then
+  export PATH="/Library/TeX/texbin:${PATH}"
+fi
+
+if ! command -v latexmk >/dev/null 2>&1; then
+  echo "latexmk not found. Install MacTeX/TeX Live or expose /Library/TeX/texbin in PATH." >&2
+  exit 1
+fi
+
 case "${TARGET}" in
   main)
     OUTDIR="/tmp/aifor_book_main"

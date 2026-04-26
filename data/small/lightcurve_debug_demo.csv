@@ -1,0 +1,17 @@
+cadence_id,time_days,relative_flux,flux_error,segment_label,quality_flag
+LC01,-0.090,1.001,0.002,out_of_transit,clean
+LC02,-0.078,0.999,0.002,out_of_transit,clean
+LC03,-0.066,1.000,0.002,out_of_transit,clean
+LC04,-0.054,1.002,0.002,out_of_transit,clean
+LC05,-0.042,0.998,0.002,out_of_transit,clean
+LC06,-0.030,1.041,0.002,out_of_transit,cosmic_ray
+LC07,-0.018,0.987,0.002,in_transit,clean
+LC08,-0.006,0.984,0.002,in_transit,clean
+LC09,0.006,0.983,0.002,in_transit,clean
+LC10,0.018,0.985,0.002,in_transit,clean
+LC11,0.030,0.986,0.002,in_transit,clean
+LC12,0.042,1.001,0.002,out_of_transit,clean
+LC13,0.054,1.002,0.002,out_of_transit,clean
+LC14,0.066,0.999,0.002,out_of_transit,clean
+LC15,0.078,1.000,0.002,out_of_transit,clean
+LC16,0.090,1.001,0.002,out_of_transit,clean

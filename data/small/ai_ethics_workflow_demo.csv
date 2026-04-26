@@ -1,0 +1,11 @@
+case_id,workflow_stage,speed_gain_score,ai_use_type,source_material,sharing_boundary,claim_verification,reference_route,disclosure_required,scenario_text
+E01,planning,0.74,outline_from_own_notes,own_notes,local_only,not_applicable,allow_with_disclosure,yes,"Use AI to turn your own observing notes into a first-pass project outline."
+E02,coding,0.93,refactor_own_notebook,own_code,local_only,tests_passed,allow_with_disclosure,yes,"Use AI to refactor your own light-curve notebook after regression checks already exist."
+E03,writing,0.68,translate_own_draft,own_notes,local_only,human_checked,allow_with_disclosure,yes,"Use AI to translate your own draft paragraph into cleaner English before you edit it yourself."
+E04,writing,0.91,paraphrase_review_article,copyrighted_text,external_service,unverified,license_review,yes,"Ask AI to rewrite a paragraph from a copyrighted review article into your report without quoting the source text."
+E05,figures,0.59,recreate_paper_figure,published_figure,external_service,needs_permission,license_review,yes,"Ask AI to restyle a published journal figure for your slides before you have checked reuse permission."
+E06,citations,0.96,invent_missing_citation,no_source,external_service,unverified,prohibit,yes,"Ask AI to supply a likely related-work citation that you have not read because the deadline is close."
+E07,data,0.92,upload_unpublished_data,proprietary_data,external_unknown,unverified,prohibit,yes,"Paste an unpublished alert table into a third-party chat tool with unclear retention and training policy."
+E08,discussion,0.84,approve_final_claim,verified_results,local_only,final_signoff,human_only,no,"Ask AI to decide whether the final scientific claim is strong enough to submit without you rechecking the numbers."
+E09,setup,0.61,summarize_public_docs,public_docs,external_allowed,human_checked,allow_with_disclosure,yes,"Use AI to condense public survey documentation into a setup checklist and then verify the commands yourself."
+E10,reporting,0.57,draft_ai_use_statement,project_log,local_only,verified,allow_with_disclosure,yes,"Use AI to polish an AI-use statement that is already backed by your verified workflow log."

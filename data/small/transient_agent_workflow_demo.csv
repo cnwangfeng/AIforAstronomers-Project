@@ -1,0 +1,13 @@
+candidate_id,alert_score,rise_rate_mag_day,color_g_r,crossmatch_arcsec,image_quality,moving_object_flag,reference_action
+T01,0.92,0.38,-0.12,3.4,clean,no,follow_now
+T02,0.81,0.31,0.05,2.8,clean,no,follow_now
+T03,0.95,0.44,-0.08,3.1,artifact,no,reject
+T04,0.88,0.27,0.18,4.2,clean,yes,reject
+T05,0.63,0.12,0.44,0.4,clean,no,reject
+T06,0.71,0.18,0.22,1.6,edge,no,manual_review
+T07,0.67,0.29,-0.03,2.1,clean,no,manual_review
+T08,0.52,0.09,0.35,2.4,clean,no,reject
+T09,0.76,0.34,-0.15,1.1,clean,no,manual_review
+T10,0.58,0.22,0.08,2.6,clean,no,manual_review
+T11,0.47,0.05,0.51,3.0,clean,no,reject
+T12,0.84,0.36,-0.06,2.9,clean,no,follow_now

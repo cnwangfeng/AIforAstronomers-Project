@@ -1,0 +1,269 @@
+\chapter{LLM 辅助科研编程、代码验证与 notebook 工作流}
+
+\section{案例目标}
+
+前几章介绍了神经网络、卷积、自编码器和注意力结构。走到这里，学生通常会自然地问一个问题：\textbf{当我真的开始写科研代码、修改 notebook、排查 bug 时，现代 AI 到底应该怎样进入工作流？}
+
+本章的目标有三点：
+
+\begin{enumerate}
+    \item 理解为什么 LLM 更适合作为“草稿、解释、审查与重构”的助手，而不是不经验证的结果来源；
+    \item 学会把 AI 生成代码放进一个最小但可靠的验证回路：数据检查、数值 sanity check、参考计算和回归测试；
+    \item 学会把 notebook 从“会话式尝试”整理成“可重复证据”。
+\end{enumerate}
+
+\section{为什么这一章放在 Part V}
+
+如果说第 30 章到第 34 章主要回答的是“现代 AI 模型怎样表示函数、局部模式、低维表示和长程上下文”，那么本章回答的就是另一个同样现代的问题：\textbf{现代 AI 怎样改变科研编程本身。}
+
+对今天的学生来说，AI 的影响早已不只是“训练一个模型”。更常见的场景反而是：
+
+\begin{itemize}
+    \item 用 AI 助手起草一个数据处理函数；
+    \item 让 AI 帮你解释报错、整理 notebook 或补测试；
+    \item 让 AI 帮你把实验结果组织成更清楚的文字；
+    \item 甚至让 AI 帮你检查一个重构后是否遗漏边界条件。
+\end{itemize}
+
+但只要任务进入科研语境，问题就立刻变成：\textbf{这段代码到底是不是科学上可信？}
+
+这也是本章的核心立场：LLM 可以显著加快科研编程，但\textbf{速度不是可信度}。真正可靠的工作流，仍然必须保留数据质量检查、物理约束、参考计算和端到端复跑。
+
+\section{一个极小的光变曲线调试数据集}
+
+配套 notebook 使用 \nolinkurl{lightcurve_debug_demo.csv}。它是一个极小的教学版光变曲线表，只包含 16 个 cadence。每一行都有：
+
+\begin{itemize}
+    \item \texttt{cadence\_id}；
+    \item \texttt{time\_days}；
+    \item \texttt{relative\_flux}；
+    \item \texttt{flux\_error}；
+    \item \texttt{segment\_label}（\texttt{in\_transit} 或 \texttt{out\_of\_transit}）；
+    \item \texttt{quality\_flag}（\texttt{clean} 或 \texttt{cosmic\_ray}）。
+\end{itemize}
+
+这个数据集的设计非常刻意：它是一条几乎一眼可读的小光变曲线，其中确实存在一个很浅的凌星深度，但同时故意插入了一个被标记为 \texttt{cosmic\_ray} 的异常点。
+
+也就是说，这里真正要教的不是“怎样拟合复杂模型”，而是更基础也更常见的问题：
+
+\begin{itemize}
+    \item 当 AI 助手给你一段看起来很顺的代码时，它会不会被一个坏点彻底带偏？
+    \item 你能不能用几个极小的验证步骤，在几秒钟内把这个问题识别出来？
+\end{itemize}
+
+\section{先看一个“看起来合理”的 AI 草稿}
+
+在这类简单问题上，AI 助手很容易给出一个表面上很合理的函数，例如直接把最大 flux 与最小 flux 之差当成 transit depth：
+
+\begin{examplebox}[一个常见但脆弱的 AI 草稿]
+\begin{lstlisting}[style=pythonstyle]
+def ai_draft_transit_depth(lightcurve_rows):
+    fluxes = [row["relative_flux"] for row in lightcurve_rows]
+    return max(fluxes) - min(fluxes)
+\end{lstlisting}
+\end{examplebox}
+
+如果你只是快速扫一眼，这段代码几乎没什么“语法错误”。变量名清楚，逻辑也很短，甚至有一种“这么简单的问题就该这么做”的错觉。
+
+但真正的问题是：\textbf{它默认所有点都等价，忽略了质量标记，也没有问这个结果是否和一个更简单的参考计算一致。}
+
+在本章教学数据上，这种草稿会把被标记的异常点也一起吃进去，得到一个明显偏大的 depth。notebook 中的最小验证结果如下：
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.30\textwidth}ccp{0.26\textwidth}}
+\toprule
+方法 & depth & 是否通过检查 & 教学解读 \\
+\midrule
+max-min AI 草稿 & 0.0580 & 否 & 被 \texttt{cosmic\_ray} 点显著污染 \\
+clean median 修正版 & 0.0155 & 是 & 与参考计算一致，且对坏点更稳健 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中的两个最小实现对照。重点不是“谁更高级”，而是谁更符合数据质量与验证约束。}
+\label{tab:ch35_draft_vs_verified}
+\end{table}
+
+\section{代码验证不是“看起来合理”，而是一个回路}
+
+本章最重要的不是某一个修正版函数，而是修正版背后的\textbf{验证回路}。在一个极小教学例子里，这个回路可以非常朴素：
+
+\begin{examplebox}[最小验证回路]
+\begin{lstlisting}[style=pythonstyle]
+candidate = estimator(rows)
+reference = median(clean_out_of_transit) - median(clean_in_transit)
+
+check_range = 0.0 < candidate < 0.03
+check_robust = abs(candidate - estimator(clean_rows)) < 0.005
+check_reference = abs(candidate - reference) < 0.005
+\end{lstlisting}
+\end{examplebox}
+
+这个回路里其实只有三类问题：
+
+\begin{itemize}
+    \item \textbf{物理范围合理吗？} transit depth 不应该是负的，也不应该在这个 toy dataset 上突然大到离谱；
+    \item \textbf{对坏点稳健吗？} 删除已经标记为异常的 cadence 后，结果不应该大幅漂移；
+    \item \textbf{和简单参考计算一致吗？} 如果连 clean 数据上的 median 差都对不上，就不该直接信任更复杂的实现。
+\end{itemize}
+
+请注意，这些检查并不“高级”。它们不是大型 CI，也不是完整的科学 pipeline。但正因为足够轻量，所以特别适合放进 notebook，作为每次重构、每次 AI 修改之后都能立刻重跑的回归约束。
+
+\section{好 prompt 的本质不是魔法，而是上下文与约束}
+
+很多初学者会把 prompt 写成“请帮我修这个函数”，然后期待 AI 自动理解：
+
+\begin{itemize}
+    \item 数据有哪些列；
+    \item 哪一列带单位；
+    \item 哪些标记表示坏点；
+    \item 结果应该落在哪个数量级；
+    \item 你真正要它输出的是修正版、解释、还是测试。
+\end{itemize}
+
+这往往是不够的。对科研代码来说，更可靠的做法是把\textbf{数据 schema、物理约束和期望输出格式一起给出}。例如：
+
+\begin{examplebox}[一个更适合科研代码审查的 prompt 模板]
+\begin{lstlisting}[style=pythonstyle]
+prompt = """
+你是我的科研代码审查助手。
+
+任务：
+1. 审查这段 transit depth 函数是否会被坏点污染；
+2. 列出潜在 bug、隐含假设和需要补上的测试；
+3. 给出更稳妥的修正版，但不要跳过解释。
+
+数据列：
+- time_days
+- relative_flux
+- segment_label
+- quality_flag
+
+科学约束：
+- transit depth 应该为正
+- 结果大约应在 0 到 0.03 之间
+- 删除 flagged rows 后不应大幅漂移
+- clean median 差可作为参考计算
+
+输出格式：
+- Potential bugs
+- Hidden assumptions
+- Suggested tests
+- Safer implementation
+"""
+\end{lstlisting}
+\end{examplebox}
+
+这里真正起作用的，不是什么神秘的“提示词技巧”，而是你是否把任务背景说清楚了。LLM 的长处是根据上下文组织代码与解释；如果上下文本身不完整，它也很容易把不正确的默认假设包装得很流畅。
+
+\section{notebook 工作流要把“会话”变成“证据”}
+
+本章的另一个重点，是把 notebook 从聊天式试验转成可复现记录。一个更可靠的 notebook workflow，至少应该做到：
+
+\begin{itemize}
+    \item 使用相对路径读取数据，而不是隐藏的本地绝对路径；
+    \item 在 notebook 里打印关键数据规模、质量标记和参考数值；
+    \item 把关键检查冻结成小型 regression checks；
+    \item 在重构之后端到端重跑整份 notebook；
+    \item 记录最小环境快照，例如 Python 版本、数据文件名和关键结果。
+\end{itemize}
+
+这也是为什么本章 notebook 故意\textbf{不直接调用真实在线 LLM API}。因为本章要教的是跨平台、跨模型也成立的工作流结构：就算未来你换了工具、换了模型、换了 IDE，这些验证习惯也仍然应该保留。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取光变曲线表，并打印 segment 与 quality 的统计；
+    \item 用 clean 数据的 median 差给出一个简单参考 depth；
+    \item 展示一个“AI 草稿函数”，让它在验证报告里失败；
+    \item 再给出一个尊重质量标记的修正版；
+    \item 打印一个更适合科研代码审查的 prompt 模板；
+    \item 最后输出 workflow checklist 与 regression snapshot。
+\end{itemize}
+
+这份 notebook 不是在追求复杂建模，而是在训练一个更重要的能力：\textbf{当 AI 给出代码后，你能不能快速判断这段代码值不值得留下。}
+
+\section{哪些事情适合交给 LLM，哪些不能外包}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.18\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+\toprule
+环节 & AI 助手适合做什么 & 你必须亲自确认什么 \\
+\midrule
+草稿函数 & 生成 boilerplate、补边界情况、解释 traceback & 单位、质量标记、物理假设是否正确 \\
+重构 notebook & 拆函数、整理单元格顺序、建议可测试点 & 重构后数值是否变化、回归检查是否仍通过 \\
+结果解释 & 帮你组织语言、列 caveats、比较不同实现 & 科学结论是否过度外推、是否遗漏验证 \\
+报告撰写 & 润色摘要和实验记录 & 引用、最终表述、可复现证据 \\
+\bottomrule
+\end{tabular}
+\caption{把 LLM 放进科研工作流时，一个更可靠的角色分工。}
+\label{tab:ch35_llm_roles}
+\end{table}
+
+可以把这个表理解成一句更简单的话：\textbf{AI 很适合加速“表达”和“组织”，但不应该替你跳过“判断”和“验证”。}
+
+\section{和前面章节、以及 Capstone 的关系}
+
+本章虽然没有再引入新的神经网络结构，但它和前面几章是直接相连的：
+
+\begin{itemize}
+    \item 第 30 章到第 34 章回答“模型怎样工作”；
+    \item 本章回答“当你开始用 AI 帮你写代码时，怎样避免科研流程失控”；
+    \item 到第 31 章、第 32 章、第 33 章和第 34 章那些更复杂的 notebook 里，同样需要这种验证回路。
+\end{itemize}
+
+把视角放到 Capstone 项目里，这个逻辑会更加重要。你未来真正会遇到的任务，往往不是“从零手写每一行代码”，而是：
+
+\begin{itemize}
+    \item 让 AI 帮你起草数据下载脚本；
+    \item 让 AI 帮你补一个训练循环或可视化单元格；
+    \item 让 AI 帮你重构一个已经变得很乱的 notebook。
+\end{itemize}
+
+在这些场景里，真正决定你是不是一个可靠研究者的，不是你有没有用 AI，而是你有没有保留验证、记录和复跑的能力。
+
+\begin{warnbox}[LLM 辅助科研编程中的常见误区]
+\begin{itemize}
+    \item 把 AI 助手当成权威裁判，而不是需要被审查的合作者；
+    \item 只要代码，不要测试，也不要求列出隐含假设；
+    \item 不告诉 AI 数据列、单位、质量标记和合理数量级；
+    \item 修改完一个单元格就停止，不重新运行整份 notebook；
+    \item 把 notebook 写成聊天记录，而不是可复现的实验文档。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把一个错误信息翻译成更容易排查的语言；
+    \item 为同一个函数补多个候选实现，并比较各自假设；
+    \item 按你的数据 schema 帮你补 regression checks；
+    \item 帮你把 notebook 重构成更清楚的函数和执行顺序；
+    \item 帮你把“为什么这个实现不可信”说成更适合写进报告的文字。
+\end{itemize}
+
+但最终保留哪一个版本、哪些检查足以支撑科学结论、以及哪些异常点应该被过滤还是被单独讨论，仍然必须由你自己判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+在教学数据里再人工加入一个新的坏点，并把 \texttt{quality\_flag} 标成 \texttt{bad\_sky}。修改 notebook 的验证逻辑，使它不只识别 \texttt{cosmic\_ray}，而是统一处理所有非 \texttt{clean} 行。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+请让 AI 助手把本章的修正版函数重构成“数据过滤”和“depth 估计”两个独立函数。然后重新运行整份 notebook，比较 regression snapshot 是否完全一致。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合你在前面章节写过的 CNN、autoencoder 或 attention notebook，设计一个“AI 改代码前必须通过的最小检查清单”。至少包括：数据路径、随机种子、关键指标、参考图表和测试集不泄漏这几类内容。
+\end{exercisebox}
+
+\section{本章小结}
+
+本章最重要的结论不是“怎样写一个更好的 prompt”，而是：\textbf{在科研编程里，LLM 的真正价值不在于替你跳过验证，而在于帮助你更快地组织、解释、重构和审查；而真正让结果可信的，仍然是你保留下来的验证回路与可复现记录。}

@@ -1,0 +1,11 @@
+note_id,section_label,claim_id,salience_score,note_role,citation_key,citation_status,reference_route,human_check_required,excerpt_text
+N01,abstract,C1,0.95,result,FastColor2026,ok,verified_result,no,"Color-plus-rise features improve balanced-test AUC from 0.81 to 0.89 in the held-out alert split."
+N02,results,C1,0.93,result,FastColor2026,ok,verified_result,no,"Table 2 reports the same AUC gain and confirms that the improvement is measured on a held-out balanced test set."
+N03,results,C2,0.89,result,FastColor2026,ok,verified_result,no,"Replay triage raises follow-up queue purity from 0.46 to 0.71 for the top 20 simulated alerts."
+N04,discussion,C3,0.94,speculation,FastColor2026,missing_external,exclude,yes,"The approach should transfer cleanly to Rubin-scale alert brokers with minimal retuning."
+N05,methods,M1,0.63,method,FastColor2026,ok,method_note,no,"Training uses 38,412 alerts from a single ZTF-like broker snapshot and freezes all handcrafted quality gates."
+N06,results,C4,0.84,caveat,FastColor2026,ok,caveat,no,"For alerts with signal-to-noise below 7, the AUC gain shrinks to about 0.02 and the ranking becomes unstable."
+N07,limitations,C5,0.82,caveat,FastColor2026,ok,caveat,no,"The study does not test cross-survey domain shift, so transfer beyond the training broker remains unverified."
+N08,appendix,C6,0.80,result,FastColor2026,verify_page,human_review,yes,"The appendix states a false-positive rate of 0.11 at fixed recall, but the exact threshold needs a page-level quote check."
+N09,discussion,C7,0.74,interpretation,FastColor2026,verify_page,human_review,yes,"The visual inspection claim is based on 30 manually reviewed alerts, so the sampling note should be checked before quoting it."
+N10,results,C8,0.77,caveat,FastColor2026,ok,caveat,no,"Most of the purity gain comes from removing obvious image artifacts before scoring, not from the ranker alone."

@@ -18,7 +18,27 @@
 - 完整项目仓库：`8fc2242`，提交信息 `Add Part IV galaxy-morphology case study draft`
 - Overleaf 书稿仓库：`9d4bd17`，提交信息 `Add Part IV galaxy-morphology case study draft`
 
-当前两个仓库工作区均为干净状态，暂无未提交改动。
+当前完整项目仓库工作区已包含一组尚未提交的后续改动，主要是：
+
+- 第 29 章 `notebook`：`notebooks/part4_cases/ch29_galaxy_morphology_case_study.ipynb`
+- 第 29 章教学数据：`data/small/galaxy_morphology_case_demo.csv`
+- 第 29 章正文增强：`book/chapters/part4/ch29_galaxy_morphology_case_study.tex`
+- 第 30 章正文 / notebook / data：神经网络基础入口章节已接入 `Part V`
+- 第 31 章正文 / notebook / data：卷积与图像局部特征入口章节已接入 `Part V`，并补上 source/target 小型迁移学习扩展
+- 第 32 章正文 / notebook / data：一维卷积与光谱局部模式章节已接入 `Part V`，并补上第二组 workflow 教学数据、continuum normalization / quality gate / review queue 扩展，以及纯 Python 的 tiny trainable `Conv1d` learner
+- 第 33 章正文 / notebook / data：表示学习、自编码器与重构误差章节已接入 `Part V`，并补上 validation-calibrated anomaly workflow、latent 诊断，以及 latent retrieval / anomaly triage 扩展
+- 第 34 章正文 / notebook / data：Transformer、注意力与科学基础模型概念章节已接入 `Part V`
+- 第 35 章正文 / notebook / data：LLM 辅助科研编程、代码验证与 notebook 工作流章节已接入 `Part V`
+- 第 36 章正文 / notebook / data：agentic research assistants、工具调用与分步科研工作流章节已接入 `Part V`
+- 第 37 章正文 / notebook / data：LLM 辅助文献阅读、claim ledger、引用核查与报告写作章节已接入 `Part V`
+- 第 38 章正文 / notebook / data：AI 伦理、版权、学术诚信与 AI-use statement 章节已接入 `Part V`
+- `data/manifest.yml` 与相关 README 同步更新
+- `book/main_zh.tex` / `book/main.tex` 已接入 `pgfplots`
+- `scripts/build_book_local.sh` 已加入 MacTeX 路径兜底
+
+Overleaf 书稿仓库状态本轮未重新检查。
+
+本轮已执行一次 `bash scripts/sync_book_to_overleaf.sh` dry-run，预览同步 `61` 个条目，未实际改动目标仓库文件。
 
 书稿同步方式：
 
@@ -36,14 +56,15 @@
 - `Part 0` 已从正文主线中独立出来，作为 Python 先修模块。
 - `Part I` 到 `Part III` 已建立连续正文和 notebook 主线。
 - `Part IV` 已经启动，并完成多个连续案例章节。
+- `Part V` 已经启动，并形成连续九章的深度学习与现代 AI 入口。
 - 中文主书稿入口 `book/main_zh.tex` 已建立并保持可编译。
 - 本地 LaTeX 编译、notebook smoke test、data manifest 校验已接入日常工作流。
 
 当前资源规模：
 
-- 已通过 smoke test 的 notebook：`24` 个
-- 已登记并通过校验的教学数据集：`12` 个
-- 中文书稿当前页数：约 `92` 页
+- 已通过 smoke test 的 notebook：`34` 个
+- 已登记并通过校验的教学数据集：`25` 个
+- 中文书稿当前页数：约 `170` 页
 
 ### 0.3 各部分完成度
 
@@ -96,14 +117,49 @@
   - notebook：已完成
   - data：已完成
 - 第 29 章：星系形态分类案例
-  - 正文：已起草并接入 `main_zh.tex`
-  - notebook：待完成
-  - data：待完成
+  - 正文：已扩写并补充图表、练习与 notebook 指引
+  - notebook：已完成（传统形态特征 baseline 版本）
+  - data：已完成（教学用 morphology demo 数据）
 
 `Part V. 深度学习与现代 AI`
 
-- 尚未系统展开。
-- 目前只在 roadmap 层面和若干正文片段中预留方向。
+- 已启动，并形成连续的前九章入口。
+- 第 30 章：神经网络基础
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
+- 第 31 章：卷积神经网络与图像局部特征
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
+- 第 32 章：一维卷积与光谱局部模式
+  - 正文：已完成教学版扩展稿
+  - notebook：已完成，并补上第二组 workflow 对照与 tiny trainable `Conv1d` learner
+  - data：已完成，并新增 workflow demo 数据
+- 第 33 章：表示学习、自编码器与重构误差
+  - 正文：已完成教学版扩展稿
+  - notebook：已完成，并补上 validation-calibrated anomaly workflow、latent retrieval / anomaly triage、shared-patch conv-style extension 与 end-to-end Conv1d autoencoder
+  - data：已完成
+- 第 34 章：Transformer、注意力与科学基础模型概念
+  - 正文：已完成教学版扩展稿
+  - notebook：已完成，并补上 masked-token workflow 与可训练 tiny self-attention learner
+  - data：已完成，并新增 masked-token workflow demo 数据
+- 第 35 章：LLM 辅助科研编程、代码验证与 notebook 工作流
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
+- 第 36 章：agentic research assistants、工具调用与科研工作流
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
+- 第 37 章：LLM 辅助文献阅读与报告写作
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
+- 第 38 章：AI 伦理、版权与科研规范
+  - 正文：已完成教学版首稿
+  - notebook：已完成
+  - data：已完成
 
 `Part VI. Capstone 项目`
 
@@ -130,6 +186,10 @@
 - `tqdm`, `joblib`, `pooch`, `requests`, `pyyaml`
 - `jupytext`（通过 `pip`）
 
+工作流补充：
+
+- `scripts/build_book_local.sh` 现在会在需要时自动把 `/Library/TeX/texbin` 加入 `PATH`，减少 shell 环境差异带来的编译失败。
+
 已验证可用的本地命令：
 
 ```bash
@@ -146,14 +206,17 @@ bash scripts/build_book_local.sh zh
 
 截至 2026-04-26 的最近一次验证结果：
 
-- `python scripts/smoke_test_notebooks.py`：通过（`24` 个 notebook）
-- `python scripts/validate_data_manifest.py`：通过（`12` 个数据集）
+- `python scripts/smoke_test_notebooks.py`：通过（`34` 个 notebook）
+- `python scripts/validate_data_manifest.py`：通过（`25` 个数据集）
 - `bash scripts/build_book_local.sh main`：通过
-- `bash scripts/build_book_local.sh zh`：通过
+- `bash scripts/build_book_local.sh zh`：通过（仅剩既有非阻塞提示；当前中文书稿约 `170` 页）
+- `bash scripts/sync_book_to_overleaf.sh`：dry-run 通过（预览同步 `61` 个条目，未实际改动）
 
 当前编译中仍存在但不阻塞工作的提示：
 
-- 目录页附近偶发 `Underfull \vbox`
+- 目录页与个别页面附近偶发 `Underfull \vbox`
+- `ch31` 中仍有一处很小的 `Overfull \hbox`
+- `ch33` 中仍有一处很小的 `Overfull \hbox`
 - FontAwesome 相关 `ToUnicode CMap` warning
 
 这些提示目前不影响 PDF 生成，也不阻塞继续写作。
@@ -176,11 +239,11 @@ bash scripts/build_book_local.sh zh
 
 如果后续切换会话后继续推进，建议按以下顺序展开：
 
-1. 完成第 29 章“星系形态分类案例”的 notebook 与配套教学数据。
-2. 继续补齐 `Part IV` 后续案例，使案例部分形成稳定连续的章节组。
-3. 回头系统整理 `Part I` 和 `Part II` 的旧书稿资产，减少“旧结构”和“新结构”并存时间。
-4. 逐步为已完成章节补图表、练习、小结和参考文献，提升教材成书质量。
-5. 启动 `Part V`，引入 CNN、迁移学习、现代生成式 AI 辅助科研等内容。
+1. 优先把 `Part V` 里剩余的“更真实模型”缺口继续往前推：`ch31` 接更真实图像 CNN / transfer learning，`ch34` 接 multi-head / patch-token / 更完整 attention-pretraining 演示；`ch32` 已经补上可训练光谱 Conv1d，后续可再按需扩到更深网络、更长窗口和更真实的噪声条件；`ch33` 已经补上 shared-patch、end-to-end Conv1d，以及 latent retrieval / anomaly triage，后续可再按需接更大谱库和更真实的表示检索任务。
+2. 如果继续新增章节草稿，优先从 `Part VI` 启动 capstone workflow / project-integration 章节，把 `ch35` 到 `ch38` 的验证、阅读、规范和声明要求落到期末项目模板。
+3. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，减少“旧结构”和“新结构”并存时间。
+4. 逐步为已完成章节补参考文献、图表清单和统一的“AI 助手如何使用与如何验证”小节。
+5. 视同步节奏安排，将 `book/` 变化用 `bash scripts/sync_book_to_overleaf.sh --apply` 同步到 Overleaf 书稿仓库并准备提交。
 
 ## 1. 教材定位
 
@@ -583,42 +646,66 @@ AIforAstronomers/
 
 目标：给学生现代 AI 的可操作入口，但避免把本科教材写成深度学习专著。
 
-第 26 章：神经网络基础
+当前状态：
+
+- `Part V` 已正式启动。
+- 第 30 章到第 38 章已经形成一条连续入口：先讲神经网络的最小非线性表达能力，再讲二维卷积与图像局部特征、一维光谱卷积、表示学习与自编码器、Transformer 与注意力，再进入 LLM 辅助科研编程、agentic workflow、文献阅读与报告写作，以及 AI 伦理与使用声明。
+
+第 30 章：神经网络基础
 
 - 主题：张量、层、激活函数、损失函数、反向传播直觉、优化器。
-- 工具：优先 PyTorch；如需降低门槛可并列 Keras。
-- 实验：用小型全连接网络做回归或分类。
+- 工具：教学版首稿优先纯 Python；环境允许时补充 PyTorch 对照。
+- 实验：用小型全连接网络做非线性回归。
+- 当前状态：正文 / notebook / data 已完成首稿。
 
-第 27 章：卷积神经网络与图像/光谱
+第 31 章：卷积神经网络与图像局部特征
 
-- 主题：卷积、池化、数据增强、迁移学习。
-- 实验：图像分类或一维光谱 CNN。
+- 主题：局部感受野、参数共享、ReLU、池化、位置鲁棒性。
+- 实验：教学版星系 cutout 卷积特征提取，与 raw-pixel baseline 对照。
+- 当前状态：正文 / notebook / data 已完成首稿，并已补上 source/target 小型 transfer-learning workflow；下一步可继续连接真实图像 CNN。
 
-第 28 章：表示学习、自编码器与自监督思想
+第 32 章：一维卷积与光谱局部模式
 
-- 主题：embedding、autoencoder、对比学习概念、异常检测。
-- 实验：用自编码器压缩光谱或图像，并查看重构误差。
+- 主题：一维卷积、局部谱线结构、平移鲁棒性、ReLU、max pooling。
+- 实验：先做教学版光谱窗口卷积特征提取与 raw-feature baseline 对照，再用第二组小数据演示 continuum normalization、quality gate、manual review queue 与 clean train/validation/test workflow，最后把 normalized windows 推到一个纯 Python tiny trainable `Conv1d` learner。
+- 当前状态：正文 / notebook / data 已完成扩展版教学稿，并已补上第二组 workflow demo 数据与纯 Python 的 tiny trainable `Conv1d`。该 learner 使用 3 个长度为 3 的可学习卷积核、ReLU、global max pooling 和线性分类头，在固定随机种子下训练 1200 个 epoch 后，于 clean validation/test 上达到 `1.00` 分类准确率，并用 validation 最低 clean 置信度校准出 ready threshold `0.5539`，把 `X_do1` 保留到 `manual_review`，同时继续把 `R_low` 与 `R_art` 留在人工复核路径。下一步可再扩到更深的光谱 CNN、更长窗口与更真实噪声条件。
 
-第 29 章：Transformer 与科学基础模型概念
+第 33 章：表示学习、自编码器与重构误差
+
+- 主题：latent representation、autoencoder、瓶颈约束、自监督重构、异常分数。
+- 实验：先用二维瓶颈自编码器压缩小型光谱窗口并比较正常样本与异常样本的重构误差，再用 validation 正常样本校准阈值，把测试样本路由到 normal-like、manual-review 与 anomaly-candidate 队列。
+- 当前状态：正文 / notebook / data 已完成扩展版教学稿，并已补上 validation-calibrated anomaly workflow、latent 诊断、shared 3-bin patch 的 conv-style autoencoder extension、端到端 `Conv1d` autoencoder，以及基于 dense bottleneck latent 的最近邻检索 / anomaly triage。新增的 retrieval 段用 workflow train 正常样本构成 tiny normal reference library，在 validation 上校准出 latent support threshold `0.4683`，在 normal test 上达到 `1.00` 的 family retrieval accuracy，同时显示 `3/4` 异常仍留在这个 latent support 内，从而把 `R16` 解释为 `normal_manifold_edge`，并把 `A02`、`A03`、`A04` 解释成 `localized_anomaly_over_known_family`。端到端 `Conv1d` workflow 仍在 validation 上校准出 `0.1363 / 0.2620` 的整谱阈值，并把 `A04` 从 dense bottleneck workflow 的 manual-review 提升为 anomaly-candidate。下一步可再连接更大谱库与更真实光谱表示检索任务。
+
+第 34 章：Transformer 与科学基础模型概念
 
 - 主题：attention、token、预训练、微调、科学基础模型的机会与限制。
 - 实验：只做概念和轻量 demo，不训练大模型。
+- 当前状态：正文 / notebook / data 已完成扩展版教学稿；原有 bag-of-tokens vs position-aware attention demo 已保留，并把 masked-token workflow 继续推进到可训练的 tiny self-attention masked-token learner。该 learner 在固定随机种子下用 6 条 clean training rows 训练 50 个 epoch 后，在 clean validation/test 上达到 `1.00`，并通过 validation-calibrated confidence threshold `0.979` 把 `R_blend` 与 `R_mask` 路由到 `manual_review`。配套数据文件仍为 `spectral_masked_token_workflow_demo.csv`；下一步可按需再连接 multi-head / patch-token / 更完整 pretraining 演示。
 
-第 30 章：LLM 辅助科研编程
+第 35 章：LLM 辅助科研编程
 
 - 主题：prompt、代码生成、调试、测试、解释错误、生成文档。
 - 实验：让 LLM 帮助重构一个数据分析脚本，并用测试和人工检查验证。
 - 红线：不能把未验证代码、未读文献总结和虚构引用直接写入报告。
+- 当前状态：正文 / notebook / data 已完成首稿。
 
-第 31 章：LLM 辅助文献阅读与报告写作
+第 36 章：Agentic Research Assistants 与工具工作流
 
-- 主题：摘要、结构化笔记、RAG 概念、引用核查、学术诚信。
-- 实验：对一篇公开论文做 AI 辅助阅读记录，并人工核验关键结论。
+- 主题：工具调用、分步计划、质量门、human handoff、可审计 action log。
+- 实验：用最小瞬变候选体分诊数据，对比单次排序 baseline 与显式 agentic workflow。
+- 当前状态：正文 / notebook / data 已完成首稿。
 
-第 32 章：AI 伦理、版权与科研规范
+第 37 章：LLM 辅助文献阅读与报告写作
 
-- 主题：数据许可、模型偏差、可解释性、署名、学术诚信、生成式 AI 使用声明。
-- 产出：每个项目附 AI 使用说明。
+- 主题：结构化证据卡片、claim ledger、引用与页码核查、caveat 保留、报告 skeleton 写作。
+- 实验：用一组教学化论文证据卡片，对比“直接按显著性摘要”与“先路由到 verified result / caveat / human review / method note / exclude 的安全工作流”。
+- 当前状态：正文 / notebook / data 已完成首稿。
+
+第 38 章：AI 伦理、版权与科研规范
+
+- 主题：AI 使用场景卡片、版权与复用许可边界、human signoff、学术诚信与 AI-use statement。
+- 实验：用一组教学化 AI 使用场景卡片，对比“只按省时程度分配 AI”与“先过材料 / 共享 / 引用 / 签字边界再路由”的安全 workflow。
+- 当前状态：正文 / notebook / data 已完成首稿。
 
 ### Part VI. Capstone 项目
 
@@ -754,7 +841,11 @@ Milestone 4：Part IV 案例项目
 
 Milestone 5：Part V 现代 AI 与 LLM
 
-- 完成神经网络、CNN、表示学习、LLM 辅助科研工作流。
+- 已启动；当前已完成 `ch30` 到 `ch38` 九章首稿，覆盖神经网络、二维/一维卷积、表示学习、Transformer、LLM 辅助科研编程、agentic workflow、LLM 辅助文献阅读，以及 AI 伦理与使用声明。
+- 其中 `ch31` 已补上最小 transfer-learning workflow，`ch32` 已补上 continuum normalization、quality gate、review queue、validation/test workflow，以及纯 Python 的 tiny trainable `Conv1d` learner。
+- `ch33` 已补上 validation-calibrated anomaly workflow，并把 latent 维度与连续谱斜率 / Balmer 深度的可解释诊断、latent retrieval / anomaly triage、shared-patch conv-style autoencoder extension，以及 end-to-end Conv1d autoencoder 接回 notebook。
+- `ch34` 已从 masked-token workflow 继续推进到可训练的 tiny self-attention masked-token learner，并保留 validation-calibrated confidence threshold 与 manual-review 路由。
+- 后续继续补齐更真实的图像 CNN、规模更大的表示检索流程，并按需把 `ch32` 扩到更深光谱 CNN、把 `ch34` 再推进到 multi-head / patch-token / 更完整 pretraining 演示，同时把相关规范继续收束到 Part VI 的 capstone 模板。
 - 建立 AI 使用声明模板和作业规范。
 
 Milestone 6：Capstone 与试教
@@ -845,17 +936,37 @@ data 完成标准：
 
 根据 2026-04-26 的实际完成状态，建议下一轮工作按这个顺序进行：
 
-1. 完成第 29 章“星系形态分类案例”的 notebook 与配套教学数据。
-2. 为第 29 章补齐图表输出、诊断结果和练习题，使其达到“正文 + notebook + data”完整交付标准。
-3. 继续推进 `Part IV` 后续案例，例如时间序列/暂现源、实验数据回归或模拟数据反演。
+1. 优先把 Part V 里剩余的“更真实模型”缺口继续往前推：第 31 章接更真实图像 CNN / transfer-learning 实验，第 34 章接 multi-head attention、patch token 与更完整的 pretraining objective；第 32 章已经补到 tiny trainable `Conv1d`，后续可再按需扩到更深网络与更长谱窗；第 33 章已经补到 latent retrieval / anomaly triage，可再按需连接更大谱库与更真实的表示检索任务。
+2. 在 `ch31` 已完成“教学 cutout -> source/target transfer-learning-style mini workflow”之后，下一步再视需要把它接到更真实的图像 CNN / transfer-learning 实验。
+3. 如果继续新增章节草稿，优先从 `Part VI` 启动 capstone workflow / project-integration 章节，把 `ch35` 到 `ch38` 的验证、文献、规范与声明要求落到期末项目模板。
 4. 回头整理 `Part I` 与 `Part II`，把现有旧书稿内容更系统地迁入 `book/chapters/part1/` 和 `book/chapters/part2/`。
-5. 为已完成章节统一补充参考文献、图表清单、练习和“AI 助手如何使用与如何验证”小节。
-6. 在 `Part IV` 稳定后，正式启动 `Part V`，引入 CNN、迁移学习与现代生成式 AI 辅助科研。
+5. 为已完成章节统一补充参考文献、图表清单和“AI 助手如何使用与如何验证”小节。
+6. 视同步节奏对 `book/` 执行一次 `sync_book_to_overleaf.sh --apply`，并在 Overleaf 书稿仓库单独提交本轮变更。
+7. 视课程节奏再补 `Part IV` 的时间序列 / 实验数据案例，使案例部分与深度学习部分保持双线推进。
 
 如果需要从当前状态直接恢复工作，优先入口为：
 
 - `Roadmap.md` 的“当前进展快照（2026-04-26）”
 - `book/main_zh.tex`
-- `book/chapters/part4/ch29_galaxy_morphology_case_study.tex`
-- `notebooks/part4_cases/`
+- `book/chapters/part5/ch31_convolutional_neural_networks.tex`
+- `book/chapters/part5/ch32_one_dimensional_convolutions_for_spectra.tex`
+- `book/chapters/part5/ch38_ai_ethics_copyright_research_norms.tex`
+- `book/chapters/part5/ch37_llm_literature_reading_report_writing.tex`
+- `book/chapters/part5/ch35_llm_assisted_research_programming.tex`
+- `book/chapters/part5/ch36_agentic_research_assistants_tool_workflows.tex`
+- `notebooks/part5_deep_learning_ai/ch38_ai_ethics_copyright_research_norms.ipynb`
+- `notebooks/part5_deep_learning_ai/ch37_llm_literature_reading_report_writing.ipynb`
+- `notebooks/part5_deep_learning_ai/ch35_llm_assisted_research_programming.ipynb`
+- `notebooks/part5_deep_learning_ai/ch36_agentic_research_assistants_tool_workflows.ipynb`
+- `notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb`
+- `notebooks/part5_deep_learning_ai/ch32_one_dimensional_convolutions_for_spectra.ipynb`
+- `notebooks/part5_deep_learning_ai/ch33_representation_learning_autoencoders.ipynb`
+- `data/small/ai_ethics_workflow_demo.csv`
+- `data/small/literature_reading_workflow_demo.csv`
+- `data/small/neural_network_regression_demo.csv`
+- `data/small/cnn_cutout_demo.csv`
+- `data/small/cnn_transfer_learning_demo.csv`
+- `data/small/spectral_conv1d_demo.csv`
+- `data/small/spectral_conv1d_workflow_demo.csv`
+- `data/small/spectral_autoencoder_demo.csv`
 - `data/manifest.yml`

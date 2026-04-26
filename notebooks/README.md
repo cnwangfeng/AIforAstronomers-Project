@@ -42,4 +42,5 @@ notebooks/
 - `part2_data_processing/` 已开始加入误差传播与 HR 图 notebook。
 - `part3_machine_learning/` 已开始加入规则 baseline 和最小分类工作流 notebook。
 - `part4_cases/` 已开始接收 Gaia HR 图、光度红移估计、光谱分类等案例型 notebook。
+- `part5_deep_learning_ai/` 已开始接收神经网络基础、卷积与图像局部特征、一维卷积与光谱局部模式、表示学习与自编码器、Transformer/注意力概念、LLM 辅助科研编程与验证工作流、agentic research workflow、文献阅读/报告写作，以及 AI 伦理/使用声明 notebook。
 - 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。

@@ -1,0 +1,334 @@
+\chapter{一维卷积与光谱局部模式}
+
+\section{案例目标}
+
+前一章我们已经看到，卷积网络之所以适合图像，不只是因为“层更多”，而是因为它把局部模式、参数共享和位置鲁棒性写进了模型结构。本章把这条思路从二维 cutout 平移到另一类在天文里同样重要的数据：\textbf{一维光谱窗口。}
+
+本章的目标有三点：
+
+\begin{enumerate}
+    \item 理解为什么一维卷积同样适合光谱中的局部线型结构；
+    \item 理解“谱线略微平移”为什么会让 raw-feature baseline 失稳；
+    \item 为后续更真实的光谱 CNN、序列模型和表示学习做好过渡。
+\end{enumerate}
+
+\section{为什么光谱也需要局部卷积}
+
+在第 28 章的光谱分类案例里，我们已经把谱线强度、连续谱斜率和 PCA 投影当作有效特征来使用。但当输入更接近原始光谱窗口时，问题会立刻变得更像图像任务：
+
+\begin{itemize}
+    \item 某条谱线的存在与否，取决于一小段局部波长区间，而不是整条谱的每一个采样点；
+    \item 仪器分辨率、重采样方式和速度偏移，会让线中心略微左右移动；
+    \item 如果模型只记住“某条峰必须出现在第 6 个 bin”，它就很容易在轻微位移时失效。
+\end{itemize}
+
+这正是一维卷积值得出场的原因。它不要求局部模式永远落在完全相同的坐标上，而是用同一组局部滤波器沿着谱轴滑动，反复检测相似的峰、谷或双峰结构。
+
+\section{一个极小的光谱窗口教学数据集}
+
+配套 notebook 使用 \nolinkurl{spectral_conv1d_demo.csv}。它是一个教学版的一维光谱窗口数据集，每个样本都包含 14 个连续 flux bin。数据表包括：
+
+\begin{itemize}
+    \item \texttt{sample\_id}；
+    \item \texttt{spectral\_label}；
+    \item \texttt{split}；
+    \item \texttt{f00} 到 \texttt{f13} 的归一化 flux 采样值。
+\end{itemize}
+
+这个数据集只保留三类局部模式：
+
+\begin{itemize}
+    \item \texttt{narrow\_emission}：单个窄发射峰；
+    \item \texttt{balmer\_absorption}：局部吸收谷；
+    \item \texttt{double\_peak\_emission}：两个相邻发射峰组成的双峰结构。
+\end{itemize}
+
+训练样本把这些局部结构放在相对固定的位置，而测试样本会做轻微平移。这样做的目的是让学生非常直接地看到：\textbf{当类别定义依赖局部线型而不是绝对坐标时，卷积比 raw-feature 表示更自然。}
+
+配套 notebook 的后半段还会额外引入第二个教学数据集：\nolinkurl{spectral_conv1d_workflow_demo.csv}。
+
+这组小数据保留了同样的三类局部线型，并把窗口拉得更长。
+
+它还额外加入了连续谱倾斜和 \texttt{quality\_flag}。
+
+它还把 \texttt{train}、\texttt{validation}、\texttt{test} 和 \texttt{review} 角色分开，用来模拟一个更接近真实光谱处理的最小 workflow。
+
+\section{先看 raw-feature baseline}
+
+和前面一样，我们仍然先做最小 baseline。notebook 的第一个对照组，是把 14 个 flux 采样点直接作为原始特征，再做最近中心分类。这个 baseline 的好处是足够朴素，学生一眼就能理解它为什么会脆弱：
+
+\begin{itemize}
+    \item 它会把“同一条窄线出现在第 4 个 bin”与“出现在第 8 个 bin”当作很不一样的向量；
+    \item 它无法主动表达“这里有个局部发射峰”这种更结构化的概念；
+    \item 一旦测试样本发生小位移，就容易把窄峰误判成双峰，或把双峰误判成单峰。
+\end{itemize}
+
+在当前教学数据上，raw-feature 最近中心分类器的测试集准确率约为 \texttt{0.50}。最典型的错误是：
+
+\begin{itemize}
+    \item 平移后的 \texttt{narrow\_emission} 被误判为 \texttt{double\_peak\_emission}；
+    \item 平移后的 \texttt{double\_peak\_emission} 被误判为 \texttt{narrow\_emission}。
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lcc}
+\toprule
+方法 & 测试集准确率 & 典型失败模式 \\
+\midrule
+raw-feature 最近中心 & 0.50 & 对线中心平移敏感，单峰与双峰容易混淆 \\
+一维卷积特征 + 最近中心 & 1.00 & 在这个玩具数据上能稳定抓住局部线型 \\
+\bottomrule
+\end{tabular}
+\caption{本章教学 notebook 中两个最小对照组的结果。这里的重点不是追求分数，而是让学生直接看到：在局部线型决定类别时，一维卷积特征比“把 flux bin 直接摊平”更合理。}
+\label{tab:ch32_raw_vs_conv1d}
+\end{table}
+
+\section{一维卷积到底在检测什么}
+
+一维卷积的想法与二维卷积完全一致，只是卷积核沿着谱轴滑动。最小形式可以写成：
+
+\begin{examplebox}[一个最小一维卷积]
+\begin{lstlisting}[style=pythonstyle]
+score = sum(
+    signal[i + k] * kernel[k]
+    for k in range(kernel_size)
+)
+\end{lstlisting}
+\end{examplebox}
+
+在本章 notebook 中，我们手工构造了三个最小教学卷积核：
+
+\begin{itemize}
+    \item 峰检测核：强调局部中心高、两侧低的结构；
+    \item 吸收谷检测核：强调局部中心低、两侧高的结构；
+    \item 双峰检测核：强调“两侧高、中间相对低”的模式。
+\end{itemize}
+
+这些核当然不是现实光谱分析的终点，但它们足以说明：卷积层最重要的不是“参数个数”，而是它把\textbf{局部形态模式}变成了可重复复用的检测器。
+
+\section{为什么位移会伤害 baseline，却不那么伤害卷积}
+
+如果窄发射线从第 6 个 bin 轻微挪到第 4 个或第 8 个 bin，raw-feature 向量会整体改变很多；但对卷积层来说，这只是“同一个局部峰出现在别的位置”。只要卷积核继续在整段窗口上滑动，它仍然可以在新的位置给出高响应。
+
+再经过 ReLU 与 max pooling 之后，模型保留下来的就不再是“峰出现在第几个 bin”，而更接近于“这一段窗口里是否出现了强峰、吸收谷或双峰结构”。这就是卷积特征比原始坐标更鲁棒的原因。
+
+图~\ref{fig:ch32_spectral_examples} 给出了三类代表性光谱窗口的几何直觉。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.82\textwidth,
+    height=0.52\textwidth,
+    xlabel={flux bin},
+    ylabel={normalized flux},
+    xmin=0, xmax=13,
+    ymin=0.35, ymax=1.9,
+    xtick={0,2,4,6,8,10,12},
+    grid=both,
+    major grid style={draw=gray!20},
+    minor grid style={draw=gray!10},
+    tick label style={font=\small},
+    label style={font=\small},
+    legend style={font=\small, draw=none, fill=white, fill opacity=0.85, text opacity=1, at={(0.02,0.98)}, anchor=north west},
+]
+\addplot[mark=*, color=blue!70!black] coordinates {
+    (0,1.0) (1,1.0) (2,1.0) (3,1.0) (4,1.0) (5,1.15) (6,1.80)
+    (7,1.15) (8,1.0) (9,1.0) (10,1.0) (11,1.0) (12,1.0) (13,1.0)
+};
+\addlegendentry{窄发射峰}
+
+\addplot[mark=square*, color=red!70!black] coordinates {
+    (0,1.0) (1,1.0) (2,1.0) (3,1.0) (4,1.0) (5,0.88) (6,0.45)
+    (7,0.88) (8,1.0) (9,1.0) (10,1.0) (11,1.0) (12,1.0) (13,1.0)
+};
+\addlegendentry{Balmer 吸收谷}
+
+\addplot[mark=triangle*, color=orange!85!black] coordinates {
+    (0,1.0) (1,1.0) (2,1.0) (3,1.0) (4,1.15) (5,1.55) (6,1.15)
+    (7,1.15) (8,1.55) (9,1.15) (10,1.0) (11,1.0) (12,1.0) (13,1.0)
+};
+\addlegendentry{双峰发射}
+\end{axis}
+\end{tikzpicture}
+\caption{本章教学数据中的三类一维光谱局部模式。它们的类别差异并不在于整条谱的全局形状，而在于某一小段波长窗口里的局部峰谷结构。}
+\label{fig:ch32_spectral_examples}
+\end{figure}
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 延续了前一章的克制风格：
+
+\begin{itemize}
+    \item 先读取教学光谱窗口数据；
+    \item 逐个打印代表样本，建立对局部峰谷结构的直觉；
+    \item 用 raw flux bin 做最近中心 baseline；
+    \item 手写三个最小一维卷积核；
+    \item 对卷积响应做 ReLU 和 max pooling；
+    \item 再用卷积后的压缩特征做最近中心分类；
+    \item 最后单独检查平移样本为什么会让 baseline 出错；
+    \item 再读取一个带 \texttt{quality\_flag} 和 \texttt{split\_role} 的第二教学数据集；
+    \item 用窗口两端估计局部连续谱，并做一个最小线性 continuum normalization；
+    \item 把 \texttt{low\_snr} 和 \texttt{cosmic\_ray} 样本先路由到 review queue；
+    \item 在 clean test 上比较 raw window、normalized raw window 和 normalized convolution features；
+    \item 在同一组 normalized workflow windows 上训练一个纯 Python 的极小 \texttt{Conv1d}；
+    \item 用 validation 置信度阈值决定哪些样本可以自动放行、哪些应该留在 \texttt{manual\_review}；
+    \item 环境允许时，再用对应的 \texttt{torch.nn.Conv1d} 框架写法做可选对照。
+\end{itemize}
+
+这样的组织方式有一个关键优点：它让学生先真正理解“卷积在谱线上到底抓什么”，再去看 \texttt{Conv1d} 框架实现时，就不会只剩下库调用。
+
+\section{这和真实光谱 CNN 的差别}
+
+到这一步为止，notebook 已经不只是“手工卷积核为什么合理”的示意图，后半章还把第二组 workflow 数据推进到了一个可训练的 tiny \texttt{Conv1d}。但和真实巡天光谱工作流相比，它至少还缺少三层内容：
+
+\begin{itemize}
+    \item 训练集仍然只有 6 条 clean rows，可学习卷积核更多是在讲思路，而不是在逼近真实 survey 规模；
+    \item 模型结构仍然极小，本质上只是“3 个长度为 3 的卷积核 + ReLU + global max pooling + 线性分类头”；
+    \item 窗口长度、噪声模型和谱线复杂度都远低于真实巡天光谱。
+\end{itemize}
+
+但这正是它的教学价值所在。它说明了：在光谱任务里，卷积不是“深度学习流行所以也要用”，而是因为\textbf{局部谱线形态本来就更适合用局部滤波器来表达}；而 tiny \texttt{Conv1d} 则进一步说明，这些局部检测器也确实可以从数据里学出来。
+
+\section{一个更接近真实光谱 workflow 的扩展}
+
+为了把本章从“手工卷积核为什么合理”进一步推进到“真实光谱工作流大概长什么样”，配套 notebook 的后半段又加入了 \nolinkurl{spectral_conv1d_workflow_demo.csv}。它保留同样的三类局部模式，但增加了三层更真实的约束：
+
+\begin{itemize}
+    \item 窗口长度从 14 个 bin 扩展到 18 个 bin，并叠加轻微连续谱倾斜；
+    \item 数据显式区分 \texttt{train}、\texttt{validation}、\texttt{test} 和 \texttt{review}；
+    \item 非 clean 样本会带上 \texttt{low\_snr} 或 \texttt{cosmic\_ray} 质量标记，先进入人工复核队列。
+\end{itemize}
+
+这一步的教学重点，不再只是“卷积比 raw features 更稳健”，而是把学生往真实 workflow 再推一步：\textbf{先做质量门和连续谱归一化，再决定哪些窗口可以送进模型。}
+
+在 notebook 里，这个最小 workflow 采用的是非常克制的处理：
+
+\begin{itemize}
+    \item 用窗口前 3 个和后 3 个 bin 的平均值估计一个线性连续谱基线；
+    \item 把 flux 转成相对该基线的归一化偏差；
+    \item 对非 clean 样本直接打上 \texttt{manual\_review}，不强行进入自动分类；
+    \item 对 clean test 分别比较 raw window、normalized raw window 和 normalized convolution features。
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.34\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
+\toprule
+方法 & clean-test 准确率 & 教学解读 \\
+\midrule
+raw spectral windows & 0.50 & 连续谱倾斜和局部位移一起扰动，窄峰与双峰仍容易混淆 \\
+continuum-normalized raw windows & 0.67 & 归一化减轻了 slope mismatch，但 raw bins 仍然在记绝对位置 \\
+normalized convolution features & 1.00 & 线型局部模式被保留下来，shift 后仍可复用 \\
+trainable tiny Conv1d + validation threshold & 1.00 & 3 个可学习 3-bin 卷积核已经足够把 clean test 分类全对，但低置信度样本仍应留给人工复核 \\
+review-queue capture & 2/2 & 两个非 clean 窗口都被留在人工复核队列，而不是误送进自动分类 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中更接近真实 workflow 的第二教学对照。这里最关键的信息不是分数本身，而是顺序：先做质量门和连续谱归一化，再让卷积特征去抓局部线型。}
+\label{tab:ch32_workflow_extension}
+\end{table}
+
+这个结果传达了两层很重要的直觉：
+
+\begin{itemize}
+    \item continuum normalization 确实有帮助，它把 clean test 上的 raw-window 表现从 \texttt{0.50} 提升到 \texttt{0.67}；
+    \item 但归一化之后，raw bins 仍然会把“平移后的窄峰”和“双峰结构”混在一起；真正更稳定的，仍然是卷积抓到的局部线型模式。
+    \item 当 notebook 再往前走到可训练 tiny \texttt{Conv1d} 时，分类头虽然已经可以从数据里学卷积核，但 validation threshold 仍然很重要，因为 workflow 需要决定“是否自动放行”，而不只是“给出哪个标签”。
+\end{itemize}
+
+也就是说，真实光谱 workflow 里很少是“直接上模型”这么简单。哪怕是一个极小教学版流程，顺序也应该更像是：\textbf{质量门 $\rightarrow$ 连续谱归一化 $\rightarrow$ 局部卷积特征 $\rightarrow$ 轻量分类器或可训练 Conv1d。}
+
+\section{从手工卷积核走到可训练 Conv1d}
+
+notebook 现在会在同一组 normalized workflow windows 上，再训练一个纯 Python 的极小 \texttt{Conv1d} 分类器。它的结构被刻意压到非常小：
+
+\begin{itemize}
+    \item 3 个长度为 3 的可学习卷积核；
+    \item ReLU；
+    \item global max pooling；
+    \item 一个线性分类头。
+\end{itemize}
+
+在固定随机种子下训练 1200 个 epoch 后，这个 tiny \texttt{Conv1d} 在 clean validation/test 上都达到 \texttt{1.00} 的分类准确率。更重要的是，它不会把“分类正确”误当成“可以自动放行”：
+
+\begin{itemize}
+    \item validation 上最弱的 clean 置信度给出 ready threshold \texttt{0.5539}；
+    \item \texttt{X\_do1} 在 clean test 中虽然分类正确，但置信度只有 \texttt{0.5035}，所以仍进入 \texttt{manual\_review}；
+    \item 非 clean 的 \texttt{R\_low} 和 \texttt{R\_art} 也继续停留在人工复核路径，而不是被模型输出覆盖。
+\end{itemize}
+
+这一段的教学意义很强：学生会看到，\textbf{卷积核确实可以通过数据训练出来，但 workflow 的终点仍然不是“盲目吃下模型输出”，而是“把高置信度样本和边界样本分开处理”。}
+
+从 learned kernels 的数值上，也能看到和手工卷积核相呼应的直觉：有的 kernel 会长成中心响应更强的 emission-like 检测器，有的 kernel 会对吸收谷更敏感，还有的 kernel 会帮助分辨双峰附近的局部肩部结构。也就是说，手工卷积核并没有在骗学生，它们只是把“模型最终会学到什么样的局部检测器”先以可解释的方式展示出来。
+
+\section{怎样继续走向真实光谱 CNN}
+
+一旦进入更真实的天文光谱，后续自然会出现更多工程问题：
+
+\begin{itemize}
+    \item 波长轴需要重采样或对数化；
+    \item 连续谱归一化和噪声处理会强烈影响卷积响应；
+    \item 类别边界往往不再只由单个局部线型决定，而是由多个窗口共同决定。
+\end{itemize}
+
+这时可以继续沿着本章的逻辑往前走：
+
+\begin{itemize}
+    \item 先把这个 tiny \texttt{Conv1d} 扩展成更深、更宽、带更稳定优化的一维 CNN；
+    \item 再把任务扩展到更长的波长区间和更多类别；
+    \item 再把 clean / review route、validation 选择和误分样本复核接进标准 workflow；
+    \item 最后考虑迁移学习、表示学习或 Transformer 风格的序列模型。
+\end{itemize}
+
+\section{和第 28 章、第 31 章的关系}
+
+这一章与前后内容的关系非常直接：
+
+\begin{itemize}
+    \item 第 28 章已经说明了光谱分类里特征工程、PCA 和错误案例复核的重要性；
+    \item 第 31 章说明了卷积为什么适合二维图像中的局部模式；
+    \item 本章则把同样的思路迁移到一维光谱窗口，为真实光谱 CNN 铺路。
+\end{itemize}
+
+\begin{warnbox}[一维卷积入门中的常见误区]
+\begin{itemize}
+    \item 以为光谱只是表格数据，因此原始 flux bin 一定足够；
+    \item 把局部谱线位移误读成“模型应该失败”，而不是表示方式的问题；
+    \item 只看总体准确率，不检查到底是哪种线型混淆了模型；
+    \item 没做归一化和重采样，就直接比较不同仪器或不同分辨率的窗口；
+    \item 一上来就用很深的网络，反而丢掉了教学清晰度。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手适合帮助你：
+
+\begin{itemize}
+    \item 检查一维卷积和池化代码的下标是否一致；
+    \item 帮你把不同卷积核的响应整理成对照表；
+    \item 帮你总结“为什么平移会伤害 raw baseline，却不那么伤害卷积特征”；
+    \item 帮你对照纯 Python tiny \texttt{Conv1d} 与 \texttt{torch.nn.Conv1d} 框架写法之间的对应关系。
+\end{itemize}
+
+但卷积核对应的局部模式是否真的具有物理意义、真实数据里哪些变化来自速度偏移或仪器效应、以及什么时候该升级为更强的序列模型，仍然需要你自己判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把 notebook 中的峰检测核改得更窄或更宽，比较 \texttt{narrow\_emission} 类别的测试表现会如何变化。说明卷积核宽度为什么会影响对局部分辨率的敏感性。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把 max pooling 改成平均池化，比较它们对轻微线中心平移的表现差异。尝试解释为什么最强局部响应在谱线检测里常常比平均响应更有效。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合第 28 章的光谱分类案例，设计一个从教学窗口过渡到真实巡天光谱的一维 CNN 方案。至少包括：归一化步骤、baseline、错分样本复核和一个可选的迁移学习或表示学习扩展方向。
+\end{exercisebox}
+
+\section{本章小结}
+
+一维卷积在光谱中的价值，与二维卷积在图像中的价值完全同源：它不是机械地记住每个采样点，而是沿着序列反复寻找可复用的局部模式。本章先用手工卷积核说明了为什么卷积特征比 raw-feature 表示更自然，也更能承受轻微位置变化；后半章又把同一条思路推进到一个带 validation threshold 的 tiny trainable \texttt{Conv1d} workflow。这样学生看到的就不只是“卷积有用”，而是“卷积核如何从数据里学出来，以及为什么学出来之后仍然需要 workflow 级别的人工复核设计”。这正是后续真实光谱 CNN 和序列模型的起点。

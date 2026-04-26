@@ -1,0 +1,258 @@
+\chapter{卷积神经网络与图像局部特征}
+
+\section{案例目标}
+
+这一章承接上一章的单隐层神经网络基础，进一步回答一个更具体的问题：\textbf{当输入不再是一维表格特征，而是图像 cutout 或光谱片段时，为什么我们通常不再把像素直接摊平成一个长向量交给全连接层？}
+
+本章的目标有三点：
+
+\begin{enumerate}
+    \item 理解卷积层为什么强调局部感受野与参数共享；
+    \item 理解激活函数与池化为什么能让模型对平移和局部形变更稳健；
+    \item 为后续真正的图像 CNN、光谱 CNN 和迁移学习建立教学入口。
+\end{enumerate}
+
+\section{为什么不能只把像素摊平}
+
+在第 29 章的星系形态分类案例中，我们已经看到：图像任务的困难并不只是“类别更多”，而是输入结构本身发生了变化。对于表格数据，每一列往往有明确物理含义；但对图像来说，单个像素本身通常没有稳定解释，真正有意义的是\textbf{相邻像素之间形成的局部模式}。
+
+如果把一张图像简单摊平成：
+
+\begin{examplebox}[像素摊平的做法]
+\begin{lstlisting}[style=pythonstyle]
+features = [pixel_00, pixel_01, ..., pixel_55]
+\end{lstlisting}
+\end{examplebox}
+
+那么模型就会把“某个亮斑出现在左边”和“同一个亮斑略微平移到右边”看成完全不同的输入坐标。这种表示方式既浪费参数，也不利于学习图像中的局部结构。
+
+\section{一个极小的 cutout 教学数据集}
+
+配套 notebook 使用 \nolinkurl{cnn_cutout_demo.csv}。它是一个极小的教学版星系 cutout 数据集，每个样本都是一个 \(6\times 6\) 的灰度小图块，字段包括：
+
+\begin{itemize}
+    \item \texttt{sample\_id}；
+    \item \texttt{morphology\_label}；
+    \item \texttt{split}；
+    \item \texttt{p00} 到 \texttt{p55} 的像素强度。
+\end{itemize}
+
+这个数据集刻意只保留三类局部形态：
+
+\begin{itemize}
+    \item \texttt{compact\_core}：中心集中的亮核；
+    \item \texttt{edge\_on\_disk}：近似边缘朝向的细长条带；
+    \item \texttt{double\_source}：两个相邻亮团形成的双峰结构。
+\end{itemize}
+
+它当然远不能代表真实巡天图像的复杂性，但足以让学生把注意力集中在“局部模式、平移、卷积核和池化”这条逻辑链上。
+
+配套 notebook 的后半段还会额外引入第二个教学数据集 \nolinkurl{cnn_transfer_learning_demo.csv}。这个小数据集用来模拟 source survey 到 target survey 的轻量 domain shift，并把本章的卷积直觉进一步延伸到“冻结特征提取器 + 轻量 head”的迁移学习入口。
+
+\section{从 raw-pixel baseline 开始}
+
+和前面所有章节一样，我们仍然先做 baseline。notebook 的第一个对照组，是把 \(6\times 6\) 小图直接摊平成 36 维向量，再做最近中心分类。这个 baseline 的意义不是追求最好成绩，而是提醒学生：\textbf{如果模型直接记住像素坐标，它会对位置变化很敏感。}
+
+在当前教学数据上，raw-pixel 最近中心分类器在测试集上的准确率约为 \texttt{0.67}。它能识别中心亮核和边缘盘状结构，但会把平移过的 \texttt{double\_source} 样本误判为 \texttt{edge\_on\_disk}。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lcc}
+\toprule
+方法 & 测试集准确率 & 典型问题 \\
+\midrule
+raw-pixel 最近中心 & 0.67 & 对位置变化敏感，双峰结构容易被误判 \\
+卷积特征 + 最近中心 & 1.00 & 在这个玩具数据上更稳健 \\
+\bottomrule
+\end{tabular}
+\caption{本章教学 notebook 中的两个最小对照组。这里的重点不是追求高分，而是让学生直接看到：局部卷积特征比“把像素摊平”更能保留形态结构。}
+\label{tab:ch31_baseline_vs_conv}
+\end{table}
+
+\section{卷积层到底补了什么}
+
+卷积的核心不是“深度学习专用黑魔法”，而是一个很朴素的思想：\textbf{用同一组局部滤波器，在整张图像上滑动，反复检测相似的局部模式。}
+
+对于一个 \(3\times 3\) 卷积核，最小形式可以写成：
+
+\begin{examplebox}[一个最小二维卷积]
+\begin{lstlisting}[style=pythonstyle]
+score = sum(
+    image[r + kr][c + kc] * kernel[kr][kc]
+    for kr in range(3)
+    for kc in range(3)
+)
+\end{lstlisting}
+\end{examplebox}
+
+与全连接层相比，卷积至少补了两件重要事情：
+
+\begin{itemize}
+    \item 它只看局部邻域，而不是一次把所有像素混在一起；
+    \item 它在不同位置共享同一组参数，因此能把“同一种局部结构出现在别处”当作相关信号，而不是完全陌生的新输入。
+\end{itemize}
+
+\section{ReLU 与池化为什么重要}
+
+如果卷积层回答的是“哪里出现了某种局部模式”，那么激活函数和池化就在回答“这些响应该怎样进一步保留和压缩”。
+
+本章 notebook 采用的是最小教学版本：
+
+\begin{itemize}
+    \item 用 ReLU 丢掉明显为负的响应，只保留比较像目标模式的位置；
+    \item 用 \(2\times 2\) max pooling 把局部最强响应留下来，降低轻微平移带来的影响。
+\end{itemize}
+
+图~\ref{fig:ch31_conv_pipeline} 给出了这个最小 CNN 风格 workflow 的直觉图。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[every node/.style={align=center}, scale=0.86, transform shape]
+\node[draw, rounded corners, fill=blue!7, minimum width=2.5cm, minimum height=1.2cm] at (0,0) (raw) {小型 cutout\\raw pixels};
+\node[draw, rounded corners, fill=green!8, minimum width=2.7cm, minimum height=1.2cm] at (4.0,0) (conv) {卷积核滑动\\局部模式响应};
+\node[draw, rounded corners, fill=orange!10, minimum width=2.3cm, minimum height=1.2cm] at (8.0,0) (relu) {ReLU\\保留正响应};
+\node[draw, rounded corners, fill=purple!8, minimum width=2.5cm, minimum height=1.2cm] at (12.0,0) (pool) {max pooling\\压缩位置变化};
+\node[draw, rounded corners, fill=gray!12, minimum width=2.6cm, minimum height=1.2cm] at (16.1,0) (clf) {轻量分类器\\或迁移学习头};
+
+\draw[->, thick] (1.3,0) -- (2.65,0);
+\draw[->, thick] (5.35,0) -- (6.7,0);
+\draw[->, thick] (9.15,0) -- (10.55,0);
+\draw[->, thick] (13.25,0) -- (14.7,0);
+\end{tikzpicture}
+\caption{本章教学 notebook 的最小卷积流程：共享卷积核先提取局部模式，经 ReLU 与池化压缩空间细节，再交给轻量分类器。这条链就是进入真实 CNN 前最重要的直觉。}
+\label{fig:ch31_conv_pipeline}
+\end{figure}
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采取的是一条比“直接上框架训练”更克制的路线：
+
+\begin{itemize}
+    \item 先读取 \(6\times 6\) cutout 教学数据；
+    \item 用 ASCII 方式打印三个类别的代表样本，帮助学生先建立视觉直觉；
+    \item 训练一个 raw-pixel 最近中心 baseline；
+    \item 手写三个小型卷积核：亮核、条带、双峰结构；
+    \item 对卷积响应做 ReLU 和 max pooling；
+    \item 用卷积后的压缩特征再做一次最近中心分类；
+    \item 对比两种方法在平移样本上的表现差异；
+    \item 再读取一个 source/target 双域小数据集；
+    \item 用冻结卷积特征和 one-shot target head 模拟一个最小 transfer-learning workflow。
+\end{itemize}
+
+这样组织有两个优点：
+
+\begin{itemize}
+    \item 它把“卷积为什么存在”说清楚了，而不是把学生直接丢进 \texttt{torch.nn.Conv2d}；
+    \item 它保留了 baseline 思维，让学生看到改进来自局部特征和位置鲁棒性，而不是来自神秘的 API。
+\end{itemize}
+
+\section{这和真正的 CNN 还有多远}
+
+当然，本章 notebook 还不是真正意义上的端到端 CNN 训练。它更像是一个\textbf{教学版卷积特征提取器}。和真实 CNN 相比，它还缺少至少三层内容：
+
+\begin{itemize}
+    \item 卷积核参数是手工指定的，而不是通过反向传播学出来的；
+    \item 网络只有一层极小的卷积与池化结构，没有更深的层级表示；
+    \item 分类头只是最近中心，而不是真正的可训练 softmax 或多层 head。
+\end{itemize}
+
+但正因为如此，这一章非常适合作为进入真实 CNN 前的缓冲带。学生先理解“局部模式、参数共享和池化”的必要性，再去看框架代码时，才不会把一切都误读成黑箱。
+
+\section{一个最小的迁移学习式扩展}
+
+为了把本章从“卷积为什么比 raw pixels 更合理”再往前推一步，配套 notebook 的后半段还加入了 \nolinkurl{cnn_transfer_learning_demo.csv}。这个数据集仍然是 \(6\times 6\) 的极小 cutout，但额外区分了：
+
+\begin{itemize}
+    \item \texttt{domain\_label}：\texttt{source\_survey} 与 \texttt{target\_survey}；
+    \item \texttt{split\_role}：\texttt{source\_train}、\texttt{target\_adapt} 和 \texttt{target\_test}。
+\end{itemize}
+
+教学设定也非常刻意：
+
+\begin{itemize}
+    \item \texttt{source\_train} 里每类有两张较干净的 source-domain 小图；
+    \item \texttt{target\_adapt} 里每类只有一张 target-domain 样本，相当于一个 one-shot 小适配集；
+    \item \texttt{target\_test} 则包含带有背景抬升、轻微位置变化和形态扰动的 target-domain 测试样本。
+\end{itemize}
+
+这样一来，notebook 就可以在不引入大型框架训练成本的前提下，演示一个很接近迁移学习直觉的问题：\textbf{如果 source domain 已经给了你一个有用的局部特征提取器，那么进入 target domain 时，是否真的还需要从 raw pixels 重新开始？}
+
+本章 notebook 用四个极小对照组来回答这个问题：
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.34\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
+\toprule
+方法 & target-test 准确率 & 教学解读 \\
+\midrule
+source raw-pixel prototypes & 0.50 & 像素坐标和背景变化一起漂移，跨 domain 很不稳 \\
+source frozen conv features & 1.00 & 局部模式在这个 toy shift 下仍然可复用 \\
+one-shot target raw head & 0.67 & 只有极少 target 样本时，raw pixels 仍然容易记位置 \\
+frozen conv features + one-shot target head & 1.00 & 保留 source 学到的局部结构，只调整轻量 head \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中的最小迁移学习式扩展。这里的“frozen conv features”不是完整预训练 backbone，而是教学版的冻结局部特征提取器；目的在于让学生先抓住 head-only adaptation 的逻辑。}
+\label{tab:ch31_transfer_learning_extension}
+\end{table}
+
+这个结果当然比真实巡天任务简单得多，但它已经足够传达迁移学习最关键的一层直觉：
+
+\begin{itemize}
+    \item 当 target 样本很少时，直接在 raw pixels 上重建决策边界往往很脆弱；
+    \item 如果 source domain 已经帮你学到可复用的局部结构，target domain 里往往只需要一个很小的 head 就能先站稳脚跟；
+    \item 真正重要的不是“有没有用到预训练”这个口号，而是你是否保留了\textbf{冻结表示 + 小头适配 + 错分复核} 这条工作流。
+\end{itemize}
+
+也就是说，本章解决的不再只是“为什么卷积思路优于 raw pixels”，还补上了一个更现实的过渡：\textbf{为什么真实图像任务里，我们常常宁愿复用一个已有特征提取器，再用很小的 target-domain 监督去调整 head。}
+
+\section{和第 29 章、第 30 章的关系}
+
+可以把这三章连在一起看：
+
+\begin{itemize}
+    \item 第 29 章说明了图像形态任务中的数据质量、标签可信度和物理混杂因素；
+    \item 第 30 章说明了为什么神经网络能表示非线性映射；
+    \item 本章则补上了图像任务里最关键的一块：为什么局部卷积结构比“摊平像素”更合理。
+\end{itemize}
+
+\begin{warnbox}[卷积入门中的常见误区]
+\begin{itemize}
+    \item 以为 CNN 的优势只是“层更多”，忽略了局部感受野和参数共享；
+    \item 跳过 raw-pixel baseline，导致不知道改进来自哪里；
+    \item 只会调用 \texttt{Conv2d}，却不知道卷积核到底在检测什么；
+    \item 把池化误解成“无损压缩”，忽略它本身也会丢失空间细节；
+    \item 在真实数据里只看总体分数，不回头检查错分样本。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手适合帮助你：
+
+\begin{itemize}
+    \item 检查二维卷积、ReLU 和池化代码是否下标一致；
+    \item 帮你把卷积响应打印成更清楚的调试输出；
+    \item 帮你比较 raw-pixel baseline 与卷积特征方法的误差报告；
+    \item 帮你把“为什么平移会影响 baseline”解释成更容易讲给学生的语言。
+\end{itemize}
+
+但卷积核是否真的对应了合理的科学结构、真实图像里哪些错分来自数据质量问题、以及什么时候应该改用迁移学习，仍然需要你自己做判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把 notebook 中的 \texttt{double\_lobe} 卷积核改得更“苛刻”或更“宽松”，比较 \texttt{double\_source} 类别的测试结果会怎样变化。说明卷积核权重改变后，哪些局部模式更容易被保留。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把 max pooling 改成平均池化，比较两个版本对平移样本的表现差异。尝试解释：为什么最大响应有时比平均响应更适合检测局部结构是否出现。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合第 29 章的形态分类案例，写一个小实验方案：如果你要把真实星系 cutout 接入 CNN，你会如何保留 baseline 思维、数据清洗步骤和错误案例复核流程？
+\end{exercisebox}
+
+\section{本章小结}
+
+卷积神经网络的关键价值，不在于“层更深”，而在于它把图像中的局部模式、位置共享和轻微平移鲁棒性编码进了模型结构。本章用一个极小 cutout 数据集说明：当输入具有明确空间结构时，把像素直接摊平往往是不够的；而卷积、ReLU 与池化的组合，正是走向真实图像 CNN 和迁移学习的第一步。

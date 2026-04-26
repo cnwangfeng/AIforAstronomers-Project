@@ -1,0 +1,282 @@
+\chapter{LLM 辅助文献阅读、结构化笔记与报告写作}
+
+\section{案例目标}
+
+第 35 章讨论的是：当 AI 帮你写出一段科研代码时，怎样通过验证回路判断它值不值得留下。第 36 章再往前走一步，讨论了多步骤代理怎样在工具边界、停止条件和人工接管之内运行。
+
+本章继续沿着这条主线前进，但把场景换成另一个本科生更快会遇到的问题：\textbf{当你开始用 LLM 帮你读论文、摘笔记、写报告时，怎样避免“读得很快，但记得不准、引得不清、写得过头”。}
+
+本章的目标有三点：
+
+\begin{enumerate}
+    \item 理解为什么文献阅读场景里，LLM 更适合先帮助你建立结构化 claim ledger，而不是直接产出最终摘要；
+    \item 学会把论文阅读拆成“证据卡片、claim 去重、citation / quote 核查、caveat 收集、人工复核”几个可审计步骤；
+    \item 学会把阅读结果整理成一份更适合写进 notebook、周报或课程报告的最小结构化摘要。
+\end{enumerate}
+
+\section{为什么这一章紧跟在第 35 章和第 36 章之后}
+
+如果说第 35 章强调的是“AI 生成代码之后要验证”，第 36 章强调的是“AI 运行多步骤流程时要有工具边界与 human handoff”，那么本章强调的就是另一个同样现实的问题：\textbf{AI 帮你读论文时，也不能跳过证据边界。}
+
+很多学生第一次把 LLM 用到文献阅读时，会自然地提出类似请求：
+
+\begin{itemize}
+    \item “帮我总结这篇论文的主要贡献”；
+    \item “帮我把结果写成组会汇报的三点结论”；
+    \item “帮我写一个 related work 段落”。
+\end{itemize}
+
+这些请求本身没有错，但危险在于：如果你直接要最终 prose，而没有先要求它保留 claim、出处、caveat 和待核查项，那么它很容易把“讨论里的推测”“附录里的未核对数字”“还没确认页码的引用”一起包装成流畅结论。
+
+所以本章的核心立场是：\textbf{LLM 可以显著加快文献阅读，但真正可靠的中间产物不是自由摘要，而是结构化、可回查的 claim ledger。}
+
+\section{一个极小的论文证据卡片数据集}
+
+配套 notebook 使用 \nolinkurl{literature_reading_workflow_demo.csv}。这不是一篇真实论文的全文，也不是在线抓取结果，而是一组完全本地、教学用途的\textbf{证据卡片}。每一行都代表学生在阅读论文时摘出的一条信息，包含：
+
+\begin{itemize}
+    \item \texttt{note\_id}；
+    \item \texttt{section\_label}；
+    \item \texttt{claim\_id}；
+    \item \texttt{salience\_score}；
+    \item \texttt{note\_role}；
+    \item \texttt{citation\_key}；
+    \item \texttt{citation\_status}；
+    \item \texttt{reference\_route}；
+    \item \texttt{human\_check\_required}；
+    \item \texttt{excerpt\_text}。
+\end{itemize}
+
+这里的设计非常刻意。数据里既有可以直接保留的结果 claim，也有几类最容易让 AI 摘要出错的条目：
+
+\begin{itemize}
+    \item 两条高显著度、但其实属于同一个 claim 的重复结果；
+    \item 一条讨论段里的外推性推测；
+    \item 两条必须写进报告的 caveat；
+    \item 一条需要做页码 / quote 级核对的数字；
+    \item 一条最好保留在方法附注里的背景信息。
+\end{itemize}
+
+因此，本章真正要训练的不是“怎样让 AI 写得更像摘要”，而是更基础也更重要的能力：
+
+\begin{itemize}
+    \item 你能不能让 AI 帮你先整理证据，而不是先替你下结论？
+    \item 你能不能区分“可直接写进结果”“必须连 caveat 一起写”“必须人工复核”“最好先不要写进报告”这几种不同状态？
+\end{itemize}
+
+\section{先看一个很常见的 baseline：直接按显著度抽三条}
+
+如果没有结构化工作流，一个很常见的 baseline 就是：\textbf{按 salience score 取前三条，然后让 AI 直接把它们写成摘要。}
+
+\begin{examplebox}[直接抽三条的 baseline]
+\begin{lstlisting}[style=pythonstyle]
+top_notes = sorted(rows, key=lambda row: row["salience_score"], reverse=True)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+这个做法的问题在文献阅读里非常常见：
+
+\begin{itemize}
+    \item 它可能重复选到同一个 claim 的两个表述，导致摘要看起来“信息很多”，但其实 claim coverage 很低；
+    \item 它可能把讨论段里的推测当成结果；
+    \item 它几乎一定会漏掉限制条件与 caveat；
+    \item 它不会自动提醒你哪些数字还需要 quote / page check。
+\end{itemize}
+
+在本章教学数据上，这个 baseline 取到的 top-3 里会混入一条不该直接写进报告的推测性表述，而且还会重复同一个核心结果 claim。因此 notebook 中会看到这样的最小对照：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.22\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}>{\centering\arraybackslash}p{0.16\textwidth}p{0.20\textwidth}@{}}
+\toprule
+方法 & 结果 claim precision & claim coverage & caveat coverage & 教学解读 \\
+\midrule
+按显著度直接抽三条 & 0.67 & 0.50 & 0.00 & 容易重复同一 claim，并把推测混进摘要 \\
+claim ledger + route workflow & 1.00 & 1.00 & 1.00 & 先去重、分流，再决定哪些句子能进入报告 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小文献阅读流程的对照。重点不是“谁写得更像摘要”，而是谁更尊重证据边界。}
+\label{tab:ch37_baseline_vs_ledger}
+\end{table}
+
+\section{claim ledger 的关键不是“摘要更长”，而是“证据状态更清楚”}
+
+本章 notebook 把阅读过程拆成几个非常具体的步骤：
+
+\begin{itemize}
+    \item \textbf{claim 去重}：把属于同一个 \texttt{claim\_id} 的多条摘录先归并；
+    \item \textbf{route 分流}：把每条证据卡片送进“可直接写结果”“必须连 caveat 保留”“需要人工复核”“方法附注”或“暂不写入报告”这几类桶；
+    \item \textbf{citation / quote check}：任何 \texttt{citation\_status != ok} 的条目都不直接写进最终 prose；
+    \item \textbf{caveat 收集}：限制条件不能因为“摘要篇幅有限”就被自动丢掉；
+    \item \textbf{report skeleton}：最后才把通过核查的结果 claim 和 caveat 拼成报告骨架。
+\end{itemize}
+
+最小 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小文献阅读 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if reference_route == "exclude":
+    exclude
+elif citation_status != "ok" or human_check_required == "yes":
+    human_review
+elif reference_route == "caveat":
+    caveat
+elif reference_route == "verified_result":
+    verified_result
+else:
+    method_note
+\end{lstlisting}
+\end{examplebox}
+
+请注意，这里的重点不是让 AI“自由发挥阅读理解”，而是让它在你给定的证据结构里\textbf{先保留证据状态，再生成文字。}
+
+\section{为什么 caveat 不是摘要的附属品}
+
+学生在写 reading note 时最常见的错误之一，就是只保留“好消息”：
+
+\begin{itemize}
+    \item AUC 提升了多少；
+    \item purity 提升了多少；
+    \item 哪个方法在基准测试里更好。
+\end{itemize}
+
+但论文阅读真正可靠的地方，往往恰恰在 caveat 里：
+
+\begin{itemize}
+    \item 提升是否只发生在高 S/N 样本上；
+    \item 训练数据是否只来自单一 survey；
+    \item 讨论里的外推是否真的被结果支撑；
+    \item 某个数字是不是还需要你自己回到原文核页码。
+\end{itemize}
+
+因此，本章 notebook 会强制把 caveat 作为独立输出，而不是让它们依赖“AI 有没有顺手提到”。这和第 35 章、第 36 章的逻辑是连续的：\textbf{让 AI 帮你更快整理内容，但边界条件一定要显式保留下来。}
+
+\section{先有 claim ledger，再写报告 skeleton}
+
+很多人一开始就要求 AI “帮我写成一段 report prose”。更可靠的顺序其实相反：
+
+\begin{enumerate}
+    \item 先建立证据卡片；
+    \item 再做 claim 去重；
+    \item 再把每条 note route 到不同桶里；
+    \item 最后才让 AI 帮你把结果整理成段落。
+\end{enumerate}
+
+也就是说，更适合交给 AI 的不是“一步写完报告”，而是：
+
+\begin{itemize}
+    \item 帮你把 claim ledger 变整齐；
+    \item 帮你比较两个 claim 是否重复；
+    \item 帮你把 caveat 单独列出来；
+    \item 帮你把 human review 队列写成一个更清楚的核查清单；
+    \item 等这些都稳定之后，再帮你润色 prose。
+\end{itemize}
+
+\section{一个更适合文献阅读的 prompt 结构}
+
+如果任务已经进入论文阅读和报告写作，prompt 不应该只有“帮我总结”。更好的做法是把\textbf{claim、证据出处、caveat 和待核查项}一起写清楚。例如：
+
+\begin{examplebox}[一个更适合科研文献阅读的 prompt 模板]
+\begin{lstlisting}[style=pythonstyle]
+prompt = """
+你是我的科研文献阅读助手。
+
+任务：
+1. 先阅读证据卡片表，而不是直接写最终摘要；
+2. 输出一个 claim ledger，区分 verified result、caveat、
+   human review、method note 和 exclude；
+3. 对每个 claim 保留 note_id、citation 状态和是否需要
+   quote/page-level check；
+4. 只有在 claim ledger 完整后，才生成报告 skeleton。
+
+输出格式：
+- Verified claims
+- Caveats
+- Human review queue
+- Method notes
+- Draft report skeleton
+"""
+\end{lstlisting}
+\end{examplebox}
+
+这里真正起作用的，不是什么神秘的提示词技巧，而是你有没有先要求 AI 保留\textbf{证据结构}。如果这个结构一开始就没有建立好，后面的 prose 再流畅，也只是在放大不透明的错误。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取证据卡片表，并打印 section、note role、citation 状态统计；
+    \item 用按显著度抽三条的方式做一个 freeform-summary baseline；
+    \item 再实现 claim 去重与 routing workflow；
+    \item 输出 verified claims、caveats、human review queue 和 method notes；
+    \item 最后打印一个更适合文献阅读的 prompt 模板、workflow checklist 和 reading snapshot。
+\end{itemize}
+
+这份 notebook 不直接连接在线论文 API，也不追求真实 RAG 系统。它真正要教的是：\textbf{在读论文这件事上，AI 最应该帮助你整理证据，而不是跳过证据。}
+
+\section{和前面章节、以及 Capstone 的关系}
+
+到这里为止，Part V 其实已经形成了一条很清楚的现代 AI 工作流主线：
+
+\begin{itemize}
+    \item 第 30 章到第 34 章讲模型怎样表示函数、局部模式、低维表示与长程上下文；
+    \item 第 35 章讲 AI 生成科研代码后怎样验证；
+    \item 第 36 章讲多步骤代理流程怎样被约束和审计；
+    \item 本章讲 AI 进入论文阅读与报告写作时，怎样保留证据与核查边界。
+\end{itemize}
+
+到了 Capstone 项目里，这条逻辑会非常实用。真实项目中，你很可能会让 AI 帮你：
+
+\begin{itemize}
+    \item 整理 paper notes；
+    \item 对比多篇论文的结果与 caveat；
+    \item 生成组会 summary；
+    \item 起草项目报告中的 related work 和 discussion 初稿。
+\end{itemize}
+
+但这些任务能不能安全地自动化，不取决于 AI“写得像不像摘要”，而取决于你有没有保留 claim ledger、引用核查和 human review 这几层中间结构。
+
+\begin{warnbox}[AI 辅助文献阅读中的常见误区]
+\begin{itemize}
+    \item 一开始就要求 AI 直接写 final summary，而不先保留 claim ledger；
+    \item 不区分结果、推测、方法说明和限制条件；
+    \item 让未核查页码的数字直接进入报告；
+    \item 把 caveat 当成“可有可无的补充”，而不是正文的一部分；
+    \item 以为 prose 流畅就等于阅读准确。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把分散的证据卡片整理成更清楚的 claim ledger；
+    \item 标出重复 claim 和互相冲突的表述；
+    \item 帮你把 caveat 单独整理成 review note；
+    \item 帮你把 human review 队列改写成更适合手工核对的 checklist；
+    \item 在结构稳定后，再帮你把报告骨架润色成更自然的 prose。
+\end{itemize}
+
+但最终哪些句子真的可以被你写进报告、哪些数字必须回到原文页码逐条核对、以及哪些讨论段外推并没有被结果充分支撑，仍然必须由你自己判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据里一条 \texttt{citation\_status == verify\_page} 的 note 改成 \texttt{ok}，重新运行 notebook，观察 human review queue 和 final report skeleton 怎样变化。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+请为本章 notebook 增加一个“跨论文对照”版本：再手工加入两条来自第二篇假想论文的证据卡片，并让 AI 帮你区分“共同结论”和“只在单篇论文中出现的 claim”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合你自己的研究方向，设计一个“AI 阅读论文前必须保留的最小 claim ledger 模板”。至少包含：claim 本身、note / page 来源、引用状态、是否为结果或 caveat、以及是否需要人工复核。
+\end{exercisebox}
+
+\section{本章小结}
+
+本章最重要的结论不是“怎样让 AI 更快帮你写摘要”，而是：\textbf{在科研文献阅读里，LLM 的真正价值不在于替你跳过阅读，而在于帮助你把证据、claim、引用状态和 caveat 整理得更清楚；真正让阅读结果可信的，仍然是你保留下来的 claim ledger、citation check 和 human review 结构。}

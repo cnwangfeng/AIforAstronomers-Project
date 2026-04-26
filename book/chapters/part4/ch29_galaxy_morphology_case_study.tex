@@ -2,7 +2,7 @@
 
 \section{案例目标}
 
-这一章把 Part III 里的分类、特征工程、模型评估和可信度判断，放回一个最经典也最容易被误解的天文图像任务：星系形态分类。目标是让读者看到，一个看似“很适合深度学习”的问题，真正做起来其实包含了大量前处理和标签解释工作。
+这一章把 Part III 里的分类、特征工程、模型评估和可信度判断，放回一个最经典也最容易被误解的天文图像任务：星系形态分类。目标是让读者看到，一个看似“很适合深度学习”的问题，真正做起来其实包含了大量前处理、标签解释和人工复核工作。
 
 \begin{enumerate}
     \item 理解星系形态分类究竟在回答什么科学问题；
@@ -25,17 +25,27 @@
 
 也就是说，形态标签本身往往只是一个中间量。真正的目标，是借助这些标签去问更大的科学问题。
 
-\section{数据：从图像 cutout 到标签}
+\section{数据：从图像 cutout 到教学特征表}
 
-这个案例面向的是 Galaxy Zoo 风格或巡天缩略图风格的小型教学数据集。最典型的数据组织形式是：
+这一章的正文围绕图像 cutout 工作流展开，但配套 notebook 为了保持轻量可运行，采用的是一个\textbf{从图像中预先提取好的教学特征表}。这意味着我们在本章里先训练三件最重要的能力：
 
 \begin{itemize}
-    \item 每个对象有一张对齐后的图像 cutout；
-    \item 同时配有一个教学用形态标签，例如 \texttt{spiral}、\texttt{elliptical}、\texttt{edge\_on}；
-    \item 附带少量观测信息，例如信噪比、视宁度或红移区间。
+    \item 如何理解形态标签和观测质量信息；
+    \item 如何从传统形态学特征建立一个可解释 baseline；
+    \item 如何把错分样本重新放回形态学和观测条件中解释。
 \end{itemize}
 
-真正项目里，数据看上去往往没有想象中整洁。常见问题包括：
+配套 notebook 文件名为 \nolinkurl{ch29_galaxy_}\allowbreak\nolinkurl{morphology_case_}\allowbreak\nolinkurl{study.ipynb}，位于 Part IV notebook 目录中。
+对应教学数据文件是 \nolinkurl{galaxy_morphology_case_demo.csv}，位于 \nolinkurl{data/small/}。数据表包含：
+
+\begin{itemize}
+    \item 教学用形态标签，例如 \texttt{spiral}、\texttt{elliptical}、\texttt{edge\_on}；
+    \item 观测质量与标签可信度信息，例如 \texttt{quality\_flag} 和 \texttt{vote\_fraction}；
+    \item 若干传统形态特征，例如 \texttt{axis\_ratio}、\texttt{concentration}、\texttt{asymmetry}、\texttt{smoothness}；
+    \item 两个特别适合教学解释的指标：\texttt{spiral\_arm\_strength} 与 \texttt{edge\_on\_score}。
+\end{itemize}
+
+真正项目里，数据看上去往往没有想象中整洁。哪怕最终喂给模型的是表格特征，它们背后仍然来自原始图像，因此常见问题并不会消失：
 
 \begin{itemize}
     \item 图像尺度不一致；
@@ -68,6 +78,15 @@ image = normalize_pixels(image)
 
 这一部分看起来“不是 AI”，但它往往直接决定后面的分类结果。一个模型如果主要学到的是背景亮度、噪声模式或 cutout 边缘，而不是星系结构，那么它的高准确率也没有太大意义。
 
+也正因如此，配套 notebook 在进入分类前，先做了两个很朴素但很关键的限制：
+
+\begin{itemize}
+    \item 只保留 \texttt{quality\_flag = clean} 的样本；
+    \item 只保留 \texttt{vote\_fraction >= 0.70} 的较高一致性标签。
+\end{itemize}
+
+这一步的意义，是把“暂时难以解释的图像”和“相对稳定的教学样本”先分开。前者不一定要扔掉，但更适合进入人工复核队列，而不是直接被当作干净监督标签。
+
 \section{第二步：传统特征为什么仍然值得保留}
 
 今天一提到图像分类，很多人第一反应都是 CNN。但在教学和真实科研早期阶段，传统手工特征仍然非常有价值。例如：
@@ -87,9 +106,135 @@ image = normalize_pixels(image)
     \item 有助于判断“图像里到底是哪类结构在起作用”。
 \end{itemize}
 
-因此，这一章非常适合把“传统特征 baseline”和“卷积网络 baseline”并列来看，而不是直接跳过前者。
+因此，这一章非常适合把“传统特征 baseline”和“卷积网络 baseline”并列来看，而不是直接跳过前者。图~\ref{fig:ch29_concentration_spiral} 展示了一个最适合先看的二维切面：集中度与旋臂强度。
 
-\section{第三步：什么时候 CNN 真正有优势}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.8\textwidth,
+    height=0.54\textwidth,
+    xlabel={集中度 concentration},
+    ylabel={旋臂强度},
+    xmin=2.4, xmax=4.5,
+    ymin=0.0, ymax=0.95,
+    grid=both,
+    major grid style={draw=gray!20},
+    minor grid style={draw=gray!10},
+    tick label style={font=\small},
+    label style={font=\small},
+    legend style={font=\small, draw=none, fill=white, fill opacity=0.85, text opacity=1, at={(0.02,0.02)}, anchor=south west},
+]
+\addplot[only marks, mark=*, mark size=2.4pt, color=blue!70!black]
+coordinates {
+    (2.55,0.86) (2.68,0.80) (2.84,0.72) (2.92,0.68) (3.05,0.60) (3.16,0.43)
+};
+\addlegendentry{spiral}
+
+\addplot[only marks, mark=square*, mark size=2.2pt, color=orange!85!black]
+coordinates {
+    (4.42,0.04) (4.28,0.06) (4.12,0.08) (3.96,0.11) (3.55,0.18)
+};
+\addlegendentry{elliptical}
+
+\addplot[only marks, mark=triangle*, mark size=2.7pt, color=green!50!black]
+coordinates {
+    (3.84,0.26) (3.72,0.28) (3.58,0.31) (3.40,0.36) (3.24,0.40)
+};
+\addlegendentry{edge\_on}
+
+\addplot[only marks, mark=x, mark size=3.0pt, color=gray!70!black]
+coordinates {
+    (2.98,0.52) (3.82,0.15) (3.30,0.42)
+};
+\addlegendentry{待复核/低质量}
+\end{axis}
+\end{tikzpicture}
+\caption{星系形态案例中清洗后样本的传统特征空间示意图。螺旋星系通常集中度更低、旋臂强度更高；椭圆星系集中度更高、结构更平滑；被标为低质量或低投票一致性的样本更适合进入人工复核，而不是直接参与监督训练。}
+\label{fig:ch29_concentration_spiral}
+\end{figure}
+
+从图~\ref{fig:ch29_concentration_spiral} 可以直接读出三件事：
+
+\begin{itemize}
+    \item \texttt{spiral} 样本大多落在“集中度较低、旋臂强度较高”的区域；
+    \item \texttt{elliptical} 样本更偏向“高集中度、弱旋臂”；
+    \item \texttt{edge\_on} 样本虽然没有明显旋臂，但也并不完全等同于椭圆星系，因为它们常保留盘结构投影后的细长轮廓。
+\end{itemize}
+
+这正是传统特征最有教学价值的地方：你可以在训练模型之前，先看出特征和形态学直觉是否一致。
+
+\section{第三步：投影效应会把盘星系推向边界区域}
+
+星系形态分类最棘手的地方之一，是有些“错分”未必真的是模型错了，而是观测方向本来就在改变可见结构。一个盘星系如果越来越接近 edge-on 朝向，它在图像上就会表现为：
+
+\begin{itemize}
+    \item 轴比变小；
+    \item 旋臂可见度下降；
+    \item edge-on 倾向评分上升；
+    \item 与椭圆星系或细长盘星系之间的边界变得更模糊。
+\end{itemize}
+
+图~\ref{fig:ch29_axisratio_edgeon} 展示了清洗后样本在“轴比 vs edge-on 倾向评分”空间里的分布，并把 notebook 中最值得复查的两个测试样本标了出来。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.8\textwidth,
+    height=0.54\textwidth,
+    xlabel={轴比 $b/a$},
+    ylabel={edge-on 倾向评分},
+    xmin=0.2, xmax=0.98,
+    ymin=0.0, ymax=1.0,
+    grid=both,
+    major grid style={draw=gray!20},
+    minor grid style={draw=gray!10},
+    tick label style={font=\small},
+    label style={font=\small},
+    legend style={font=\small, draw=none, fill=white, fill opacity=0.85, text opacity=1, at={(0.02,0.98)}, anchor=north west},
+]
+\addplot[only marks, mark=*, mark size=2.4pt, color=blue!70!black]
+coordinates {
+    (0.82,0.10) (0.78,0.15) (0.74,0.20) (0.69,0.24) (0.63,0.32) (0.44,0.62)
+};
+\addlegendentry{spiral}
+
+\addplot[only marks, mark=square*, mark size=2.2pt, color=orange!85!black]
+coordinates {
+    (0.93,0.05) (0.89,0.08) (0.85,0.12) (0.79,0.18) (0.61,0.41)
+};
+\addlegendentry{elliptical}
+
+\addplot[only marks, mark=triangle*, mark size=2.7pt, color=green!50!black]
+coordinates {
+    (0.30,0.91) (0.27,0.88) (0.34,0.83) (0.38,0.78) (0.41,0.70)
+};
+\addlegendentry{edge\_on}
+
+\addplot[only marks, mark=star, mark size=4.5pt, color=black, fill=yellow]
+coordinates {
+    (0.44,0.62) (0.61,0.41)
+};
+\addlegendentry{边界/错分样本}
+
+\node[anchor=west, font=\scriptsize] at (axis cs:0.44,0.62) {SP06};
+\node[anchor=west, font=\scriptsize] at (axis cs:0.61,0.41) {EL05};
+\end{axis}
+\end{tikzpicture}
+\caption{轴比与 edge-on 倾向评分揭示的投影效应。SP06 是一个接近 edge-on 的螺旋星系：旋臂特征减弱，但盘结构投影信号增强；EL05 则是一个较扁平的椭圆星系，容易被推向盘星系边界。这样的样本更适合作为“人工复核候选”，而不是单纯归咎于模型错误。}
+\label{fig:ch29_axisratio_edgeon}
+\end{figure}
+
+这也解释了为什么 notebook 里的最近中心分类器会把 \texttt{SP06} 和 \texttt{EL05} 误分到 \texttt{edge\_on} 一侧。这里更值得学习的并不是“模型又犯错了”，而是：
+
+\begin{itemize}
+    \item 盘星系朝向本身会改变图像可见特征；
+    \item 某些椭圆星系在低维特征空间里确实可能靠近边界；
+    \item 低 margin、低投票一致度和边界位置常常同时出现。
+\end{itemize}
+
+\section{第四步：先把 baseline 做稳，再决定是否上 CNN}
 
 当数据预处理比较稳定、样本量也开始够用时，卷积神经网络会自然展现优势。原因主要有三点：
 
@@ -99,22 +244,40 @@ image = normalize_pixels(image)
     \item 迁移学习可以显著降低从头训练的门槛。
 \end{itemize}
 
-但要记住：CNN 的优势建立在数据条件也比较靠谱的前提下。如果标签本身噪声很大、低信噪比样本太多、类间边界本来就模糊，那么复杂模型不一定能解决核心问题。
+但要记住：CNN 的优势建立在数据条件也比较靠谱的前提下。如果标签本身噪声很大、低信噪比样本太多、类间边界本来就模糊，那么复杂模型不一定能解决核心问题。对这个案例来说，更合理的路线是：
 
-\section{第四步：投影效应和类别边界是这个案例的难点}
+\begin{enumerate}
+    \item 先用教学特征表做一个可解释 baseline；
+    \item 再检查哪些样本属于边界、低质量或低投票一致度；
+    \item 最后才考虑把原始图像 cutout 接入 CNN 或迁移学习模型。
+\end{enumerate}
 
-星系形态分类最棘手的地方之一，是有些“错分”未必真的是模型错了。例如：
+\begin{examplebox}[本章 notebook 的最小 baseline 流程]
+\begin{lstlisting}[style=pythonstyle]
+rows = keep_clean_high_vote_samples(rows)
+X = standardize(morphology_features(rows))
+classifier = nearest_centroid(X_train, y_train)
+pred = classifier(X_test)
+review_misclassified_samples(pred, rows_test)
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 看上去并不“先进”，但它刚好能回答教材里最重要的问题：\textbf{到底是哪些结构特征在帮助我们分辨样本，而哪些对象需要人工复核。}
+
+\section{第五步：配套 notebook 怎样组织实验}
+
+配套 notebook 采用的是一条非常适合本科教学的小型实验链：
 
 \begin{itemize}
-    \item 边缘朝向的盘星系可能看起来像细长椭圆体；
-    \item 低信噪比螺旋星系可能只剩一个模糊亮斑；
-    \item 并合或扰动系统本来就不适合硬塞进简单类别；
-    \item 不同标注者对同一张图的判断可能并不一致。
+    \item 先统计 \texttt{quality\_flag} 与 \texttt{vote\_fraction}，决定哪些样本进入分析集；
+    \item 再比较不同类别在 \texttt{axis\_ratio}、\texttt{concentration}、\texttt{spiral\_arm\_strength}、\texttt{edge\_on\_score} 上的范围；
+    \item 然后用标准化后的 8 维传统特征训练最近中心分类器；
+    \item 最后回到错分样本，检查最近邻和特征快照。
 \end{itemize}
 
-这意味着你在看混淆矩阵时，要特别小心：某些混淆反映的不是模型不行，而是类别本身就带有连续过渡和人为定义。
+这条链有一个很重要的教学特点：它把“数据筛选、特征解释、模型输出、错误复查”连成了闭环，而不是把 notebook 写成一串孤立 API 调用。即使后面升级到 CNN，也应该尽量保留这种闭环结构。
 
-\section{第五步：类别不平衡和标签噪声不能忽视}
+\section{第六步：类别不平衡、标签噪声和人工复核不能忽视}
 
 在很多真实样本里，最常见的类型通常数量最多，而真正罕见但科学上有趣的类型数量很少。于是你常会同时面对：
 
@@ -132,6 +295,14 @@ image = normalize_pixels(image)
     \item 哪些类别最容易互相混淆；
     \item 低质量样本是否集中在某些错分区域；
     \item 是否需要把“高不确定度样本”单独交回人工复核。
+\end{itemize}
+
+在当前教学数据里，\texttt{vote\_fraction} 的作用尤其直观：它让我们把“标签本身就很稳的样本”和“标注者存在明显分歧的样本”分开。等学生进入更真实的图像任务后，这会自然过渡到：
+
+\begin{itemize}
+    \item 对 Galaxy Zoo 投票分布做阈值筛选；
+    \item 对边界对象保留“不确定/待复核”标签；
+    \item 在模型输出之外加一层人工审阅工作流。
 \end{itemize}
 
 \section{为什么这个案例特别适合比较传统方法和现代 AI}
@@ -164,11 +335,26 @@ image = normalize_pixels(image)
 \begin{itemize}
     \item 梳理图像前处理和数据增强的实验方案；
     \item 帮你整理混淆矩阵和错分图像复查记录；
-    \item 把“传统特征 baseline”和“CNN baseline”写成结构清楚的对照实验说明。
+    \item 把“传统特征 baseline”和“CNN baseline”写成结构清楚的对照实验说明；
+    \item 根据 notebook 输出生成一张待复核对象清单。
 \end{itemize}
 
 但到底是标签有问题、图像质量有问题，还是模型真的没学到结构；以及某个高不确定度对象是否值得单独研究，仍然需要你自己判断。
 
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把 notebook 中的标签一致性阈值从 \texttt{vote\_fraction >= 0.70} 改成 \texttt{vote\_fraction >= 0.80}，比较保留下来的样本数、每类样本数以及测试集错分情况。说明你看到的是“更干净的监督集”，还是“过度收缩后的样本”。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把最近中心分类器替换成 \texttt{3-NN} 或你熟悉的另一个轻量分类器，比较 \texttt{SP06} 和 \texttt{EL05} 的预测是否改变。无论结果是否提升，都要写一段说明：这是否真的意味着更复杂模型更好，还是只是对边界对象做了不同的几何划分。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+假设你下一步要把原始图像 cutout 接入 CNN 或迁移学习模型，请写出一个最小实验计划。至少包括：图像尺寸如何统一、训练/验证/测试如何划分、哪些样本应该进入人工复核队列，以及你准备用什么指标证明 CNN 学到的是形态结构而不是观测条件。
+\end{exercisebox}
+
 \section{本章小结}
 
-星系形态分类案例提醒我们：图像 AI 任务真正困难的部分，常常不是网络结构本身，而是图像尺度、标签质量、投影效应和科学定义边界。只有把这些问题一起放进工作流里，分类结果才会真正变得可信。
+星系形态分类案例提醒我们：图像 AI 任务真正困难的部分，常常不是网络结构本身，而是图像尺度、标签质量、投影效应和科学定义边界。只有把这些问题一起放进工作流里，分类结果才会真正变得可信。对教学来说，先用传统形态特征把 baseline、错分复核和人工审阅逻辑讲清楚，再进入 CNN 和迁移学习，通常比一开始就追逐复杂模型更有价值。

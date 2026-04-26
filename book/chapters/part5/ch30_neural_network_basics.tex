@@ -1,0 +1,235 @@
+\chapter{神经网络基础}
+
+\section{案例目标}
+
+这一章是全书进入 Part V 之后的第一个入口章节。目标不是立刻把学生带进大模型或复杂训练框架，而是先把神经网络最核心的三个问题讲清楚：
+
+\begin{enumerate}
+    \item 为什么有些科学映射关系已经超出了简单线性模型的表达能力；
+    \item 一个最小神经网络到底在做什么；
+    \item 为什么训练、验证和物理解释在深度学习时代仍然一样重要。
+\end{enumerate}
+
+\section{为什么在这里进入神经网络}
+
+到目前为止，我们已经在 Part III 和 Part IV 中反复练习了一个重要习惯：先建立简单 baseline，再决定是否值得引入更复杂的方法。进入神经网络也应当沿着同一条逻辑展开。
+
+在前面的案例里，你已经看到：
+
+\begin{itemize}
+    \item 线性回归适合建立最小可解释 baseline；
+    \item PCA、最近中心和轻量分类器足以解释很多结构清楚的数据；
+    \item 像星系形态分类这样的任务，会自然把我们推向 CNN 和迁移学习。
+\end{itemize}
+
+但在真正进入卷积网络之前，学生首先需要理解一个更底层的问题：\textbf{神经网络为什么能表示比直线或浅层规则更复杂的映射？}
+
+\section{一个教学版非线性响应数据集}
+
+配套 notebook 使用 \nolinkurl{neural_network_regression_demo.csv}。它是一个小型教学数据集，用一个单输入、单输出的非线性响应关系演示神经网络基础。数据表包括：
+
+\begin{itemize}
+    \item 自变量 \texttt{feature\_x}；
+    \item 目标值 \texttt{target\_y}；
+    \item 明确给出的 \texttt{split} 划分，区分训练样本与测试样本。
+\end{itemize}
+
+这类教学数据可以被理解成一种抽象化后的科研情景，例如：
+
+\begin{itemize}
+    \item 某个非线性探测器响应标定问题；
+    \item 某个颜色指标与物理参数之间的弯曲经验关系；
+    \item 某个低维特征对目标量的近似但非线性映射。
+\end{itemize}
+
+它的意义不在于对应某一个具体巡天，而在于帮助你把注意力集中到“线性模型为什么不够”和“隐藏层在补什么”这两个问题上。
+
+\section{先做一个线性 baseline}
+
+神经网络章节也不应该跳过 baseline。配套 notebook 的第一步，仍然是先拟合一条直线：
+
+\begin{examplebox}[线性 baseline]
+\begin{lstlisting}[style=pythonstyle]
+y_pred = intercept + slope * x
+\end{lstlisting}
+\end{examplebox}
+
+这样做的好处是：
+
+\begin{itemize}
+    \item 它给了我们一个最小对照组；
+    \item 它能帮助学生看清“误差到底是来自噪声，还是来自模型表达能力不够”；
+    \item 后面任何网络结构的改进，都必须拿它来比较。
+\end{itemize}
+
+图~\ref{fig:ch30_nonlinear_baseline} 展示了这个教学数据的几何直觉。训练点沿着一条明显弯曲的轨迹分布，而最佳直线只能抓住总体趋势，难以同时兼顾两端和中间区域。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.82\textwidth,
+    height=0.54\textwidth,
+    xlabel={feature\_x},
+    ylabel={target\_y},
+    xmin=-2.1, xmax=1.9,
+    ymin=-1.1, ymax=1.2,
+    grid=both,
+    major grid style={draw=gray!20},
+    minor grid style={draw=gray!10},
+    tick label style={font=\small},
+    label style={font=\small},
+    legend style={font=\small, draw=none, fill=white, fill opacity=0.85, text opacity=1, at={(0.02,0.98)}, anchor=north west},
+]
+\addplot[only marks, mark=*, mark size=2.3pt, color=blue!65!black]
+coordinates {
+    (-2.0,-0.984) (-1.7,-0.941) (-1.4,-0.889) (-1.1,-0.816)
+    (-0.8,-0.702) (-0.5,-0.513) (-0.2,-0.229) (0.1,0.116)
+    (0.4,0.429) (0.7,0.649) (1.0,0.784) (1.3,0.868)
+};
+\addlegendentry{训练样本}
+
+\addplot[only marks, mark=square*, mark size=2.2pt, color=orange!80!black]
+coordinates {
+    (-1.55,-0.917) (-0.95,-0.766) (-0.35,-0.383)
+    (0.55,0.551) (1.15,0.830) (1.75,0.949)
+};
+\addlegendentry{测试样本}
+
+\addplot[domain=-2.0:1.8, samples=2, thick, dashed, color=red!70!black]
+{0.6483216783*x + 0.0412459207};
+\addlegendentry{线性 baseline}
+\end{axis}
+\end{tikzpicture}
+\caption{一个小型非线性回归教学数据集。线性 baseline 能抓住总体单调趋势，但无法很好描述两端逐渐饱和、中间快速变化的形状。这正是神经网络值得出场的典型情景之一。}
+\label{fig:ch30_nonlinear_baseline}
+\end{figure}
+
+\section{隐藏层在补什么}
+
+一个最小全连接神经网络可以理解成三步：
+
+\begin{enumerate}
+    \item 先把输入通过若干线性组合映射到隐藏单元；
+    \item 再对每个隐藏单元施加非线性激活函数；
+    \item 最后把这些隐藏表示重新组合成输出。
+\end{enumerate}
+
+对于本章 notebook 中使用的单隐层网络，最小前向传播可以写成：
+
+\begin{examplebox}[一个最小前向传播]
+\begin{lstlisting}[style=pythonstyle]
+z_i = w1_i * x + b1_i
+h_i = tanh(z_i)
+y_pred = sum(w2_i * h_i for i in hidden_units) + b2
+\end{lstlisting}
+\end{examplebox}
+
+这里最关键的并不是“层数”这个词本身，而是 \texttt{tanh} 这样的\textbf{非线性激活函数}。如果没有非线性，多个线性层叠起来本质上仍然只是一个更大的线性变换，表达能力并不会真正提升。
+
+\section{损失函数与反向传播的直觉}
+
+这一章不追求推导所有矩阵公式，但学生必须理解训练在做什么。对当前回归例子来说，我们希望网络输出尽量接近真实目标值，因此 notebook 使用的是均方误差风格的损失。
+
+\begin{examplebox}[单样本误差的直觉]
+\begin{lstlisting}[style=pythonstyle]
+loss = 0.5 * (y_pred - y_true) ** 2
+\end{lstlisting}
+\end{examplebox}
+
+反向传播的本质，是把这个误差对每一层参数的影响一层层传回去。对单隐层网络来说，你至少应该抓住下面这条逻辑链：
+
+\begin{itemize}
+    \item 输出错了多少，先影响输出层权重；
+    \item 输出层权重又决定误差信号怎样传回隐藏层；
+    \item 隐藏层激活函数的导数，决定某个单元在当前位置是否容易被调整。
+\end{itemize}
+
+换句话说，训练不是神秘黑箱，而是“误差如何流经网络结构”的系统计算。
+
+\section{配套 notebook 做了什么}
+
+配套 notebook 采用了一条尽量克制、但足以说明问题的教学路线：
+
+\begin{itemize}
+    \item 先读取教学数据并检查训练/测试划分；
+    \item 用 Part III 里已经见过的线性回归公式建立 baseline；
+    \item 对输入做标准化；
+    \item 用纯 Python 实现一个单隐层 \texttt{tanh} 网络；
+    \item 比较线性模型与神经网络在测试集上的 RMSE；
+    \item 最后检查隐藏单元在不同输入位置上的激活响应。
+\end{itemize}
+
+这种组织方式有两个教学优点：
+
+\begin{itemize}
+    \item 它保留了从 baseline 到复杂模型的连续性；
+    \item 它让“网络学到了什么”至少还能通过隐藏单元响应获得一点直觉。
+\end{itemize}
+
+在这个教学数据上，线性模型的测试集 RMSE 大约在 \texttt{0.16} 左右，而单隐层网络可以把测试集 RMSE 压到约 \texttt{0.01} 的量级。这并不是在宣告“神经网络总是更好”，而是在说明：\textbf{当目标关系本身明显非线性时，隐藏层确实能显著提升拟合能力。}
+
+\section{为什么这一章还不是 CNN}
+
+学生往往会问：既然深度学习这么重要，为什么不直接从卷积网络开始？原因很简单：
+
+\begin{itemize}
+    \item 如果连前向传播、损失函数和误差回传的基本直觉都没有，CNN 就只剩下库调用；
+    \item 在图像任务里，卷积、池化和数据增强会同时带来更多工程细节；
+    \item 先把单隐层网络的逻辑走顺，后面理解一维光谱 CNN 或星系图像 CNN 会轻松很多。
+\end{itemize}
+
+也就是说，这一章是 Part V 的\textbf{地基}。它回答的是“为什么网络有能力表示更复杂函数”，下一章才更自然地回答“为什么卷积结构特别适合图像和光谱”。
+
+\section{怎样从这里走向星系形态分类和 CNN}
+
+你可以把这一章直接和前面的第 29 章联系起来看：
+
+\begin{itemize}
+    \item 第 29 章已经说明，图像分类真正困难的部分不只是模型，而是数据清洗、标签可信度和投影效应；
+    \item 这一章则补上了神经网络的最小表达能力直觉；
+    \item 二者合起来，才构成进入 CNN 与迁移学习的合理起点。
+\end{itemize}
+
+如果说第 29 章解决的是“什么时候该认真考虑深度学习”，那么这一章解决的就是“深度学习里最小的网络到底在做什么”。
+
+\begin{warnbox}[神经网络入门中的常见误区]
+\begin{itemize}
+    \item 一看到神经网络就跳过 baseline，导致不知道改进到底来自哪里；
+    \item 只会调用框架，不理解激活函数和损失函数在网络中的角色；
+    \item 在很小的数据集上把训练误差下降误读成真正泛化；
+    \item 把神经网络预测成功直接当作物理机制已经被解释；
+    \item 一开始就堆很多层和很多超参数，反而失去教学清晰度。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 把前向传播和反向传播代码整理得更清楚；
+    \item 帮你检查训练循环里的梯度更新是否自洽；
+    \item 帮你把线性 baseline 与神经网络的测试误差整理成对照表；
+    \item 帮你总结“网络为什么比直线更适合这个数据”的文字说明。
+\end{itemize}
+
+但网络是否真的学到了稳定结构、这个改进是否会外推到真实科学数据、以及什么时候应该停止增加模型复杂度，仍然需要你自己判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把 notebook 里的隐藏层单元数从 6 改成 2，再改成 10，比较训练损失、测试集 RMSE 以及预测曲线的平滑程度。说明“更大的网络”是否在这个小数据上总是更好。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把激活函数从 \texttt{tanh} 改成 \texttt{sigmoid} 或 \texttt{ReLU}-风格的分段函数，比较训练稳定性和测试表现。尝试解释不同激活函数为什么会改变梯度传播方式。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合第 29 章的星系形态分类案例，写一个小方案说明：如果你下一步要把图像 cutout 接入 CNN，你会怎样保留这章学到的 baseline 思维？至少包括：一个传统方法对照组、一个神经网络版本、一个错误案例复核步骤。
+\end{exercisebox}
+
+\section{本章小结}
+
+神经网络基础这一章最重要的价值，不在于让学生背会术语，而在于建立一种连续的思维方式：先从线性 baseline 出发，确认问题的非线性本质，再用最小网络解释隐藏层和激活函数如何增加表达能力。只有这样，后面的 CNN、迁移学习和更现代的 AI 模型，才不会沦为纯粹的黑箱调用。

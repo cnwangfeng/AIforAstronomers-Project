@@ -5,6 +5,15 @@ This directory will become the long-term home for the textbook chapters.
 For now, the textbook still uses the legacy flat layout in `book/` to avoid
 breaking the current Overleaf workflow before we finish the first cleanup pass.
 
+Draft policy:
+
+- new Chinese chapter drafts can be written here before they are wired into
+  `book/main.tex`
+- this lets us author the future textbook structure without breaking the current
+  stable Overleaf entry point
+- once a draft is mature and the Chinese LaTeX toolchain is ready, it can
+  replace the legacy chapter file in the main build
+
 Planned migration map:
 
 - `UnixLinux.tex` -> `chapters/part1/ch01_unix_linux.tex`

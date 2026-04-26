@@ -1,0 +1,163 @@
+\chapter{Python 入门}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解变量、整数、浮点数、字符串、列表和字典这些基本数据结构；
+    \item 使用索引和切片读取数据的局部内容；
+    \item 把一个简单的天文学数据表读入 Python，并完成最基础的数值计算；
+    \item 理解为什么后续的 NumPy、Pandas 和机器学习都建立在这些基础概念之上。
+\end{itemize}
+
+\section{为什么从 Python 基础开始}
+
+很多学生第一次接触科研编程时，最难的部分不是复杂算法，而是如何把一个真实问题拆成计算机能执行的步骤。对于天文和物理中的许多任务，我们通常都要经历下面这个过程：
+
+\begin{enumerate}
+    \item 读取数据；
+    \item 用变量保存数据；
+    \item 选择合适的数据结构组织这些数据；
+    \item 进行计算、筛选和可视化；
+    \item 对结果做物理解释。
+\end{enumerate}
+
+因此，学会 Python 基础并不是为了记住孤立的语法，而是为了建立一种面向问题的数据思维。
+
+\begin{defbox}[变量]
+变量是一个名字，它指向内存中的某个值。我们用变量来保存测量值、文件路径、中间结果和最终输出。
+\end{defbox}
+
+\section{从一个最小数据表示例开始}
+
+在本教材的配套 notebook 中，我们准备了一个很小的教学数据文件 \texttt{planetary\_orbits\_demo.csv}。它包含若干行星的半长轴和轨道周期，适合用来练习最基础的数据读取与计算。
+
+\begin{examplebox}[读取教学数据]
+\begin{lstlisting}[style=pythonstyle]
+import csv
+from pathlib import Path
+
+data_path = Path("../../data/small/planetary_orbits_demo.csv")
+with data_path.open(newline="", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+planet_names = [row["planet"] for row in rows]
+orbital_periods = [float(row["orbital_period_years"]) for row in rows]
+\end{lstlisting}
+\end{examplebox}
+
+这段代码虽然简单，却已经体现了科研编程中最常见的几个动作：读文件、遍历记录、抽取字段、把字符串转换为数值。
+
+\section{数据类型}
+
+\subsection{整数、浮点数与字符串}
+
+最常见的三类基本数据分别是：
+
+\begin{itemize}
+    \item \textbf{整数（int）}：例如观测次数、循环计数；
+    \item \textbf{浮点数（float）}：例如星等、红移、视差、曝光时间；
+    \item \textbf{字符串（str）}：例如恒星名称、文件路径、观测设备标签。
+\end{itemize}
+
+\begin{examplebox}[查看变量类型]
+\begin{lstlisting}[style=pythonstyle]
+example_planet = planet_names[2]
+example_period = orbital_periods[2]
+
+print(example_planet, type(example_planet))
+print(example_period, type(example_period))
+\end{lstlisting}
+\end{examplebox}
+
+在科学数据处理中，类型非常重要。看起来像数字的内容，如果仍然是字符串，就不能直接拿来做数学运算。
+
+\subsection{列表}
+
+列表是一种有顺序的数据容器。它非常适合在入门阶段保存一列观测量。
+
+\begin{examplebox}[索引与切片]
+\begin{lstlisting}[style=pythonstyle]
+print(orbital_periods[0])
+print(orbital_periods[:4])
+\end{lstlisting}
+\end{examplebox}
+
+Python 的索引从 0 开始。切片 \texttt{[:4]} 表示取前四个元素，但不包括索引为 4 的元素。
+
+\subsection{字典}
+
+字典适合表示“键值映射”。当天体名称与物理量一一对应时，字典会非常方便。
+
+\begin{examplebox}[建立名称到周期的映射]
+\begin{lstlisting}[style=pythonstyle]
+period_by_planet = {
+    row["planet"]: float(row["orbital_period_years"])
+    for row in rows
+}
+
+print(period_by_planet["Earth"])
+print(period_by_planet["Jupiter"])
+\end{lstlisting}
+\end{examplebox}
+
+\section{一个最小科学计算：开普勒关系}
+
+基础语法真正有价值的时刻，是它开始连接科学问题。对于绕同一中心天体运行的行星，开普勒第三定律告诉我们，轨道周期 $P$ 和半长轴 $a$ 满足近似关系：
+
+\[
+\frac{P^2}{a^3} \approx \mathrm{constant}
+\]
+
+在我们的教学数据中，可以做一个最简单的数量检查：
+
+\begin{examplebox}[计算 $P^2/a^3$]
+\begin{lstlisting}[style=pythonstyle]
+kepler_ratio = []
+for axis, period in zip(semi_major_axes, orbital_periods):
+    kepler_ratio.append(period**2 / axis**3)
+
+mean_ratio = sum(kepler_ratio) / len(kepler_ratio)
+print(round(mean_ratio, 3))
+\end{lstlisting}
+\end{examplebox}
+
+这类练习的重点并不是追求高精度，而是让你感受到：当数据被正确读入并组织好之后，物理问题就能自然转化为几行清晰的计算。
+
+\section{常见错误}
+
+\begin{warnbox}[入门阶段最容易出现的问题]
+\begin{itemize}
+    \item 忘记把字符串转换成浮点数；
+    \item 把索引当成从 1 开始；
+    \item 变量名混乱，导致自己也看不懂代码；
+    \item 只会复制代码，却说不清每一行在保存什么数据。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手最适合做的是：
+
+\begin{itemize}
+    \item 解释某段基础语法的含义；
+    \item 帮你把一段重复代码改写得更清楚；
+    \item 给出几个类似但更小的练习题。
+\end{itemize}
+
+但你不能把“AI 生成的代码能运行”直接等同于“我已经理解了”。在入门阶段，最重要的是你自己能说清楚变量里装的是什么、列表为什么这样切、字典为什么这样建。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+从 \texttt{planetary\_orbits\_demo.csv} 中找出轨道周期最长和最短的行星，并说明你是如何比较它们的。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+只筛选类地行星（Mercury 到 Mars），重新计算它们的平均轨道周期，并与全部行星样本比较。
+\end{exercisebox}
+
+\section{本章小结}
+
+本章介绍的内容看起来简单，但它们构成了后续全部工作的底层骨架。无论你以后要读 FITS、画 HR 图、训练随机森林，还是用深度学习分析星系图像，第一步都仍然是：把数据变成清晰、可检查、可计算的 Python 对象。

@@ -8,6 +8,9 @@ Current datasets:
 - `planetary_orbits_demo.csv`
   A tiny Solar System inspired table for early Python, I/O, and plotting
   notebooks.
+- `stellar_photometry_demo.csv`
+  A small Gaia-style synthetic table for uncertainty, stellar catalog, and
+  HR-diagram notebooks.
 
 Dataset notes:
 

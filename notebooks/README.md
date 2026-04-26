@@ -32,4 +32,5 @@ notebooks/
 当前进展：
 
 - `part1_scientific_computing/` 已创建 9 个章节骨架 notebook。
+- `part2_data_processing/` 已开始加入误差传播与 HR 图 notebook。
 - 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。

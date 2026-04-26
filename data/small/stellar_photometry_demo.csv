@@ -1,0 +1,9 @@
+source_id,label,bp_rp,parallax_mas,g_mag,stellar_class
+1001,Sirius-like,0.00,379.2,-1.46,main_sequence
+1002,Sun-like,0.82,100.0,4.83,main_sequence
+1003,K-dwarf,1.10,62.5,6.80,main_sequence
+1004,M-dwarf,2.10,200.0,10.30,main_sequence
+1005,Red giant A,1.55,10.5,5.20,giant
+1006,Red giant B,1.80,7.8,4.50,giant
+1007,White dwarf A,-0.10,55.0,12.20,white_dwarf
+1008,White dwarf B,0.05,40.0,13.00,white_dwarf

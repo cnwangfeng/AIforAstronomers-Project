@@ -1,0 +1,119 @@
+\chapter{机器学习项目流程}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解特征、标签、训练集和测试集的基本含义；
+    \item 说清楚为什么机器学习流程需要从 baseline 开始；
+    \item 用一个极小数据集走通“切分、训练、预测、评估”的最小流程；
+    \item 理解数据切分本身就是评估设计的一部分。
+\end{itemize}
+
+\section{为什么需要明确流程}
+
+初学机器学习时，最容易出现的错觉是：只要把数据交给一个模型，剩下的事情就会自动完成。实际上，一个最小可用的机器学习任务通常至少包含以下几个步骤：
+
+\begin{enumerate}
+    \item 确定目标问题；
+    \item 定义特征和标签；
+    \item 划分训练集与测试集；
+    \item 建立 baseline；
+    \item 训练模型；
+    \item 评估结果；
+    \item 解释错误和局限。
+\end{enumerate}
+
+如果跳过其中任何一步，模型分数就很容易失去意义。
+
+\section{一个教学版训练/测试切分}
+
+在配套 notebook 中，我们使用一个很小的恒星分类教学样本。因为样本极少，若简单按顺序切分，很可能出现“某个类别只存在于测试集而训练集中完全没有”的情况。
+
+因此，我们采用了一个最小的分层思路：每个类别各留出一个样本做测试，其余样本用于训练。
+
+\begin{examplebox}[教学版分层切分]
+\begin{lstlisting}[style=pythonstyle]
+test_indices = {0, 4, 6}
+train_rows = [row for index, row in enumerate(rows)
+              if index not in test_indices]
+test_rows = [row for index, row in enumerate(rows)
+             if index in test_indices]
+\end{lstlisting}
+\end{examplebox}
+
+这不是完整严谨的分层抽样方法，但它足够让学生理解一个核心原则：训练集必须包含模型需要学习到的类别信息。
+
+\section{特征、标签与训练}
+
+在这个最小示例里：
+
+\begin{itemize}
+    \item 特征是颜色指数和绝对星等；
+    \item 标签是恒星类别；
+    \item 目标是根据特征预测类别。
+\end{itemize}
+
+我们先写一个纯 Python 的最近中心分类器，而不是立刻依赖外部库。原因不是它更强，而是它有助于学生直接看到训练过程在做什么。
+
+\begin{examplebox}[构造一个最小分类器]
+\begin{lstlisting}[style=pythonstyle]
+def feature_vector(row):
+    return (row["bp_rp"], row["absolute_g_mag"])
+
+def build_centroids(training_rows):
+    grouped = {}
+    for row in training_rows:
+        grouped.setdefault(row["stellar_class"], []).append(
+            feature_vector(row)
+        )
+\end{lstlisting}
+\end{examplebox}
+
+这一段代码的含义很直白：先按类别分组，再计算每一类特征的“中心”。后续的预测，就是把新样本分到最近的类别中心附近。
+
+\section{评估与结果解释}
+
+在 notebook 中，我们最终会得到一个测试准确率。例如，在当前这个教学切分里，最近中心分类器可以给出一个非零结果，而不是像先前不合理切分那样出现完全失真的 $0.0$。
+
+但这并不意味着我们已经“训练出了一个可靠模型”。相反，这个小例子最重要的教学价值在于：
+
+\begin{itemize}
+    \item 理解为什么切分方式会影响评估；
+    \item 理解为什么训练集必须覆盖每个类别；
+    \item 理解为什么小样本成绩只能用于演示，不应被过度解读。
+\end{itemize}
+
+\section{如果安装了 scikit-learn}
+
+配套 notebook 还提供了一个可选单元：如果环境中安装了 \texttt{scikit-learn}，就可以用标准库中的 \texttt{KNeighborsClassifier} 做对比。
+
+这一步的目的不是为了证明标准库“更神秘”，而是为了帮助你把自己手写的最小模型，与成熟生态中的常用工具联系起来。
+
+\section{常见错误}
+
+\begin{warnbox}[机器学习流程中的典型问题]
+\begin{itemize}
+    \item 训练集没有覆盖全部类别；
+    \item 测试集太小，却对分数做过度解读；
+    \item 只报告分数，不展示预测样本和错误案例；
+    \item 在没有 baseline 的情况下直接上复杂模型。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手适合帮助你：
+
+\begin{itemize}
+    \item 检查训练/测试切分是否合理；
+    \item 帮你把手写分类器整理得更清楚；
+    \item 对比纯 Python 实现和 \texttt{scikit-learn} 实现的差异。
+\end{itemize}
+
+但模型流程是否合理、评估是否可信，仍然必须由你自己判断。尤其在小样本场景中，任何“好看的分数”都应该谨慎解释。
+
+\section{本章小结}
+
+机器学习不是从“选模型”开始的，而是从“定义任务并设计合理流程”开始的。一个清楚的工作流，比一个花哨的模型更能帮助你避免概念错误和评估陷阱。

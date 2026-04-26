@@ -1,0 +1,166 @@
+\chapter{光度红移估计案例}
+
+\section{案例目标}
+
+这一章把前面 Part III 的回归、模型评估和可信度分析组合成一个更接近真实巡天任务的案例。我们的目标是：
+
+\begin{enumerate}
+    \item 从一个小型 SDSS 风格测光表出发；
+    \item 建立最简单的一维回归 baseline；
+    \item 再用多特征线性回归改进预测；
+    \item 用残差分析检查模型在不同类型星系上的表现；
+    \item 明确模型能做什么、不能做什么。
+\end{enumerate}
+
+\section{问题背景：为什么光度红移这么重要}
+
+如果每个星系都能拿到高质量光谱，那么红移测量会直接得多。但现实里，大样本巡天通常只能为少量天体获得光谱，其余对象往往只有多波段测光。因此，天文学里长期存在一个非常实用的问题：
+
+\begin{quote}
+能不能根据少量测光颜色，快速估计星系红移？
+\end{quote}
+
+这就是光度红移问题。它既是一个典型回归任务，也是一个非常适合教学的科学机器学习案例，因为它天然包含：
+
+\begin{itemize}
+    \item 特征选择；
+    \item 训练集和测试集划分；
+    \item baseline 和改进模型的比较；
+    \item 残差分析；
+    \item 训练样本覆盖范围的限制。
+\end{itemize}
+
+\section{数据：一个教学版 SDSS 风格小样本}
+
+配套 notebook 使用 \nolinkurl{photoz_case_demo.csv}。数据表包含：
+
+\begin{itemize}
+    \item 颜色特征 \texttt{u\_g}, \texttt{g\_r}, \texttt{r\_i}, \texttt{i\_z}；
+    \item 一个亮度特征 \texttt{r\_mag}；
+    \item 教学用类型标签 \texttt{galaxy\_type}；
+    \item 参考红移 \texttt{specz}。
+\end{itemize}
+
+这里的 \texttt{galaxy\_type} 不是给模型直接使用的，而是为了帮助我们在误差分析阶段回答一个更科学的问题：\textbf{模型在不同类型星系上是否同样可靠？}
+
+\section{第一步：先做一个故意朴素的 baseline}
+
+案例先从只用 \texttt{g-r} 单一颜色预测红移开始。这样做有两个好处：
+
+\begin{itemize}
+    \item 它足够简单，能够帮助学生直观看到“颜色随红移变化”的趋势；
+    \item 它也足够弱，便于和后面的多特征模型作比较。
+\end{itemize}
+
+在 notebook 里，这个 baseline 使用一元线性回归：
+
+\begin{examplebox}[一元 baseline]
+\begin{lstlisting}[style=pythonstyle]
+z_pred = intercept + slope * (g_r)
+\end{lstlisting}
+\end{examplebox}
+
+这一步的教学意义，不在于它一定准确，而在于它给我们提供了一个最低对照组。后面的任何改进，都应该拿它来比较。
+
+\section{第二步：再上一个多特征回归模型}
+
+接下来，我们把四个颜色指标和 \texttt{r\_mag} 一起放入模型。对教学案例来说，多特征线性回归已经足以展示一条完整而清楚的思路：
+
+\begin{itemize}
+    \item 多个测光量共同提供红移信息；
+    \item 模型结构仍然可解释；
+    \item 可以直接比较和 baseline 相比误差是否下降。
+\end{itemize}
+
+notebook 中使用的是纯 Python 正规方程求解的最小实现。模型形式可以写成：
+
+\begin{examplebox}[多特征线性模型]
+\begin{lstlisting}[style=pythonstyle]
+z_pred = beta0
+       + beta1 * (u_g)
+       + beta2 * (g_r)
+       + beta3 * (r_i)
+       + beta4 * (i_z)
+       + beta5 * (r_mag)
+\end{lstlisting}
+\end{examplebox}
+
+这不是在说线性模型总是最好，而是在强调：\textbf{进入更复杂模型之前，你应先建立一个清楚、可复现、可解释的中等复杂度基线。}
+
+\section{第三步：看总体指标，更要看残差分布}
+
+光度红移任务里，只报告一个平均误差数字远远不够。你至少还应问：
+
+\begin{itemize}
+    \item 哪些对象误差最大；
+    \item 残差是否有系统性偏差；
+    \item 某些类型星系是否明显更难预测。
+\end{itemize}
+
+因此，本案例不仅计算 MAE、RMSE 和平均偏差，也会把测试集里的单个对象列出来，逐个检查预测残差。
+
+\begin{examplebox}[残差定义]
+\begin{lstlisting}[style=pythonstyle]
+residual = z_pred - specz
+\end{lstlisting}
+\end{examplebox}
+
+如果平均误差看起来不错，但少数样本残差始终偏大，那么这个模型在科学使用上仍然可能有明显风险。
+
+\section{第四步：把误差放回物理对象类型}
+
+这是本案例最重要的一步之一。你会看到：在这个教学数据里，多特征线性回归比单色 baseline 好很多，但它并没有“解决一切问题”。
+
+特别是对少见类型，例如 \texttt{blue\_compact} 星系，如果训练集中只有极少例子，那么模型即使在整体指标上表现不错，也可能在这类对象上明显失真。换句话说，\textbf{总体平均表现和具体对象表现，不是一回事。}
+
+\section{为什么这个案例很像真实项目}
+
+和前面 Part III 的方法章相比，这一章更接近一个完整的小项目，因为它同时包含：
+
+\begin{itemize}
+    \item 巡天风格表格数据；
+    \item baseline 与改进模型的对照；
+    \item 测试集残差表；
+    \item 按对象类型检查模型失效边界；
+    \item 对“训练样本覆盖不足”这一科学问题的直接讨论。
+\end{itemize}
+
+这也是为什么我们把它放进 Part IV：重点不再只是“会不会调包调用模型”，而是能否把模型结果重新放回科学上下文中解释。
+
+\section{如果有标准库，还可以怎么扩展}
+
+notebook 最后还提供了一个可选的 \texttt{scikit-learn} 随机森林对照块。如果环境里装有相关库，你可以进一步比较：
+
+\begin{itemize}
+    \item 线性模型和树模型谁在这个数据上更稳；
+    \item 非线性模型是否更能处理少数复杂对象；
+    \item 当样本很小时，更复杂模型是否真的值得引入。
+\end{itemize}
+
+但请记住：复杂模型不是默认答案。只有当它带来稳定、可验证的收益时，复杂度才是值得的。
+
+\begin{warnbox}[光度红移案例中的常见误区]
+\begin{itemize}
+    \item 只看整体 MAE，不检查最大残差来自哪些对象；
+    \item 训练样本中几乎没有某类星系，却仍然对该类预测过度自信；
+    \item 把教学数据上的表现直接外推到真实 SDSS 或更深巡天；
+    \item 忽视测光系统差异、消光、样本选择效应等现实复杂性；
+    \item 把经验预测模型误当成物理机制本身。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查训练/测试划分和残差统计代码；
+    \item 帮你把 baseline 和改进模型的结果整理成表格；
+    \item 帮你撰写“误差来源与模型边界”的初稿说明。
+\end{itemize}
+
+但哪个对象属于训练分布外、哪种残差模式值得科学上继续追踪、以及模型是否能用于真实巡天数据，仍然需要你自己判断。
+
+\section{本章小结}
+
+光度红移案例展示了一个很关键的事实：一个看上去“整体不错”的回归模型，仍然可能在少见对象上失败。真正可靠的科学机器学习，不只是提高平均精度，还包括识别模型在哪些类型、哪些范围、哪些样本条件下不再可信。

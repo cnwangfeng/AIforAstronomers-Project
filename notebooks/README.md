@@ -41,5 +41,5 @@ notebooks/
 - `part1_scientific_computing/` 已从“Python 零基础”调整为“科研计算与可复现工作流”主线。
 - `part2_data_processing/` 已开始加入误差传播与 HR 图 notebook。
 - `part3_machine_learning/` 已开始加入规则 baseline 和最小分类工作流 notebook。
-- `part4_cases/` 已开始接收 Gaia HR 图与恒星分类等案例型 notebook。
+- `part4_cases/` 已开始接收 Gaia HR 图、光度红移估计等案例型 notebook。
 - 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。

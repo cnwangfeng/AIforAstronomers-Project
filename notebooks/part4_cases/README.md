@@ -6,9 +6,9 @@ physics mini-projects.
 Current notebook plan in progress:
 
 - `ch26_gaia_hr_case_study.ipynb`
+- `ch27_photometric_redshift_case_study.ipynb`
 
 Later this directory will grow into:
 
-- photometric-redshift case studies
 - spectral-classification case studies
 - time-domain signal-analysis case studies

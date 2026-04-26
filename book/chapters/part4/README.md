@@ -6,7 +6,8 @@ Physics Case Studies.
 Current draft targets:
 
 - `ch26_gaia_hr_case_study.tex`
+- `ch27_photometric_redshift_case_study.tex`
 
 Planned next drafts:
 
-- `ch27_photometric_redshift_case_study.tex`
+- spectral-classification case study drafts

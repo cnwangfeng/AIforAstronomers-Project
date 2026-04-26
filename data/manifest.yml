@@ -202,3 +202,27 @@ datasets:
       g_mag: mag
     used_by:
       - notebooks/part4_cases/ch26_gaia_hr_case_study.ipynb
+  - name: photoz_case_demo
+    path: data/small/photoz_case_demo.csv
+    type: csv
+    source: "Small synthetic SDSS-style photometric-redshift case-study dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - galaxy_id
+      - u_g
+      - g_r
+      - r_i
+      - i_z
+      - r_mag
+      - galaxy_type
+      - specz
+    units:
+      u_g: mag
+      g_r: mag
+      r_i: mag
+      i_z: mag
+      r_mag: mag
+      specz: redshift
+    used_by:
+      - notebooks/part4_cases/ch27_photometric_redshift_case_study.ipynb

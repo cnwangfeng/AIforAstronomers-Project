@@ -1,0 +1,157 @@
+\chapter{Gaia HR 图与恒星分类案例}
+
+\section{案例目标}
+
+这一章是本书进入 Part IV 后的第一个完整案例。目标不是再介绍一个新算法，而是把前面 Part II 和 Part III 的方法重新装配成一条更接近真实项目的工作流：
+
+\begin{enumerate}
+    \item 从 Gaia 风格表格数据出发；
+    \item 做最基本的数据质量筛选；
+    \item 计算绝对星等并构造 HR 图坐标；
+    \item 用无监督方法观察结构；
+    \item 用一个简单监督模型完成恒星类别分类；
+    \item 最后回到天体物理解释本身。
+\end{enumerate}
+
+\section{问题背景：为什么 HR 图是一个绝佳案例}
+
+HR 图几乎是恒星天体物理里最经典的二维结构之一。只要把颜色放在横轴、绝对星等放在纵轴，很多不同类型恒星就会自然占据不同区域：
+
+\begin{itemize}
+    \item 主序星大致形成一条从蓝亮到红暗的带状结构；
+    \item 红巨星在红且亮的区域形成分支；
+    \item 白矮星通常更蓝、更暗。
+\end{itemize}
+
+这使它非常适合用来演示：
+
+\begin{itemize}
+    \item 数据清洗为什么重要；
+    \item 无监督学习如何帮助你识别结构；
+    \item 监督学习如何在已知类别上做自动判别；
+    \item 机器学习结果如何返回到物理解释。
+\end{itemize}
+
+\section{数据与质量筛选}
+
+配套 notebook 使用 \nolinkurl{gaia_hr_case_demo.csv}。它是一个小型 Gaia 风格教学数据集，包含：
+
+\begin{itemize}
+    \item 颜色指标 \texttt{bp\_rp}；
+    \item 视差 \texttt{parallax\_mas}；
+    \item 视差误差 \texttt{parallax\_error\_mas}；
+    \item 表观星等 \texttt{g\_mag}；
+    \item 教学用参考类别 \texttt{stellar\_class}。
+\end{itemize}
+
+这里故意保留了两个低质量样本，它们的视差信噪比较低。这样做是为了让学生明确看到：\textbf{不是所有表格里的行都应该直接拿来画 HR 图。}
+
+本案例首先使用一个最基本的质量标准：
+
+\begin{itemize}
+    \item \texttt{parallax\_over\_error = parallax / parallax\_error}
+    \item 保留 \texttt{parallax\_over\_error > 5} 的样本
+\end{itemize}
+
+这当然不是唯一标准，但足以帮助建立一个重要习惯：先想清楚数据质量，再谈机器学习。
+
+\section{从视差和表观星等到绝对星等}
+
+一旦有了视差，我们就可以把表观星等转成绝对星等。对本案例来说，最方便的写法是：
+
+\begin{examplebox}[绝对星等公式]
+\begin{lstlisting}[style=pythonstyle]
+M_G = g_mag + 5 * log10(parallax_mas) - 10
+\end{lstlisting}
+\end{examplebox}
+
+有了 \texttt{bp\_rp} 和 \texttt{M\_G}，我们就得到绘制 HR 图所需的两个核心坐标。
+
+\section{第一步：先看图，再上模型}
+
+在很多项目里，最容易犯的错误就是急着训练模型，却没有先检查数据在物理空间里长什么样。本案例刻意把“先看 HR 图”放在前面，因为这一步能让你立刻判断：
+
+\begin{itemize}
+    \item 主序、巨星和白矮星是否确实占据不同区域；
+    \item 低质量样本是否会污染结构；
+    \item 颜色和绝对星等是否已经足以分开这些类别。
+\end{itemize}
+
+这一步看上去朴素，但它常常决定了后面模型工作是否有意义。
+
+\section{第二步：用 k-means 看看结构会不会自己浮出来}
+
+接下来，notebook 会把清洗后的样本送入一个小型的 \texttt{k-means} 聚类。之所以先做无监督步骤，是因为我们想回答：
+
+\begin{itemize}
+    \item 即使暂时不看标签，主序星、巨星和白矮星会不会自然形成不同群？
+    \item 模型看到的结构，是否与天体物理直觉一致？
+\end{itemize}
+
+在这个教学数据里，答案是相当清楚的：三类对象在 HR 图上本来就高度分离，因此聚类结果会和参考类别非常接近。
+
+但这里要保持清醒：这不是在证明“宇宙一定只分成三个离散簇”，而是在说明当前数据、当前特征下，\textbf{结构分离得足够清楚。}
+
+\section{第三步：再做一个简单监督分类器}
+
+在看过无监督结构之后，我们再回到监督学习，使用一个非常朴素的最近中心分类器。这样设计是有意为之：
+
+\begin{itemize}
+    \item 我们不需要一个复杂模型才能完成这个案例；
+    \item 更简单的模型更有利于把注意力放在科学结构上；
+    \item 如果简单模型已经表现很好，就没有必要为了“更先进”而堆复杂度。
+\end{itemize}
+
+在 notebook 里，我们用 \texttt{bp\_rp} 和 \texttt{M\_G} 两个特征做分类，并在一个固定测试集上报告准确率与混淆矩阵。
+
+\section{为什么这个案例特别适合教学}
+
+这个案例的好处在于，它把很多教材里分散讲的内容揉在了一起：
+
+\begin{itemize}
+    \item Part II 的数据处理：视差、绝对星等、HR 图；
+    \item Part III 的无监督学习：结构探索与聚类；
+    \item Part III 的监督学习：简单分类与评估；
+    \item 科学解释：主序、巨星、白矮星在 HR 图上的物理位置。
+\end{itemize}
+
+换句话说，这一章不是“又一个 notebook”，而是第一次让学生真正体验到：\textbf{一个天文数据项目是怎样从原始表格一路走到物理结论的。}
+
+\section{这个案例的边界在哪里}
+
+当然，这个案例仍然是教学版，而不是完整科研项目。它省略了很多现实中的复杂性，例如：
+
+\begin{itemize}
+    \item 更复杂的测光误差与消光修正；
+    \item 双星、变星或亚结构带来的模糊边界；
+    \item 更真实的 Gaia 选择效应；
+    \item 更大样本下的类不平衡和标签不完整问题。
+\end{itemize}
+
+所以我们应该把它理解成一个\textbf{结构清楚的练习场}：先把方法和解释链条走顺，再准备进入更复杂的数据。
+
+\begin{warnbox}[这个案例中的常见误区]
+\begin{itemize}
+    \item 没有先做视差质量筛选，就直接画 HR 图；
+    \item 把教学数据上的高准确率误解成真实巡天数据同样容易；
+    \item 只报告模型分类结果，不回到 HR 图空间看错分发生在哪里；
+    \item 忽视样本量很小这一点，把当前结论外推得太远；
+    \item 忘记颜色和绝对星等本身已经承载了很强的物理结构。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手很适合帮助你：
+
+\begin{itemize}
+    \item 检查绝对星等计算与质量筛选代码；
+    \item 帮你整理聚类结果、分类结果和物理解释之间的对应关系；
+    \item 帮你生成一个简洁的案例报告框架。
+\end{itemize}
+
+但样本为什么会分成这些区域、错分是否具有物理意义、以及这个案例能否外推到更真实的 Gaia 数据，仍然需要你自己判断。
+
+\section{本章小结}
+
+Gaia HR 图案例展示了一个最重要的事实：好的天文机器学习项目，并不是从“最复杂模型”开始，而是从可靠数据、清楚结构和可解释特征开始。只要颜色与绝对星等已经把主序、巨星和白矮星分开，简单的聚类和分类方法就足以建立一个完整而可信的工作流。

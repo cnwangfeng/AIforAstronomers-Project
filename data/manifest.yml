@@ -182,3 +182,23 @@ datasets:
       specz: redshift
     used_by:
       - notebooks/part3_machine_learning/ch25_uncertainty_interpretability_trust.ipynb
+  - name: gaia_hr_case_demo
+    path: data/small/gaia_hr_case_demo.csv
+    type: csv
+    source: "Small synthetic Gaia-style HR-diagram case-study dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-26"
+    fields:
+      - source_id
+      - bp_rp
+      - parallax_mas
+      - parallax_error_mas
+      - g_mag
+      - stellar_class
+    units:
+      bp_rp: mag
+      parallax_mas: mas
+      parallax_error_mas: mas
+      g_mag: mag
+    used_by:
+      - notebooks/part4_cases/ch26_gaia_hr_case_study.ipynb

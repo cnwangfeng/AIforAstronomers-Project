@@ -1,0 +1,165 @@
+\chapter{Capstone 采用反馈与维护节奏}
+
+\section{案例目标}
+
+第 49 章把公开发布前的链接检查、release smoke test、采用说明和支持边界整理成 launch-QA workflow。本章处理发布之后的长期问题：\textbf{怎样把外部采用反馈、学生问题、issue、维护责任和下一版发布节奏整理成一个可执行的 maintenance cadence。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解采用反馈不是零散意见，而是课程发布后最重要的维护信号；
+    \item 学会检查 severity、evidence、owner、maintenance cadence 和 adoption impact；
+    \item 学会区分“记入下一版”“补证据”“先处理高严重度问题”“先指定维护责任人”和“先安排维护节奏”五类出口；
+    \item 学会把公开课程资源从一次发布推进到持续维护。
+\end{enumerate}
+
+\section{发布后的反馈不是噪声}
+
+课程材料公开之后，最有价值的信息往往来自陌生使用者：外部教师会告诉你哪段采用说明不够清楚，学生会发现某个环境步骤在新系统上失败，助教会发现评分锚点在不同课堂里解释不一致，维护者会发现 issue template 没有收集足够信息。
+
+如果这些反馈只散落在邮件、issue、聊天记录和课堂笔记里，课程团队很快会分不清哪些是高严重度问题，哪些只是下次发布前可顺手修的改进项。更麻烦的是，大家可能只关注“影响大”的反馈，却忽略缺证据、无人负责或没有维护节奏的反馈。
+
+所以，本章的核心立场是：\textbf{采用反馈需要进入维护节奏，而不是依赖某个人临时记得。}
+
+\section{一个极小的 adoption-feedback 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_adoption_feedback_maintenance_demo.csv}。这是一组完全本地、教学用途的\textbf{采用反馈与维护节奏卡片}。每一行代表一个来自发布后采用过程的反馈或维护信号，包含：
+
+\begin{itemize}
+    \item \texttt{feedback\_id}；
+    \item \texttt{feedback\_source}；
+    \item \texttt{affected\_area}；
+    \item \texttt{severity\_status}；
+    \item \texttt{evidence\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{maintenance\_cadence\_status}；
+    \item \texttt{adoption\_impact\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{log\_for\_next\_release}：证据、责任人和维护节奏都清楚，可以进入下一版发布记录；
+    \item \texttt{collect\_more\_evidence}：反馈还缺复现样本、截图、日志或采用背景；
+    \item \texttt{triage\_high\_severity}：高严重度或关键问题需要先处理；
+    \item \texttt{assign\_maintenance\_owner}：没有明确维护责任人；
+    \item \texttt{schedule\_maintenance\_cadence}：还没有安排检查频率、版本窗口或下一次维护日期。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按采用影响排序}
+
+发布后维护时，一个常见 baseline 是只按 adoption impact 排序：影响越大的反馈越先进入下一版计划。
+
+\begin{examplebox}[只按 adoption impact 选择维护项]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["adoption_impact_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 有时会把高严重度问题和缺证据反馈一起塞进下一版计划。高严重度问题不能等到下一版才处理，缺证据反馈也不能直接变成修订任务。维护节奏需要先把反馈分清楚。
+
+在本章教学数据上，只按采用影响取前四项，真正可直接记入下一版发布记录的精度只有 0.25，未就绪反馈混入率是 0.75。结构化 maintenance workflow 会先看严重度，再看 owner，再看证据，最后检查维护节奏：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可入版精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按采用影响取前四项 & 0.25 & 0.75 & 高影响反馈如果严重度高、证据不足或缺维护节奏，不能直接进入下一版计划 \\
+结构化 maintenance workflow & 1.00 & 0.00 & 先处理严重度、责任人和证据，再进入版本节奏 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小维护流程的对照。采用影响不能替代维护状态。}
+\label{tab:ch50_impact_vs_maintenance}
+\end{table}
+
+\section{一个可执行的 maintenance workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小维护节奏 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if severity_status in {"critical", "high"}:
+    triage_high_severity
+elif owner_status != "assigned":
+    assign_maintenance_owner
+elif evidence_status != "sufficient":
+    collect_more_evidence
+elif maintenance_cadence_status != "scheduled":
+    schedule_maintenance_cadence
+else:
+    log_for_next_release
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个维护原则：\textbf{严重度先于排期，责任人先于修订，证据先于结论，节奏先于下一版。}
+
+\section{维护节奏应该包含什么}
+
+一份可执行的 course maintenance cadence 至少应该包含：
+
+\begin{enumerate}
+    \item 反馈入口：issue、邮件、表单或课堂反馈表；
+    \item triage 规则：critical、high、medium、low 的判断标准；
+    \item 证据要求：复现步骤、截图、环境、课程上下文和期望行为；
+    \item 责任人：谁判断、谁修、谁复核、谁合并到发布说明；
+    \item 维护窗口：每周小修、每月整理、每学期 release retrospective；
+    \item 关闭规则：什么条件下 feedback 可以关闭、延期或进入下一版。
+\end{enumerate}
+
+维护节奏的重点不是把所有反馈立刻修完，而是让反馈不会消失、不会乱排、不会变成没有主人的长期焦虑。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 adoption-feedback table，并统计 feedback source、severity、evidence、owner、cadence 和 reference route；
+    \item 用 adoption impact 做一个 naive maintenance baseline；
+    \item 再实现一个带 severity triage、owner assignment、evidence check 和 cadence scheduling 的 maintenance workflow；
+    \item 输出 next-release、collect-evidence、high-severity、assign-owner 和 schedule-cadence 五个队列；
+    \item 为每个非 ready 反馈生成维护前 checklist；
+    \item 最后生成 maintenance cadence outline 和 adoption-feedback assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把邮件、issue 和课堂记录整理成 feedback table；
+    \item 从反馈中抽取复现步骤、环境信息和 affected area；
+    \item 给出初步 severity 建议，并提醒哪些地方证据不足；
+    \item 为维护者生成 release retrospective 草稿；
+    \item 把重复反馈合并成一个清楚的下一版任务。
+\end{itemize}
+
+但 AI 助手不能替课程团队决定严重度，也不能替代真正的复现、政策判断和维护承诺。它可以帮你整理反馈，却不能让反馈自动变成可靠结论。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{log\_for\_next\_release} 反馈的 \texttt{owner\_status} 改成 \texttt{missing}。重新运行 notebook，观察它为什么会离开 next-release 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个采用影响很高、但 \texttt{evidence\_status = partial} 的反馈。预测它会落到哪个 route，并说明为什么影响大不能替代证据。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目设计一个维护节奏。至少包含：反馈入口、severity 标准、证据要求、责任人、维护窗口、release retrospective 和关闭规则。
+\end{exercisebox}
+
+\section{本章小结}
+
+课程资源公开之后，采用反馈会持续进入系统。本章把 severity、evidence、owner、maintenance cadence 和 adoption impact 放进同一张 feedback card。
+
+当课程团队能把反馈分成记入下一版、补证据、先处理高严重度问题、先指定维护责任人和先安排维护节奏，Capstone 资源就从公开发布走向持续维护。

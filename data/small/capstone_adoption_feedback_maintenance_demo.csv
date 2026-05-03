@@ -1,0 +1,11 @@
+feedback_id,feedback_source,affected_area,severity_status,evidence_status,owner_status,maintenance_cadence_status,adoption_impact_score,reference_route
+FB50_01,external_instructor,course_landing_page,low,sufficient,assigned,scheduled,0.93,log_for_next_release
+FB50_02,students,environment_quickstart,high,sufficient,assigned,scheduled,0.95,triage_high_severity
+FB50_03,github_issue,notebook_index,medium,partial,assigned,scheduled,0.90,collect_more_evidence
+FB50_04,ta_adopter,rubric_package,low,sufficient,missing,scheduled,0.78,assign_maintenance_owner
+FB50_05,external_instructor,data_download_notes,medium,sufficient,assigned,missing,0.86,schedule_maintenance_cadence
+FB50_06,public_reader,support_policy,critical,sufficient,assigned,scheduled,0.94,triage_high_severity
+FB50_07,maintainer,issue_template,low,sufficient,assigned,scheduled,0.73,log_for_next_release
+FB50_08,ta_adopter,grading_norming_examples,low,sufficient,missing,scheduled,0.76,assign_maintenance_owner
+FB50_09,students,notebook_runtime,medium,sufficient,assigned,unscheduled,0.80,schedule_maintenance_cadence
+FB50_10,external_instructor,module_sequence,low,partial,assigned,scheduled,0.74,collect_more_evidence

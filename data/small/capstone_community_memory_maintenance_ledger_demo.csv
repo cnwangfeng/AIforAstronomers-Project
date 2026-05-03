@@ -1,0 +1,9 @@
+ledger_id,memory_area,retention_value_status,update_frequency_status,owner_status,access_boundary_status,staleness_status,continuity_priority_score,reference_route
+L58_01,course_retrospective_archive,high,scheduled,assigned,internal,current,0.93,ledger_ready
+L58_02,ta_norming_memory_bank,high,missing,assigned,internal,current,0.90,schedule_ledger_refresh
+L58_03,student_common_failure_notes,high,scheduled,missing,internal,current,0.88,assign_ledger_owner
+L58_04,public_showcase_memory,medium,scheduled,assigned,public,stale,0.82,refresh_stale_memory
+L58_05,mentor_contact_history,medium,scheduled,assigned,restricted,current,0.79,review_access_boundary
+L58_06,environment_incident_log,high,scheduled,assigned,internal,current,0.91,ledger_ready
+L58_07,kickoff_script_memory,medium,missing,assigned,internal,stale,0.84,schedule_ledger_refresh
+L58_08,grading_edge_case_archive,high,scheduled,assigned,restricted,current,0.87,review_access_boundary

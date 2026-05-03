@@ -1,0 +1,9 @@
+release_id,audience,release_area,public_index_status,license_status,maintenance_owner_status,stale_material_status,public_value_score,reference_route
+RLS01,students,course_overview,complete,clear,assigned,current,0.92,release_ready
+RLS02,students,notebook_starter_kit,partial,clear,assigned,current,0.88,complete_public_index
+RLS03,instructors,example_student_projects,complete,unclear,assigned,current,0.91,resolve_license_boundary
+RLS04,teaching_team,rubric_anchor_bank,complete,clear,missing,current,0.84,assign_maintenance_owner
+RLS05,students,environment_setup_guide,complete,clear,assigned,stale,0.95,refresh_stale_material
+RLS06,public,archive_landing_page,missing,clear,assigned,current,0.78,complete_public_index
+RLS07,instructors,ta_norming_notes,complete,restricted,assigned,current,0.73,resolve_license_boundary
+RLS08,students,capstone_report_template,complete,clear,assigned,current,0.86,release_ready

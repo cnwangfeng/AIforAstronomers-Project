@@ -1,0 +1,13 @@
+item_id,audience,package_section,student_clarity_status,ta_guidance_status,policy_alignment_status,example_quality_status,release_priority_score,reference_route
+H45_01,student,project_goal,clear,not_applicable,aligned,strong,0.90,ready_to_release
+H45_02,student,timeline_and_checkpoints,confusing,not_applicable,aligned,partial,0.80,revise_before_release
+H45_03,student,data_privacy_boundary,clear,not_applicable,needs_policy_review,strong,0.95,policy_review
+H45_04,student,notebook_reproducibility,clear,not_applicable,aligned,strong,0.88,ready_to_release
+H45_05,student,ai_use_examples,partial,not_applicable,needs_policy_review,partial,0.92,policy_review
+H45_06,ta,rubric_anchor_table,clear,clear,aligned,strong,0.90,ready_to_release
+H45_07,ta,feedback_examples,clear,missing,aligned,partial,0.85,ta_calibration_needed
+H45_08,ta,escalation_path,clear,partial,aligned,weak,0.70,ta_calibration_needed
+H45_09,both,final_submission_checklist,clear,clear,aligned,strong,0.96,ready_to_release
+H45_10,both,citation_claim_ledger,confusing,partial,aligned,partial,0.78,ta_calibration_needed
+H45_11,ta,grade_norming_cases,clear,missing,needs_policy_review,weak,0.82,policy_review
+H45_12,student,help_path_and_office_hours,clear,not_applicable,aligned,strong,0.65,ready_to_release

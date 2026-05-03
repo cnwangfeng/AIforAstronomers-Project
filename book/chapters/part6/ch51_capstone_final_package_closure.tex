@@ -1,0 +1,166 @@
+\chapter{Capstone 最终课程包索引与 Part VI 收束清单}
+
+\section{案例目标}
+
+第 50 章把发布后的采用反馈、维护责任和维护节奏整理成持续更新 workflow。本章继续处理 Part VI 的最后一步：\textbf{怎样把学生材料、助教材料、教师交接包、公开发布入口和维护记录收束成一个最终课程包索引，并在发布前做 closure checklist。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 final package index 不是目录堆叠，而是课程包能否真正交付的状态总表；
+    \item 学会检查 package index、closure gate、final owner、dependency sync 和 final readiness；
+    \item 学会区分“可以收束”“补最终索引”“先关闭 blocker”“先指定最终 owner”和“先同步跨包依赖”五类出口；
+    \item 学会把 Part VI 从连续章节链条整理成一个可交接、可发布、可维护的最终课程包。
+\end{enumerate}
+
+\section{最后一步最容易被低估}
+
+课程做到最后，材料往往已经很多了：学生 handout、助教评分指南、试教运行包、课程日历、修订归档、教师交接包、公开发布索引、采用说明、维护节奏。每一项单独看都像“已经差不多了”，但如果没有一个最终 package index，新老师和外部采用者仍然不知道哪些材料属于同一版、哪些入口还缺、哪些依赖还没同步、哪些 blocker 还没关闭。
+
+于是最常见的问题不是“没有内容”，而是“内容很多，但不能放心交出去”。一个 package index 的价值，就在于让课程团队用一张表回答：这一版到底能不能作为完整课程包发布。
+
+所以，本章的核心立场是：\textbf{Part VI 的收束目标不是再多写一份材料，而是让已有材料进入同一张可判断、可签字、可交接的最终状态表。}
+
+\section{一个极小的 final-package 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_final_package_closure_demo.csv}。这是一组完全本地、教学用途的\textbf{最终课程包索引卡片}。每一行代表一个需要进入最终课程包的 bundle 或 index entry，包含：
+
+\begin{itemize}
+    \item \texttt{package\_id}；
+    \item \texttt{package\_scope}；
+    \item \texttt{target\_audience}；
+    \item \texttt{package\_index\_status}；
+    \item \texttt{closure\_gate\_status}；
+    \item \texttt{final\_owner\_status}；
+    \item \texttt{dependency\_sync\_status}；
+    \item \texttt{final\_readiness\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{package\_ready}：可以进入最终课程包；
+    \item \texttt{complete\_package\_index}：最终索引条目、版本或入口还不完整；
+    \item \texttt{close\_blocker\_before\_closure}：还有开放或阻塞 gate，不能直接收束；
+    \item \texttt{assign\_final\_owner}：没有明确的最终 owner；
+    \item \texttt{sync\_cross\_package\_dependency}：跨包链接、版本或依赖还没同步。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按最终 readiness 排序}
+
+课程收束时，一个很自然的 baseline 是只按 final readiness 排序：分数越高，就越先放进最终课程包。
+
+\begin{examplebox}[只按 final readiness 选择最终包材料]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["final_readiness_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的危险在于，它会把“看起来快好了”的材料推到最前面，却忽略 blocker、owner 缺失或跨包依赖未同步的问题。最终课程包最怕的不是材料少，而是“差一点没收完”的假完成状态。
+
+在本章教学数据上，只按最终 readiness 取前四项，真正可收束的精度只有 0.25，未就绪材料混入率是 0.75。结构化 final-package workflow 会先检查 closure gate，再检查 final owner，再看 dependency sync，最后补 package index：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可收束精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按 readiness 取前四项 & 0.25 & 0.75 & blocker、owner 和跨包依赖没有处理完时，分数高也不能假装 ready \\
+结构化 final-package workflow & 1.00 & 0.00 & 先关 gate、再定 owner、再同步依赖，最后补完整索引 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小课程包收束流程的对照。最终课程包不是高分清单，而是 closure 状态表。}
+\label{tab:ch51_readiness_vs_closure}
+\end{table}
+
+\section{一个可执行的 final-package workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小最终课程包 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if closure_gate_status in {"open", "blocked"}:
+    close_blocker_before_closure
+elif final_owner_status != "assigned":
+    assign_final_owner
+elif dependency_sync_status != "synced":
+    sync_cross_package_dependency
+elif package_index_status != "complete":
+    complete_package_index
+else:
+    package_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个收束原则：\textbf{closure gate 先于交付，最终 owner 先于签字，跨包同步先于最终目录。}
+
+\section{最终课程包索引应该包含什么}
+
+一份可交付的 final package index 至少应该包含：
+
+\begin{enumerate}
+    \item bundle 名称：学生包、助教包、教师包、公开包和维护包；
+    \item 目标读者：students、teaching team、instructors、public；
+    \item 入口位置：PDF、notebook、README、数据索引和发布说明；
+    \item 版本信息：当前版本、最后检查日期和对应 release note；
+    \item owner：谁负责最终复核、后续维护和下一轮更新；
+    \item 依赖关系：哪些 bundle 共用同一份 calendar、rubric、archive 或 setup guide；
+    \item closure 状态：ready、hold、blocked、needs sync 或 needs index。
+\end{enumerate}
+
+这份索引的目的不是取代具体材料，而是让课程团队在收束时只看一页就知道整套课程包还差哪一步。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 final-package table，并统计 audience、closure gate、owner、dependency sync 和 reference route；
+    \item 用 final readiness 做一个 naive closure baseline；
+    \item 再实现一个带 closure gate、final owner、dependency sync 和 package index check 的 final-package workflow；
+    \item 输出 package-ready、complete-index、close-blocker、assign-owner 和 sync-dependency 五个队列；
+    \item 为每个非 ready bundle 生成收束前 checklist；
+    \item 最后生成 final package index outline 和 closure assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把分散在不同章节里的 bundle 整理成最终课程包索引；
+    \item 检查 notebook、README、课程日历、rubric 和发布说明是否使用同一版术语；
+    \item 标出跨包依赖没有同步的地方；
+    \item 帮你起草 release note、owner handoff summary 和 closure checklist；
+    \item 为下一位教师生成一页“如何打开这套课程包”的 final briefing。
+\end{itemize}
+
+但 AI 助手不能替你决定哪一项 blocker 可以忽略，也不能替课程团队做最终签字。它能把 closure 状态说清楚，却不能替代最后的人类判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{package\_ready} bundle 的 \texttt{dependency\_sync\_status} 改成 \texttt{drifting}。重新运行 notebook，观察它为什么要先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 final readiness 很高、但 \texttt{closure\_gate\_status = open} 的 bundle。预测它会落到哪个 route，并说明为什么高分不能覆盖开放 blocker。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目设计一页 final package index。至少包含：bundle 名称、目标读者、入口位置、版本号、owner、依赖关系、closure 状态和最后检查日期。
+\end{exercisebox}
+
+\section{本章小结}
+
+Part VI 的真正终点，不是某一章写完，而是整套课程包进入同一张可判断的最终状态表。本章把 package index、closure gate、final owner、dependency sync 和 final readiness 放进同一张 package card。
+
+当课程团队能把 bundle 分成可以收束、补最终索引、先关闭 blocker、先指定最终 owner 和先同步跨包依赖，Capstone 项目就从连续章节变成了一套可以真正交付的课程包。

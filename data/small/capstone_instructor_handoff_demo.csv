@@ -1,0 +1,13 @@
+handoff_id,recipient_role,handoff_area,evidence_pack_status,owner_status,unresolved_risk_status,archive_link_status,next_run_priority_score,reference_route
+H47_01,instructor,course_calendar,complete,assigned,closed,complete,0.90,handoff_ready
+H47_02,instructor,environment_setup,thin,assigned,open,partial,0.95,resolve_risk_before_handoff
+H47_03,ta,grading_norming_cases,complete,missing,closed,complete,0.86,assign_owner_before_handoff
+H47_04,instructor,public_archive_index,complete,assigned,closed,partial,0.80,complete_evidence_digest
+H47_05,ta,office_hours_patterns,thin,unclear,closed,partial,0.65,assign_owner_before_handoff
+H47_06,instructor,final_report_examples,complete,assigned,closed,complete,0.72,handoff_ready
+H47_07,instructor,privacy_exceptions,complete,assigned,high,restricted,0.88,resolve_risk_before_handoff
+H47_08,ta,rubric_feedback_bank,missing,assigned,closed,partial,0.70,complete_evidence_digest
+H47_09,maintainer,notebook_runtime_log,complete,assigned,closed,complete,0.78,handoff_ready
+H47_10,instructor,student_common_questions,thin,assigned,closed,complete,0.62,complete_evidence_digest
+H47_11,maintainer,data_license_notes,complete,unclear,closed,complete,0.83,assign_owner_before_handoff
+H47_12,instructor,next_run_decision_log,complete,assigned,monitored,complete,0.58,handoff_ready

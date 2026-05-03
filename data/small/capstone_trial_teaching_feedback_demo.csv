@@ -1,0 +1,10 @@
+trial_id,session_theme,student_readiness_status,handout_clarity_status,notebook_runtime_status,rubric_calibration_status,ta_feedback_status,privacy_boundary_status,revision_load_score,reference_route
+TR43_01,Gaia kickoff pilot,ready,clear,passes,calibrated,ready,clear,0.15,ready_for_rollout
+TR43_02,TESS one-week pilot,ready,confusing,passes,calibrated,ready,clear,0.35,revise_materials
+TR43_03,Photo-z evaluation workshop,mixed,clear,slow,uncalibrated,ready,clear,0.45,calibrate_rubric
+TR43_04,Spectral classifier demo,ready,clear,passes,calibrated,missing,clear,0.25,revise_materials
+TR43_05,Galaxy CNN workshop,low,unclear,fails,uncalibrated,missing,clear,0.75,blocked_before_trial
+TR43_06,AI-use statement clinic,ready,clear,passes,calibrated,ready,unclear,0.30,blocked_before_trial
+TR43_07,Rubric norming session,mixed,clear,passes,uncalibrated,ready,clear,0.30,calibrate_rubric
+TR43_08,Final presentation rehearsal,ready,clear,passes,calibrated,ready,clear,0.10,ready_for_rollout
+TR43_09,Literature ledger clinic,mixed,confusing,passes,calibrated,ready,clear,0.40,revise_materials

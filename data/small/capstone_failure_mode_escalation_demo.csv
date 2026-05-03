@@ -1,0 +1,9 @@
+incident_id,failure_area,failure_signal_status,severity_status,reproducibility_status,owner_status,escalation_boundary_status,urgency_score,reference_route
+F54_01,student_handout_link,bounded,medium,reproduced,assigned,none,0.92,local_patch_ready
+F54_02,private_data_boundary,bounded,critical,reproduced,assigned,privacy,0.96,escalate_to_human_review
+F54_03,ta_grading_dispute,bounded,high,reproduced,missing,none,0.84,assign_incident_owner
+F54_04,kickoff_notebook_crash,widespread,high,reproduced,assigned,none,0.94,pause_rollout_and_patch
+F54_05,report_template_confusion,bounded,medium,missing,assigned,none,0.79,collect_repro_before_escalation
+F54_06,ai_use_policy_ambiguity,bounded,high,reproduced,assigned,policy,0.90,escalate_to_human_review
+F54_07,office_hours_calendar_typo,bounded,low,reproduced,assigned,none,0.72,local_patch_ready
+F54_08,environment_inconsistency_report,bounded,medium,missing,assigned,none,0.83,collect_repro_before_escalation

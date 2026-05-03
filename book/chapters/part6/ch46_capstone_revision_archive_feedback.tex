@@ -1,0 +1,181 @@
+\chapter{Capstone 修订闭环、公开归档与课程反馈}
+
+\section{案例目标}
+
+第 45 章把学生 handout 和助教评分指南整理成可发布材料包。本章继续处理课程真正运行之后的下一步：\textbf{怎样把试教反馈、真实课堂反馈、最终交付记录和公开归档检查合并成一个可复盘的修订闭环。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解课程结束不是项目结束，而是下一轮课程和公开归档的开始；
+    \item 学会区分学生反馈、助教反馈、复现状态、证据状态和共享边界；
+    \item 学会把课程材料 route 到“可归档”“下轮课前修订”“先复现再归档”和“公开前政策复核”四类出口；
+    \item 学会用一个小型 revision ledger 保存课程团队的判断，而不是只靠会后记忆。
+\end{enumerate}
+
+\section{课程闭环不能只靠一句“下次改进”}
+
+Capstone 课程最容易在期末之后失去上下文。学生展示结束了，成绩提交了，教师和助教都很累，这时如果只在脑子里记一句“下次要改 handout”，下一轮课程几乎一定会重新踩同一个坑。
+
+更危险的是公开归档。一个 notebook 能在学生电脑上运行，不等于能进入公共课程包；一个展示录像适合课堂回看，不等于可以公开发布；一个 AI-use statement 样例对本学期有效，也不等于适合写进长期材料。
+
+所以，本章的核心立场是：\textbf{课程反馈要被写成可执行的修订 ledger，公开归档要先过复现和政策边界。}
+
+\section{一个极小的 revision / archive 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_revision_archive_feedback_demo.csv}。这是一组完全本地、教学用途的\textbf{课程运行后修订与归档检查卡片}。每一行代表一个需要复盘的材料模块，包含：
+
+\begin{itemize}
+    \item \texttt{item\_id}；
+    \item \texttt{feedback\_source}；
+    \item \texttt{package\_area}；
+    \item \texttt{evidence\_status}；
+    \item \texttt{student\_feedback\_status}；
+    \item \texttt{ta\_feedback\_status}；
+    \item \texttt{reproducibility\_status}；
+    \item \texttt{sharing\_boundary\_status}；
+    \item \texttt{revision\_effort\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成四类：
+
+\begin{itemize}
+    \item \texttt{archive\_ready}：可以进入下一轮课程包或公开归档候选；
+    \item \texttt{revise\_before\_next\_run}：证据、学生说明或助教校准还需要修订；
+    \item \texttt{reproduce\_before\_archive}：notebook、环境或材料复现性不足，必须先修；
+    \item \texttt{policy\_review\_before\_archive}：数据、录像、AI 使用、许可证或共享边界需要课程团队复核。
+\end{itemize}
+
+\section{先看一个危险 baseline：只选修订成本最低的材料}
+
+课程结束后，团队很容易优先处理“最容易改”的材料。一个 naive baseline 是按修订工作量从低到高排序，把最省事的几个模块直接放进归档候选。
+
+\begin{examplebox}[只按修订成本选择归档候选]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["revision_effort_score"],
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 看似务实，却会把共享边界未清楚的展示录像或数据边界材料混进归档包。低修订成本不等于低发布风险。
+
+在本章教学数据上，只按低修订成本取前四项，可归档精度是 0.75，政策复核项混入率是 0.25。结构化 revision / archive workflow 会先检查共享边界，再检查复现性，最后处理证据、学生反馈和助教反馈：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可归档精度 & 政策项混入率 & 教学解读 \\
+\midrule
+只按低修订成本取前四项 & 0.75 & 0.25 & 容易改的材料不一定适合公开或复用 \\
+结构化 archive workflow & 1.00 & 0.00 & 先过共享边界和复现，再进入归档候选 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小课程闭环流程的对照。归档不是把文件打包，而是带着证据、复现和共享边界做筛选。}
+\label{tab:ch46_effort_vs_archive}
+\end{table}
+
+\section{一个可执行的 revision / archive workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小课程闭环 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if sharing_boundary_status != "clear":
+    policy_review_before_archive
+elif reproducibility_status != "reproducible":
+    reproduce_before_archive
+elif evidence_status in {"missing", "thin"}:
+    revise_before_next_run
+elif student_feedback_status in {"confusing", "blocked"}:
+    revise_before_next_run
+elif ta_feedback_status in {"inconsistent", "missing"}:
+    revise_before_next_run
+else:
+    archive_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个课程发布原则：\textbf{公开边界先于便利，复现性先于归档，反馈证据先于主观印象。}
+
+\section{修订 ledger 应该保留什么}
+
+一份课程运行后的 revision ledger 不需要复杂，但必须足够具体。它至少应该记录：
+
+\begin{enumerate}
+    \item 反馈来自哪里：试教、真实课堂、最终交付、助教 norming 还是归档检查；
+    \item 反馈指向哪个材料模块：handout、notebook、rubric、AI-use policy、展示或归档说明；
+    \item 问题证据是什么：学生卡住的位置、助教评分漂移、复现失败日志或政策疑问；
+    \item 下一步责任人是谁：教师、助教、数据维护者还是课程团队；
+    \item 下一轮课程前必须完成的最小修订是什么；
+    \item 哪些材料可以进入公开归档，哪些只能留在内部教学记录中。
+\end{enumerate}
+
+这份 ledger 的价值不在于“记录得漂亮”，而在于下次开课前能直接变成任务清单。
+
+\section{公开归档 checklist}
+
+当课程团队准备把 Capstone 材料放进公开仓库、课程主页或 Overleaf 书稿时，至少要检查：
+
+\begin{itemize}
+    \item 数据来源、许可证、隐私边界和可公开字段；
+    \item notebook 能否从干净环境运行，路径、随机种子和依赖是否稳定；
+    \item 学生作品、展示录像和截图是否获得必要授权；
+    \item AI-use statement 样例是否去除了学生个人信息；
+    \item 报告模板、rubric、handout 和 TA guide 是否互相一致；
+    \item 归档版本是否有日期、版本号和已知限制说明。
+\end{itemize}
+
+公开归档的目标不是证明课程完美，而是让下一位教师或学生能理解材料的适用边界。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 revision / archive feedback table，并统计反馈来源、共享边界和 reference route；
+    \item 用低修订成本做一个 naive archive baseline；
+    \item 再实现一个带 sharing boundary、reproducibility、evidence、student feedback 和 TA feedback 的 workflow；
+    \item 输出 archive、revise、reproduce 和 policy review 四个队列；
+    \item 为每个非 archive-ready 模块生成下一轮课程修订 checklist；
+    \item 最后生成公开归档 checklist 和 revision assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把课后散乱反馈整理成 revision ledger；
+    \item 从学生反馈中抽取“下次课程前必须改”的最小任务；
+    \item 对比学生 handout、TA guide 和 rubric 是否互相矛盾；
+    \item 生成公开归档 checklist 和版本说明草稿；
+    \item 帮助课程团队把归档候选分成 public、internal 和 hold 三类。
+\end{itemize}
+
+但 AI 助手不应该替课程团队决定学生作品能否公开，也不能替代许可证、隐私和学校政策判断。它可以帮你把风险列清楚，却不能把责任转移走。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{archive\_ready} 模块的 \texttt{sharing\_boundary\_status} 改成 \texttt{restricted}。重新运行 notebook，观察它为什么必须先进入政策复核。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 notebook 模块：学生反馈良好，助教反馈一致，但复现状态是 \texttt{flaky}。预测它会落到哪个 route，并说明为什么复现问题要先于文字润色。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一份课后 revision ledger。每行至少包含：反馈来源、材料模块、证据、共享边界、复现状态、下一步 route 和责任人。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 的最后一步不是展示，也不是打包 PDF，而是把真实课程运行变成下一轮课程可以继承的结构化记忆。本章把反馈来源、证据状态、学生反馈、助教反馈、复现状态和共享边界放进同一张 revision / archive card。
+
+当课程团队能把材料分成可归档、下轮课前修订、先复现再归档和公开前政策复核，Capstone 就从一次性项目变成了可持续迭代的教学系统。

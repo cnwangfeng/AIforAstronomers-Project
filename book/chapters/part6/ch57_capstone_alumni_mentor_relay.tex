@@ -1,0 +1,165 @@
+\chapter{Capstone 校友案例与导师接力}
+
+\section{案例目标}
+
+第 56 章把学期收尾、归档快照和下一届 warm-start 种子整理成 end-of-term shutdown workflow。本章继续处理一条更长期的延续线：\textbf{怎样把已经完成课程的学生案例、校友经验、研究路径和外部导师支持整理成下一届可以安全接触的 mentor relay network。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 mentor relay 不是“把往届学生拉回群里”，而是把案例、边界、可用时间和支持范围整理清楚；
+    \item 学会检查 example readiness、privacy boundary、mentor availability、handoff scope 和 owner；
+    \item 学会区分“接力可用”“补案例准备”“确认导师可用性”“收窄接力范围”和“先复核隐私边界”五类出口；
+    \item 学会把课程影响从一学期扩展到下一届的真实支持网络。
+\end{enumerate}
+
+\section{接力最怕的是模糊热情}
+
+校友和高年级学生往往很愿意帮助下一届，这是课程成熟的重要信号。但如果团队没有把哪些案例可以展示、哪些材料涉及隐私、导师愿意投入多少时间、以及他们究竟承担什么角色说清楚，最容易发生的不是没人帮忙，而是帮忙方式和课程边界相互冲突。
+
+有的 mentor 只适合做一次经验分享，有的适合短时 office hours，有的只愿意对某类项目给建议。把这些都糊成“校友支持”四个字，会让学生期待过高，也会让 mentor 感到被过度索取。
+
+所以，本章的核心立场是：\textbf{导师接力的关键不是热情本身，而是让案例可用、边界清楚、投入可持续。}
+
+\section{一个极小的 mentor-relay 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_alumni_mentor_relay_demo.csv}。这是一组完全本地、教学用途的\textbf{校友案例与导师接力卡片}。每一行代表一个可被下一届学生看到或使用的案例/接力模块，包含：
+
+\begin{itemize}
+    \item \texttt{relay\_id}；
+    \item \texttt{relay\_area}；
+    \item \texttt{example\_readiness\_status}；
+    \item \texttt{privacy\_boundary\_status}；
+    \item \texttt{mentor\_availability\_status}；
+    \item \texttt{handoff\_scope\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{continuity\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{mentor\_relay\_ready}：可以进入下一届的 mentor relay package；
+    \item \texttt{prepare\_example\_for\_relay}：案例还没有整理到可展示状态；
+    \item \texttt{confirm\_mentor\_availability}：导师或校友的可用时间和承诺不明确；
+    \item \texttt{narrow\_handoff\_scope}：接力范围过宽，容易让学生或 mentor 误解；
+    \item \texttt{review\_privacy\_boundary}：需要先复核学生作品、展示材料或隐私边界。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按 continuity score 排序}
+
+课程团队很容易按 continuity score 排序：看起来最能帮助下一届的案例先放到 mentor relay package 前面。
+
+\begin{examplebox}[只按 continuity 选择导师接力内容]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["continuity_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把高连续性但还没处理边界、可用性或案例准备的问题一起推到前面。连续性高不等于已经可以安全公开或接给下一届。
+
+在本章教学数据上，只按 continuity score 取前四项，真正可接力的精度只有 0.25，未就绪项混入率是 0.75。结构化 relay workflow 会先看 privacy，再看 mentor availability，再检查 scope 和案例准备：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 接力可用精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按 continuity 取前四项 & 0.25 & 0.75 & 连续性价值高不代表边界、时间和角色已经准备好 \\
+结构化 relay workflow & 1.00 & 0.00 & 先定边界和投入，再决定如何接给下一届 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小导师接力流程的对照。mentor relay 不是连续性排名，而是可持续支持状态表。}
+\label{tab:ch57_continuity_vs_relay}
+\end{table}
+
+\section{一个可执行的 relay workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小导师接力 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if privacy_boundary_status != "clear":
+    review_privacy_boundary
+elif mentor_availability_status != "confirmed":
+    confirm_mentor_availability
+elif handoff_scope_status != "bounded":
+    narrow_handoff_scope
+elif example_readiness_status != "ready":
+    prepare_example_for_relay
+else:
+    mentor_relay_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个支持网络原则：\textbf{边界先于展示，可用性先于承诺，范围先于热情。}
+
+\section{导师接力包应该包含什么}
+
+一份可持续的 mentor relay package 至少应该包含：
+
+\begin{enumerate}
+    \item 往届案例：哪些项目适合展示、适合哪类学生、展示到什么粒度；
+    \item mentor 名单：谁能分享经验、谁能答疑、谁只适合单次活动；
+    \item 时间边界：每位 mentor 能投入多少、在什么时间窗口可用；
+    \item 隐私与公开边界：哪些学生作品可展示、哪些只能内部看；
+    \item 学生预期说明：mentor 支持不是代做项目，而是经验和方向支持；
+    \item owner 与回收机制：谁维护这个 relay package，下一轮结束后如何更新。
+\end{enumerate}
+
+这份包的目标不是创造一个庞大社区，而是给下一届一个可信的起点。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 mentor-relay table，并统计 boundary、availability、scope、readiness 和 reference route；
+    \item 用 continuity score 做一个 naive relay baseline；
+    \item 再实现一个带 privacy、availability、scope 和 example readiness 的 relay workflow；
+    \item 输出 relay-ready、prepare-example、confirm-availability、narrow-scope 和 review-boundary 五个队列；
+    \item 为每个非 ready 条目生成 relay 前 checklist；
+    \item 最后生成 mentor relay outline 和 relay assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把往届案例和 mentor 资源整理成下一届可读的 relay package；
+    \item 把“愿意帮忙”改写成学生能理解的具体支持范围；
+    \item 标出哪些案例还需要隐私审核或去标识化处理；
+    \item 为 mentor 生成一页 briefing，减少他们进入课程的摩擦；
+    \item 起草下一届 kickoff 时的“如何使用 mentor 资源”说明。
+\end{itemize}
+
+但 AI 助手不能替 mentor 做承诺，也不能替课程团队决定学生作品公开边界。它能让 relay 更清楚，却不能替你建立真实的人际责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{mentor\_relay\_ready} 条目的 \texttt{mentor\_availability\_status} 改成 \texttt{pending}。重新运行 notebook，观察它为什么要先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 continuity 很高、但 \texttt{handoff\_scope\_status = too\_broad} 的 mentor 支持场景。预测它会落到哪个 route，并说明为什么“愿意帮很多”不一定是好事。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 mentor relay brief。至少包含：案例范围、mentor 角色、时间边界、学生预期说明、隐私边界和 owner。
+\end{exercisebox}
+
+\section{本章小结}
+
+一门课程真正有生命力的标志之一，是它能把往届经验安全地交给下一届。本章把案例准备、隐私边界、mentor 可用性、handoff scope 和 continuity 放进同一张 relay card。
+
+当课程团队能把条目分成接力可用、补案例准备、确认导师可用性、收窄接力范围和先复核隐私边界，Capstone 就从一届人的努力，慢慢变成多届人接力维护的学习网络。

@@ -11,9 +11,7 @@ Current draft targets:
 
 - `ch10_measurement_uncertainty.tex`
 - `ch11_gaia_hr_diagram.tex`
-
-Planned next drafts:
-
 - `ch12_fits_images_wcs.tex`
 - `ch13_spectroscopy.tex`
 - `ch14_time_series_and_periods.tex`
+- `ch15_physics_experiment_simulation_data.tex`

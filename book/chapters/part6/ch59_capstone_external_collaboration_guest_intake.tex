@@ -1,0 +1,165 @@
+\chapter{Capstone 外部合作边界与客座项目准入}
+
+\section{案例目标}
+
+第 58 章把多轮课程中的 retrospectives、incident notes、mentor 经验和长期维护记忆整理成 community memory ledger。本章继续处理这条后段线的最后一个高风险入口：\textbf{当课程准备引入外部实验室、观测站、行业伙伴、客座导师或 guest project 时，团队怎样判断哪些合作可以进入课程，哪些合作必须先澄清边界。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解外部合作不是“资源越多越好”，而是要先明确边界、owner、scope 和材料可用性；
+    \item 学会检查 guest material、boundary、host owner、scope 和 collaboration value；
+    \item 学会区分“准入可行”“补材料审查”“澄清合作边界”“先指定内部 host owner”和“收窄合作范围”五类出口；
+    \item 学会把外部合作从潜在风险源变成课程的有界增益。
+\end{enumerate}
+
+\section{最危险的合作往往看起来最诱人}
+
+课程团队最容易被打动的外部合作，通常正是那些“看起来特别有价值”的合作：真实数据、行业挑战、观测站项目、客座讲者、往届学生带回来的实验室 mini-project。它们确实可能给课程带来巨大提升，但也最容易带来权限、未发表材料、保密、作者归属、学生预期管理和时间范围失控的问题。
+
+如果没有一套 intake playbook，团队很容易把“高价值”误当成“已经适合进课堂”。结果往往不是合作本身不好，而是边界没说清、内部 host owner 不明确、scope 开得太大，最后同时伤到课程和合作方。
+
+所以，本章的核心立场是：\textbf{外部合作的关键不是能不能拿到资源，而是能不能有界地把资源接进课程。}
+
+\section{一个极小的 guest-intake 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_external_collaboration_guest_intake_demo.csv}。这是一组完全本地、教学用途的\textbf{外部合作准入卡片}。每一行代表一个准备进入课程的外部合作或客座项目，包含：
+
+\begin{itemize}
+    \item \texttt{intake\_id}；
+    \item \texttt{partner\_type}；
+    \item \texttt{collaboration\_area}；
+    \item \texttt{guest\_material\_status}；
+    \item \texttt{boundary\_status}；
+    \item \texttt{host\_owner\_status}；
+    \item \texttt{scope\_status}；
+    \item \texttt{collaboration\_value\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{intake\_ready}：合作可以进入课程；
+    \item \texttt{review\_guest\_material\_before\_intake}：客座材料还没审清楚；
+    \item \texttt{clarify\_boundary\_before\_intake}：数据、权限、保密或作者边界不清；
+    \item \texttt{assign\_host\_owner}：内部没有明确的课程 host owner；
+    \item \texttt{narrow\_partner\_scope}：合作范围过宽，必须收窄。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按合作价值排序}
+
+课程团队很容易按 collaboration value 排序：越有价值、越“像真实科研”的合作越先接进来。
+
+\begin{examplebox}[只按 collaboration value 选择合作准入]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["collaboration_value_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的危险在于，高价值合作里往往混入了最棘手的边界问题。未发表方法、权限受限数据、scope 过大的项目都很容易在价值排序里排到最前。
+
+在本章教学数据上，只按合作价值取前四项，真正可准入的精度只有 0.25，未就绪项混入率是 0.75。结构化 intake workflow 会先看 boundary，再看 host owner，再检查 scope 和 guest material：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 准入可行精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按合作价值取前四项 & 0.25 & 0.75 & 合作价值高不代表边界、owner 和范围已经准备好 \\
+结构化 intake workflow & 1.00 & 0.00 & 先判边界和范围，再决定是否接进课程 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小合作准入流程的对照。guest intake 不是价值排行，而是边界状态表。}
+\label{tab:ch59_value_vs_guest_intake}
+\end{table}
+
+\section{一个可执行的 intake workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小合作准入 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if boundary_status != "clear":
+    clarify_boundary_before_intake
+elif host_owner_status != "assigned":
+    assign_host_owner
+elif scope_status != "bounded":
+    narrow_partner_scope
+elif guest_material_status != "reviewed":
+    review_guest_material_before_intake
+else:
+    intake_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个合作原则：\textbf{边界先于资源，内部 host 先于外部热情，范围先于 ambition。}
+
+\section{外部合作准入包应该包含什么}
+
+一份可执行的 guest-project intake package 至少应该包含：
+
+\begin{enumerate}
+    \item 合作方身份：实验室、观测站、行业伙伴、校友 mentor 或 outreach 机构；
+    \item 合作目标：是 guest lecture、mini-project、短时答疑、数据演示还是项目来源；
+    \item 边界说明：可用数据、不可公开材料、作者归属、保密要求和学生可接触范围；
+    \item 内部 host owner：谁在课程内部对接、解释和兜底；
+    \item 范围声明：合作只覆盖哪些周、哪些项目、哪些学生；
+    \item 退出条件：如果边界、时间或资源变化，如何暂停或退出合作。
+\end{enumerate}
+
+合作准入的重点不是把所有机会都接进来，而是让真正适合的机会进入课程，同时把风险拦在外面。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 guest-intake table，并统计 boundary、owner、scope、material 和 reference route；
+    \item 用 collaboration value 做一个 naive intake baseline；
+    \item 再实现一个带 boundary、host owner、scope 和 material review 的 intake workflow；
+    \item 输出 intake-ready、review-material、clarify-boundary、assign-owner 和 narrow-scope 五个队列；
+    \item 为每个非 ready 合作生成准入前 checklist；
+    \item 最后生成 intake package outline 和 collaboration assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把外部合作描述压缩成课程团队能快速判断的 intake card；
+    \item 从邮件、proposal 或 slides 中提炼出边界、scope 和 expected value；
+    \item 标出 guest material 中可能涉及权限、保密或作者归属的内容；
+    \item 为内部 host owner 生成一页 briefing；
+    \item 起草“这次合作对学生意味着什么、不意味着什么”的简洁说明。
+\end{itemize}
+
+但 AI 助手不能替团队决定作者归属、保密条款或权限边界，也不能替合作双方做最终承诺。它能帮助你更快看清合作结构，却不能替你承担边界责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{intake\_ready} 条目的 \texttt{guest\_material\_status} 改成 \texttt{missing}。重新运行 notebook，观察它为什么要先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 collaboration value 很高、但 \texttt{scope\_status = too\_broad} 的 guest project。预测它会落到哪个 route，并说明为什么“更大更真实”不一定更适合课堂。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 guest-project intake brief。至少包含：合作方、目标、边界、内部 host、范围和退出条件。
+\end{exercisebox}
+
+\section{本章小结}
+
+外部合作确实能让课程更真实，但前提是它能被有界地接入。本章把 guest material、boundary、host owner、scope 和 collaboration value 放进同一张 intake card。
+
+当课程团队能把合作分成准入可行、补材料审查、澄清边界、先指定 host owner 和收窄范围，Capstone 就不只是对外打开，而是能安全地把外部资源转化为教学增益。

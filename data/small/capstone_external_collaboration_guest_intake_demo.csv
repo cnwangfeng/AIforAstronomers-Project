@@ -1,0 +1,9 @@
+intake_id,partner_type,collaboration_area,guest_material_status,boundary_status,host_owner_status,scope_status,collaboration_value_score,reference_route
+G59_01,observatory_partner,archive_showcase,reviewed,clear,assigned,bounded,0.94,intake_ready
+G59_02,visiting_mentor,kickoff_example_pack,partial,clear,assigned,bounded,0.88,review_guest_material_before_intake
+G59_03,external_lab,proprietary_dataset_mini_project,reviewed,unclear,assigned,bounded,0.96,clarify_boundary_before_intake
+G59_04,alumni_guest,mentor_consult_slot,reviewed,clear,missing,bounded,0.84,assign_host_owner
+G59_05,industry_partner,challenge_statement,reviewed,clear,assigned,too_broad,0.95,narrow_partner_scope
+G59_06,outreach_team,public_demo_notebook,reviewed,clear,assigned,bounded,0.81,intake_ready
+G59_07,visiting_mentor,slide_case_bank,missing,clear,assigned,bounded,0.83,review_guest_material_before_intake
+G59_08,external_lab,unpublished_methods_note,reviewed,restricted,assigned,bounded,0.92,clarify_boundary_before_intake

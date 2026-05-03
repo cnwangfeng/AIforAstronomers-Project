@@ -1,0 +1,230 @@
+\chapter{Capstone 报告、展示与最终签字}
+
+\section{案例目标}
+
+第 40 章讨论怎样把题目缩到可以启动 pilot，第 39 章讨论怎样把执行过程整理成 project board。本章把 Capstone 推到最后一公里：\textbf{怎样把 notebook、图表、报告、展示和 AI 使用声明收束成一份可以提交、可以展示、也可以签字负责的最终交付。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解最终报告和展示不是“把 notebook 结果复制出来”，而是一次证据重组；
+    \item 学会检查报告结构、图表证据、notebook 复现、引用核查、AI-use statement 和 human signoff；
+    \item 学会区分“可以提交”“需要展示排练”“需要修订报告”和“签字前被阻塞”四类出口；
+    \item 学会把最后一周的任务压缩成清楚的 revision checklist，而不是靠临时冲刺补漏洞。
+\end{enumerate}
+
+\section{最后一周最危险的不是还没做完，而是看起来做完了}
+
+到了 Capstone 后期，很多项目已经有了 notebook、有了模型分数，也有了几张图。这时最容易出现的错觉是：既然代码已经跑过，报告就只是“写出来”而已。
+
+真实情况通常复杂得多。一个能跑的 notebook 还不等于一份可信交付，因为最终读者会问：
+
+\begin{itemize}
+    \item 报告里的科学问题、数据、baseline、模型和局限是否连成一条线；
+    \item 每张图是否真的支撑了正文中的 claim；
+    \item notebook 是否能从头复跑，还是依赖隐藏状态；
+    \item 引用、数字和 caveat 是否已经核查；
+    \item AI 的参与方式是否具体披露；
+    \item 最终结论是否有人愿意签字负责。
+\end{itemize}
+
+所以，本章的核心立场是：\textbf{最后交付不是排版任务，而是一次证据审计。}
+
+\section{一个极小的 final delivery review 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_delivery_review_demo.csv}。这是一组完全本地、教学用途的\textbf{最终交付审查卡片}。每一行代表一个即将提交或展示的项目状态，包含：
+
+\begin{itemize}
+    \item \texttt{delivery\_id}；
+    \item \texttt{project\_id}；
+    \item \texttt{theme}；
+    \item \texttt{report\_structure\_status}；
+    \item \texttt{figure\_evidence\_status}；
+    \item \texttt{notebook\_repro\_status}；
+    \item \texttt{citation\_status}；
+    \item \texttt{ai\_use\_statement\_status}；
+    \item \texttt{presentation\_fit\_status}；
+    \item \texttt{human\_signoff\_status}；
+    \item \texttt{slide\_polish\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 \texttt{reference\_route} 分成四类：
+
+\begin{itemize}
+    \item \texttt{ready\_to\_submit}：报告、notebook、引用、声明和签字边界都已经达到提交状态；
+    \item \texttt{presentation\_rehearsal}：交付材料主体已经成立，但展示节奏还需要排练或压缩；
+    \item \texttt{revise\_report}：报告结构、图表证据、notebook 复现或 AI-use statement 还需要修订；
+    \item \texttt{blocked\_signoff}：引用、数据边界或最终签字权还没有过关，当前不该提交。
+\end{itemize}
+
+这个数据集故意放入了几类最后阶段最常见的问题：
+
+\begin{itemize}
+    \item slide 很漂亮，但报告和 notebook 证据没有跟上；
+    \item 图表很多，但没有清楚支撑正文 claim；
+    \item 结论已经写好，但引用或 quote 级核查还没完成；
+    \item 材料本身已经可以提交，只是展示时间严重超时。
+\end{itemize}
+
+\section{先看一个常见 baseline：按 slide polish 排优先级}
+
+如果没有结构化审查，最后一周很容易被“展示看起来像样”牵着走。一个常见 baseline 就是：\textbf{按 \texttt{slide\_polish\_score} 从高到低排序，优先认为最漂亮的展示最接近完成。}
+
+\begin{examplebox}[按 slide polish 排最终状态]
+\begin{lstlisting}[style=pythonstyle]
+top3 = sorted(
+    rows,
+    key=lambda row: row["slide_polish_score"],
+    reverse=True,
+)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+这种做法的问题非常清楚：slide polish 只能说明“表达层”准备得怎么样，不能替代报告证据、notebook 复现、引用核查和最终签字。
+
+在本章教学数据上，按 \texttt{slide\_polish\_score} 排名前三的项目里，真正已经可以直接提交的只有一个。因此 notebook 中会看到下面这个最小对照：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.22\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.16\textwidth}p{0.20\textwidth}@{}}
+\toprule
+方法 & 直接提交精度 & 阻塞项混入率 & 排练出口 & 教学解读 \\
+\midrule
+只按 \texttt{slide\_polish\_score} 取前三项 & 0.33 & 0.00 & 否 & 展示好看不等于证据链已经完整 \\
+结构化 delivery review & 1.00 & 0.00 & 是 & 先检查证据与签字边界，再决定是否提交 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小最终交付流程的对照。重点不是“谁的 slides 更漂亮”，而是谁真正准备好接受检查。}
+\label{tab:ch41_baseline_vs_delivery}
+\end{table}
+
+\section{delivery review 的关键，是把“能不能提交”拆开检查}
+
+本章 notebook 的最小 routing 逻辑把最终交付拆成几类 gate：
+
+\begin{itemize}
+    \item \textbf{signoff gate}：如果最终签字、数据边界或引用核查还没完成，就不能提交；
+    \item \textbf{report gate}：报告结构必须让读者看到问题、数据、baseline、模型、结果和局限；
+    \item \textbf{figure gate}：图表必须能支撑正文中的关键 claim；
+    \item \textbf{reproducibility gate}：notebook 必须能从头复跑，关键结果不能依赖隐藏状态；
+    \item \textbf{presentation gate}：材料可以提交之后，展示还要能在规定时间内讲清楚。
+\end{itemize}
+
+最小形式可以写成：
+
+\begin{examplebox}[一个最小 final delivery routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if human_signoff_status != "signed":
+    blocked_signoff
+elif citation_status != "ready":
+    blocked_signoff
+elif report_structure_status != "ready":
+    revise_report
+elif figure_evidence_status != "ready":
+    revise_report
+elif notebook_repro_status != "ready":
+    revise_report
+elif ai_use_statement_status != "ready":
+    revise_report
+elif presentation_fit_status != "ready":
+    presentation_rehearsal
+else:
+    ready_to_submit
+\end{lstlisting}
+\end{examplebox}
+
+请注意，这里的顺序很重要。展示节奏可以最后排练，但引用、数据边界和最终签字不能靠排练解决。
+
+\section{为什么 presentation rehearsal 是独立出口}
+
+有些项目的报告、notebook 和证据链其实已经基本成立，但展示仍然不适合直接上台。常见原因包括：
+
+\begin{itemize}
+    \item 5 分钟报告塞进了 18 张图；
+    \item 结果讲得太细，科学问题反而被淹没；
+    \item 方法页占了一半时间，局限和未来工作没有出现；
+    \item 每张图都想讲完，但没有明确哪两张是核心证据。
+\end{itemize}
+
+这些问题不一定要求重写报告，但它们确实需要一个独立的 \texttt{presentation\_rehearsal} 出口。对本科 Capstone 来说，一次好的展示通常不是把所有工作讲完，而是让听众相信：你知道自己问了什么、做了什么、证据在哪里、哪些地方仍然有限。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 final delivery review 表，并打印 report、citation、signoff 和 reference route 统计；
+    \item 用 \texttt{slide\_polish\_score} 做一个 naive final-week baseline；
+    \item 再实现一个最小 delivery review workflow；
+    \item 输出 ready-to-submit、presentation-rehearsal、revise-report 和 blocked-signoff 四个队列；
+    \item 为每个非 ready 项目生成最后一周 checklist；
+    \item 最后生成一个更适合 report / presentation assistant 的 prompt 模板和 delivery snapshot。
+\end{itemize}
+
+这份 notebook 不是在教排版技巧，而是在训练一种更重要的能力：\textbf{在最终提交前，把所有看起来已经完成的材料重新放回证据链检查。}
+
+\section{一份最小最终交付包应该包含什么}
+
+把第 39 章到本章连起来看，一份最小最终交付包至少应该包含：
+
+\begin{enumerate}
+    \item 一份 5 到 8 页报告，或者等价的 notebook report；
+    \item 一个可以从头运行的 notebook；
+    \item 一组关键图表，每张图都在正文中解释；
+    \item 一个 baseline 与至少一个改进模型或对照方案；
+    \item 一段结果局限、失败样本或不确定度讨论；
+    \item 一份 AI-use statement；
+    \item 一份 5 到 10 分钟展示提纲；
+    \item 一条最终 human signoff 说明。
+\end{enumerate}
+
+如果这八件事彼此分散，最后就很容易变成“材料很多，但没有交付”。如果它们能互相引用，Capstone 就会变成一份真正可检查的项目成果。
+
+\section{和第 39 章、第 40 章的关系}
+
+可以把 Part VI 前三章理解成同一条线：
+
+\begin{itemize}
+    \item 第 40 章先问：这个题目是否值得启动 pilot；
+    \item 第 39 章再问：这个项目能不能被组织成 project board；
+    \item 本章最后问：这些材料是否已经可以提交和展示。
+\end{itemize}
+
+这三章共同强调一件事：Capstone 的质量不只来自模型分数，而来自从选题、执行到交付的连续证据结构。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把 notebook 结果整理成报告结构；
+    \item 帮你检查每张图是否对应一个明确 claim；
+    \item 帮你把过长展示压缩成 5 到 10 分钟提纲；
+    \item 帮你把 AI-use statement 写得具体、诚实、可检查；
+    \item 帮你生成最后一周 revision checklist。
+\end{itemize}
+
+但最终哪些结果足以写进报告、哪些引用已经核查、哪些数据可以公开、哪些结论值得签字提交，仍然必须由你自己负责。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据里一个已经可以提交的项目改成 \texttt{presentation\_fit\_status = too\_long}。重新运行 notebook，观察它为什么不需要重写报告，而是进入展示排练队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+请再添加一条新的 delivery review card：报告结构和展示都已经 ready，但 \texttt{citation\_status} 仍然是 \texttt{missing\_quotes}。预测它会落到哪个 route，并说明为什么它不能靠最后排练解决。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合你自己的课程项目，写一份最终提交前 checklist。至少包含：报告结构、关键图表、notebook 复现、引用核查、AI-use statement、展示时间和 human signoff。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 最后阶段最容易犯的错误，是把“材料看起来已经很多”误认为“项目已经可以提交”。本章强调的是另一种习惯：\textbf{在提交前，把报告、图表、notebook、引用、AI-use statement、展示和最终签字放到同一张 delivery review card 上检查。}
+
+只要你愿意让项目在“可以提交”“需要排练”“需要修订报告”和“签字前被阻塞”这些状态之间诚实流动，最后交出来的就更可能是一份真正可信的科研入门成果。

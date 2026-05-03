@@ -1,0 +1,17 @@
+week,phase,milestone,student_deliverable,instructor_check,risk_status,ai_policy_focus,workload_score,reference_route
+1,launch,course kickoff,none,environment_check,clear,ai_use_policy_intro,0.30,checkpoint_week
+2,topic_scoping,proposal card,proposal_card,data_boundary_check,medium,data_boundary,0.45,checkpoint_week
+3,data_baseline,data inventory,data_inventory,notebook_path_check,clear,citation_and_license,0.40,checkpoint_week
+4,pilot,one-week pilot,pilot_notebook,baseline_check,medium,ai_usage_log,0.55,checkpoint_week
+5,baseline,baseline result,baseline_result,metric_sanity_check,clear,model_validation,0.50,checkpoint_week
+6,model_iteration,model comparison,none,none,medium,model_reporting,0.60,regular_instruction
+7,literature,claim ledger,claim_ledger,citation_check,clear,citation_verification,0.45,checkpoint_week
+8,midpoint,midterm project board,project_board,scope_intervention,high,human_signoff,0.80,instructor_intervention
+9,validation,validation report,validation_report,validation_split_check,medium,reproducibility,0.65,checkpoint_week
+10,interpretation,error analysis,error_analysis,figure_claim_check,medium,uncertainty_and_limits,0.60,checkpoint_week
+11,report_draft,report outline,report_outline,ai_use_statement_check,clear,ai_disclosure,0.55,checkpoint_week
+12,notebook_freeze,reproducibility snapshot,repro_snapshot,clean_rerun_check,medium,environment_record,0.70,checkpoint_week
+13,final_scope,final scope lock,scope_lock,instructor_review,high,public_boundary,0.75,instructor_intervention
+14,presentation,presentation rehearsal,rehearsal_deck,timing_check,clear,presentation_support,0.50,checkpoint_week
+15,final_delivery,final package,final_report_package,final_signoff,medium,final_ai_statement,0.85,final_delivery_week
+16,showcase,presentation and archive,presentation_archive,archive_check,clear,archive_license,0.65,final_delivery_week

@@ -1,0 +1,9 @@
+package_id,package_scope,target_audience,package_index_status,closure_gate_status,final_owner_status,dependency_sync_status,final_readiness_score,reference_route
+PK51_01,student_release_bundle,students,complete,closed,assigned,synced,0.94,package_ready
+PK51_02,notebook_index_sheet,students,partial,closed,assigned,synced,0.91,complete_package_index
+PK51_03,policy_boundary_appendix,instructors,complete,open,assigned,synced,0.93,close_blocker_before_closure
+PK51_04,ta_calibration_pack,teaching_team,complete,closed,missing,synced,0.86,assign_final_owner
+PK51_05,environment_bundle,students,complete,closed,assigned,drifting,0.95,sync_cross_package_dependency
+PK51_06,archive_release_manifest,public,missing,closed,assigned,synced,0.83,complete_package_index
+PK51_07,example_project_bundle,instructors,complete,blocked,assigned,synced,0.89,close_blocker_before_closure
+PK51_08,final_course_map,public,complete,closed,assigned,synced,0.87,package_ready

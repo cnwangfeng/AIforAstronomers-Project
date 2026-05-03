@@ -42,6 +42,77 @@ datasets:
       - notebooks/part2_data_processing/ch11_gaia_hr_diagram.ipynb
       - notebooks/part3_machine_learning/ch16_ai_ml_scientific_inference.ipynb
       - notebooks/part3_machine_learning/ch17_minimal_classification_workflow.ipynb
+  - name: fits_wcs_cutout_demo
+    path: data/small/fits_wcs_cutout_demo.csv
+    type: csv
+    source: "Small synthetic image cutout dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - x_pix
+      - y_pix
+      - counts
+    units:
+      x_pix: pixel
+      y_pix: pixel
+      counts: detector counts
+    used_by:
+      - notebooks/part2_data_processing/ch12_fits_images_wcs.ipynb
+  - name: spectral_wavelength_redshift_demo
+    path: data/small/spectral_wavelength_redshift_demo.csv
+    type: csv
+    source: "Small synthetic spectroscopy teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - sample_id
+      - wavelength_rest_angstrom
+      - flux_norm
+      - split
+      - object_class
+    units:
+      wavelength_rest_angstrom: angstrom
+      flux_norm: normalized flux
+    used_by:
+      - notebooks/part2_data_processing/ch13_spectroscopy.ipynb
+  - name: lightcurve_period_demo
+    path: data/small/lightcurve_period_demo.csv
+    type: csv
+    source: "Small synthetic time-series teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - sample_id
+      - time_day
+      - flux_norm
+      - flux_error
+      - split
+      - object_class
+    units:
+      time_day: day
+      flux_norm: normalized flux
+      flux_error: normalized flux uncertainty
+    used_by:
+      - notebooks/part2_data_processing/ch14_time_series_and_periods.ipynb
+  - name: physics_model_fit_demo
+    path: data/small/physics_model_fit_demo.csv
+    type: csv
+    source: "Small synthetic physics experiment teaching dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - sample_id
+      - time_s
+      - voltage_v
+      - sigma_v
+      - split
+      - experiment_type
+    units:
+      time_s: s
+      voltage_v: V
+      sigma_v: V
+    used_by:
+      - notebooks/part2_data_processing/ch15_physics_experiment_simulation_data.ipynb
   - name: photometric_redshift_demo
     path: data/small/photometric_redshift_demo.csv
     type: csv
@@ -338,6 +409,23 @@ datasets:
       p00_to_p55: normalized intensity
     used_by:
       - notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb
+  - name: cnn_transfer_workflow_demo
+    path: data/small/cnn_transfer_workflow_demo.csv
+    type: csv
+    source: "Small synthetic source/target cutout workflow dataset with validation and review roles created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-27"
+    fields:
+      - sample_id
+      - morphology_label
+      - domain_label
+      - split_role
+      - quality_flag
+      - p00_to_p55
+    units:
+      p00_to_p55: normalized intensity
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb
   - name: spectral_conv1d_demo
     path: data/small/spectral_conv1d_demo.csv
     type: csv
@@ -444,6 +532,30 @@ datasets:
       tok07: token
     used_by:
       - notebooks/part5_deep_learning_ai/ch34_transformer_attention_foundation_models.ipynb
+  - name: spectral_masked_patch_workflow_demo
+    path: data/small/spectral_masked_patch_workflow_demo.csv
+    type: csv
+    source: "Small synthetic masked-patch spectral-sequence workflow dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-27"
+    fields:
+      - sample_id
+      - split_role
+      - quality_flag
+      - target_patch
+      - patch00
+      - patch01
+      - patch02
+      - patch03
+      - patch04
+    units:
+      patch00: tokenized spectral patch
+      patch01: tokenized spectral patch
+      patch02: tokenized spectral patch
+      patch03: tokenized spectral patch
+      patch04: tokenized spectral patch
+    used_by:
+      - notebooks/part5_deep_learning_ai/ch34_transformer_attention_foundation_models.ipynb
   - name: lightcurve_debug_demo
     path: data/small/lightcurve_debug_demo.csv
     type: csv
@@ -527,3 +639,442 @@ datasets:
       speed_gain_score: unitless
     used_by:
       - notebooks/part5_deep_learning_ai/ch38_ai_ethics_copyright_research_norms.ipynb
+  - name: capstone_project_workflow_demo
+    path: data/small/capstone_project_workflow_demo.csv
+    type: csv
+    source: "Small synthetic capstone-project board dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-27"
+    fields:
+      - project_id
+      - theme
+      - science_question_status
+      - data_license_status
+      - baseline_status
+      - validation_status
+      - literature_ledger_status
+      - ai_use_statement_status
+      - report_outline_status
+      - sharing_boundary
+      - model_hype_score
+      - reference_route
+    units:
+      model_hype_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch39_capstone_project_workflow.ipynb
+  - name: capstone_project_scoping_demo
+    path: data/small/capstone_project_scoping_demo.csv
+    type: csv
+    source: "Small synthetic capstone-project proposal-scoping dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-04-27"
+    fields:
+      - proposal_id
+      - theme
+      - science_scope_status
+      - data_access_status
+      - compute_fit_status
+      - baseline_feasibility
+      - literature_start_status
+      - deliverable_fit_status
+      - novelty_hype_score
+      - reference_route
+    units:
+      novelty_hype_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch40_capstone_project_scoping.ipynb
+  - name: capstone_delivery_review_demo
+    path: data/small/capstone_delivery_review_demo.csv
+    type: csv
+    source: "Small synthetic capstone final-delivery review dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - delivery_id
+      - project_id
+      - theme
+      - report_structure_status
+      - figure_evidence_status
+      - notebook_repro_status
+      - citation_status
+      - ai_use_statement_status
+      - presentation_fit_status
+      - human_signoff_status
+      - slide_polish_score
+      - reference_route
+    units:
+      slide_polish_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch41_capstone_report_presentation.ipynb
+  - name: capstone_rubric_case_template_demo
+    path: data/small/capstone_rubric_case_template_demo.csv
+    type: csv
+    source: "Small synthetic capstone rubric and case-template dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - case_id
+      - project_id
+      - theme
+      - science_question_points
+      - data_repro_points
+      - modeling_eval_points
+      - interpretation_limits_points
+      - code_git_points
+      - report_presentation_points
+      - ai_use_integrity_status
+      - signoff_status
+      - revision_burden_score
+      - reference_route
+    units:
+      science_question_points: points
+      data_repro_points: points
+      modeling_eval_points: points
+      interpretation_limits_points: points
+      code_git_points: points
+      report_presentation_points: points
+      revision_burden_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch42_capstone_case_template_rubric.ipynb
+  - name: capstone_trial_teaching_feedback_demo
+    path: data/small/capstone_trial_teaching_feedback_demo.csv
+    type: csv
+    source: "Small synthetic capstone trial-teaching feedback dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - trial_id
+      - session_theme
+      - student_readiness_status
+      - handout_clarity_status
+      - notebook_runtime_status
+      - rubric_calibration_status
+      - ta_feedback_status
+      - privacy_boundary_status
+      - revision_load_score
+      - reference_route
+    units:
+      revision_load_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch43_capstone_trial_teaching_package.ipynb
+  - name: capstone_course_calendar_demo
+    path: data/small/capstone_course_calendar_demo.csv
+    type: csv
+    source: "Small synthetic 16-week capstone course-calendar dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - week
+      - phase
+      - milestone
+      - student_deliverable
+      - instructor_check
+      - risk_status
+      - ai_policy_focus
+      - workload_score
+      - reference_route
+    units:
+      workload_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch44_capstone_course_calendar_milestones.ipynb
+  - name: capstone_student_handout_ta_guide_demo
+    path: data/small/capstone_student_handout_ta_guide_demo.csv
+    type: csv
+    source: "Small synthetic capstone student-handout and TA grading-guide release dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - item_id
+      - audience
+      - package_section
+      - student_clarity_status
+      - ta_guidance_status
+      - policy_alignment_status
+      - example_quality_status
+      - release_priority_score
+      - reference_route
+    units:
+      release_priority_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch45_capstone_student_handout_ta_guide.ipynb
+  - name: capstone_revision_archive_feedback_demo
+    path: data/small/capstone_revision_archive_feedback_demo.csv
+    type: csv
+    source: "Small synthetic capstone revision and archive-feedback dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - item_id
+      - feedback_source
+      - package_area
+      - evidence_status
+      - student_feedback_status
+      - ta_feedback_status
+      - reproducibility_status
+      - sharing_boundary_status
+      - revision_effort_score
+      - reference_route
+    units:
+      revision_effort_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch46_capstone_revision_archive_feedback.ipynb
+  - name: capstone_instructor_handoff_demo
+    path: data/small/capstone_instructor_handoff_demo.csv
+    type: csv
+    source: "Small synthetic capstone instructor-handoff dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - handoff_id
+      - recipient_role
+      - handoff_area
+      - evidence_pack_status
+      - owner_status
+      - unresolved_risk_status
+      - archive_link_status
+      - next_run_priority_score
+      - reference_route
+    units:
+      next_run_priority_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch47_capstone_instructor_handoff.ipynb
+  - name: capstone_public_release_maintenance_demo
+    path: data/small/capstone_public_release_maintenance_demo.csv
+    type: csv
+    source: "Small synthetic capstone public-release and course-maintenance dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - release_id
+      - audience
+      - release_area
+      - public_index_status
+      - license_status
+      - maintenance_owner_status
+      - stale_material_status
+      - public_value_score
+      - reference_route
+    units:
+      public_value_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch48_capstone_public_release_maintenance.ipynb
+  - name: capstone_launch_qa_adoption_demo
+    path: data/small/capstone_launch_qa_adoption_demo.csv
+    type: csv
+    source: "Small synthetic capstone launch-QA and adoption-note dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - qa_id
+      - resource_area
+      - adopter_role
+      - link_check_status
+      - smoke_test_status
+      - adoption_note_status
+      - support_boundary_status
+      - launch_priority_score
+      - reference_route
+    units:
+      launch_priority_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch49_capstone_launch_qa_adoption.ipynb
+  - name: capstone_adoption_feedback_maintenance_demo
+    path: data/small/capstone_adoption_feedback_maintenance_demo.csv
+    type: csv
+    source: "Small synthetic capstone adoption-feedback and course-maintenance dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - feedback_id
+      - feedback_source
+      - affected_area
+      - severity_status
+      - evidence_status
+      - owner_status
+      - maintenance_cadence_status
+      - adoption_impact_score
+      - reference_route
+    units:
+      adoption_impact_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch50_capstone_adoption_feedback_maintenance.ipynb
+  - name: capstone_final_package_closure_demo
+    path: data/small/capstone_final_package_closure_demo.csv
+    type: csv
+    source: "Small synthetic capstone final-package and closure-checklist dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - package_id
+      - package_scope
+      - target_audience
+      - package_index_status
+      - closure_gate_status
+      - final_owner_status
+      - dependency_sync_status
+      - final_readiness_score
+      - reference_route
+    units:
+      final_readiness_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch51_capstone_final_package_closure.ipynb
+  - name: capstone_course_package_directory_release_notes_demo
+    path: data/small/capstone_course_package_directory_release_notes_demo.csv
+    type: csv
+    source: "Small synthetic capstone course-package directory and release-note dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - entry_id
+      - entry_scope
+      - target_reader
+      - directory_status
+      - release_note_status
+      - version_pointer_status
+      - audience_copy_status
+      - next_version_score
+      - reference_route
+    units:
+      next_version_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch52_capstone_course_package_directory_release_notes.ipynb
+  - name: capstone_semester_reboot_preflight_demo
+    path: data/small/capstone_semester_reboot_preflight_demo.csv
+    type: csv
+    source: "Small synthetic capstone semester-reboot and preflight dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - reboot_id
+      - reboot_area
+      - startup_week
+      - preflight_status
+      - term_refresh_status
+      - owner_status
+      - blocker_status
+      - restart_priority_score
+      - reference_route
+    units:
+      restart_priority_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch53_capstone_semester_reboot_preflight.ipynb
+  - name: capstone_failure_mode_escalation_demo
+    path: data/small/capstone_failure_mode_escalation_demo.csv
+    type: csv
+    source: "Small synthetic capstone failure-mode and escalation dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - incident_id
+      - failure_area
+      - failure_signal_status
+      - severity_status
+      - reproducibility_status
+      - owner_status
+      - escalation_boundary_status
+      - urgency_score
+      - reference_route
+    units:
+      urgency_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch54_capstone_failure_modes_escalation_playbook.ipynb
+  - name: capstone_contingency_substitute_handoff_demo
+    path: data/small/capstone_contingency_substitute_handoff_demo.csv
+    type: csv
+    source: "Small synthetic capstone contingency and substitute-handoff dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - handoff_id
+      - contingency_area
+      - trigger_status
+      - minimal_run_package_status
+      - substitute_owner_status
+      - context_brief_status
+      - escalation_status
+      - readiness_score
+      - reference_route
+    units:
+      readiness_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch55_capstone_contingency_substitute_handoff.ipynb
+  - name: capstone_shutdown_warmstart_demo
+    path: data/small/capstone_shutdown_warmstart_demo.csv
+    type: csv
+    source: "Small synthetic capstone shutdown and warm-start dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - shutdown_id
+      - shutdown_area
+      - carry_forward_scope
+      - shutdown_check_status
+      - archive_snapshot_status
+      - next_cohort_seed_status
+      - owner_status
+      - release_pressure_score
+      - reference_route
+    units:
+      release_pressure_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch56_capstone_shutdown_warmstart.ipynb
+  - name: capstone_alumni_mentor_relay_demo
+    path: data/small/capstone_alumni_mentor_relay_demo.csv
+    type: csv
+    source: "Small synthetic capstone alumni-example and mentor-relay dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - relay_id
+      - relay_area
+      - example_readiness_status
+      - privacy_boundary_status
+      - mentor_availability_status
+      - handoff_scope_status
+      - owner_status
+      - continuity_score
+      - reference_route
+    units:
+      continuity_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch57_capstone_alumni_mentor_relay.ipynb
+  - name: capstone_community_memory_maintenance_ledger_demo
+    path: data/small/capstone_community_memory_maintenance_ledger_demo.csv
+    type: csv
+    source: "Small synthetic capstone community-memory and long-term-maintenance dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - ledger_id
+      - memory_area
+      - retention_value_status
+      - update_frequency_status
+      - owner_status
+      - access_boundary_status
+      - staleness_status
+      - continuity_priority_score
+      - reference_route
+    units:
+      continuity_priority_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch58_capstone_community_memory_maintenance_ledger.ipynb
+  - name: capstone_external_collaboration_guest_intake_demo
+    path: data/small/capstone_external_collaboration_guest_intake_demo.csv
+    type: csv
+    source: "Small synthetic capstone external-collaboration and guest-intake dataset created for the textbook project."
+    license: "Repository educational content; verify final project-wide license before publication."
+    download_date: "2026-05-03"
+    fields:
+      - intake_id
+      - partner_type
+      - collaboration_area
+      - guest_material_status
+      - boundary_status
+      - host_owner_status
+      - scope_status
+      - collaboration_value_score
+      - reference_route
+    units:
+      collaboration_value_score: unitless
+    used_by:
+      - notebooks/part6_capstone/ch59_capstone_external_collaboration_guest_intake.ipynb

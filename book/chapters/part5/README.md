@@ -18,4 +18,4 @@ Current draft targets:
 Planned next drafts:
 
 - transfer-learning on real cutouts / spectra chapters
-- capstone-workflow and project-integration chapters
+- deeper workflow-integrated CNN / spectral-model chapters that feed the Part VI capstone templates

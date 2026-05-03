@@ -1,0 +1,164 @@
+\chapter{Capstone 课程证据汇总与教师交接包}
+
+\section{案例目标}
+
+第 46 章把课程运行后的反馈整理成修订与归档闭环。本章继续处理一个更容易被忽略的环节：\textbf{怎样把 Capstone 的课程证据、风险记录、责任人和归档链接整理成下一任教师或助教能直接接手的 handoff package。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 handoff package 不是“把所有文件发过去”，而是把下一轮课程需要判断的状态说清楚；
+    \item 学会检查 evidence pack、owner、unresolved risk、archive link 和 next-run priority；
+    \item 学会区分“可以交接”“补证据摘要”“先指定责任人”和“先解决风险”四类出口；
+    \item 学会让课程经验从个人记忆变成团队资产。
+\end{enumerate}
+
+\section{没有交接包，课程经验会迅速蒸发}
+
+一门 Capstone 课程运行完之后，真正有价值的知识往往藏在细节里：哪一周学生最容易卡住，哪个 notebook 在实验室电脑上最慢，哪条评分 anchor 最容易被助教误解，哪些学生作品不能公开，哪些归档链接下次还会用。
+
+如果这些信息只留在某位教师或助教的脑子里，下一轮课程就会重新发现同样的问题。更糟的是，新教师可能看到一堆文件，却不知道哪些已经验证、哪些只是草稿、哪些有政策风险。
+
+所以，本章的核心立场是：\textbf{交接包的目标不是文件完整，而是状态可判断、风险可追踪、责任人可执行。}
+
+\section{一个极小的 instructor-handoff 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_instructor_handoff_demo.csv}。这是一组完全本地、教学用途的\textbf{课程交接卡片}。每一行代表一个需要交给下一轮课程团队的模块，包含：
+
+\begin{itemize}
+    \item \texttt{handoff\_id}；
+    \item \texttt{recipient\_role}；
+    \item \texttt{handoff\_area}；
+    \item \texttt{evidence\_pack\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{unresolved\_risk\_status}；
+    \item \texttt{archive\_link\_status}；
+    \item \texttt{next\_run\_priority\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成四类：
+
+\begin{itemize}
+    \item \texttt{handoff\_ready}：可以进入教师或助教交接包；
+    \item \texttt{complete\_evidence\_digest}：证据摘要或归档链接还不完整；
+    \item \texttt{assign\_owner\_before\_handoff}：下一步责任人不清楚，交出去也无法执行；
+    \item \texttt{resolve\_risk\_before\_handoff}：仍有开放风险或高风险，必须先处理。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按下一轮优先级排序}
+
+课程交接时，一个常见 baseline 是只看下一轮课程优先级：越重要的模块越先放进交接包。
+
+\begin{examplebox}[只按 next-run priority 选择交接内容]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["next_run_priority_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把重要但仍有开放风险的模块推到最前面。例如环境安装当然重要，但如果运行日志还是薄的、归档链接也不完整，就不能假装它已经可以交接。
+
+在本章教学数据上，只按下一轮优先级取前四项，真正可交接的精度只有 0.25，高风险或责任人问题混入率是 0.75。结构化 handoff workflow 会先看 unresolved risk，再看 owner，最后检查证据摘要和归档链接：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可交接精度 & 风险项混入率 & 教学解读 \\
+\midrule
+只按优先级取前四项 & 0.25 & 0.75 & 重要事项如果仍有风险或无人负责，越早交接越容易误导 \\
+结构化 handoff workflow & 1.00 & 0.00 & 先处理风险和责任人，再整理证据和链接 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小交接流程的对照。交接包不是优先级列表，而是可执行状态表。}
+\label{tab:ch47_priority_vs_handoff}
+\end{table}
+
+\section{一个可执行的 handoff workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小教师交接 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if unresolved_risk_status in {"open", "high"}:
+    resolve_risk_before_handoff
+elif owner_status != "assigned":
+    assign_owner_before_handoff
+elif evidence_pack_status != "complete":
+    complete_evidence_digest
+elif archive_link_status != "complete":
+    complete_evidence_digest
+else:
+    handoff_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个很实用的课程运维原则：\textbf{风险先于交接，责任人先于任务，证据先于经验。}
+
+\section{交接包应该包含什么}
+
+一份可复用的 instructor handoff package 至少应该包含：
+
+\begin{enumerate}
+    \item 课程日历版本：哪些 checkpoint 必须保留，哪些可以合并；
+    \item 环境与 notebook 运行记录：依赖、路径、运行时间和已知失败；
+    \item rubric 与 TA norming 记录：评分锚点、漂移问题和处理建议；
+    \item 学生常见问题：哪些说明需要提前写进 handout；
+    \item 数据、隐私和公开边界：哪些材料可公开、内部保留或暂停；
+    \item 下一轮课程任务表：每项任务的 owner、截止时间和风险等级。
+\end{enumerate}
+
+交接包不需要把所有聊天记录和临时文件都塞进去。它应该像一个状态面板：新团队能在半小时内知道哪些材料可信、哪些要补、哪些不能碰。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 instructor-handoff table，并统计 recipient、risk 和 reference route；
+    \item 用 next-run priority 做一个 naive handoff baseline；
+    \item 再实现一个带 unresolved risk、owner、evidence pack 和 archive link 的 handoff workflow；
+    \item 输出 handoff-ready、complete-evidence、assign-owner 和 resolve-risk 四个队列；
+    \item 为每个非 ready 模块生成交接前 checklist；
+    \item 最后生成 instructor handoff outline 和 handoff assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把散乱的课后记录整理成 handoff table；
+    \item 把学生常见问题压缩成下一轮 handout 修订建议；
+    \item 检查每个交接项是否有明确 owner；
+    \item 把 archive link、policy caveat 和 unresolved risk 单独列出；
+    \item 为新教师生成一页 quick-start briefing。
+\end{itemize}
+
+但 AI 助手不能替课程团队决定谁承担责任，也不能替代政策、隐私和成绩相关判断。它能让交接更清楚，却不能把课程责任自动化。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{handoff\_ready} 模块的 \texttt{owner\_status} 改成 \texttt{missing}。重新运行 notebook，观察它为什么不能继续留在 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个归档链接不完整、但责任人已经明确的 handoff 模块。预测它会落到哪个 route，并说明为什么链接不完整会影响下一轮课程接手。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 instructor handoff brief。至少包含：课程日历、运行日志、学生问题、助教评分记录、公开边界、下一轮 owner 和高风险项。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 课程真正成熟的标志，不是某一位教师把本学期带完，而是下一位教师能清楚接手。本章把 evidence pack、owner、unresolved risk、archive link 和 next-run priority 放进同一张 handoff card。
+
+当课程团队能把交接项分成可交接、补证据摘要、先指定责任人和先解决风险，Capstone 就从个人课程经验变成了可维护、可迭代、可传承的教学系统。

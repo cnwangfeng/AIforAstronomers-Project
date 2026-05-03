@@ -1,0 +1,165 @@
+\chapter{Capstone 学期收尾与下一届 Warm Start}
+
+\section{案例目标}
+
+第 55 章把临时替班、应急接管和 minimal run package 整理成 substitute handoff workflow。本章继续处理一轮课程真正结束时的另一面：\textbf{怎样在学期结束后完成 shutdown checklist，同时给下一届学生和下一轮课程团队留下一个可直接启动的 warm-start package。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 end-of-term shutdown 不是“学期结束了就归档”，而是把当前轮次安全关机并给下一轮留下可接续的种子；
+    \item 学会检查 shutdown check、archive snapshot、next-cohort seed、owner 和 release pressure；
+    \item 学会区分“可以收尾”“补 shutdown 检查”“先补归档快照”“准备下一届种子包”和“先指定收尾 owner”五类出口；
+    \item 学会把一轮课程的结束变成下一轮课程的更好起点。
+\end{enumerate}
+
+\section{学期结束不是简单打包}
+
+课程运行到最后，团队通常最累，也最容易把“终于结束了”误当成“已经处理完了”。但真正影响下一轮课程质量的，往往不是本学期最后一次展示，而是收尾阶段有没有把 submission、feedback、reproducibility note、TA digest 和 course retrospective 处理清楚。
+
+如果 shutdown 做得太匆忙，下一轮团队会拿到一堆文件，但不知道哪些是最终版、哪些只是临时导出、哪些值得继续用、哪些应该淘汰。更糟的是，下一届学生可能面对一份表面完整、实际上没有 warm-start 入口的课程包。
+
+所以，本章的核心立场是：\textbf{课程收尾的目标不是结束，而是为下一轮留下可用、可懂、可接续的起始状态。}
+
+\section{一个极小的 shutdown-warmstart 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_shutdown_warmstart_demo.csv}。这是一组完全本地、教学用途的\textbf{学期收尾与下一届预热卡片}。每一行代表一个学期末需要收尾、归档或留种的模块，包含：
+
+\begin{itemize}
+    \item \texttt{shutdown\_id}；
+    \item \texttt{shutdown\_area}；
+    \item \texttt{carry\_forward\_scope}；
+    \item \texttt{shutdown\_check\_status}；
+    \item \texttt{archive\_snapshot\_status}；
+    \item \texttt{next\_cohort\_seed\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{release\_pressure\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{shutdown\_ready}：可以进入学期收尾包；
+    \item \texttt{complete\_shutdown\_check}：还有关机前检查没做完；
+    \item \texttt{archive\_before\_shutdown}：归档快照、版本或证据还不完整；
+    \item \texttt{prepare\_next\_cohort\_seed}：还没有把内容整理成下一届可接手的起始包；
+    \item \texttt{assign\_shutdown\_owner}：没有明确的收尾负责人。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按收尾压力排序}
+
+学期末很容易按 release pressure 排序：越赶、越怕忘掉的事情越先做。
+
+\begin{examplebox}[只按 release pressure 选择收尾任务]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["release_pressure_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的问题在于，压力高不一定代表该任务已经 ready。它可能还缺 shutdown check、archive snapshot，或者根本没有整理成下一届可以直接接手的种子包。
+
+在本章教学数据上，只按收尾压力取前四项，真正可收尾的精度只有 0.25，未就绪项混入率是 0.75。结构化 shutdown workflow 会先看 owner，再看 shutdown check，再看 archive snapshot，最后检查 next-cohort seed：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可收尾精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按收尾压力取前四项 & 0.25 & 0.75 & 紧迫感不能替代完整检查、归档和 warm-start 准备 \\
+结构化 shutdown workflow & 1.00 & 0.00 & 先定人、再关机、再留档、最后留种 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小学期收尾流程的对照。课程收尾不是压力清单，而是过渡状态表。}
+\label{tab:ch56_pressure_vs_shutdown}
+\end{table}
+
+\section{一个可执行的 shutdown workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小学期收尾 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if owner_status != "assigned":
+    assign_shutdown_owner
+elif shutdown_check_status != "complete":
+    complete_shutdown_check
+elif archive_snapshot_status != "complete":
+    archive_before_shutdown
+elif next_cohort_seed_status != "seeded":
+    prepare_next_cohort_seed
+else:
+    shutdown_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个过渡原则：\textbf{负责人先于收尾，关机检查先于归档，归档先于 warm start。}
+
+\section{学期收尾包应该包含什么}
+
+一份可执行的 end-of-term shutdown package 至少应该包含：
+
+\begin{enumerate}
+    \item 最终版 submission 与评分边界说明；
+    \item 学生与助教反馈摘要；
+    \item 可复现的课程快照：notebook、数据、关键路径和版本；
+    \item course retrospective：哪些地方最耗时、最易错、最值得保留；
+    \item 下一届 warm-start 种子：starter repo、calendar seed、最小 handout 和 kickoff note；
+    \item owner 与最后检查日期：谁关机、谁归档、谁给下一轮开机。
+\end{enumerate}
+
+它不需要保存一切，但必须留下“下一轮从哪里开始”这个最重要的问题的答案。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 shutdown-warmstart table，并统计 carry-forward scope、shutdown check、archive、seed 和 reference route；
+    \item 用 release pressure 做一个 naive shutdown baseline；
+    \item 再实现一个带 owner、shutdown check、archive snapshot 和 next-cohort seed 的 shutdown workflow；
+    \item 输出 shutdown-ready、complete-check、archive-first、prepare-seed 和 assign-owner 五个队列；
+    \item 为每个非 ready 模块生成收尾前 checklist；
+    \item 最后生成 shutdown package outline 和 warm-start assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把一学期的杂乱材料压缩成 shutdown package；
+    \item 从反馈和课程记录里提炼出最值得给下一届保留的种子；
+    \item 标出哪些内容适合 carry forward、哪些应该淘汰；
+    \item 为下一届 kickoff 生成一页 warm-start briefing；
+    \item 起草 course retrospective 和 next-cohort starter note。
+\end{itemize}
+
+但 AI 助手不能替团队决定哪些学生材料可以长期保留，也不能替课程负责人完成最终归档判断。它能让收尾更清楚，却不能替你结束这一轮课程。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{shutdown\_ready} 模块的 \texttt{next\_cohort\_seed\_status} 改成 \texttt{missing}。重新运行 notebook，观察它为什么会离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 release pressure 很高、但 \texttt{archive\_snapshot\_status = missing} 的模块。预测它会落到哪个 route，并说明为什么“着急结束”不等于“可以收尾”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 end-of-term shutdown brief。至少包含：最终版交付、feedback digest、reproducibility snapshot、course retrospective、next-cohort seed 和 owner。
+\end{exercisebox}
+
+\section{本章小结}
+
+一轮课程的结束不应该只是归档，而应该是下一轮课程的更好起点。本章把 shutdown check、archive snapshot、next-cohort seed、owner 和 release pressure 放进同一张 shutdown card。
+
+当课程团队能把模块分成可以收尾、补 shutdown 检查、先补归档快照、准备下一届种子包和先指定收尾 owner，Capstone 就从一学期的工作堆积变成可以跨届延续的教学系统。

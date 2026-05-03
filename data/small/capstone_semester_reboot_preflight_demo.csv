@@ -1,0 +1,9 @@
+reboot_id,reboot_area,startup_week,preflight_status,term_refresh_status,owner_status,blocker_status,restart_priority_score,reference_route
+RB53_01,course_calendar,week0,complete,refreshed,assigned,none,0.92,reboot_ready
+RB53_02,environment_setup,week0,partial,refreshed,assigned,none,0.95,rerun_preflight_check
+RB53_03,policy_dates,week0,complete,stale,assigned,none,0.91,refresh_term_specific_material
+RB53_04,ta_roster,week0,complete,refreshed,missing,none,0.84,assign_startup_owner
+RB53_05,private_data_access,week1,complete,refreshed,assigned,open,0.93,resolve_blocker_before_restart
+RB53_06,student_handout_links,week1,complete,stale,assigned,none,0.82,refresh_term_specific_material
+RB53_07,kickoff_notebook_bundle,week1,missing,refreshed,assigned,none,0.88,rerun_preflight_check
+RB53_08,office_hours_schedule,week0,complete,refreshed,assigned,none,0.79,reboot_ready

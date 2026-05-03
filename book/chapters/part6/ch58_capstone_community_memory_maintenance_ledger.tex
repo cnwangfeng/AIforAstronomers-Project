@@ -1,0 +1,166 @@
+\chapter{Capstone 社群记忆与长期维护账本}
+
+\section{案例目标}
+
+第 57 章把校友案例、导师可用性和 mentor relay network 整理成支持下一届的长期接力包。本章继续处理一个更深的长期问题：\textbf{怎样把多轮课程运行中积累下来的 retrospectives、事故记录、评分边界、常见错误、mentor 经验和环境说明整理成一份真正可维护的 community memory ledger。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 community memory 不是“旧文档归档区”，而是支撑课程跨学期持续改进的长期记忆系统；
+    \item 学会检查 retention value、update frequency、owner、access boundary、staleness 和 continuity priority；
+    \item 学会区分“账本可用”“安排刷新节奏”“先指定 owner”“刷新陈旧记忆”和“先复核访问边界”五类出口；
+    \item 学会让课程经验从一轮轮临时救火，变成长期可维护的团队资产。
+\end{enumerate}
+
+\section{课程真正丢失的，常常不是文件而是记忆}
+
+一门课程运行几年之后，仓库里的文件通常会越来越多：handout、rubric、release notes、reboot checklist、incident log、mentor note、showcase archive、retrospective。表面上看，好像什么都在，但真正最容易消失的，是这些材料背后的“为什么”。
+
+为什么某一周必须加 checkpoint，为什么某类评分争议要升级给课程负责人，为什么某个 notebook 即使能跑也不该在 kickoff 当天用，为什么某位 mentor 最适合做 panel 而不适合一对一项目跟进。这些经验如果没有进入长期维护账本，就会在人员更替和时间流逝中迅速蒸发。
+
+所以，本章的核心立场是：\textbf{community memory 的目标不是留存所有历史，而是保留那些能让下一轮课程少走弯路的高价值记忆。}
+
+\section{一个极小的 memory-ledger 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_community_memory_maintenance_ledger_demo.csv}。这是一组完全本地、教学用途的\textbf{社群记忆与长期维护卡片}。每一行代表一个值得长期保留、定期维护或边界复核的记忆条目，包含：
+
+\begin{itemize}
+    \item \texttt{ledger\_id}；
+    \item \texttt{memory\_area}；
+    \item \texttt{retention\_value\_status}；
+    \item \texttt{update\_frequency\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{access\_boundary\_status}；
+    \item \texttt{staleness\_status}；
+    \item \texttt{continuity\_priority\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{ledger\_ready}：条目可以进入长期维护账本；
+    \item \texttt{schedule\_ledger\_refresh}：还没有明确刷新节奏；
+    \item \texttt{assign\_ledger\_owner}：没有明确 owner；
+    \item \texttt{refresh\_stale\_memory}：条目内容已经陈旧；
+    \item \texttt{review\_access\_boundary}：访问边界、隐私边界或公开范围还需要复核。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按 continuity priority 排序}
+
+团队很容易认为，只要记忆条目对下一轮很重要，就应该优先进入长期账本。
+
+\begin{examplebox}[只按 continuity priority 选择长期记忆条目]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["continuity_priority_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的问题在于，高价值不代表高可用。某个条目可能非常重要，但如果没有 owner、没有刷新频率、已经陈旧，或者访问边界不清，它进入账本后只会制造新的误导。
+
+在本章教学数据上，只按 continuity priority 取前四项，真正适合直接进入长期账本的精度只有 0.25，未就绪项混入率是 0.75。结构化 memory workflow 会先看访问边界，再看 owner，再检查 staleness，最后确认更新频率：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 账本可用精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按 continuity priority 取前四项 & 0.25 & 0.75 & 价值高但边界不清、陈旧或无人维护的记忆不能直接进入长期账本 \\
+结构化 memory workflow & 1.00 & 0.00 & 先定边界和 owner，再刷新内容和节奏 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小长期记忆流程的对照。长期账本不是价值榜，而是维护状态表。}
+\label{tab:ch58_priority_vs_memory_ledger}
+\end{table}
+
+\section{一个可执行的 memory-ledger workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小长期记忆 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if access_boundary_status not in {"internal", "public"}:
+    review_access_boundary
+elif owner_status != "assigned":
+    assign_ledger_owner
+elif staleness_status != "current":
+    refresh_stale_memory
+elif update_frequency_status != "scheduled":
+    schedule_ledger_refresh
+else:
+    ledger_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个长期维护原则：\textbf{边界先于留存，owner 先于价值，刷新先于沉淀，节奏先于堆积。}
+
+\section{长期维护账本应该包含什么}
+
+一份可执行的 community memory ledger 至少应该包含：
+
+\begin{enumerate}
+    \item 条目名称：这段经验究竟是什么；
+    \item 保留理由：它为什么值得留到下一轮甚至下几轮；
+    \item owner：谁负责更新、复核和淘汰；
+    \item 刷新节奏：每学期、每学年还是按事件触发；
+    \item 访问边界：内部、公开、受限或仅课程负责人可见；
+    \item 最后更新时间：它现在是不是仍然可信；
+    \item 关联入口：这段记忆应该在哪些 handoff、checklist、release note 或 kickoff note 里被引用。
+\end{enumerate}
+
+长期账本的重点不是“越多越好”，而是让真正高价值的经验能被找到、被维护、被引用。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 memory-ledger table，并统计 value、owner、boundary、staleness 和 reference route；
+    \item 用 continuity priority 做一个 naive ledger baseline；
+    \item 再实现一个带 access boundary、owner、staleness 和 refresh cadence 的 ledger workflow；
+    \item 输出 ledger-ready、schedule-refresh、assign-owner、refresh-stale 和 review-boundary 五个队列；
+    \item 为每个非 ready 条目生成长期维护前 checklist；
+    \item 最后生成 memory-ledger outline 和 assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 从 retrospectives、incident notes、mentor brief 和 release notes 中抽取高价值记忆；
+    \item 识别哪些条目已经陈旧或失去维护 owner；
+    \item 把长段历史经验压缩成下一轮真正会引用的简洁条目；
+    \item 标出哪些内容只适合内部使用，不应直接公开；
+    \item 为长期维护账本生成 refresh plan。
+\end{itemize}
+
+但 AI 助手不能替团队决定哪些敏感记忆应该保留多久，也不能替代真实 owner 的维护责任。它能帮助你更快整理记忆，却不能替你承担长期维护。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{ledger\_ready} 条目的 \texttt{staleness\_status} 改成 \texttt{stale}。重新运行 notebook，观察它为什么要先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 continuity 很高、但 \texttt{owner\_status = missing} 的记忆条目。预测它会落到哪个 route，并说明为什么“重要”不等于“可维护”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 community memory ledger。至少包含：条目名称、保留理由、owner、刷新节奏、访问边界、最后更新时间和关联入口。
+\end{exercisebox}
+
+\section{本章小结}
+
+课程真正成熟的时候，不只是材料越来越多，而是高价值经验越来越能被团队长期保留和更新。本章把 retention value、update frequency、owner、boundary、staleness 和 continuity priority 放进同一张 ledger card。
+
+当课程团队能把记忆条目分成账本可用、安排刷新节奏、先指定 owner、刷新陈旧记忆和先复核访问边界，Capstone 就从一轮轮经验累积变成了一套真正有长期记忆的教学系统。

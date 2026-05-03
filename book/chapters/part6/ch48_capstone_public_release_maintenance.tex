@@ -1,0 +1,166 @@
+\chapter{Capstone 公开发布索引与课程维护清单}
+
+\section{案例目标}
+
+第 47 章把课程证据、风险记录、责任人和归档链接整理成教师交接包。本章再往前走一步：\textbf{怎样把 Capstone 材料整理成可以公开发布、可以被下一届学生找到、也可以被课程团队持续维护的 release package。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 public release index 不只是目录，而是学生、助教、教师和外部读者进入课程资源的入口；
+    \item 学会检查 public index、license boundary、maintenance owner、stale material 和 public value；
+    \item 学会区分“可以发布”“补公开索引”“先解决许可边界”“先指定维护责任人”和“先刷新过期材料”五类出口；
+    \item 学会把课程发布从一次性上传变成可维护的教学产品。
+\end{enumerate}
+
+\section{发布不是把文件放到网上}
+
+一门课程做到最后，通常会留下很多看起来很有价值的材料：项目模板、评分 rubric、notebook、示例报告、常见问题、助教 norming 记录和学生优秀作品。直接把它们全部放到公开仓库里，表面上很开放，实际上可能制造新的问题。
+
+有些材料适合学生公开访问，有些只适合助教内部使用，有些包含学生反馈或评分讨论，不能公开；有些 notebook 今年能跑，明年依赖版本变化后就可能失效；有些文件没有 owner，出问题时没人维护。公开发布索引的作用，就是让每个资源都有明确入口、边界、责任人和更新时间。
+
+所以，本章的核心立场是：\textbf{课程发布不是文件上网，而是把材料、许可、维护责任和更新节奏放进同一个可判断的索引。}
+
+\section{一个极小的 public-release 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_public_release_maintenance_demo.csv}。这是一组完全本地、教学用途的\textbf{公开发布与课程维护卡片}。每一行代表一个准备进入课程发布包或维护计划的资源，包含：
+
+\begin{itemize}
+    \item \texttt{release\_id}；
+    \item \texttt{audience}；
+    \item \texttt{release\_area}；
+    \item \texttt{public\_index\_status}；
+    \item \texttt{license\_status}；
+    \item \texttt{maintenance\_owner\_status}；
+    \item \texttt{stale\_material\_status}；
+    \item \texttt{public\_value\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{release\_ready}：可以进入公开发布索引；
+    \item \texttt{complete\_public\_index}：入口、说明、版本或链接还不完整；
+    \item \texttt{resolve\_license\_boundary}：许可、隐私或公开边界还不清楚；
+    \item \texttt{assign\_maintenance\_owner}：没有明确维护责任人；
+    \item \texttt{refresh\_stale\_material}：材料已经过期，发布前需要刷新。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按公开价值排序}
+
+课程发布时，一个常见 baseline 是只看材料的公开价值：越有用、越能代表课程质量的资源越先发布。
+
+\begin{examplebox}[只按 public value 选择发布材料]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["public_value_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 很诱人，因为它确实能把学生最需要的材料排在前面。但它也会把许可边界不清、维护责任缺失或已经过期的材料一起推到发布队列里。
+
+在本章教学数据上，只按公开价值取前四项，真正可发布的精度只有 0.25，未就绪材料混入率是 0.75。结构化 release workflow 会先检查许可边界，再检查维护责任人，再看材料是否过期，最后检查公开索引是否完整：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可发布精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按公开价值取前四项 & 0.25 & 0.75 & 高价值材料如果许可不清、无人维护或已经过期，越早发布越容易制造风险 \\
+结构化 release workflow & 1.00 & 0.00 & 先处理边界、责任和时效，再进入公开索引 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小发布流程的对照。公开发布索引不是精选列表，而是可维护状态表。}
+\label{tab:ch48_value_vs_release}
+\end{table}
+
+\section{一个可执行的 release workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小公开发布 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if license_status in {"unclear", "restricted"}:
+    resolve_license_boundary
+elif maintenance_owner_status != "assigned":
+    assign_maintenance_owner
+elif stale_material_status in {"stale", "needs_review"}:
+    refresh_stale_material
+elif public_index_status != "complete":
+    complete_public_index
+else:
+    release_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个课程发布原则：\textbf{许可边界先于传播，维护责任先于可见度，时效检查先于公开入口。}
+
+\section{公开发布索引应该包含什么}
+
+一份可复用的 public release index 至少应该包含：
+
+\begin{enumerate}
+    \item 资源名称：学生、助教、教师和外部读者能理解的标题；
+    \item 目标读者：说明该资源适合 students、TA、instructors 还是 public；
+    \item 访问位置：仓库路径、网页链接、PDF 或 notebook 入口；
+    \item 许可与公开边界：可公开、内部使用、限制访问或暂缓发布；
+    \item 维护责任人：谁负责检查链接、依赖、版本和内容过期；
+    \item 更新时间：最后检查日期、下一次检查日期和触发更新的条件；
+    \item 质量状态：是否已经跑过 notebook、是否通过课程试用、是否有已知 caveat。
+\end{enumerate}
+
+这份索引可以很简单，甚至就是一个 CSV 或 Markdown 表格。关键不是形式，而是每个资源都能回答三个问题：谁能用、能不能公开、坏了谁修。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 public-release table，并统计 audience、license、owner、stale status 和 reference route；
+    \item 用 public value 做一个 naive release baseline；
+    \item 再实现一个带 license boundary、maintenance owner、stale-material audit 和 public index check 的 release workflow；
+    \item 输出 release-ready、complete-index、resolve-license、assign-owner 和 refresh-stale 五个队列；
+    \item 为每个非 ready 材料生成发布前维护 checklist；
+    \item 最后生成 public release index outline 和 maintenance assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把散乱的课程材料整理成 public release index；
+    \item 检查每个链接是否有 audience、owner、license boundary 和更新时间；
+    \item 把过期 notebook、旧截图、旧依赖和旧课程日期标出来；
+    \item 为下一轮课程生成维护 issue 列表；
+    \item 把公开说明写成学生能读懂的一页 release note。
+\end{itemize}
+
+但 AI 助手不能替课程团队判断学生作品能否公开，也不能自动决定许可证、隐私边界和机构政策。它能让维护工作变得可见，却不能替代发布责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{release\_ready} 材料的 \texttt{stale\_material\_status} 改成 \texttt{stale}。重新运行 notebook，观察它为什么不能继续留在 release-ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个公开价值很高、但 \texttt{license\_status = unclear} 的学生示例项目。预测它会落到哪个 route，并说明为什么高价值不能抵消许可风险。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 public release index。至少包含：资源名称、目标读者、访问位置、许可边界、维护责任人、最后检查日期、下一次检查日期和已知 caveat。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 课程如果只停留在“本学期能用”，很快会变成一堆过期文件。真正可持续的课程资源，需要有公开发布索引、维护责任人、许可边界和定期 stale-material audit。
+
+本章把 public index、license boundary、maintenance owner、stale material 和 public value 放进同一张 release card。当课程团队能把材料分成可以发布、补公开索引、先解决许可边界、先指定维护责任人和先刷新过期材料，Capstone 就从一次课程交付变成了可以持续迭代的开放教学资源。

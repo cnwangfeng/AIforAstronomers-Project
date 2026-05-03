@@ -1,0 +1,165 @@
+\chapter{Capstone 课程包目录页与发布版本说明}
+
+\section{案例目标}
+
+第 51 章把学生包、助教包、教师包和公开包收束到同一张最终课程包索引里。本章继续处理发布打磨阶段最面向读者的一步：\textbf{怎样把最终课程包整理成一页课程包目录页，并为每个入口写清版本说明、目标读者和下一版变更。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 course package directory 不是重复列文件，而是帮助不同读者快速找到入口；
+    \item 学会检查 directory entry、release note、version pointer、audience copy 和 next-version priority；
+    \item 学会区分“目录可发布”“补目录条目”“同步版本指针”“重写读者说明”和“延期到下一版”五类出口；
+    \item 学会把课程包从“内部知道怎么用”推进到“外部读者一眼知道从哪进”。
+\end{enumerate}
+
+\section{真正的入口往往不是 PDF 首页}
+
+一套课程包准备发布时，团队内部通常已经知道：学生先看 handout，助教先看 rubric 和 calibration pack，教师先看 handoff 包，公开读者先看 archive landing page，维护者再去找 issue 模板和 release note。
+
+但外部采用者并不知道这些默认路径。如果没有一页目录页和清楚的 release notes，他们看到的往往只是一堆文件夹名字，或者一个看起来完整、实际入口不清的仓库。
+
+所以，本章的核心立场是：\textbf{目录页和版本说明不是附属品，而是课程包真正的使用入口。}
+
+\section{一个极小的 course-package 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_course_package_directory_release_notes_demo.csv}。这是一组完全本地、教学用途的\textbf{课程包目录页与版本说明卡片}。每一行代表一个需要进入最终目录页的入口，包含：
+
+\begin{itemize}
+    \item \texttt{entry\_id}；
+    \item \texttt{entry\_scope}；
+    \item \texttt{target\_reader}；
+    \item \texttt{directory\_status}；
+    \item \texttt{release\_note\_status}；
+    \item \texttt{version\_pointer\_status}；
+    \item \texttt{audience\_copy\_status}；
+    \item \texttt{next\_version\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{directory\_ready}：目录页和版本说明都可以发布；
+    \item \texttt{complete\_directory\_entry}：目录条目、入口或摘要还不完整；
+    \item \texttt{sync\_release\_note\_pointer}：版本指针、release note 链接或变更摘要没有同步；
+    \item \texttt{rewrite\_audience\_copy}：面向学生、教师或公开读者的说明还不够清楚；
+    \item \texttt{hold\_for\_next\_version}：这一项应该暂缓到下一版，而不是硬塞进当前目录页。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按下一版优先级排序}
+
+课程包发布前，一个常见 baseline 是只按 next-version priority 排序：分数越高，越先放到目录页最前面。
+
+\begin{examplebox}[只按 next-version priority 选择目录页条目]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["next_version_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把应该 hold 的条目、版本指针没同步的条目和目录信息不完整的条目一起推到入口区。外部读者会首先遇到这些问题。
+
+在本章教学数据上，只按下一版优先级取前四项，真正目录可发布的精度只有 0.25，未就绪条目混入率是 0.75。结构化 directory workflow 会先看 release-note 状态，再看 version pointer，再看 audience copy，最后补 directory entry：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可发布精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按下一版优先级取前四项 & 0.25 & 0.75 & 目录入口如果 hold、不同步或写得不清楚，越靠前越会放大混乱 \\
+结构化 directory workflow & 1.00 & 0.00 & 先处理版本状态、版本指针和读者说明，再补入口条目 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小目录页流程的对照。课程包目录页不是优先级排行榜，而是可进入的入口表。}
+\label{tab:ch52_directory_vs_priority}
+\end{table}
+
+\section{一个可执行的 directory workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小目录页 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if release_note_status in {"hold", "blocked"}:
+    hold_for_next_version
+elif version_pointer_status != "synced":
+    sync_release_note_pointer
+elif audience_copy_status != "clear":
+    rewrite_audience_copy
+elif directory_status != "complete":
+    complete_directory_entry
+else:
+    directory_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个发布原则：\textbf{版本状态先于入口曝光，版本指针先于目录排序，读者说明先于视觉整齐。}
+
+\section{课程包目录页应该包含什么}
+
+一份可发布的 course package directory 至少应该包含：
+
+\begin{enumerate}
+    \item 入口名称：学生包、助教包、教师包、公开包、维护包；
+    \item 目标读者：谁该先点它；
+    \item 入口说明：一句话告诉读者这个入口解决什么问题；
+    \item 版本信息：当前版本、最后更新时间和 release note；
+    \item 已知 caveat：哪些材料仍在下一版处理、哪些内容当前不包含；
+    \item 相关入口：如果看完这个入口，下一步应该去哪。
+\end{enumerate}
+
+目录页的价值不在于列得多，而在于帮助读者在 30 秒内知道“我是谁，我该点哪里，我会得到什么”。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 course-package directory table，并统计 reader、release-note、version pointer 和 reference route；
+    \item 用 next-version score 做一个 naive directory baseline；
+    \item 再实现一个带 release-note state、version pointer、audience copy 和 directory entry 的 directory workflow；
+    \item 输出 directory-ready、complete-entry、sync-pointer、rewrite-copy 和 hold-next-version 五个队列；
+    \item 为每个非 ready 条目生成目录发布前 checklist；
+    \item 最后生成 directory outline 和 release-note assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把最终课程包 bundle 压缩成一页目录页；
+    \item 检查 release note、目录页和 README 是否使用一致的版本号；
+    \item 把“这是什么”“谁该看它”“下一步去哪”写成外部读者看得懂的一句话；
+    \item 标出应该 hold 到下一版的入口；
+    \item 为发布页生成一段简洁的版本说明摘要。
+\end{itemize}
+
+但 AI 助手不能替课程团队决定哪些内容必须延期，也不能替代最终发布判断。它能让目录更清楚，却不能替你承担版本承诺。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{directory\_ready} 条目的 \texttt{audience\_copy\_status} 改成 \texttt{unclear}。重新运行 notebook，观察它为什么会离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 next-version score 很高、但 \texttt{release\_note\_status = hold} 的公开入口。预测它会落到哪个 route，并说明为什么高优先级不能盖过 hold 状态。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页目录页草稿。至少包含：入口名称、目标读者、一句话说明、版本号、已知 caveat 和下一步入口。
+\end{exercisebox}
+
+\section{本章小结}
+
+当课程包走到发布阶段，最重要的不是继续堆材料，而是让读者知道从哪进。本章把 directory entry、release note、version pointer、audience copy 和 next-version priority 放进同一张入口卡片。
+
+当课程团队能把条目分成目录可发布、补目录条目、同步版本指针、重写读者说明和延期到下一版，Capstone 课程包就更接近真正可用的公开资源。

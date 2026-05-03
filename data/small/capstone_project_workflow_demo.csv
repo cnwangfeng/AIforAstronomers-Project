@@ -1,0 +1,9 @@
+project_id,theme,science_question_status,data_license_status,baseline_status,validation_status,literature_ledger_status,ai_use_statement_status,report_outline_status,sharing_boundary,model_hype_score,reference_route
+C01,Gaia open-cluster membership and CMD cleanup,clear,clear,ready,ready,ready,drafted,ready,local_only,0.89,ready_for_capstone
+C02,Foundation-model photo-z on public survey colors,clear,clear,missing,partial,partial,missing,partial,local_only,0.96,revise_plan
+C03,TESS flare triage with restricted classroom data,clear,restricted,ready,partial,ready,drafted,partial,local_only,0.84,blocked
+C04,Galaxy morphology workflow with public cutouts,clear,clear,ready,partial,ready,missing,partial,local_only,0.92,manual_review
+C05,Spectral anomaly search with pasted rows in external chat,clear,clear,ready,ready,partial,missing,partial,external_unknown,0.87,blocked
+C06,Gaia cluster age estimate with two-model comparison,clear,clear,ready,ready,ready,drafted,ready,local_only,0.62,ready_for_capstone
+C07,Simulation signal-background explorer,broad,clear,missing,ready,ready,drafted,partial,local_only,0.78,revise_plan
+C08,Public light-curve period search report,clear,clear,ready,ready,partial,drafted,partial,local_only,0.74,manual_review

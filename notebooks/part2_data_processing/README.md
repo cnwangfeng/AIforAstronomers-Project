@@ -8,10 +8,7 @@ Current notebook plan in progress:
 
 - `ch10_measurement_uncertainty.ipynb`
 - `ch11_gaia_hr_diagram.ipynb`
-
-Later this directory will also include:
-
-- FITS image and WCS examples
-- spectroscopy data notebooks
-- time-series and periodic signal notebooks
-- physics experiment and simulation data notebooks
+- `ch12_fits_images_wcs.ipynb`
+- `ch13_spectroscopy.ipynb`
+- `ch14_time_series_and_periods.ipynb`
+- `ch15_physics_experiment_simulation_data.ipynb`

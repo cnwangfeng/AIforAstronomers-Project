@@ -10,9 +10,13 @@ legacy Overleaf-compatible flat structure remains stable.
 
 Current draft targets:
 
+- `ch01_unix_linux_scientific_computing.tex`
+- `ch02_git_reproducible_research.tex`
 - `ch04_libraries_scripts_jupyter.tex`
+- `ch06_data_io_fits.tex`
 - `ch08_plotting_scientific_figures.tex`
 
-Planned next drafts:
+Current status:
 
-- `ch06_data_io_fits.tex`
+- These chapters are now reflected in `book/main_zh.tex` and should be treated as the Chinese Part I drafting area.
+- Next pass is review and polish: tighter transitions, clearer formulas, richer exercises, and reference alignment.

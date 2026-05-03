@@ -256,7 +256,7 @@ notebook 因而把 latent retrieval 和上一段 \texttt{Conv1d} residual window
     \item \texttt{A01} 则是更强的 \texttt{manifold\_shift\_anomaly\_candidate}，因为它不仅 residual 明显异常，连 latent 最近邻距离也已经越过 validation 校准出来的 support 半径。
 \end{itemize}
 
-这一步非常适合教学，因为它把“检索”和“异常检测”这两件常被混在一起的事情分开了：\textbf{retrieval 更像是在找上下文和参照物，而 anomaly gate 更像是在判断这种相似性是否还能被信任。}
+这一步非常适合教学，因为它把“检索”和“异常检测”这两件常被混在一起的事情分开了。\textbf{前者更像是在找上下文和参照物；后者更像是在判断这种相似性是否仍然可信。}
 
 \section{这和真实表示学习还有多远}
 

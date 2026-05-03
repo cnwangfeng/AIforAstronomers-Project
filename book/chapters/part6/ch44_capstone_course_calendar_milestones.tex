@@ -1,0 +1,200 @@
+\chapter{Capstone 课程日历与里程碑}
+
+\section{案例目标}
+
+第 43 章把 Capstone 材料放进试教场景里检查。本章继续把它推进到课程层面：\textbf{怎样把 proposal、pilot、project board、rubric、报告、notebook freeze 和最终展示安排进一个 12 到 16 周的课程日历。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解课程日历不是日期列表，而是一个降低期末风险的项目管理工具；
+    \item 学会把学生交付物、教师检查点、AI 使用规范和风险状态放到同一张周历里；
+    \item 学会区分普通教学周、checkpoint week、instructor intervention week 和 final delivery week；
+    \item 学会用课程日历提前发现“第 15 周才暴露”的范围、数据、复现和签字问题。
+\end{enumerate}
+
+\section{好的课程日历会把风险提前暴露}
+
+很多 Capstone 课程最危险的地方，不是学生第 15 周还没写完报告，而是教师第 15 周才第一次发现：
+
+\begin{itemize}
+    \item 数据许可证一直没有确认；
+    \item baseline 从未真正跑通；
+    \item notebook 只能在一台电脑上运行；
+    \item 学生一直把模型分数当成唯一结果；
+    \item AI 使用声明到最后才补；
+    \item 助教和教师对同一项目的评分尺度不一致。
+\end{itemize}
+
+所以，本章的核心立场是：\textbf{课程日历的任务不是把工作拖到截止日期，而是把关键风险尽早变成可见 checkpoint。}
+
+\section{一个极小的 course-calendar 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_course_calendar_demo.csv}。这是一组完全本地、教学用途的\textbf{Capstone 课程周历卡片}。每一行代表一周，包含：
+
+\begin{itemize}
+    \item \texttt{week}；
+    \item \texttt{phase}；
+    \item \texttt{milestone}；
+    \item \texttt{student\_deliverable}；
+    \item \texttt{instructor\_check}；
+    \item \texttt{risk\_status}；
+    \item \texttt{ai\_policy\_focus}；
+    \item \texttt{workload\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 \texttt{reference\_route} 分成四类：
+
+\begin{itemize}
+    \item \texttt{regular\_instruction}：普通教学和项目推进周；
+    \item \texttt{checkpoint\_week}：学生有明确交付物或教师有检查项；
+    \item \texttt{instructor\_intervention}：范围、数据边界或项目风险需要教师主动介入；
+    \item \texttt{final\_delivery\_week}：最终报告、展示、归档和签字周。
+\end{itemize}
+
+这个数据集采用 16 周版本，但它可以压缩到 12 周。压缩时不要简单删掉 checkpoint，而应该合并普通教学周，保留 proposal、pilot、midpoint review、notebook freeze 和 final delivery 这些风险控制点。
+
+\section{先看一个危险 baseline：只看 workload}
+
+课程排期时，一个常见 baseline 是只盯着 workload score：哪一周任务重，哪一周就标成高风险；任务不重，就当作普通周。
+
+\begin{examplebox}[只按 workload 粗略判断课程周状态]
+\begin{lstlisting}[style=pythonstyle]
+if row["workload_score"] > 0.70:
+    intervention_week
+elif row["week"] >= 15:
+    final_delivery_week
+else:
+    regular_instruction
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会漏掉很多真正重要的 checkpoint。例如第 2 周的数据边界、第 4 周的 one-week pilot、第 12 周的 notebook freeze，工作量不一定最高，但它们决定了项目后期是否可控。
+
+在本章教学数据上，只按 workload 和周数粗略判断，route accuracy 只有 0.25。结构化 course-calendar workflow 则先看风险状态，再看最终交付周，最后检查学生交付物和教师检查项：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.44\textwidth}@{}}
+\toprule
+方法 & 周状态准确率 & 教学解读 \\
+\midrule
+只看 workload 和周数 & 0.25 & 会漏掉很多低负担但高价值的 checkpoint \\
+结构化 course-calendar workflow & 1.00 & 先识别风险和最终交付，再安排学生与教师检查点 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小课程排期流程的对照。课程日历的重点不是平均分配工作量，而是提前暴露风险。}
+\label{tab:ch44_workload_vs_calendar}
+\end{table}
+
+\section{一个可执行的 course-calendar workflow}
+
+本章 notebook 的 routing 逻辑可以写得很小：
+
+\begin{examplebox}[一个最小课程周历 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if risk_status == "high":
+    instructor_intervention
+elif phase in {"final_delivery", "showcase"}:
+    final_delivery_week
+elif student_deliverable != "none":
+    checkpoint_week
+elif instructor_check != "none":
+    checkpoint_week
+else:
+    regular_instruction
+\end{lstlisting}
+\end{examplebox}
+
+这段逻辑表达了一个课程设计原则：\textbf{风险优先于日期，交付优先于讲授。} 如果某一周风险已经高，就不能只把它当作普通教学周；如果某一周有学生交付物或教师检查项，就应该明确写进 calendar，而不是口头提醒。
+
+\section{一份 16 周 Capstone 日历的骨架}
+
+一个可直接改写的 16 周骨架可以是：
+
+\begin{enumerate}
+    \item Kickoff：课程目标、环境检查、AI 使用边界；
+    \item Proposal card：科学问题、数据来源和公开边界；
+    \item Data inventory：字段、许可证、清洗规则和 notebook 路径；
+    \item One-week pilot：最小 baseline 和第一条失败样本；
+    \item Baseline result：指标 sanity check 和简单报告；
+    \item Model comparison：尝试改进模型，但不扩大范围；
+    \item Claim ledger：文献、claim、caveat 和引用核查；
+    \item Midpoint project board：教师介入处理范围漂移；
+    \item Validation report：验证集、测试集、数据泄漏检查；
+    \item Error analysis：失败样本、局限和不确定度；
+    \item Report outline：报告结构和 AI-use statement 草稿；
+    \item Notebook freeze：从头复跑、环境记录和随机种子；
+    \item Scope lock：停止扩大题目，处理最终风险；
+    \item Presentation rehearsal：展示计时和核心图选择；
+    \item Final package：报告、notebook、图表、声明和签字；
+    \item Showcase and archive：展示、归档和公开边界检查。
+\end{enumerate}
+
+如果课程只有 12 周，可以合并第 5 到第 7 周、压缩第 9 到第 11 周，但不要删掉第 4 周 pilot、第 8 周 midpoint review、第 12 周 notebook freeze 和最终交付周。
+
+\section{每个 checkpoint 都应该有一个出口}
+
+课程日历最容易写成“本周讲什么”。但对 Capstone 来说，更有用的写法是“本周结束时项目应该处于什么状态”。例如：
+
+\begin{itemize}
+    \item 第 2 周结束：每个项目都有 proposal card 和数据边界；
+    \item 第 4 周结束：每个项目至少跑通一个 baseline；
+    \item 第 8 周结束：所有项目都经过 project board review；
+    \item 第 12 周结束：notebook 能从头复跑；
+    \item 第 15 周结束：报告、展示、AI-use statement 和 signoff 都进入最终检查。
+\end{itemize}
+
+这让课程日历变成一组状态门，而不是一串日期。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 course-calendar table，并统计 phase、risk 和 reference route；
+    \item 实现一个只按 workload 和周数判断的 naive baseline；
+    \item 再实现一个带 risk、final delivery、student deliverable 和 instructor check 的 calendar workflow；
+    \item 输出 regular、checkpoint、intervention 和 final delivery 四个队列；
+    \item 为 intervention 和 final delivery 周生成课程团队 checklist；
+    \item 最后生成一个 12 周压缩版建议和 calendar assistant prompt。
+\end{itemize}
+
+这份 notebook 不追求复杂排课软件，而是给课程团队一个可检查的、能复用的 Capstone 周历骨架。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把 16 周日历压缩成 12 周版本，并说明哪些 checkpoint 不能删；
+    \item 检查每一周是否有清楚的学生交付物或教师检查项；
+    \item 把试教反馈映射到下一轮课程日历修订；
+    \item 帮你生成学生版日历、助教版日历和教师内部风险表；
+    \item 检查 AI 使用规范是否在关键周重复出现，而不是只在第一周讲一次。
+\end{itemize}
+
+但课程节奏、评分政策、工作量和校历限制仍然需要课程团队自己判断。AI 助手可以给出草案，不能替代真实学生负担和学校制度。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把第 12 周的 \texttt{instructor\_check} 改成 \texttt{none}。重新运行 notebook，观察 notebook freeze 为什么不应该被当成普通教学周。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+把课程压缩到 12 周。请说明你会合并哪些普通教学周，以及为什么仍然保留 proposal、pilot、midpoint review、notebook freeze 和 final delivery。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一份周历草案。每周至少包含：phase、学生交付物、教师检查项、AI 使用规范焦点和风险状态。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 课程日历不是行政排期，而是项目风险控制工具。本章把 phase、milestone、学生交付物、教师检查项、AI 使用规范、workload 和风险状态放进同一张 course-calendar card。
+
+当课程团队能在第 2 周看到数据边界、第 4 周看到 baseline、第 8 周看到 project board、第 12 周看到 notebook freeze，期末交付就不再是一场惊险冲刺，而是一条可复盘的科研训练路径。

@@ -35,6 +35,8 @@ AIforAstronomers/           # Overleaf 同步书稿仓库
 - 数据下载、图表生成、notebook 清理等脚本：`scripts/`
 - Python 环境文件：`environments/`
 - 路线图和课程资源：`Roadmap.md`
+- 统一课程包发布说明：`COURSE_PACKAGE_RELEASE_NOTES.md`
+- 同步/发布检查清单：`RELEASE_SYNC_CHECKLIST.md`
 
 Overleaf 同步仓库只保留：
 
@@ -55,6 +57,8 @@ environments/     # Python 环境定义
 assignments/      # 作业说明与模板
 slides/           # 课堂讲义
 Roadmap.md        # 教材路线图
+COURSE_PACKAGE_RELEASE_NOTES.md  # 当前课程包发布说明
+RELEASE_SYNC_CHECKLIST.md        # 最终同步与发布检查清单
 ```
 
 其中：
@@ -98,6 +102,11 @@ bash scripts/build_book_local.sh zh
 
 - `main.tex` -> `/tmp/aifor_book_main/main.pdf`
 - `main_zh.tex` -> `/tmp/aifor_book_main_zh/main_zh.pdf`
+
+8. 在准备正式同步或发布前，建议先对照：
+
+- `COURSE_PACKAGE_RELEASE_NOTES.md`
+- `RELEASE_SYNC_CHECKLIST.md`
 
 ## 数据原则
 

@@ -1,0 +1,10 @@
+qa_id,resource_area,adopter_role,link_check_status,smoke_test_status,adoption_note_status,support_boundary_status,launch_priority_score,reference_route
+QA49_01,course_landing_page,external_instructor,ok,passing,complete,clear,0.94,launch_ready
+QA49_02,notebook_index,students,broken,passing,complete,clear,0.96,fix_broken_link
+QA49_03,environment_quickstart,students,ok,failing,complete,clear,0.95,rerun_release_smoke_test
+QA49_04,rubric_package,external_instructor,ok,passing,partial,clear,0.88,complete_adoption_note
+QA49_05,student_showcase,public,ok,passing,complete,unclear,0.90,clarify_support_boundary
+QA49_06,issue_template,maintainer,ok,passing,complete,clear,0.82,launch_ready
+QA49_07,data_download_notes,students,ok,missing,complete,clear,0.79,rerun_release_smoke_test
+QA49_08,ta_onboarding_guide,teaching_team,ok,passing,missing,clear,0.76,complete_adoption_note
+QA49_09,support_policy,public,ok,passing,complete,too_broad,0.73,clarify_support_boundary

@@ -1,0 +1,9 @@
+delivery_id,project_id,theme,report_structure_status,figure_evidence_status,notebook_repro_status,citation_status,ai_use_statement_status,presentation_fit_status,human_signoff_status,slide_polish_score,reference_route
+D01,C01,Gaia open-cluster membership cleanup,ready,ready,ready,ready,ready,ready,signed,0.87,ready_to_submit
+D02,C02,Foundation-model photo-z benchmark,partial,weak,partial,ready,missing,too_long,signed,0.97,revise_report
+D03,C03,Restricted alert-table triage,ready,ready,partial,ready,ready,ready,pending_data_boundary,0.84,blocked_signoff
+D04,C04,Galaxy morphology with public cutouts,ready,ready,ready,ready,ready,too_long,signed,0.91,presentation_rehearsal
+D05,C05,Spectral anomaly search report,ready,weak,ready,ready,ready,ready,signed,0.79,revise_report
+D06,C08,Public light-curve period search,ready,ready,ready,ready,ready,needs_rehearsal,signed,0.72,presentation_rehearsal
+D07,C06,Gaia cluster age two-model comparison,ready,ready,ready,ready,ready,ready,signed,0.64,ready_to_submit
+D08,C07,Simulation signal-background explorer,ready,ready,ready,missing_quotes,ready,ready,signed,0.88,blocked_signoff

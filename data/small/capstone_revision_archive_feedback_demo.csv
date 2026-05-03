@@ -1,0 +1,13 @@
+item_id,feedback_source,package_area,evidence_status,student_feedback_status,ta_feedback_status,reproducibility_status,sharing_boundary_status,revision_effort_score,reference_route
+A46_01,trial_teaching,kickoff_handout,clear,helpful,aligned,reproducible,clear,0.18,archive_ready
+A46_02,live_course,environment_setup,thin,confusing,aligned,flaky,clear,0.58,reproduce_before_archive
+A46_03,final_delivery,ai_use_statement_examples,clear,mixed,inconsistent,reproducible,restricted,0.28,policy_review_before_archive
+A46_04,live_course,rubric_anchor_cases,thin,helpful,inconsistent,reproducible,clear,0.42,revise_before_next_run
+A46_05,archive_review,public_data_boundary,missing,mixed,aligned,reproducible,unclear,0.24,policy_review_before_archive
+A46_06,final_delivery,final_report_template,clear,helpful,aligned,reproducible,clear,0.22,archive_ready
+A46_07,live_course,notebook_freeze_checklist,clear,blocked,aligned,failing,clear,0.70,reproduce_before_archive
+A46_08,trial_teaching,ta_norming_session,clear,helpful,aligned,reproducible,clear,0.16,archive_ready
+A46_09,archive_review,citation_claim_ledger,thin,mixed,inconsistent,reproducible,clear,0.36,revise_before_next_run
+A46_10,live_course,office_hours_feedback,missing,confusing,missing,reproducible,clear,0.50,revise_before_next_run
+A46_11,archive_review,model_output_examples,clear,helpful,aligned,reproducible,clear,0.30,archive_ready
+A46_12,final_delivery,student_showcase_recording,clear,helpful,aligned,reproducible,restricted,0.20,policy_review_before_archive

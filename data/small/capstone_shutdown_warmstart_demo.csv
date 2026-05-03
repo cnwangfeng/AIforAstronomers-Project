@@ -1,0 +1,9 @@
+shutdown_id,shutdown_area,carry_forward_scope,shutdown_check_status,archive_snapshot_status,next_cohort_seed_status,owner_status,release_pressure_score,reference_route
+SD56_01,final_grade_wrapup,internal,complete,complete,seeded,assigned,0.92,shutdown_ready
+SD56_02,student_submission_bundle,internal,partial,complete,seeded,assigned,0.94,complete_shutdown_check
+SD56_03,public_showcase_archive,public,complete,missing,seeded,assigned,0.90,archive_before_shutdown
+SD56_04,next_cohort_starter_repo,students,complete,complete,missing,assigned,0.88,prepare_next_cohort_seed
+SD56_05,ta_feedback_digest,teaching_team,complete,complete,seeded,missing,0.81,assign_shutdown_owner
+SD56_06,office_hours_pattern_notes,instructors,complete,complete,stale,assigned,0.79,prepare_next_cohort_seed
+SD56_07,reproducibility_freeze_pack,internal,partial,missing,seeded,assigned,0.91,archive_before_shutdown
+SD56_08,course_retrospective_note,instructors,complete,complete,seeded,assigned,0.76,shutdown_ready

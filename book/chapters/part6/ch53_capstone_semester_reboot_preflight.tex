@@ -1,0 +1,165 @@
+\chapter{Capstone 开课前预检与学期重启清单}
+
+\section{案例目标}
+
+第 52 章把课程包目录页、版本说明和读者入口整理成发布层的入口。本章继续处理真正开课前的一步：\textbf{怎样把已经归档、已发布、已交接的课程包重新变成下一学期可以直接启动的 live course。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 semester reboot 不是简单重复上学期，而是对 calendar、链接、权限、环境和 owner 做开课前预检；
+    \item 学会检查 preflight、term refresh、owner、blocker 和 restart priority；
+    \item 学会区分“可以重启”“重跑预检”“刷新学期特定材料”“先指定启动责任人”和“先解决阻塞问题”五类出口；
+    \item 学会把上一轮课程包稳定地接回下一轮课程运行。
+\end{enumerate}
+
+\section{归档好的课程包，不等于下学期马上能开}
+
+一门课程在学期结束后，即使已经有了完整 handout、rubric、teacher handoff、public release index 和 release notes，到了下一学期开课前，仍然会出现一整套新的问题：课程周次变了，office hours 变了，政策日期变了，环境安装包可能已经过期，私有数据权限也可能需要重新申请。
+
+如果团队把“上学期已经做好了”误当成“这学期可以直接开”，就会在第一周暴露出最糟糕的问题。学生会先遇到坏链接，助教会先遇到旧排班，教师会先遇到访问权限或政策日期失效。
+
+所以，本章的核心立场是：\textbf{课程重启不是复制归档，而是把静态课程包重新通过一轮开课前预检。}
+
+\section{一个极小的 reboot-preflight 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_semester_reboot_preflight_demo.csv}。这是一组完全本地、教学用途的\textbf{学期重启预检卡片}。每一行代表一个在开课前必须重新确认的课程模块，包含：
+
+\begin{itemize}
+    \item \texttt{reboot\_id}；
+    \item \texttt{reboot\_area}；
+    \item \texttt{startup\_week}；
+    \item \texttt{preflight\_status}；
+    \item \texttt{term\_refresh\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{blocker\_status}；
+    \item \texttt{restart\_priority\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{reboot\_ready}：可以进入新学期启动包；
+    \item \texttt{rerun\_preflight\_check}：环境、链接或启动验证还需要重跑；
+    \item \texttt{refresh\_term\_specific\_material}：日期、排班、入口说明或课程节奏仍是旧学期状态；
+    \item \texttt{assign\_startup\_owner}：没有明确的新学期负责人；
+    \item \texttt{resolve\_blocker\_before\_restart}：权限、政策或访问问题必须先解决。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按重启优先级排序}
+
+开课前，一个常见 baseline 是只按 restart priority 排序：越重要的模块越先看。
+
+\begin{examplebox}[只按 restart priority 选择开课前任务]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["restart_priority_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把最重要但仍有 blocker 或预检未完成的模块一起推到启动队列。对新学期来说，这种“高优先级假 ready”是最危险的状态。
+
+在本章教学数据上，只按重启优先级取前四项，真正可重启的精度只有 0.25，未就绪项混入率是 0.75。结构化 reboot workflow 会先检查 blocker，再看 owner，再检查是否仍停留在旧学期状态，最后才判断 preflight 是否完成：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可重启精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按重启优先级取前四项 & 0.25 & 0.75 & 高优先级如果仍有 blocker、旧学期信息或未完成预检，就不能直接开课 \\
+结构化 reboot workflow & 1.00 & 0.00 & 先解阻塞、再定 owner、再刷新学期信息和预检 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小开课前流程的对照。学期重启不是优先级列表，而是预检状态表。}
+\label{tab:ch53_priority_vs_reboot}
+\end{table}
+
+\section{一个可执行的 reboot workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小学期重启 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if blocker_status in {"open", "high"}:
+    resolve_blocker_before_restart
+elif owner_status != "assigned":
+    assign_startup_owner
+elif term_refresh_status != "refreshed":
+    refresh_term_specific_material
+elif preflight_status != "complete":
+    rerun_preflight_check
+else:
+    reboot_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个开课原则：\textbf{阻塞问题先于启动，负责人先于任务，学期刷新先于预检通过。}
+
+\section{开课前预检应该包含什么}
+
+一份可执行的 semester reboot checklist 至少应该包含：
+
+\begin{enumerate}
+    \item calendar 与周次：本学期时间、checkpoint 和节假日调整；
+    \item 入口链接：学生 handout、notebook、数据、office hours 和提交入口；
+    \item 环境与权限：依赖、路径、私有资源、实验室电脑和账号访问；
+    \item 人员与职责：教师、助教、维护者和升级路径；
+    \item 政策与说明：AI 使用、隐私、成绩、公开边界和本学期日期；
+    \item 预检记录：谁检查、何时检查、发现了什么和怎么修。
+\end{enumerate}
+
+这些内容大多不是“写一遍就永远有效”的。它们需要每学期重新确认一次。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 reboot-preflight table，并统计 startup week、blocker、owner、refresh status 和 reference route；
+    \item 用 restart priority 做一个 naive reboot baseline；
+    \item 再实现一个带 blocker、owner、term refresh 和 preflight check 的 reboot workflow；
+    \item 输出 reboot-ready、rerun-preflight、refresh-term、assign-owner 和 resolve-blocker 五个队列；
+    \item 为每个非 ready 模块生成开课前 checklist；
+    \item 最后生成 semester reboot outline 和 reboot assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把上一学期的课程包整理成新学期开课前清单；
+    \item 检查哪些条目仍带着旧日期、旧 office hour、旧链接或旧版本；
+    \item 把启动前必须确认的 blocker 单独拉出来；
+    \item 为新教师或助教生成一页 week-0 reboot briefing；
+    \item 把预检记录写成可复用的学期启动模板。
+\end{itemize}
+
+但 AI 助手不能替团队获得权限、修改机构政策或决定谁真正负责某项启动任务。它可以让重启更清楚，却不能替代开课前的人类确认。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{reboot\_ready} 模块的 \texttt{term\_refresh\_status} 改成 \texttt{stale}。重新运行 notebook，观察它为什么必须先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 restart priority 很高、但 \texttt{preflight\_status = missing} 的 kickoff 模块。预测它会落到哪个 route，并说明为什么“重要”不等于“现在能开”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 semester reboot checklist。至少包含：calendar、入口链接、权限、人员分工、政策日期和启动前预检记录。
+\end{exercisebox}
+
+\section{本章小结}
+
+课程包真正成熟的标志，不只是能归档和发布，还包括下学期能平稳重启。本章把 preflight、term refresh、owner、blocker 和 restart priority 放进同一张 reboot card。
+
+当课程团队能把模块分成可以重启、重跑预检、刷新学期材料、先指定启动责任人和先解决阻塞问题，Capstone 就从静态课程包变成了一套能跨学期运行的教学系统。

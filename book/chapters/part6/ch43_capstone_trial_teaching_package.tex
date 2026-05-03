@@ -1,0 +1,207 @@
+\chapter{Capstone 试教材料与课程运行包}
+
+\section{案例目标}
+
+第 39 章到第 42 章已经把 Capstone 的选题、执行、最终交付和评分 rubric 连成一条线。本章处理另一个常被低估的问题：\textbf{这些材料真的放进一门课以后，学生、助教和教师能不能顺利运行。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解试教不是简单地“找几名学生跑 notebook”，而是一次课程运行压力测试；
+    \item 学会检查学生 handout、notebook runtime、rubric calibration、TA feedback 和 privacy boundary；
+    \item 学会区分“可以正式运行”“需要修订材料”“需要校准评分”和“试教前阻塞”四类出口；
+    \item 学会把试教反馈整理成下一轮课程修订任务，而不是只收集零散意见。
+\end{enumerate}
+
+\section{课程材料真正的 bug 往往不在代码里}
+
+一份 notebook 能在作者电脑上运行，并不意味着它已经可以进入课堂。真实课堂里会出现更多变量：
+
+\begin{itemize}
+    \item 学生是否知道第一步应该做什么；
+    \item handout 是否把交付物、截止时间和评分标准说清楚；
+    \item notebook 是否能在课程环境里从头运行；
+    \item 助教是否能用同一套 rubric 给出一致反馈；
+    \item 学生材料里是否包含不能上传、不能共享或不能交给外部 AI 服务的内容；
+    \item 反馈收集之后，课程团队是否知道下一轮该改哪里。
+\end{itemize}
+
+所以，本章的核心立场是：\textbf{试教不是一次展示，而是一次课程系统调试。}
+
+\section{一个极小的 trial-teaching feedback 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_trial_teaching_feedback_demo.csv}。这是一组完全本地、教学用途的\textbf{试教运行记录卡片}。每一行代表一次 Capstone 课堂活动或试教环节，包含：
+
+\begin{itemize}
+    \item \texttt{trial\_id}；
+    \item \texttt{session\_theme}；
+    \item \texttt{student\_readiness\_status}；
+    \item \texttt{handout\_clarity\_status}；
+    \item \texttt{notebook\_runtime\_status}；
+    \item \texttt{rubric\_calibration\_status}；
+    \item \texttt{ta\_feedback\_status}；
+    \item \texttt{privacy\_boundary\_status}；
+    \item \texttt{revision\_load\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 \texttt{reference\_route} 分成四类：
+
+\begin{itemize}
+    \item \texttt{ready\_for\_rollout}：可以进入正式课堂运行；
+    \item \texttt{revise\_materials}：学生 handout、TA feedback 或材料组织需要修改；
+    \item \texttt{calibrate\_rubric}：评分标准、样例反馈或助教尺度还需要校准；
+    \item \texttt{blocked\_before\_trial}：notebook 无法运行或隐私边界不清，试教前必须先停下。
+\end{itemize}
+
+这个数据集故意放入了几类常见试教问题：材料看起来简单但学生读不懂、notebook 在作者机器外变慢或失败、助教反馈尺度不一致、以及 AI 使用边界没有写清楚。
+
+\section{先看一个常见 baseline：只按 revision load 排序}
+
+课程团队很容易优先处理“看起来最省事”的环节。一个 naive baseline 是按修订负担分数从低到高排序，认为修订负担最低的环节最适合正式 rollout。
+
+\begin{examplebox}[只按 revision load 取前三个试教环节]
+\begin{lstlisting}[style=pythonstyle]
+top3 = sorted(
+    rows,
+    key=lambda row: row["revision_load_score"],
+)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的问题是：修订负担低不代表材料可以运行。有些环节只需要补 TA feedback 格式，看起来负担不高；但如果助教不能统一反馈，正式课程里仍然会出现评分漂移。
+
+在本章教学数据上，只按 revision load 取前三个环节时，可正式运行的精度是 0.67。结构化 trial workflow 会先检查 privacy boundary 和 notebook runtime，再处理 rubric calibration 与材料清晰度：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.27\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.29\textwidth}@{}}
+\toprule
+方法 & 可正式运行精度 & 阻塞项混入率 & 教学解读 \\
+\midrule
+只按 revision load 取前三项 & 0.67 & 0.00 & 低修订负担不等于助教反馈和材料清晰度已经过关 \\
+结构化 trial workflow & 1.00 & 0.00 & 先排除阻塞，再校准 rubric 和材料 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小试教流程的对照。重点不是让试教流程更官僚，而是避免把课堂运行风险藏到正式开课后。}
+\label{tab:ch43_revision_load_vs_trial_workflow}
+\end{table}
+
+\section{一个可执行的 trial workflow}
+
+本章 notebook 的 routing 逻辑可以分成四层：
+
+\begin{enumerate}
+    \item \textbf{边界 gate}：隐私、共享和外部 AI 服务边界不清楚时，不进入试教；
+    \item \textbf{运行 gate}：notebook 在课程环境里不能从头运行时，不进入试教；
+    \item \textbf{评分校准 gate}：rubric 未校准时，先做助教 norming session；
+    \item \textbf{材料修订 gate}：handout、学生 readiness 或 TA feedback 不清楚时，先修材料。
+\end{enumerate}
+
+最小形式可以写成：
+
+\begin{examplebox}[一个最小 trial-teaching routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if privacy_boundary_status != "clear":
+    blocked_before_trial
+elif notebook_runtime_status == "fails":
+    blocked_before_trial
+elif rubric_calibration_status != "calibrated":
+    calibrate_rubric
+elif handout_clarity_status != "clear":
+    revise_materials
+elif student_readiness_status == "low":
+    revise_materials
+elif ta_feedback_status != "ready":
+    revise_materials
+elif revision_load_score > 0.45:
+    revise_materials
+else:
+    ready_for_rollout
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序很重要。隐私边界和 notebook 运行失败是硬阻塞；rubric calibration 是评分一致性的前提；handout 和 feedback 格式则决定学生是否能真的照着材料完成项目。
+
+\section{学生 handout 应该包含什么}
+
+把 Capstone 正式发给学生时，推荐至少给出一份 4 到 6 页 handout，包含：
+
+\begin{enumerate}
+    \item 项目目标：学生要回答什么科学问题，而不是只训练一个模型；
+    \item 时间线：proposal、pilot、project board、draft report、final delivery 和 presentation 的日期；
+    \item 数据边界：哪些数据可以进入仓库，哪些不能上传到外部服务；
+    \item notebook 要求：必须能从头运行，必须说明环境和随机种子；
+    \item rubric：六个评分维度、评分前 gate 和最低线；
+    \item AI 使用规范：鼓励、限制、禁止和必须披露的场景；
+    \item 求助路径：什么时候问助教，什么时候必须 human signoff；
+    \item 提交清单：报告、notebook、图表、AI-use statement、Git 记录和展示材料。
+\end{enumerate}
+
+这份 handout 的目标不是把所有可能性写完，而是让学生在遇到不确定时知道下一步该往哪里走。
+
+\section{助教评分校准也需要材料}
+
+如果课程有助教，rubric 还需要一份 TA calibration package。它至少应该包含：
+
+\begin{itemize}
+    \item 两到三个匿名样例项目包；
+    \item 每个样例的建议 route 和关键证据；
+    \item 常见扣分点和不可扣分点；
+    \item AI-use statement 的合格与不合格样例；
+    \item 对同一个项目的 2 到 3 条示范 feedback；
+    \item 当助教无法判断时的升级路径。
+\end{itemize}
+
+没有这一步，rubric 很容易从“统一标准”变成“每个评分者心里各有一套标准”。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 trial-teaching feedback 表，并统计 student readiness、runtime、rubric calibration 和 privacy boundary；
+    \item 用 \texttt{revision\_load\_score} 做一个 naive rollout baseline；
+    \item 再实现一个带 privacy gate、runtime gate、rubric gate 和 materials gate 的 trial workflow；
+    \item 输出 ready、revise materials、calibrate rubric 和 blocked 四个队列；
+    \item 为每个非 ready 环节生成课程修订 checklist；
+    \item 最后生成一份 trial-teaching assistant prompt 和 rollout snapshot。
+\end{itemize}
+
+这份 notebook 不是在把课程管理自动化，而是在提醒我们：课程材料也需要像科研代码一样测试、记录和迭代。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把 Capstone handout 改写成更清楚的学生任务单；
+    \item 根据试教反馈归类问题：材料问题、评分问题、运行问题还是边界问题；
+    \item 生成助教 norming session 的样例反馈；
+    \item 把学生反馈整理成下一轮课程修订任务；
+    \item 检查 AI 使用规范里是否有模糊或互相矛盾的句子。
+\end{itemize}
+
+但 AI 助手不应该替课程团队决定隐私边界、评分政策或学生最终成绩。它可以帮助整理证据和发现不一致，最终课程规则仍然需要由人类教师确认。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据中一个 \texttt{ready\_for\_rollout} 环节的 \texttt{notebook\_runtime\_status} 改成 \texttt{fails}。重新运行 notebook，观察它为什么会直接进入试教前阻塞队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一条试教记录：学生 readiness 是 \texttt{ready}，handout 清楚，notebook 可以运行，但 \texttt{rubric\_calibration\_status} 是 \texttt{uncalibrated}。预测它会落到哪个 route，并说明为什么评分校准应该早于正式 rollout。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一份一页试教计划。至少包含：参与学生、运行环境、要收集的反馈、助教校准方式、隐私边界和下一轮修订负责人。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 材料写完以后，还需要经过课堂运行检验。本章把学生 readiness、handout clarity、notebook runtime、rubric calibration、TA feedback、privacy boundary 和 revision load 放进同一张 trial-teaching feedback card。
+
+如果课程团队愿意在正式开课前做这一次小型系统调试，学生拿到的就不只是一个期末项目题目，而是一条更清楚、更安全、也更可持续的科研入门路径。

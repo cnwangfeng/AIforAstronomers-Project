@@ -1,0 +1,165 @@
+\chapter{Capstone 故障模式与升级处理手册}
+
+\section{案例目标}
+
+第 53 章把学期重启前的预检、权限、owner 和启动 blocker 收束成 reboot checklist。本章继续处理课程真正运行时最棘手的一层：\textbf{当 notebook 崩了、政策边界不清、评分争议升级、私有数据访问异常时，课程团队怎样判断哪些问题可以本地修、哪些必须升级、哪些应该立刻暂停 rollout。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 failure mode 不是坏运气，而是课程运行里必须预先设计的分流节点；
+    \item 学会检查 signal、severity、reproducibility、owner、escalation boundary 和 urgency；
+    \item 学会区分“本地补丁即可”“补复现证据”“先指定事件 owner”“暂停 rollout 再修”和“升级到人类复核”五类出口；
+    \item 学会把课程运行故障从个人慌乱反应变成可执行的 escalation playbook。
+\end{enumerate}
+
+\section{最危险的不是出错，而是不知道谁该接手}
+
+一门 capstone 课程真正运行起来之后，最难的时刻往往不是学术内容，而是事故边缘时刻：学生说 notebook 在实验室电脑上跑不动，助教对评分边界理解不一致，课程团队发现某些示例可能碰到隐私或 AI-use policy 的灰区，或者 kickoff 当天一批链接突然失效。
+
+如果团队没有 failure-mode playbook，最常见的结果不是问题本身更严重，而是大家不知道谁该先处理、什么时候该暂停、什么时候必须升级给课程负责人或政策审核人。
+
+所以，本章的核心立场是：\textbf{课程故障管理的重点不是“永不出错”，而是让团队知道什么能本地修，什么必须升级，什么应该立刻停下来。}
+
+\section{一个极小的 failure-mode 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_failure_mode_escalation_demo.csv}。这是一组完全本地、教学用途的\textbf{课程故障卡片}。每一行代表一个运行中的 failure mode，包含：
+
+\begin{itemize}
+    \item \texttt{incident\_id}；
+    \item \texttt{failure\_area}；
+    \item \texttt{failure\_signal\_status}；
+    \item \texttt{severity\_status}；
+    \item \texttt{reproducibility\_status}；
+    \item \texttt{owner\_status}；
+    \item \texttt{escalation\_boundary\_status}；
+    \item \texttt{urgency\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{local\_patch\_ready}：问题有界、可复现、owner 明确，可以本地补丁修复；
+    \item \texttt{collect\_repro\_before\_escalation}：还需要复现步骤、日志或截图；
+    \item \texttt{assign\_incident\_owner}：没有明确负责人，不能继续靠群体模糊响应；
+    \item \texttt{pause\_rollout\_and\_patch}：问题已经扩散，应该先暂停 rollout；
+    \item \texttt{escalate\_to\_human\_review}：触及政策、隐私、成绩或关键边界，必须升级。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按紧急程度排序}
+
+课程故障发生时，一个非常常见的 baseline 是只按 urgency score 排序：越紧急的先处理。
+
+\begin{examplebox}[只按 urgency 选择当前要处理的事件]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["urgency_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 的问题在于，紧急不等于可直接修复。高紧急度事件里，可能混入政策问题、隐私边界问题、需要暂停 rollout 的系统性问题，或者根本还没复现成功的问题。
+
+在本章教学数据上，只按紧急程度取前四项，真正适合本地补丁处理的精度只有 0.25，非本地修复项混入率是 0.75。结构化 escalation workflow 会先看 boundary，再看 signal 是否已经扩散，再检查 owner 与 reproducibility：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 本地修复精度 & 非本地项混入率 & 教学解读 \\
+\midrule
+只按紧急程度取前四项 & 0.25 & 0.75 & 紧急度高的事件不一定能直接修，可能要暂停或升级 \\
+结构化 escalation workflow & 1.00 & 0.00 & 先判边界和扩散，再决定本地修、暂停还是升级 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小故障处理流程的对照。课程故障管理不是 urgency 排行榜。}
+\label{tab:ch54_urgency_vs_escalation}
+\end{table}
+
+\section{一个可执行的 escalation workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小故障升级 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if escalation_boundary_status in {"policy", "privacy", "grading"}:
+    escalate_to_human_review
+elif failure_signal_status == "widespread":
+    pause_rollout_and_patch
+elif owner_status != "assigned":
+    assign_incident_owner
+elif reproducibility_status != "reproduced":
+    collect_repro_before_escalation
+else:
+    local_patch_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个运行原则：\textbf{边界先于效率，扩散先于补丁，责任人先于讨论，复现先于结论。}
+
+\section{故障升级手册应该包含什么}
+
+一份可执行的 escalation playbook 至少应该包含：
+
+\begin{enumerate}
+    \item 事件分类：技术故障、评分争议、政策边界、隐私边界、发布错误；
+    \item 升级边界：什么情况必须找课程负责人、助教主管、政策审核人；
+    \item 暂停条件：什么情况要立刻暂停 rollout、提交入口或公开页面；
+    \item 证据要求：日志、截图、复现步骤、受影响人数和当前 workaround；
+    \item owner 规则：谁接 first response、谁修、谁复核、谁对外说明；
+    \item 事后记录：事故摘要、修复方式、遗留 caveat 和下次如何避免。
+\end{enumerate}
+
+这份手册不需要长篇制度化文字，但必须让团队在出事时不用即兴发明流程。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 incident table，并统计 severity、signal、owner、boundary 和 reference route；
+    \item 用 urgency score 做一个 naive incident baseline；
+    \item 再实现一个带 boundary、widespread signal、owner 和 reproducibility 的 escalation workflow；
+    \item 输出 local-patch、collect-repro、assign-owner、pause-rollout 和 human-review 五个队列；
+    \item 为每个非 local 事件生成处理前 checklist；
+    \item 最后生成 escalation playbook outline 和 incident assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把散乱的学生报错、助教反馈和日志整理成 incident table；
+    \item 从对话中抽取可复现信息、受影响范围和当前 workaround；
+    \item 标出可能触及政策、隐私或成绩边界的事件；
+    \item 为课程负责人生成一页 incident briefing；
+    \item 把事后复盘写成下轮课程的 failure-mode note。
+\end{itemize}
+
+但 AI 助手不能替团队判断政策边界，也不能替代真正的事故负责人与最终决策。它能帮你更快看清局面，却不能替你承担升级责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{local\_patch\_ready} 事件的 \texttt{reproducibility\_status} 改成 \texttt{missing}。重新运行 notebook，观察它为什么必须先离开本地补丁队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 urgency 很高、但 \texttt{escalation\_boundary\_status = privacy} 的事件。预测它会落到哪个 route，并说明为什么高紧急度不能绕过人类复核。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 escalation playbook。至少包含：事件分类、暂停条件、升级边界、证据要求、owner 规则和事后复盘格式。
+\end{exercisebox}
+
+\section{本章小结}
+
+课程运行中的故障无法完全避免，但可以被更好地接住。本章把 signal、severity、reproducibility、owner、boundary 和 urgency 放进同一张 incident card。
+
+当课程团队能把事件分成本地补丁、补复现证据、先指定事件 owner、暂停 rollout 再修和升级到人类复核，Capstone 就从“出事时靠经验顶住”变成“出事时有章可循”的课程系统。

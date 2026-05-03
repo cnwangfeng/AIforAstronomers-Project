@@ -1,0 +1,10 @@
+case_id,project_id,theme,science_question_points,data_repro_points,modeling_eval_points,interpretation_limits_points,code_git_points,report_presentation_points,ai_use_integrity_status,signoff_status,revision_burden_score,reference_route
+C42_01,P39_GAIA,Gaia cluster membership,14,18,22,17,9,9,clear,signed,0.15,ready_for_grading
+C42_02,P40_TESS,TESS period search,12,17,20,15,8,8,clear,signed,0.25,strong_with_minor_revision
+C42_03,P41_SPEC,Spectral line classifier,13,12,23,9,6,9,clear,signed,0.55,needs_revision
+C42_04,P42_PHOTO,Photometric redshift pilot,11,18,21,16,7,7,missing_ai_use,signed,0.40,blocked_before_grading
+C42_05,P43_LAB,Lab parameter estimation,9,10,16,13,6,7,clear,signed,0.60,needs_revision
+C42_06,P44_GALAXY,Galaxy morphology baseline,15,19,24,19,10,9,clear,signed,0.10,ready_for_grading
+C42_07,P45_TRANSIENT,Transient triage workflow,13,18,18,18,9,6,clear,unsigned,0.30,blocked_before_grading
+C42_08,P46_SIM,Signal background simulation,10,16,19,12,8,8,unclear,signed,0.45,blocked_before_grading
+C42_09,P47_LENS,Lensing candidate ranking,12,19,15,18,9,9,clear,signed,0.35,needs_revision

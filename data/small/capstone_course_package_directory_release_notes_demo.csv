@@ -1,0 +1,9 @@
+entry_id,entry_scope,target_reader,directory_status,release_note_status,version_pointer_status,audience_copy_status,next_version_score,reference_route
+DIR52_01,student_bundle,students,complete,ready,synced,clear,0.94,directory_ready
+DIR52_02,notebook_catalog,students,partial,ready,synced,clear,0.92,complete_directory_entry
+DIR52_03,policy_appendix,instructors,complete,hold,synced,clear,0.90,hold_for_next_version
+DIR52_04,ta_bundle,teaching_team,complete,ready,stale,clear,0.88,sync_release_note_pointer
+DIR52_05,public_archive_page,public,complete,ready,synced,unclear,0.86,rewrite_audience_copy
+DIR52_06,instructor_handoff_index,instructors,missing,ready,synced,clear,0.82,complete_directory_entry
+DIR52_07,showcase_gallery,public,complete,blocked,synced,clear,0.91,hold_for_next_version
+DIR52_08,maintenance_bundle,maintainers,complete,ready,stale,clear,0.79,sync_release_note_pointer

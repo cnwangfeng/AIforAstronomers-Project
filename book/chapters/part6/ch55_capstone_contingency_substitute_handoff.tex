@@ -1,0 +1,165 @@
+\chapter{Capstone 应急演练与替班教师接管手册}
+
+\section{案例目标}
+
+第 54 章把课程运行中的故障模式、暂停条件和升级边界整理成 escalation playbook。本章继续处理一个更现实、也更容易被忽视的场景：\textbf{当主讲教师临时缺席、机房环境出故障、助教临时短缺，或者课程必须由替班教师最小化接手时，团队怎样用一份 substitute handoff package 维持课程连续运行。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 contingency drill 不是悲观预设，而是让课程在人员变化下仍能继续运行；
+    \item 学会检查 trigger、minimal run package、substitute owner、context brief 和 escalation 状态；
+    \item 学会区分“替班可接手”“补最小运行包”“先指定替班 owner”“刷新上下文 brief”和“先升级再替班”五类出口；
+    \item 学会把课程从“依赖某个人记得细节”推进到“任何接班人都能在压力下安全接手”的状态。
+\end{enumerate}
+
+\section{最脆弱的时刻往往是临时缺席}
+
+课程正常运行时，很多隐含知识都藏在主讲教师和熟悉课程的助教脑子里：哪一段 notebook 最容易出错，哪一项评分标准最容易被误解，哪条数据权限说明必须当面讲清，哪一周最容易被进度拖慢。
+
+一旦主讲教师请假、助教临时短缺、机房环境失效，或者突然需要别的教师代上一节，课程最危险的不是“材料没有”，而是接班人拿到的东西虽然很多，却不知道今天最少要做什么、哪些边界不能碰、哪些情况必须立刻升级。
+
+所以，本章的核心立场是：\textbf{替班 handoff 的目标不是完整复刻主讲教师，而是提供一个在压力下仍可安全执行的 minimal run package。}
+
+\section{一个极小的 substitute-handoff 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_contingency_substitute_handoff_demo.csv}。这是一组完全本地、教学用途的\textbf{应急演练与替班接管卡片}。每一行代表一个可能触发替班或应急接手的场景，包含：
+
+\begin{itemize}
+    \item \texttt{handoff\_id}；
+    \item \texttt{contingency\_area}；
+    \item \texttt{trigger\_status}；
+    \item \texttt{minimal\_run\_package\_status}；
+    \item \texttt{substitute\_owner\_status}；
+    \item \texttt{context\_brief\_status}；
+    \item \texttt{escalation\_status}；
+    \item \texttt{readiness\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{substitute\_ready}：替班教师或替班助教可以按 minimal package 接手；
+    \item \texttt{complete\_minimal\_run\_package}：最小运行包还不完整；
+    \item \texttt{assign\_substitute\_owner}：还没有明确的接班 owner；
+    \item \texttt{refresh\_context\_brief}：上下文说明还是旧版本或不够清楚；
+    \item \texttt{escalate\_before\_substitution}：触及政策、隐私或关键边界，必须先升级。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按 readiness score 排序}
+
+当课程团队准备替班方案时，一个常见 baseline 是只按 readiness score 排序：看起来最成熟的场景优先放进手册。
+
+\begin{examplebox}[只按 readiness 选择替班方案]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["readiness_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 很容易把“看起来差不多”的场景和真正能安全接手的场景混在一起。尤其是当 minimal run package 还不完整、context brief 过期，或者某个场景本身带有政策边界时，高分反而会制造过度自信。
+
+在本章教学数据上，只按 readiness score 取前四项，真正替班可接手的精度只有 0.25，未就绪场景混入率是 0.75。结构化 substitute workflow 会先看 escalation，再看 owner，再检查 minimal run package，最后确认 context brief：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 替班可接手精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按 readiness 取前四项 & 0.25 & 0.75 & 分数高不代表接班人真能在压力下安全接手 \\
+结构化 substitute workflow & 1.00 & 0.00 & 先判边界，再定人，再补最小运行包和上下文 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小替班流程的对照。替班接管不是 readiness 排名，而是安全可执行状态表。}
+\label{tab:ch55_readiness_vs_substitute}
+\end{table}
+
+\section{一个可执行的 substitute workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小替班接管 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if escalation_status in {"policy", "privacy", "grading"}:
+    escalate_before_substitution
+elif substitute_owner_status != "assigned":
+    assign_substitute_owner
+elif minimal_run_package_status != "ready":
+    complete_minimal_run_package
+elif context_brief_status != "ready":
+    refresh_context_brief
+else:
+    substitute_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个应急原则：\textbf{边界先于替班，人先于材料，最小运行包先于完整课程体验。}
+
+\section{替班手册应该包含什么}
+
+一份可执行的 substitute handoff package 至少应该包含：
+
+\begin{enumerate}
+    \item 今天最少要完成什么：本节课最小教学目标和不可跳过的 gate；
+    \item 材料入口：学生 handout、notebook、slides、rubric、签到或提交入口；
+    \item 危险边界：哪些问题可以现场处理，哪些必须升级；
+    \item 课堂节奏：90 分钟或 120 分钟内的最小流程；
+    \item 接班联系人：谁能回答内容问题、谁能处理政策问题、谁能处理技术问题；
+    \item 事后交回记录：替班时发生了什么、有哪些临时变更、哪些问题留到下次修。
+\end{enumerate}
+
+它不应该是一本厚手册，而应该是接班人临时接到任务时也能快速执行的一页或两页 briefing。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 substitute-handoff table，并统计 trigger、package、owner、brief 和 reference route；
+    \item 用 readiness score 做一个 naive substitute baseline；
+    \item 再实现一个带 escalation、owner、minimal package 和 context brief 的 substitute workflow；
+    \item 输出 substitute-ready、complete-package、assign-owner、refresh-brief 和 escalate-first 五个队列；
+    \item 为每个非 ready 场景生成替班前 checklist；
+    \item 最后生成 substitute handoff outline 和 contingency assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把完整课程包压缩成替班教师能读懂的 minimal run package；
+    \item 从上学期记录中提炼“今天最少要做什么”的短 briefing；
+    \item 标出哪些情况仍然必须升级给主讲教师或课程负责人；
+    \item 把复杂上下文改写成替班教师上课前 5 分钟能读完的 handoff note；
+    \item 帮你生成 contingency drill 演练模板。
+\end{itemize}
+
+但 AI 助手不能替团队决定是否允许替班触碰政策或评分边界，也不能替代课程负责人的最终授权。它能让接班更清楚，却不能替你承担课堂责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{substitute\_ready} 场景的 \texttt{context\_brief\_status} 改成 \texttt{stale}。重新运行 notebook，观察它为什么要先离开 ready 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 readiness 很高、但 \texttt{minimal\_run\_package\_status = partial} 的替班场景。预测它会落到哪个 route，并说明为什么“看起来差不多”不等于“替班可执行”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页 substitute handoff brief。至少包含：最小教学目标、材料入口、危险边界、接班联系人、课堂节奏和事后交回记录格式。
+\end{exercisebox}
+
+\section{本章小结}
+
+课程团队真正成熟的标志之一，是关键成员缺席时课程仍能被安全接住。本章把 trigger、minimal run package、substitute owner、context brief、escalation status 和 readiness 放进同一张 handoff card。
+
+当课程团队能把场景分成替班可接手、补最小运行包、先指定替班 owner、刷新上下文说明和先升级再替班，Capstone 就从“依赖某一个人撑住”走向“团队可替补、课程可持续”。

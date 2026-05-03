@@ -1,0 +1,232 @@
+\chapter{Capstone 项目选题、范围控制与可执行性}
+
+\section{案例目标}
+
+第 39 章已经把 Capstone 项目收束成一张 project board，并说明了 ready、review、revise 和 blocked 四类出口。但真实教学里，很多项目在写出 project board 之前就已经埋下了失败种子：\textbf{题目太大、数据边界不清、baseline 不现实、交付范围远超学期可承受负担。}
+
+所以本章要把镜头再往前挪一步，专门讨论 Capstone 最早期也最容易被忽视的一件事：\textbf{选题与范围控制。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解为什么 Capstone 的第一风险通常不是“模型不够强”，而是“题目一开始就没有被缩到可执行范围”；
+    \item 学会把项目 proposal 写成结构化 proposal card，而不是只留下一个漂亮但空泛的标题；
+    \item 学会用数据可得性、计算负担、baseline 可行性和交付边界来评估题目；
+    \item 学会把 proposal route 到 \texttt{ready\_for\_pilot}、\texttt{narrow\_scope}、\texttt{blocked\_data\_boundary} 和 \texttt{rethink\_topic} 四类出口。
+\end{enumerate}
+
+\section{为什么很多 Capstone 失败，其实始于选题当天}
+
+学生在确定期末题目时，最容易被吸引的往往是这些词：
+
+\begin{itemize}
+    \item foundation model；
+    \item 多模态；
+    \item 实时代理；
+    \item 自训练；
+    \item 从零训练一个新网络。
+\end{itemize}
+
+这些方向本身并没有错，但放到本科课程的 Capstone 语境里，真正要先问的通常不是“它够不够前沿”，而是：
+
+\begin{itemize}
+    \item 你手上的数据是不是公开且可稳定获取；
+    \item 这个题目能不能先做一个一周内可跑通的 pilot；
+    \item 有没有一个简单 baseline 能帮你知道自己到底有没有进展；
+    \item 这个工作量能不能在课程节奏内被写成 notebook、报告和展示。
+\end{itemize}
+
+如果这些问题都还没有答案，那么题目再“像 AI”，也很可能只是一个高风险口号。
+
+\section{一个极小的 proposal card 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_project_scoping_demo.csv}。这是一组完全本地、教学用途的\textbf{proposal card}，每一行代表一个候选 capstone 题目，包含：
+
+\begin{itemize}
+    \item \texttt{proposal\_id}；
+    \item \texttt{theme}；
+    \item \texttt{science\_scope\_status}；
+    \item \texttt{data\_access\_status}；
+    \item \texttt{compute\_fit\_status}；
+    \item \texttt{baseline\_feasibility}；
+    \item \texttt{literature\_start\_status}；
+    \item \texttt{deliverable\_fit\_status}；
+    \item \texttt{novelty\_hype\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 \texttt{reference\_route} 依然不是考试答案意义上的唯一真理，而是教学上预设的人类参考判断，分成四类：
+
+\begin{itemize}
+    \item \texttt{ready\_for\_pilot}：题目已经适合进入一周左右的最小试跑；
+    \item \texttt{narrow\_scope}：题目方向可以保留，但范围需要缩小；
+    \item \texttt{blocked\_data\_boundary}：当前存在数据获取或共享边界问题；
+    \item \texttt{rethink\_topic}：这个题目在当前课程资源下不适合作为期末项目主线。
+\end{itemize}
+
+数据里故意放入了几类最典型的高风险 proposal：
+
+\begin{itemize}
+    \item 题目听起来很前沿，但 baseline 和文献起点都还不存在；
+    \item 数据还在受限或共享边界不清的状态；
+    \item 计算负担过重，却还想在学期内完成完整报告与展示；
+    \item 其实很适合先做 pilot，但因为“不够炫”而容易被忽略。
+\end{itemize}
+
+\section{先看一个常见 baseline：按 novelty / hype 排题目}
+
+如果没有 proposal card，一个非常常见的早期决策方式就是：\textbf{按 \texttt{novelty\_hype\_score} 从高到低排序，然后优先推进最“新”的题目。}
+
+\begin{examplebox}[按 novelty / hype 排题目]
+\begin{lstlisting}[style=pythonstyle]
+top3 = sorted(
+    rows,
+    key=lambda row: row["novelty_hype_score"],
+    reverse=True,
+)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+这种做法的问题非常直接：它几乎不问数据是否公开、计算是否可承受、baseline 是否存在，也不问最后能不能形成一个学期内可交付的成果。
+
+在本章教学数据上，按 \texttt{novelty\_hype\_score} 取前三个 proposal 时，真正适合直接进入 pilot 的只有一个。因此 notebook 中会看到下面这个最小对照：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.22\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.16\textwidth}p{0.20\textwidth}@{}}
+\toprule
+方法 & 直接 pilot 精度 & 非 pilot 混入率 & 缩题出口 & 教学解读 \\
+\midrule
+只按 \texttt{novelty\_hype\_score} 取前三项 & 0.33 & 0.67 & 否 & 高 hype 题目很容易掩盖数据、计算和交付风险 \\
+结构化 scoping workflow & 1.00 & 0.00 & 是 & 先问是否可执行，再决定是否值得启动 pilot \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小选题流程的对照。重点不是“谁更前沿”，而是谁更可能在学期内真正做完。}
+\label{tab:ch40_baseline_vs_scoping}
+\end{table}
+
+\section{scoping workflow 的关键，是把“能不能做完”写进路由逻辑}
+
+本章 notebook 的最小 routing 逻辑并不复杂，但它把最容易被口号掩盖的约束显式写了出来：
+
+\begin{itemize}
+    \item \textbf{数据边界}：如果数据还受限、未公开，或共享边界不清，就不应该直接立项；
+    \item \textbf{计算适配}：如果计算负担明显超出课程资源，题目就不适合当前周期；
+    \item \textbf{baseline 可行性}：如果连一个简单参照方案都没有，后面的“复杂模型增益”就无从判断；
+    \item \textbf{交付适配}：如果题目天然难以写成 notebook、报告和展示，就应该尽早缩题。
+\end{itemize}
+
+最小形式可以写成：
+
+\begin{examplebox}[一个最小 proposal routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if data_access_status != "public_ready":
+    blocked_data_boundary
+elif compute_fit_status != "light" and baseline_feasibility == "missing":
+    rethink_topic
+elif deliverable_fit_status != "fit":
+    rethink_topic
+elif science_scope_status != "focused":
+    narrow_scope
+elif baseline_feasibility != "ready":
+    narrow_scope
+elif literature_start_status != "enough":
+    narrow_scope
+else:
+    ready_for_pilot
+\end{lstlisting}
+\end{examplebox}
+
+请注意，这里的目标不是把选题“自动化”成一个硬性打分器，而是让 proposal 至少要先回答这些具体问题。
+
+\section{为什么 \texttt{narrow\_scope} 往往是一个好结果}
+
+很多学生会误以为，题目一旦被 route 到 \texttt{narrow\_scope}，就说明自己的想法“不够好”。但在真实教学里，\texttt{narrow\_scope} 经常意味着相反的事情：\textbf{这个方向本身是可做的，只是你现在想做的版本太大。}
+
+例如：
+
+\begin{itemize}
+    \item 把“做一个 foundation model”缩成“比较一个公开数据集上的简单 baseline 与轻量模型”；
+    \item 把“实时代理系统”缩成“离线教学数据上的最小 routing workflow”；
+    \item 把“全巡天分类器”缩成“一个公开子样本上的两模型对照”。
+\end{itemize}
+
+这种缩题不是妥协，而是在给项目争取真正完成的机会。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 proposal card，并打印 scope、data access、compute fit 和 reference route 统计；
+    \item 用 \texttt{novelty\_hype\_score} 做一个 naive ranking baseline；
+    \item 再实现一个最小 proposal routing workflow；
+    \item 输出 ready-for-pilot、narrow-scope、blocked-data-boundary 和 rethink-topic 四个队列；
+    \item 为每个非 ready proposal 生成一份缩题或换题 checklist；
+    \item 最后生成一个更适合 capstone scoping assistant 的 prompt 模板和 pilot snapshot。
+\end{itemize}
+
+这份 notebook 不依赖真正的项目管理平台，也不追求完整 PM 软件功能。它真正要教的是：\textbf{选题时最重要的，不是一个好听标题，而是一张能暴露风险的 proposal card。}
+
+\section{怎样把 proposal card 变成一周 pilot}
+
+一个 proposal 如果已经达到 \texttt{ready\_for\_pilot}，并不意味着整个项目就已经完成规划。更合理的下一步，是把它压缩成一个一周左右能完成的 pilot：
+
+\begin{enumerate}
+    \item 下载并整理一份最小公开数据子集；
+    \item 做一个最简单 baseline；
+    \item 记录至少一个诊断指标和一个失败样本；
+    \item 整理 3 到 5 条 literature ledger 起始卡片；
+    \item 形成一页 report outline 或 5 分钟展示草图。
+\end{enumerate}
+
+也就是说，真正健康的选题结果不是“我想了一个很大的方向”，而是“我已经知道第一周要做什么”。这也是它和第 39 章 project board 能够自然衔接的地方。
+
+\section{和第 39 章、以及整本书的关系}
+
+可以把本章看成第 39 章之前的前置门：
+
+\begin{itemize}
+    \item 本章先问：这个题目值不值得启动 pilot；
+    \item 第 39 章再问：这个项目能不能被组织成可签字交付的 workflow；
+    \item 前者强调 scope、资源与 feasibility；
+    \item 后者强调验证、文献、声明与最终交付。
+\end{itemize}
+
+因此，这两章最好连在一起使用：先用本章的 proposal card 把题目缩到可做，再用第 39 章的 project board 把执行过程收束起来。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把一个模糊题目改写成更具体的 proposal card；
+    \item 帮你列出数据可得性、计算负担和交付风险的检查问题；
+    \item 帮你把过大的方向压缩成一个一周 pilot；
+    \item 帮你起草 topic-selection memo、pilot checklist 和展示大纲；
+    \item 帮你把“想做什么”翻译成“这周先做什么”。
+\end{itemize}
+
+但最终哪个题目值得你投入一整个学期，哪个方向超出了课程资源，哪些数据根本不适合当前共享边界，仍然必须由你自己判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据里一个已经 \texttt{ready\_for\_pilot} 的 proposal 改成 \texttt{science\_scope\_status = broad}。重新运行 notebook，观察它为什么会被 route 到 \texttt{narrow\_scope}。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+请再添加一条新的 proposal card：题目聚焦、数据公开、计算量轻，但 \texttt{baseline\_feasibility} 和 \texttt{literature\_start\_status} 都还不够。预测它会落到哪个 route，并说明原因。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合你自己的课程兴趣，写一张最小 proposal card。至少包含：题目范围、数据获取状态、计算负担、baseline 可行性，以及一句你准备在第一周完成的 pilot 任务。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 选题最危险的地方，往往不是“想法不够大”，而是“题目大到无法在学期内完成”。因此，本章强调一个更可执行的思路：\textbf{先把题目写成 proposal card，再用数据边界、计算适配、baseline 可行性和交付范围去判断它到底该启动、缩题、暂缓还是直接换题。}
+
+只要你愿意让题目在“可以启动 pilot”“需要缩题”“当前被数据边界卡住”和“应该重新换题”这些状态之间诚实流动，Capstone 的开局就会比“先挑最炫的标题”稳得多。

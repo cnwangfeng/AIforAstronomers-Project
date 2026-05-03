@@ -1,0 +1,16 @@
+sample_id,time_s,voltage_v,sigma_v,split,experiment_type
+RC1,0.0,4.980,0.050,train,rc_discharge
+RC1,0.4,4.115,0.050,train,rc_discharge
+RC1,0.8,3.440,0.050,train,rc_discharge
+RC1,1.2,2.900,0.050,train,rc_discharge
+RC1,1.6,2.360,0.050,train,rc_discharge
+RC1,2.0,1.970,0.050,train,rc_discharge
+RC1,2.4,1.630,0.050,train,rc_discharge
+RC1,2.8,1.320,0.050,train,rc_discharge
+RC1,3.2,1.130,0.050,train,rc_discharge
+RC1,3.6,0.890,0.050,train,rc_discharge
+RC1,4.0,0.740,0.050,test,rc_discharge
+RC1,4.4,0.620,0.050,test,rc_discharge
+RC1,4.8,0.500,0.050,test,rc_discharge
+RC1,5.2,0.410,0.050,test,rc_discharge
+RC1,5.6,0.350,0.050,demo,rc_discharge

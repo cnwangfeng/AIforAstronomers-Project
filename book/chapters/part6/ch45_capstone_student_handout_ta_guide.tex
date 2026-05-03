@@ -1,0 +1,181 @@
+\chapter{Capstone 学生 Handout 与助教评分指南}
+
+\section{案例目标}
+
+第 44 章已经把 Capstone 放进 12 到 16 周课程日历。本章处理真正发出去之前的最后一步：\textbf{怎样把学生版 handout 和助教评分指南整理成一套清楚、可发布、可校准、也可审计的课程材料包。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解学生 handout 和 TA guide 不是同一份文件的两个名字，而是面向不同读者的两套使用说明；
+    \item 学会检查学生清晰度、助教评分指导、政策一致性、样例质量和发布优先级；
+    \item 学会区分“可以发布”“发布前修订”“需要政策复核”和“需要助教校准”四类出口；
+    \item 学会让最终材料包既能帮助学生开始项目，也能帮助助教给出稳定反馈。
+\end{enumerate}
+
+\section{发给学生的材料，不能只服务教师自己的理解}
+
+教师写课程材料时，很容易默认学生已经知道很多隐含背景：什么叫 baseline，什么叫数据边界，为什么 notebook freeze 不是最后一天才做，AI-use statement 应该具体到什么程度。
+
+助教评分指南也有类似问题。教师心里知道一个项目为什么是 85 分，助教却可能只看到“模型还不错、报告也还行”。如果没有 anchor examples、反馈模板和升级路径，不同评分者之间会很快漂移。
+
+所以，本章的核心立场是：\textbf{最终材料包要同时降低学生的启动成本和助教的评分漂移。}
+
+\section{一个极小的 handout / TA-guide 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_student_handout_ta_guide_demo.csv}。这是一组完全本地、教学用途的\textbf{发布前材料检查卡片}。每一行代表 handout 或 TA guide 的一个模块，包含：
+
+\begin{itemize}
+    \item \texttt{item\_id}；
+    \item \texttt{audience}；
+    \item \texttt{package\_section}；
+    \item \texttt{student\_clarity\_status}；
+    \item \texttt{ta\_guidance\_status}；
+    \item \texttt{policy\_alignment\_status}；
+    \item \texttt{example\_quality\_status}；
+    \item \texttt{release\_priority\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成四类：
+
+\begin{itemize}
+    \item \texttt{ready\_to\_release}：可以进入学生或助教材料包；
+    \item \texttt{revise\_before\_release}：文字、样例或学生任务说明还需要修订；
+    \item \texttt{policy\_review}：数据、隐私、AI 使用或评分政策需要教师复核；
+    \item \texttt{ta\_calibration\_needed}：助教评分锚点、反馈样例或升级路径还不够稳定。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按发布优先级排序}
+
+课程发布前最容易被高优先级牵着走。一个 naive baseline 是按发布优先级从高到低排序，优先处理看起来最重要的模块。
+
+\begin{examplebox}[只按发布优先级取前四个模块]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["release_priority_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把高优先级但政策未过关的模块推到最前面。例如数据隐私边界和 AI 使用样例当然重要，但它们如果还没有 policy alignment，就不能直接发布。
+
+在本章教学数据上，只按发布优先级取前四项，可直接发布的精度是 0.50，政策复核项混入率也是 0.50。结构化 release workflow 会先检查政策，再检查助教校准，最后检查学生清晰度和样例质量：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可直接发布精度 & 政策项混入率 & 教学解读 \\
+\midrule
+只按发布优先级取前四项 & 0.50 & 0.50 & 重要模块如果政策未对齐，越早发布风险越大 \\
+结构化 release workflow & 1.00 & 0.00 & 先过政策和校准，再看优先级 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小发布前检查流程的对照。发布优先级不能替代政策复核和助教校准。}
+\label{tab:ch45_priority_vs_release}
+\end{table}
+
+\section{一个可执行的 release workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小材料发布 routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if policy_alignment_status != "aligned":
+    policy_review
+elif audience in {"ta", "both"} and ta_guidance_status != "clear":
+    ta_calibration_needed
+elif student_clarity_status != "clear":
+    revise_before_release
+elif example_quality_status in {"weak", "partial"}:
+    revise_before_release
+else:
+    ready_to_release
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个很实用的发布原则：\textbf{政策一致性先于文字润色，评分校准先于助教上岗。}
+
+\section{学生版 handout 应该说清楚什么}
+
+学生版 handout 的目标，是让学生知道自己下一步该做什么、何时交、用什么标准检查。它至少应该包含：
+
+\begin{enumerate}
+    \item 项目目标和成功标准；
+    \item 12 到 16 周里程碑和截止日期；
+    \item 数据来源、许可证、隐私和公开边界；
+    \item notebook 复现要求、环境记录和随机种子；
+    \item baseline、validation、error analysis 和 report outline 的最低要求；
+    \item AI 使用规范：鼓励、限制、禁止和必须披露的场景；
+    \item 求助路径：助教、教师、office hours 和 human signoff；
+    \item 最终提交清单：报告、notebook、图表、AI-use statement、Git 记录和展示。
+\end{enumerate}
+
+学生版 handout 不需要解释所有评分细节，但必须让学生能自查自己是否已经走到下一个 checkpoint。
+
+\section{TA grading guide 应该多给一点锚点}
+
+助教版材料不只是 rubric 权重。它还应该包含：
+
+\begin{itemize}
+    \item 每个评分维度的 anchor examples；
+    \item ready、minor revision、needs revision 和 blocked 的样例；
+    \item 合格与不合格 AI-use statement 样例；
+    \item 常见反馈句式和需要避免的模糊反馈；
+    \item 当数据边界、引用或签字问题无法判断时的升级路径；
+    \item 一份评分后审计 checklist。
+\end{itemize}
+
+如果学生版 handout 是“怎样完成项目”，TA guide 就是“怎样稳定地看待项目”。两者应该互相对应，但不应该混成同一份长文档。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 handout / TA-guide release table，并统计 audience、policy 和 route；
+    \item 用发布优先级做一个 naive release baseline；
+    \item 再实现一个带 policy review、TA calibration 和 clarity check 的 release workflow；
+    \item 输出 ready、revise、policy review 和 TA calibration 四个队列；
+    \item 为每个非 ready 模块生成发布前修订 checklist；
+    \item 最后生成学生版 handout 目录、TA guide 目录和 release assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把教师内部说明改写成学生能执行的 handout；
+    \item 把 rubric 权重改写成助教可用的评分锚点；
+    \item 检查学生版和助教版材料是否互相矛盾；
+    \item 生成 feedback examples 和 escalation path 草稿；
+    \item 把政策复核项单独列出，避免混在文字润色任务里。
+\end{itemize}
+
+但 AI 助手不应该替课程团队确定最终政策、评分尺度或学生成绩。它可以让材料更清楚，却不能替代课程责任。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{ready\_to\_release} 模块的 \texttt{policy\_alignment\_status} 改成 \texttt{needs\_policy\_review}。重新运行 notebook，观察它为什么会先进入政策复核队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个 TA guide 模块：学生清晰度是 \texttt{clear}，政策已对齐，但 \texttt{ta\_guidance\_status} 是 \texttt{missing}。预测它会落到哪个 route，并说明为什么助教材料不能只靠学生 handout 替代。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程项目写一页学生 handout 和半页 TA grading guide。然后用本章 workflow 给每个模块标注 ready、revise、policy review 或 TA calibration。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 最终材料包不是单纯“整理成 PDF”。它需要同时回答学生的问题和助教的问题：学生如何开始、如何自查、如何提交；助教如何评分、如何反馈、如何升级不确定问题。
+
+当学生 handout 和 TA grading guide 都经过发布前 routing，课程团队就能更有信心地把 Capstone 从教材章节变成真实课堂里的可运行项目。

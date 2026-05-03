@@ -68,3 +68,8 @@ bash scripts/sync_book_to_overleaf.sh
 ```
 
 确认 dry-run 输出无误后再加 `--apply`。
+
+如果准备做一次完整发布或同步收尾，也建议同时查看项目根目录中的：
+
+- `COURSE_PACKAGE_RELEASE_NOTES.md`
+- `RELEASE_SYNC_CHECKLIST.md`

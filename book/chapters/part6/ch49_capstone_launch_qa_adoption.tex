@@ -1,0 +1,165 @@
+\chapter{Capstone 公开发布 QA 与课程采用说明}
+
+\section{案例目标}
+
+第 48 章把课程材料整理成公开发布索引与维护清单。本章继续处理发布前最后一公里：\textbf{怎样在真正对外发布前检查链接、复跑 smoke test、补齐采用说明，并写清课程团队能提供的支持边界。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 launch QA 不是形式检查，而是避免外部教师和学生第一次打开材料时就卡住；
+    \item 学会检查 link check、release smoke test、adoption note、support boundary 和 launch priority；
+    \item 学会区分“可以发布”“修复坏链接”“重跑发布 smoke test”“补采用说明”和“澄清支持边界”五类出口；
+    \item 学会把公开课程材料从“我们自己能用”推进到“别人也能采用”。
+\end{enumerate}
+
+\section{最危险的状态：材料都在，但别人用不了}
+
+课程团队自己使用材料时，很多隐含知识会被自动补上：知道入口在哪里，知道哪个 notebook 要先跑，知道某个链接换过位置，知道某个环境安装问题只出现在旧电脑上。公开发布之后，这些隐含知识就会变成外部采用者的阻力。
+
+因此，发布前 QA 要检查的不只是文件是否存在，而是外部读者能否从入口页开始，顺着说明找到 notebook、数据、rubric、模板、支持边界和已知 caveat。如果入口断了，smoke test 没跑，采用说明缺失，或者支持边界写得过宽，再漂亮的课程包也会变成维护债。
+
+所以，本章的核心立场是：\textbf{公开发布前的 QA 目标不是证明材料很多，而是证明陌生采用者有路可走、遇到问题知道边界。}
+
+\section{一个极小的 launch-QA 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_launch_qa_adoption_demo.csv}。这是一组完全本地、教学用途的\textbf{发布 QA 与采用说明卡片}。每一行代表一个准备对外发布或被外部课程采用的资源，包含：
+
+\begin{itemize}
+    \item \texttt{qa\_id}；
+    \item \texttt{resource\_area}；
+    \item \texttt{adopter\_role}；
+    \item \texttt{link\_check\_status}；
+    \item \texttt{smoke\_test\_status}；
+    \item \texttt{adoption\_note\_status}；
+    \item \texttt{support\_boundary\_status}；
+    \item \texttt{launch\_priority\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 route 分成五类：
+
+\begin{itemize}
+    \item \texttt{launch\_ready}：可以进入公开发布；
+    \item \texttt{fix\_broken\_link}：入口、路径或链接需要修复；
+    \item \texttt{rerun\_release\_smoke\_test}：发布前 smoke test 未通过或缺失；
+    \item \texttt{complete\_adoption\_note}：外部采用说明还不完整；
+    \item \texttt{clarify\_support\_boundary}：支持边界、适用范围或响应承诺不清楚。
+\end{itemize}
+
+\section{先看一个危险 baseline：只按发布优先级排序}
+
+发布前很容易按 launch priority 排队：越重要、越能代表课程形象的资源越先上线。
+
+\begin{examplebox}[只按 launch priority 选择发布材料]
+\begin{lstlisting}[style=pythonstyle]
+top4 = sorted(
+    rows,
+    key=lambda row: row["launch_priority_score"],
+    reverse=True,
+)[:4]
+\end{lstlisting}
+\end{examplebox}
+
+这个 baseline 会把坏链接、失败的 smoke test 和支持边界不清的材料一起推到发布队列。对外部采用者来说，这些问题不是小瑕疵，而是第一印象。
+
+在本章教学数据上，只按发布优先级取前四项，真正可发布的精度只有 0.25，未就绪材料混入率是 0.75。结构化 launch-QA workflow 会先检查链接，再检查 smoke test，再看支持边界，最后补采用说明：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.28\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+方法 & 可发布精度 & 未就绪混入率 & 教学解读 \\
+\midrule
+只按发布优先级取前四项 & 0.25 & 0.75 & 高优先级资源如果入口断、测试失败或边界不清，会放大外部采用风险 \\
+结构化 launch-QA workflow & 1.00 & 0.00 & 先修入口和测试，再补说明和边界 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小发布 QA 流程的对照。公开发布前，优先级不能替代可采用性。}
+\label{tab:ch49_priority_vs_launch_qa}
+\end{table}
+
+\section{一个可执行的 launch-QA workflow}
+
+本章 notebook 的 routing 逻辑可以写成：
+
+\begin{examplebox}[一个最小发布 QA routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if link_check_status == "broken":
+    fix_broken_link
+elif smoke_test_status in {"failing", "missing"}:
+    rerun_release_smoke_test
+elif support_boundary_status != "clear":
+    clarify_support_boundary
+elif adoption_note_status != "complete":
+    complete_adoption_note
+else:
+    launch_ready
+\end{lstlisting}
+\end{examplebox}
+
+这个顺序体现了一个公开课程原则：\textbf{入口先于宣传，测试先于采用，支持边界先于承诺。}
+
+\section{课程采用说明应该包含什么}
+
+一份外部教师能直接使用的 adoption note 至少应该包含：
+
+\begin{enumerate}
+    \item 适用对象：本科年级、先修能力、课程长度和预期背景；
+    \item 最小采用路径：只采用一章、三周模块、半学期模块或完整课程的建议路线；
+    \item 环境与运行时间：依赖、数据位置、notebook 运行时间和已知失败模式；
+    \item 评分与作业边界：哪些 rubric 可以直接复用，哪些需要本地化；
+    \item 支持边界：课程团队是否接受 issue、邮件、PR、教学咨询或不提供支持；
+    \item 更新节奏：推荐的检查频率、版本号和过期材料处理方式。
+\end{enumerate}
+
+采用说明不用写成长文档。它更像机场指示牌：让第一次来的教师知道该从哪里进入、往哪里走、哪些门暂时不开。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 launch-QA table，并统计 adopter role、link status、smoke test、adoption note、support boundary 和 reference route；
+    \item 用 launch priority 做一个 naive launch baseline；
+    \item 再实现一个带 link check、smoke test、support boundary 和 adoption note 的 launch-QA workflow；
+    \item 输出 launch-ready、fix-link、rerun-smoke-test、complete-adoption-note 和 clarify-support-boundary 五个队列；
+    \item 为每个非 ready 资源生成发布前 QA checklist；
+    \item 最后生成 adoption note outline 和 launch-QA assistant prompt。
+\end{itemize}
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 从资源索引生成发布前 QA 表；
+    \item 检查链接、路径、章节编号和 notebook 名称是否一致；
+    \item 把 smoke test 输出压缩成采用者能理解的 known caveat；
+    \item 根据课程长度生成不同采用路径；
+    \item 起草 issue template、release note 和 adoption note。
+\end{itemize}
+
+但 AI 助手不能替你承诺支持范围，也不能保证外部机构的环境与政策完全匹配。它能帮你把边界写清楚，却不能替课程团队承担无限维护义务。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把一个 \texttt{launch\_ready} 资源的 \texttt{link\_check\_status} 改成 \texttt{broken}。重新运行 notebook，观察它为什么必须先进入 fix-link 队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一个发布优先级很高、但 \texttt{smoke\_test\_status = missing} 的 notebook 包。预测它会落到哪个 route，并说明为什么“还没坏”不等于“可以发布”。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为你自己的课程材料写一页 adoption note。至少包含：适用对象、最小采用路径、运行环境、评分边界、支持边界、版本号和下一次检查日期。
+\end{exercisebox}
+
+\section{本章小结}
+
+公开发布不是课程项目的终点，而是外部采用者第一次真正接触它的起点。本章把 link check、release smoke test、adoption note、support boundary 和 launch priority 放进同一张 QA card。
+
+当课程团队能把资源分成可以发布、修复坏链接、重跑发布 smoke test、补采用说明和澄清支持边界，Capstone 资源就不只是“我们做完了”，而是“别人也有机会用起来”。

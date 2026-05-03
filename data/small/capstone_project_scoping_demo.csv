@@ -1,0 +1,9 @@
+proposal_id,theme,science_scope_status,data_access_status,compute_fit_status,baseline_feasibility,literature_start_status,deliverable_fit_status,novelty_hype_score,reference_route
+S01,Gaia open-cluster membership cleanup,focused,public_ready,light,ready,enough,fit,0.90,ready_for_pilot
+S02,Foundation-model photo-z benchmark against billion-token spectra,broad,public_ready,heavy,missing,partial,risky,0.99,rethink_topic
+S03,Proprietary telescope image release before embargo lifts,focused,restricted,heavy,unclear,partial,risky,0.88,blocked_data_boundary
+S04,Public TESS period search with Lomb-Scargle baseline,focused,public_ready,light,ready,enough,fit,0.67,ready_for_pilot
+S05,Galaxy morphology from scratch with a custom segmentation network,focused,public_ready,heavy,unclear,enough,risky,0.94,rethink_topic
+S06,Gaia anomaly notebook comparing nearest-neighbor and autoencoder,broad,public_ready,light,ready,partial,fit,0.83,narrow_scope
+S07,Public LAMOST subtype baseline plus light Conv1d follow-up,focused,public_ready,light,unclear,enough,fit,0.79,narrow_scope
+S08,External alert-stream triage pasted into an unclear hosted tool,focused,unclear,light,ready,enough,fit,0.86,blocked_data_boundary

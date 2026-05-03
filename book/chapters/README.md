@@ -40,3 +40,4 @@ Current draft progress:
 - Part 0 has begun absorbing the generic Python prerequisite materials
 - Part I currently focuses on Linux, Git, Jupyter, data I/O, and plotting
 - Part II is beginning with uncertainty and HR-diagram chapter drafts
+- Part VI has now begun with capstone workflow, scoping, delivery, and rubric drafts

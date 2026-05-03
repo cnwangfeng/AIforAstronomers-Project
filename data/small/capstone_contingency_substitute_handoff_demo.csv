@@ -1,0 +1,9 @@
+handoff_id,contingency_area,trigger_status,minimal_run_package_status,substitute_owner_status,context_brief_status,escalation_status,readiness_score,reference_route
+S55_01,instructor_absence,confirmed,ready,assigned,ready,none,0.93,substitute_ready
+S55_02,kickoff_lab_failure,confirmed,partial,assigned,ready,none,0.91,complete_minimal_run_package
+S55_03,grading_week_overload,likely,ready,missing,ready,none,0.82,assign_substitute_owner
+S55_04,private_data_exception,confirmed,ready,assigned,ready,policy,0.90,escalate_before_substitution
+S55_05,last_minute_schedule_shift,confirmed,ready,assigned,stale,none,0.87,refresh_context_brief
+S55_06,ta_shortage,likely,partial,missing,stale,none,0.79,assign_substitute_owner
+S55_07,classroom_machine_outage,confirmed,partial,assigned,ready,none,0.89,complete_minimal_run_package
+S55_08,public_demo_request,confirmed,ready,assigned,ready,none,0.76,substitute_ready

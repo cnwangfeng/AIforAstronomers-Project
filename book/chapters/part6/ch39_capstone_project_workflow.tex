@@ -1,0 +1,267 @@
+\chapter{Capstone 项目工作流、项目模板与可信交付}
+
+\section{案例目标}
+
+走到这里，学生通常已经学过 Python、数据处理、机器学习、案例分析，以及 Part V 里一整条“现代 AI 进入科研 workflow 之后怎样保持可信”的主线。真正临门一脚的问题就变成了：\textbf{怎样把这些分散能力收束成一个能展示、能复跑、能签字负责的期末项目。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 Capstone 项目不只是“再训练一个模型”，而是一份要同时满足科学问题、数据边界、验证证据、文献支撑和交付规范的综合工作流；
+    \item 学会把项目状态写成一张结构化 project board，而不是把所有进度都留在口头记忆里；
+    \item 学会把第 35 章到第 38 章的四类边界，收束到同一张项目卡上；
+    \item 学会把 project board 转成 ready、review、revise 和 blocked 四类出口，以及更适合执行的 next-step checklist。
+\end{enumerate}
+
+\section{为什么 Part VI 不是“再加一个模型”}
+
+很多学生一听到 capstone，就会本能地把注意力放到“我要训练什么更酷的模型”。但一个真实项目最后能不能站得住，往往不主要取决于模型名字，而取决于下面这些更朴素的问题：
+
+\begin{itemize}
+    \item 科学问题到底是否清楚，还是只有一个模糊题目；
+    \item 数据能不能合法使用、能不能稳定复跑；
+    \item 有没有一个值得比较的 baseline；
+    \item 验证、误差分析和人工复核出口是否已经准备好；
+    \item related work、claim ledger 和 caveat 是否已经整理；
+    \item AI 到底参与了哪些步骤，哪些判断仍然必须由人签字。
+\end{itemize}
+
+如果这些问题都没有被写清楚，那么项目很容易出现一种表面上很忙、实际上很脆弱的状态：
+
+\begin{itemize}
+    \item notebook 里有很多单元格，但不知道哪一格是最终证据；
+    \item 模型分数看起来不错，但没有 baseline、没有 diagnostics；
+    \item 报告已经开始写了，但引用和 caveat 还没有整理；
+    \item AI 确实帮了很多忙，但最终没有留下可检查的 usage log。
+\end{itemize}
+
+所以，本章的核心立场是：\textbf{Capstone 不是一个“更大模型”的章节，而是一个把整本书前面内容接成可信交付的章节。}
+
+\section{一个极小的 capstone project board 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_project_workflow_demo.csv}。这不是成绩册，也不是完整项目管理软件导出的 board，而是一组完全本地、教学用途的\textbf{capstone 项目卡片}。每一行代表一个学生项目的当前状态，包含：
+
+\begin{itemize}
+    \item \texttt{project\_id}；
+    \item \texttt{theme}；
+    \item \texttt{science\_question\_status}；
+    \item \texttt{data\_license\_status}；
+    \item \texttt{baseline\_status}；
+    \item \texttt{validation\_status}；
+    \item \texttt{literature\_ledger\_status}；
+    \item \texttt{ai\_use\_statement\_status}；
+    \item \texttt{report\_outline\_status}；
+    \item \texttt{sharing\_boundary}；
+    \item \texttt{model\_hype\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的 \texttt{reference\_route} 不是机器学习标签意义上的“真理类别”，而是教学上预设的人类参考路由，分成四类：
+
+\begin{itemize}
+    \item \texttt{ready\_for\_capstone}：项目已经具备进入正式执行与展示准备的最小条件；
+    \item \texttt{manual\_review}：项目方向没有问题，但还有验证、文献或声明边界需要人工收口；
+    \item \texttt{revise\_plan}：科学问题或 baseline 还没有站稳，需要回到计划层改写；
+    \item \texttt{blocked}：当前存在数据许可或共享边界问题，不该继续往下推进。
+\end{itemize}
+
+这个数据集故意放入了几类最容易让学生在 capstone 阶段失速的项目：
+
+\begin{itemize}
+    \item \texttt{model\_hype\_score} 很高，但 baseline 仍然缺失的项目；
+    \item 使用受限数据、目前还不能安全共享或复现的项目；
+    \item 代码和实验主体大致齐了，但 literature ledger 与 AI-use statement 还没收口的项目；
+    \item 其实已经很扎实，却因为“不够炫”而容易被忽视的项目。
+\end{itemize}
+
+因此，本章真正要训练的不是“怎样挑一个最酷的题目”，而是更重要的能力：
+
+\begin{itemize}
+    \item 你能不能判断一个项目是不是已经准备好进入 Capstone 节奏；
+    \item 你能不能明确说出它为什么应该 ready、为什么应该 review、或者为什么现在必须停下来。
+\end{itemize}
+
+\section{先看一个很常见的 baseline：按模型兴奋度排优先级}
+
+如果没有结构化 project board，一个很常见的 baseline 就是：\textbf{按 \texttt{model\_hype\_score} 从高到低排序，然后优先推进最“像 AI 项目”的题目。}
+
+\begin{examplebox}[按 hype 分数排优先级的 baseline]
+\begin{lstlisting}[style=pythonstyle]
+top_projects = sorted(
+    rows,
+    key=lambda row: row["model_hype_score"],
+    reverse=True,
+)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+这种做法的问题非常直接：它把“看起来先进”误当成“已经准备好交付”，却没有先问：
+
+\begin{itemize}
+    \item 数据许可和共享边界是否清楚；
+    \item baseline 和验证链条是否已经存在；
+    \item literature ledger 是否已经补齐；
+    \item 报告和 AI-use statement 是否已经能支持最终展示。
+\end{itemize}
+
+在本章教学数据上，按 \texttt{model\_hype\_score} 排名前三的项目里，真正已经可以直接进入 capstone 执行阶段的只有一个。因此 notebook 中会得到下面这个最小对照：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.23\textwidth}>{\centering\arraybackslash}p{0.16\textwidth}>{\centering\arraybackslash}p{0.18\textwidth}>{\centering\arraybackslash}p{0.15\textwidth}p{0.20\textwidth}@{}}
+\toprule
+方法 & 直接 ready 精度 & blocked 混入率 & review 出口 & 教学解读 \\
+\midrule
+只按 \texttt{model\_hype\_score} 取前三项 & 0.33 & 0.00 & 否 & 容易把计划未稳的高 hype 项目误当成优先交付对象 \\
+结构化 capstone workflow & 1.00 & 0.00 & 是 & 先做项目级 gate，再决定哪些项目已经 ready \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小工作流的对照。重点不是“谁更前沿”，而是谁更接近可签字交付。}
+\label{tab:ch39_baseline_vs_capstone}
+\end{table}
+
+\section{capstone workflow 的关键，是把前四章的边界接到同一张项目卡上}
+
+本章和前面四章的关系非常直接。一个项目卡之所以能支持 ready / review / blocked 的判断，是因为它同时继承了四类约束：
+
+\begin{itemize}
+    \item \textbf{第 35 章：代码与 notebook 验证边界}。也就是 \texttt{validation\_status} 不能只表示“代码跑过”，而要表示关键数值检查、回归检查和复跑证据是否已经准备好。
+    \item \textbf{第 36 章：agentic workflow 的人工接管边界}。也就是项目不必什么都自动拍板，边界样本和边界决策应该允许进入 \texttt{manual\_review}。
+    \item \textbf{第 37 章：文献阅读与 claim ledger 边界}。也就是 \texttt{literature\_ledger\_status} 要告诉你 related work、结果 claim 和 caveat 是否已经可回查。
+    \item \textbf{第 38 章：AI 使用、版权、许可与声明边界}。也就是共享边界和 AI 使用说明都要写清楚：哪些材料可以共享、哪些步骤用了 AI、哪些结论仍由人签字。
+\end{itemize}
+
+因此，本章 notebook 的最小 routing 逻辑不是“哪个题目更火”，而更接近下面这种结构：
+
+\begin{examplebox}[一个最小 capstone routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if data_license_status != "clear":
+    blocked
+elif sharing_boundary != "local_only":
+    blocked
+elif science_question_status != "clear":
+    revise_plan
+elif baseline_status != "ready":
+    revise_plan
+elif validation_status != "ready":
+    manual_review
+elif literature_ledger_status != "ready":
+    manual_review
+elif ai_use_statement_status != "drafted":
+    manual_review
+elif report_outline_status != "ready":
+    manual_review
+else:
+    ready_for_capstone
+\end{lstlisting}
+\end{examplebox}
+
+请注意，这里的重点不是把项目管理“自动化得更厉害”，而是把那些最容易在期末阶段失控的边界显式写出来。
+
+\section{为什么 \texttt{manual\_review} 不是失败出口}
+
+很多学生在项目末期会感到焦虑，仿佛一个项目只要还没有达到 \texttt{ready\_for\_capstone}，就说明自己做得不好。其实在真实教学和科研里，这种理解经常是错的。
+
+如果一个项目满足下面任一情况：
+
+\begin{itemize}
+    \item 核心实验已经大致成立，但 validation 记录还没写清；
+    \item 结果段已经能成形，但引用和 caveat 还没有完全补齐；
+    \item AI 的参与方式已经很多，但 usage statement 还没和实际记录对齐；
+    \item 报告结构已经成形，但最后的 human signoff 还没有完成；
+\end{itemize}
+
+那么把它送进 \texttt{manual\_review} 往往不是“项目失败”，而是\textbf{项目管理正确}。
+
+同样，\texttt{revise\_plan} 也不是“退步”。如果科学问题还很宽、baseline 仍然缺失，那么继续堆模型通常只会把后面的解释和展示做得更乱。早一点在 project board 上暴露这个问题，反而比晚一点在答辩前临时发现要安全得多。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 project board，并打印 science question、data license、sharing boundary 和 reference route 统计；
+    \item 用按 \texttt{model\_hype\_score} 排名前三的方式做一个 naive priority baseline；
+    \item 再实现一个最小 capstone routing workflow；
+    \item 输出 ready queue、manual review queue、revise-plan queue 和 blocked queue；
+    \item 为每个非 ready 项目生成 next-step checklist；
+    \item 最后打印一个更适合 capstone assistant 的 prompt 模板，以及 project snapshot。
+\end{itemize}
+
+这份 notebook 不依赖真正的项目管理服务，也不连接在线代理框架。它真正要教的是：\textbf{项目管理里最值得保留的，不是某个工具按钮，而是项目边界与交付证据的结构。}
+
+\section{把路线图变成一个可执行项目模板}
+
+如果把本章和整本书前面的主线压缩成一个最小 capstone 模板，那么一个真正可交付的项目至少应该能回答下面七件事：
+
+\begin{enumerate}
+    \item \textbf{科学问题}：你究竟想回答什么问题，为什么它值得回答；
+    \item \textbf{数据与许可证}：数据来自哪里，能否公开重跑，哪些材料不能外发；
+    \item \textbf{baseline}：在更复杂模型之前，有没有一个简单但可信的参考方案；
+    \item \textbf{模型与诊断}：至少两个可比较实现，以及必要的误差分析、不确定度或异常样本解释；
+    \item \textbf{literature ledger}：related work、核心 claim 和 caveat 是否已经整理成可回查结构；
+    \item \textbf{AI-use statement}：AI 具体帮助了哪一步，哪些判断没有交给 AI，哪些材料没有被发送到外部服务；
+    \item \textbf{最终交付}：report、notebook、图表、Git 记录和展示结构是否已经准备好。
+\end{enumerate}
+
+也就是说，Capstone 模板不应该只是一页题目列表，而更像一份\textbf{项目签字前的最小证据清单}。
+
+\begin{warnbox}[Capstone 阶段的常见误区]
+\begin{itemize}
+    \item 把“模型更复杂”误当成“项目更成熟”；
+    \item 直到最后一周才想起 baseline、diagnostics 和 report outline；
+    \item 代码、文献、声明和展示分别保存在不同地方，彼此没有连接；
+    \item 只记得“用过 AI”，却说不清 AI 到底参与了哪些步骤；
+    \item 发现共享边界或许可证问题后，仍然继续往外部服务粘贴材料。
+\end{itemize}
+\end{warnbox}
+
+\section{和整本书的关系}
+
+本章可以看成整本书的一次收束：
+
+\begin{itemize}
+    \item Part 0 到 Part II 提供 Python、数据和科学计算基础；
+    \item Part III 提供机器学习 workflow、baseline、评估和可信度判断；
+    \item Part IV 把这些工具放回具体天文与物理案例；
+    \item Part V 进一步讨论深度学习与现代 AI 怎样进入科研 workflow；
+    \item 本章则把这些能力收束成一个可展示、可复现、可签字的项目模板。
+\end{itemize}
+
+因此，真正的 Capstone 不是某一章之后突然冒出来的新任务，而是整本书前面所有能力的一次联合检查。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把分散的 notebook 进度、文献摘录和使用记录整理成 project board；
+    \item 帮你把每个非 ready 项目的缺口改写成更清楚的 next-step checklist；
+    \item 帮你把 literature ledger、AI-use statement 和 report outline 接成一个更清楚的项目骨架；
+    \item 帮你把口头计划整理成项目展示大纲；
+    \item 帮你检查说明文字是否遗漏了数据来源、验证边界和 human signoff。
+\end{itemize}
+
+但最终哪些项目已经可以交付、哪些材料不能共享、哪些 claim 足以写进报告，以及哪些结论值得你自己签字承担，仍然必须由你本人判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据里一个已经 \texttt{ready\_for\_capstone} 的项目改成 \texttt{sharing\_boundary = external\_unknown}。重新运行 notebook，观察它为什么会被直接 route 到 \texttt{blocked}。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+请再添加一条新的项目卡：科学问题清楚、数据公开、baseline 已完成，但 \texttt{literature\_ledger\_status} 和 \texttt{report\_outline\_status} 都还是 \texttt{partial}。预测它会落到哪个 route，并说明原因。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+结合你自己的课程题目，写一张最小 capstone 项目卡。至少包含：科学问题状态、数据许可状态、baseline 状态、validation 状态、literature ledger 状态，以及一条你愿意公开提交的 AI-use statement 说明。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone 最容易被误解成“期末再做一个大模型”。但更可靠的理解是：\textbf{它是一份项目级 workflow，把问题定义、数据边界、baseline、验证、文献证据、AI 使用声明和最终展示收束到同一套证据结构里。}
+
+只要你能持续把这些边界写进 project board，并愿意让项目在 ready、review、revise 和 blocked 之间诚实流动，那么最后交出来的成果就更可能不仅“会跑”，而且真正可解释、可复现、可签字。

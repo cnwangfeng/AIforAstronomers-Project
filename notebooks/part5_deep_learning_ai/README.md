@@ -20,4 +20,4 @@ Current notebook set:
 Later this directory will grow into:
 
 - transfer-learning and real-image CNN notebooks
-- capstone-integration notebooks
+- deeper workflow-integrated model notebooks that can feed the Part VI capstone templates

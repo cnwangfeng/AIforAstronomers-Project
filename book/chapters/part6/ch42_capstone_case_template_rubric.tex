@@ -1,0 +1,190 @@
+\chapter{Capstone 案例模板与评分 Rubric}
+
+\section{案例目标}
+
+第 39 章把 Capstone 项目组织成 project board，第 40 章讨论选题和范围，第 41 章把报告、展示和最终签字收束成 delivery review。本章再往前推进一步：\textbf{把这些材料整理成一套可以发给学生、也可以被教师稳定评分的 case template 和 rubric。}
+
+本章的目标有四点：
+
+\begin{enumerate}
+    \item 理解 rubric 不是最后一刻的打分表，而是项目从第一周就应该遵守的证据契约；
+    \item 学会把科学问题、数据可复现性、建模评估、结果解释、代码记录、报告展示和 AI 使用披露放到同一个模板里；
+    \item 学会区分“可以评分”“小修后评分”“需要较大修订”和“评分前阻塞”四类出口；
+    \item 学会生成一份面向学生的 revision checklist，让评分反馈变成下一步行动，而不是只留下一个分数。
+\end{enumerate}
+
+\section{Rubric 的作用不是制造分数，而是固定证据标准}
+
+很多课程项目到了期末才第一次看到评分表。这样做有一个问题：学生会把 rubric 当成“最后如何拿分”的清单，而不是“从一开始如何组织证据”的标准。
+
+对 AI 数据分析 Capstone 来说，rubric 至少承担三件事：
+
+\begin{itemize}
+    \item 帮学生知道什么叫一个可检查的科学问题；
+    \item 帮助教和教师用相同标准判断项目是否可以评分；
+    \item 在模型分数很高但证据链不完整时，给出明确的修订路径。
+\end{itemize}
+
+因此，本章的核心立场是：\textbf{好的 rubric 不只给总分，还要暴露阻塞项、最低线和修订动作。}
+
+\section{一个极小的 rubric case template 数据集}
+
+配套 notebook 使用 \nolinkurl{capstone_rubric_case_template_demo.csv}。这是一组完全本地、教学用途的\textbf{Capstone 评分样例卡片}。每一行代表一个项目包的评分前状态，包含：
+
+\begin{itemize}
+    \item \texttt{case\_id}；
+    \item \texttt{project\_id}；
+    \item \texttt{theme}；
+    \item \texttt{science\_question\_points}；
+    \item \texttt{data\_repro\_points}；
+    \item \texttt{modeling\_eval\_points}；
+    \item \texttt{interpretation\_limits\_points}；
+    \item \texttt{code\_git\_points}；
+    \item \texttt{report\_presentation\_points}；
+    \item \texttt{ai\_use\_integrity\_status}；
+    \item \texttt{signoff\_status}；
+    \item \texttt{revision\_burden\_score}；
+    \item \texttt{reference\_route}。
+\end{itemize}
+
+这里的分数采用 100 分制，但不是平均分配。一个建议权重是：
+
+\begin{itemize}
+    \item 科学问题清晰度：15 分；
+    \item 数据处理与可复现性：20 分；
+    \item 模型建立与评估：25 分；
+    \item 结果解释与局限性：20 分；
+    \item 代码质量与 Git 记录：10 分；
+    \item 报告和展示：10 分。
+\end{itemize}
+
+请注意，AI 使用披露和 human signoff 在本章中不是额外加分项，而是评分前 gate。原因很简单：如果 AI-use statement 不清楚，或者最终签字边界没有完成，那么项目不能靠模型分数补救。
+
+\section{先看一个危险 baseline：只按总分排序}
+
+最直觉的评分方式是把六个维度加起来，按总分从高到低排序。这个 baseline 很诱人，因为它简单、可解释、也容易写进电子表格。
+
+\begin{examplebox}[只按总分取前三个项目]
+\begin{lstlisting}[style=pythonstyle]
+top3 = sorted(
+    rows,
+    key=total_score,
+    reverse=True,
+)[:3]
+\end{lstlisting}
+\end{examplebox}
+
+但这个 baseline 有一个危险：它会把“高分但评分前阻塞”的项目混进来。例如，一个项目的数据、模型和展示都不错，但 AI 使用披露缺失；另一个项目模型分数很高，却没有最终 signoff。它们不应该被直接送去评分。
+
+在本章教学数据上，只按总分取前三个项目时，可直接评分的精度是 0.67，并且混入了一个评分前阻塞项目。结构化 rubric workflow 则先检查 gate，再判断最低线和修订负担：
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.26\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}p{0.32\textwidth}@{}}
+\toprule
+方法 & 可直接评分精度 & 阻塞项混入率 & 教学解读 \\
+\midrule
+只按总分取前三个项目 & 0.67 & 0.33 & 总分不能替代 AI 使用披露、签字边界和核心维度最低线 \\
+结构化 rubric workflow & 1.00 & 0.00 & 先过 gate，再看总分、最低线和修订负担 \\
+\bottomrule
+\end{tabular}
+\caption{本章 notebook 中两个最小评分流程的对照。重点不是让评分变复杂，而是避免把不可评分项目误当成优秀项目。}
+\label{tab:ch42_total_score_vs_rubric}
+\end{table}
+
+\section{一个可执行的 rubric workflow}
+
+本章 notebook 的 routing 逻辑分成四层。
+
+\textbf{第一层：评分前 gate。} 如果 \texttt{signoff\_status} 不是 \texttt{signed}，或者 \texttt{ai\_use\_integrity\_status} 不是 \texttt{clear}，项目进入 \texttt{blocked\_before\_grading}。这不是惩罚，而是保护学生、教师和项目本身。
+
+\textbf{第二层：核心维度最低线。} 一个项目不能只靠模型分数拿高分。如果科学问题不清楚、数据无法复现、评估缺少 baseline，或者局限性没有讨论，它就需要修订。
+
+\textbf{第三层：总分和修订负担。} 总分仍然重要，但要和 \texttt{revision\_burden\_score} 一起看。一个 80 分项目如果只需要小修，可以进入小修后评分；一个 82 分项目如果核心评估线没过，仍然应该回到修订队列。
+
+\textbf{第四层：反馈包。} route 之后，workflow 不只输出标签，还应该输出学生下一步要做什么。
+
+最小形式可以写成：
+
+\begin{examplebox}[一个最小 rubric routing 逻辑]
+\begin{lstlisting}[style=pythonstyle]
+if signoff_status != "signed":
+    blocked_before_grading
+elif ai_use_integrity_status != "clear":
+    blocked_before_grading
+elif total >= 85 and ready_floors_pass and revision_burden <= 0.25:
+    ready_for_grading
+elif total >= 75 and minor_floors_pass and revision_burden <= 0.40:
+    strong_with_minor_revision
+else:
+    needs_revision
+\end{lstlisting}
+\end{examplebox}
+
+\section{Case template 应该长什么样}
+
+如果要把这个 rubric 直接发给学生，推荐把项目包组织成下面的 case template：
+
+\begin{enumerate}
+    \item \textbf{Project card}：一句科学问题、一句话说明为什么这个问题可以用当前数据回答；
+    \item \textbf{Data card}：数据来源、许可证、字段、清洗规则、train / validation / test 划分；
+    \item \textbf{Baseline card}：至少一个非深度学习或简单模型 baseline；
+    \item \textbf{Model card}：模型选择、输入输出、训练设置、失败样本；
+    \item \textbf{Evaluation card}：指标、验证集、测试集、选择效应和过拟合检查；
+    \item \textbf{Interpretation card}：关键图表、主要 claim、局限性和不确定度；
+    \item \textbf{Reproducibility card}：notebook 复跑说明、环境、随机种子、Git 记录；
+    \item \textbf{Integrity card}：AI-use statement、引用核查、human signoff 和公开边界。
+\end{enumerate}
+
+这八张卡片的作用，是让 Capstone 从“做了很多事情”变成“每个 claim 都知道证据在哪里”。
+
+\section{配套 notebook 做了什么}
+
+本章 notebook 采用的是一个 teaching-first 的最小设计：
+
+\begin{itemize}
+    \item 先读取 rubric case table，并计算六个评分维度的总分；
+    \item 用“只按总分排序”做 naive baseline；
+    \item 再实现一个带 gate、最低线和修订负担的 rubric workflow；
+    \item 输出 ready、minor revision、needs revision 和 blocked 四个队列；
+    \item 为每个非 ready 项目生成 revision checklist；
+    \item 最后生成一个可以交给学生或助教使用的 case-template prompt。
+\end{itemize}
+
+这份 notebook 的重点不是训练一个自动评分器。它的重点是把评分过程变成可审计、可解释、可反馈的项目管理工具。
+
+\section{AI 助手如何帮助你}
+
+在这个案例里，AI 助手最适合帮助你：
+
+\begin{itemize}
+    \item 把一个松散项目整理成八张 case-template card；
+    \item 按 rubric 找出缺失证据、低分维度和评分前阻塞项；
+    \item 把教师反馈改写成下一周可以执行的 revision checklist；
+    \item 检查 AI-use statement 是否具体、诚实、可复核；
+    \item 帮助助教统一反馈格式，减少不同评分者之间的漂移。
+\end{itemize}
+
+但 AI 助手不应该替学生决定最终分数，也不应该替教师忽略阻塞项。最终评分必须由人类教师或课程团队完成，并且要保留清楚的判断依据。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+把教学数据中一个 \texttt{ready\_for\_grading} 项目的 \texttt{signoff\_status} 改成 \texttt{unsigned}。重新运行 notebook，观察它为什么会直接进入评分前阻塞队列。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+新增一条案例：总分高于 85，但 \texttt{modeling\_eval\_points} 只有 14。预测它会落到哪个 route，并说明为什么总分不能替代核心维度最低线。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+把你自己的 Capstone 项目整理成八张 case-template card。然后用本章 rubric 给自己做一次预评分，列出三条最重要的修订动作。
+\end{exercisebox}
+
+\section{本章小结}
+
+Capstone rubric 最重要的功能，不是把复杂项目压成一个分数，而是让每个项目在提交、评分和反馈时都有清楚的证据标准。本章把科学问题、数据可复现性、建模评估、解释局限、代码记录、报告展示、AI 使用披露和 human signoff 放进同一个 workflow。
+
+如果学生从第一周就按照这个模板组织项目，最后的评分就不再是一次突然的裁判，而是一次有记录、有依据、也能继续改进的项目复盘。

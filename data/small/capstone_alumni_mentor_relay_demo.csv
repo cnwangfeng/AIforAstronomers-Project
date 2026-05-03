@@ -1,0 +1,9 @@
+relay_id,relay_area,example_readiness_status,privacy_boundary_status,mentor_availability_status,handoff_scope_status,owner_status,continuity_score,reference_route
+M57_01,alumni_showcase_examples,ready,clear,confirmed,bounded,assigned,0.93,mentor_relay_ready
+M57_02,starter_project_gallery,partial,clear,confirmed,bounded,assigned,0.88,prepare_example_for_relay
+M57_03,mentor_office_hours,ready,clear,pending,bounded,assigned,0.91,confirm_mentor_availability
+M57_04,student_work_archive,ready,review_needed,confirmed,bounded,assigned,0.90,review_privacy_boundary
+M57_05,mentor_feedback_channel,ready,clear,confirmed,too_broad,assigned,0.82,narrow_handoff_scope
+M57_06,next_cohort_inspiration_pack,partial,clear,confirmed,bounded,assigned,0.84,prepare_example_for_relay
+M57_07,alumni_panel_invite,ready,clear,pending,bounded,missing,0.79,confirm_mentor_availability
+M57_08,research_pathway_note,ready,clear,confirmed,bounded,assigned,0.77,mentor_relay_ready

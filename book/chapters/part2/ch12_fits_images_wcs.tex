@@ -1,0 +1,300 @@
+\chapter{天文图像、FITS 与 WCS}
+
+\section{学习目标}
+
+学完本章后，你应该能够：
+
+\begin{itemize}
+    \item 理解天文图像为什么既是像素矩阵，也是带元数据的观测记录；
+    \item 说清楚 FITS 文件中 header 与 data 的分工；
+    \item 用一个最小线性近似理解 WCS 如何把像素坐标映射到天球坐标；
+    \item 写出背景修正孔径测光的最小公式，并解释每一项的物理意义；
+    \item 从一个极小教学 cutout 出发，完成“读入 $\rightarrow$ 检查 $\rightarrow$ 估背景 $\rightarrow$ 做孔径求和 $\rightarrow$ 转坐标”的完整流程。
+\end{itemize}
+
+\section{为什么图像数据比表格数据更难}
+
+在上一章里，我们处理的是星表。表格数据的优势在于：对象和属性的边界已经很清楚，一行就是一个天体，一列就是一个变量。图像数据则不同。一个二维图像数组中的每个像素值，都只是探测器上某个位置的记录值；要把它转化成“哪个天体有多亮、位于什么位置”，你必须额外完成解释步骤。
+
+因此，天文图像分析至少包含三层：
+
+\begin{enumerate}
+    \item \textbf{像素层}：看到的是一个二维数值矩阵；
+    \item \textbf{仪器层}：这些值带着背景、噪声、曝光时间和成像系统的信息；
+    \item \textbf{天体层}：你最终想知道的是源的位置、亮度、形状或与其它数据的对应关系。
+\end{enumerate}
+
+这也是为什么图像分析不能只停留在“把数组画出来”。你必须知道：像素值是什么单位、坐标原点在哪里、天空方向怎样投影到像素平面、以及背景该如何扣除。
+
+\section{FITS：为什么它是天文图像的标准容器}
+
+FITS（Flexible Image Transport System）之所以成为天文数据标准，不是因为它只是“能存图像”，而是因为它把\textbf{图像本体}和\textbf{描述图像的元数据}放在一起。
+
+最常见的 FITS 结构可以先理解成：
+
+\begin{itemize}
+    \item \textbf{header}：记录观测与仪器信息，例如曝光时间、中心坐标、像元尺度、滤光片等；
+    \item \textbf{data}：真正的图像数组或表格数据。
+\end{itemize}
+
+\begin{defbox}[FITS Header]
+FITS header 是一组键值对元数据，用来说明图像或表格的观测背景、坐标系统、仪器参数和处理信息。它不是可有可无的说明文字，而是数据解释本身的一部分。
+\end{defbox}
+
+本章的 notebook 由于要保持仓库小而可运行，不直接依赖真实二进制 FITS 文件，而是使用一个极小的 CSV 形式 cutout，再在代码中定义一个等价的教学版 header 字典。教学重点不在于文件扩展名，而在于 FITS/WCS 思维本身。
+
+\subsection{为什么“只有数组，没有 header”几乎没有科学意义}
+
+如果你只拿到一个二维数组，而不知道：
+
+\begin{itemize}
+    \item 曝光时间是多少；
+    \item 像元尺度是多少；
+    \item 参考坐标在哪里；
+    \item 数值单位是 counts、电子数还是已经校正后的流量；
+\end{itemize}
+
+那么这个数组在科学上几乎是“半失明”的。你当然还能把它画出来，但你已经很难回答：
+
+\begin{itemize}
+    \item 一个源到底有多亮；
+    \item 这个亮度能否和另一张图比较；
+    \item 图中的位置如何映射到天球坐标；
+    \item 观测条件是否让这张图天然更亮或更暗。
+\end{itemize}
+
+这正是 FITS 容器设计的思想价值所在：\textbf{数据本体和数据解释条件必须被绑在一起保存。}
+
+\subsection{教学上最值得优先认识的 header 关键词}
+
+真实 FITS header 可以很长，但教学阶段最值得优先认识的是：
+
+\begin{itemize}
+    \item \texttt{NAXIS}, \texttt{NAXIS1}, \texttt{NAXIS2}：图像维度信息；
+    \item \texttt{EXPTIME}：曝光时间；
+    \item \texttt{FILTER}：滤光片或波段；
+    \item \texttt{CRPIX}：参考像素位置；
+    \item \texttt{CRVAL}：参考天球坐标；
+    \item \texttt{CDELT}：像元尺度。
+\end{itemize}
+
+只要这几类关键词的角色真的建立起来，学生后面进入真实 FITS 图像时就不再只是“会打开文件”，而会自然追问“这些数字该怎么解释”。
+
+\section{图像数组：从像素矩阵开始}
+
+一张天文图像最基本的数学对象，是二维数组：
+
+\[
+I_{ij}, \qquad i = 1,2,\dots,N_x,\quad j = 1,2,\dots,N_y.
+\]
+
+这里的 $I_{ij}$ 是第 $(i,j)$ 个像素上的数值。这个数值可能表示：
+
+\begin{itemize}
+    \item 原始计数（counts）；
+    \item 已校正后的探测器响应；
+    \item 某种近似流量刻度；
+    \item 处理中间产品。
+\end{itemize}
+
+在本章的教学 cutout 中，我们先把它简单理解成“背景上叠加一个中心天体信号的 counts 图”。这个设定足够支持最小测光算法，却又不会让概念被复杂仪器细节淹没。
+
+\subsection{像素值为什么不能直接等于“源亮度”}
+
+这一点对初学者来说非常关键。单个像素值只是局部记录，它可能同时包含：
+
+\begin{itemize}
+    \item 天体本身的光；
+    \item 背景天空的贡献；
+    \item 探测器读出噪声；
+    \item 热噪声和处理残差。
+\end{itemize}
+
+因此，图像分析中真正需要的不是“某个像素最亮”，而是“围绕源的一组像素，在背景扣除后留下多少净信号”。这也是为什么本章要把孔径求和和背景估计绑在一起讲。
+
+\section{WCS：为什么像素坐标还不够}
+
+如果图像里一个源的中心在像素 $(x,y)$，这只是探测器坐标。真正科学上更有用的问题通常是：它在天空中的赤经 $\alpha$ 和赤纬 $\delta$ 是多少。
+
+WCS（World Coordinate System）就是把“像素坐标”映射到“天球坐标”的规则。在最小线性近似下，可以把这种关系写成：
+
+\[
+\Delta \alpha \cos \delta_0 \approx s_x \, \Delta x,
+\qquad
+\Delta \delta \approx s_y \, \Delta y,
+\]
+
+其中：
+
+\begin{itemize}
+    \item $(\alpha_0,\delta_0)$ 是参考天空位置；
+    \item $\Delta x, \Delta y$ 是相对于参考像素的位置差；
+    \item $s_x, s_y$ 是像元尺度（以角度/像素计）。
+\end{itemize}
+
+若把 FITS 里常见的关键词引入进来，就得到更接近教学实践的写法：
+
+\[
+\alpha \approx \alpha_0 + \frac{(x-x_0)\,\mathrm{CDELT1}}{\cos\delta_0},
+\qquad
+\delta \approx \delta_0 + (y-y_0)\,\mathrm{CDELT2},
+\]
+
+这里 $(x_0,y_0)$ 对应 \texttt{CRPIX}，$(\alpha_0,\delta_0)$ 对应 \texttt{CRVAL}，而 \texttt{CDELT} 则给出像元尺度。
+
+\begin{protip}[本章的 WCS 处理是线性近似]
+真实 WCS 可以包含旋转、投影畸变甚至更复杂的变换。教学阶段先用线性近似，是为了把“像素到天空坐标”的基本思想讲清楚，而不是一开始就陷入投影细节。
+\end{protip}
+
+\subsection{为什么参考像素和参考坐标必须成对理解}
+
+很多学生第一次看到 \texttt{CRPIX} 和 \texttt{CRVAL} 时，会把它们当成两组独立参数来记忆。更好的理解方式是把它们看成一对：
+
+\begin{itemize}
+    \item \texttt{CRPIX} 说明“在像素平面上，从哪里开始量位置偏移”；
+    \item \texttt{CRVAL} 说明“这个参考像素在天球上对应什么坐标”。
+\end{itemize}
+
+WCS 并不是凭空把所有像素都映射到天空，而是先抓住一个参考锚点，再根据尺度和方向把周围像素展开出去。只要这个锚点思想真正建立起来，后面的更复杂旋转矩阵或投影变换就更容易理解。
+
+\section{背景与孔径测光：最小亮度估计}
+
+图像上一个亮源的像素值，不全都来自天体本身。背景天空、探测器读出、散射光等都会贡献信号。因此，最基本的测光思想是：
+
+\begin{enumerate}
+    \item 先估计背景平均值；
+    \item 在源周围定义一个孔径；
+    \item 计算孔径内总计数；
+    \item 从总计数中减去同等面积背景贡献。
+\end{enumerate}
+
+若孔径总和记为 $S_{\mathrm{ap}}$，背景平均值记为 $B$，孔径内像素数记为 $N_{\mathrm{pix}}$，那么背景修正后的净信号为：
+
+\[
+S_{\mathrm{net}} = S_{\mathrm{ap}} - N_{\mathrm{pix}} B.
+\]
+
+如果进一步定义一个仪器零点 $ZP$，就可以得到最小的仪器星等关系：
+
+\[
+m_{\mathrm{inst}} = ZP - 2.5\log_{10} S_{\mathrm{net}}.
+\]
+
+本章并不追求把测光讲成完整天文测光课程，但学生必须理解：\textbf{从图像到亮度，最少也要经过背景估计与孔径求和这一步。}
+
+\subsection{孔径半径为什么总是一个折中问题}
+
+孔径选得太小，会漏掉源外侧本该属于目标的光；孔径选得太大，又会把更多背景噪声和邻近污染一起卷进去。于是，孔径半径总是一个折中：
+
+\begin{itemize}
+    \item 小孔径：信号损失更明显，但背景污染更少；
+    \item 大孔径：信号收集更完整，但背景与邻源影响更强。
+\end{itemize}
+
+这也是为什么真实测光任务里，孔径选择往往不会是纯粹的几何决定，而要结合 seeing、源形状和科学目标来判断。
+
+\subsection{背景估计为什么常比想象中更难}
+
+在教学 cutout 中，我们用边缘像素的平均值当作背景近似，这已经足够讲清最小算法。但在真实图像里，背景估计常常更复杂，因为：
+
+\begin{itemize}
+    \item 背景可能在空间上缓慢变化；
+    \item 邻近源可能污染背景区域；
+    \item 仪器结构和散射光会让“背景”不是单一常数。
+\end{itemize}
+
+因此，本章的平均背景只是“最小入门近似”，而不是通用最优方案。教学上重要的是先理解为什么必须估背景，然后再进入更复杂的背景建模。
+
+\section{教学 cutout 的组织方式}
+
+本章配套数据文件 \nolinkurl{fits_wcs_cutout_demo.csv} 是一个极小的 $7\times7$ cutout。每一行记录：
+
+\begin{itemize}
+    \item 像素横坐标 \texttt{x\_pix}；
+    \item 像素纵坐标 \texttt{y\_pix}；
+    \item 该像素的计数值 \texttt{counts}。
+\end{itemize}
+
+这个 cutout 的设计思想是：
+
+\begin{itemize}
+    \item 边缘像素提供背景估计；
+    \item 中心附近像素构成一个明显源；
+    \item 数组足够小，学生可以直接观察数值结构；
+    \item WCS 关键词则由 notebook 中的教学版 header 字典提供。
+\end{itemize}
+
+\section{从图像到物理量：一个最小算法框架}
+
+把本章内容压缩成最小工作流，可以写成：
+
+\begin{enumerate}
+    \item 读入图像数组；
+    \item 读入并检查元数据；
+    \item 确认参考像素、尺度和坐标定义；
+    \item 估计背景；
+    \item 定义孔径并求和；
+    \item 计算背景修正净信号；
+    \item 如有需要，再把像素位置映射到天球坐标。
+\end{enumerate}
+
+这条流程看上去很短，但它已经比“把图显示出来然后观察”多出了一层真正的科研结构。后面的源检测、PSF 测光和更复杂图像建模，都是在这条最小骨架上继续向前发展。
+
+\section{配套 notebook 做了什么}
+
+配套 notebook 采用的是一条非常典型、也非常教材化的图像分析主线：
+
+\begin{itemize}
+    \item 先读取 cutout CSV，并重建二维像素矩阵；
+    \item 定义一个最小教学版 WCS header；
+    \item 用边缘像素估计背景平均值；
+    \item 在中心源周围做圆孔径求和；
+    \item 计算背景修正净信号；
+    \item 把中心像素位置转换成近似天空坐标；
+    \item 如果安装了 \texttt{matplotlib}，再画出这张教学图像并标出孔径位置。
+\end{itemize}
+
+也就是说，本章真正要教的不是某个库接口，而是一条最小的“图像到物理量”算法。
+
+\section{常见错误}
+
+\begin{warnbox}[图像、FITS 与 WCS 中的典型问题]
+\begin{itemize}
+    \item 只看像素数组，不看 header；
+    \item 在没有做背景估计的情况下直接把孔径总和当成源亮度；
+    \item 把像素坐标误当成天球坐标；
+    \item 忽略像元尺度或坐标参考点；
+    \item 图像画出来了，却说不清每个像素值和最终物理量的关系。
+\end{itemize}
+\end{warnbox}
+
+\section{AI 助手如何帮助你}
+
+在这一章，AI 助手适合帮助你：
+
+\begin{itemize}
+    \item 把背景估计和孔径求和逻辑整理得更清楚；
+    \item 帮你检查 WCS 线性近似中的变量定义是否一致；
+    \item 根据 cutout 布局帮你写出更清楚的图像解读说明；
+    \item 提醒你某一步是否忽略了 header、单位或参考点信息。
+\end{itemize}
+
+但像素值到底代表什么、某个背景估计是否合理、这组 WCS 参数是否可信，仍然必须由你自己根据数据来源和物理背景来判断。
+
+\section{练习}
+
+\begin{exercisebox}[基础练习]
+改变孔径半径的定义，比较背景修正净信号的变化，并解释为什么孔径选得过小或过大都会带来问题。
+\end{exercisebox}
+
+\begin{exercisebox}[进阶练习]
+从本章给出的线性近似 WCS 公式出发，解释为什么在赤经方向上要出现 $\cos \delta_0$ 这一因子。
+\end{exercisebox}
+
+\begin{exercisebox}[开放练习]
+为一个真实图像项目写一页“图像分析前检查清单”，至少包含：header、像元尺度、背景估计、孔径定义、坐标系统和输出量含义。
+\end{exercisebox}
+
+\section{本章小结}
+
+图像分析不是“先把图显示出来，再看着办”，而是一条从像素矩阵、header 元数据、WCS 变换到背景修正信号估计的完整链条。本章用一个极小 cutout 把这条链条缩到最小尺度，目的是让你在进入真实天文图像与测光任务之前，先建立正确的结构直觉。

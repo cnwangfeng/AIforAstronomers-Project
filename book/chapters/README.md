@@ -13,7 +13,7 @@ Current organization:
 - `part5/`: deep learning and modern AI.
 - `part6/`: capstone project, course package, and handoff materials.
 
-The current Part III--VI synthesis layer uses a shared capstone evidence-card
+The current Part I--VI synthesis layer uses a shared capstone evidence-card
 frame: Project, Data, Baseline, Model, Evaluation, Interpretation,
 Reproducibility, and Integrity. New revisions should preserve that handoff
 instead of creating isolated reporting templates.

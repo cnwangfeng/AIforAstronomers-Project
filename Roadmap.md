@@ -62,7 +62,7 @@
 
 最近一次验证状态：
 
-- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `440`。
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `441`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
@@ -92,15 +92,17 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：约 `440` 页
+- 中文书稿当前页数：约 `441` 页
 
 ### 0.3 各部分完成度
 
 `Part 0. Python 先修模块`
 
 - 已建立 notebook-first 结构。
-- 已有基础 notebook：Python 入门、条件与循环、函数与模块、轻量 OOP。
-- 角色定位已经明确：只承担先修，不再占用正文主线篇幅。
+- 已形成四个先修 notebook，分别覆盖 Python 入门、条件与循环、函数与模块、轻量 OOP。
+- 先修底线已明确覆盖 notebook 执行顺序、变量与容器、`Path` / `csv`、`if` / `for` / `while`、函数与模块、随机种子、对象与方法接口。
+- 角色定位已经明确：只承担正文外先修，不再占用正文主线篇幅，也不继续扩成第二本 Python 教材。
+- `book/main_zh.tex` 的“读者准备”已经加入跳过/补修诊断清单。
 
 `Part I. 科研计算基础`
 
@@ -109,6 +111,7 @@
 - 配套 notebook 已同步到当前正文主线，并通过完整 smoke test。
 - 轻量二轮补强已加入 Linux 安全操作、好提交标准、最小脚本交付、I/O 检查记录和图表自审清单。
 - 深读补强已经开始，当前新增重点是 Linux/shell 执行模型、Git 结果版本线索、notebook/script/module 分工、数据契约、科研图表视觉编码风险，以及每章正文到 notebook 的桥接说明。
+- 章节入口已明确标出 Part 0 前置能力：`Path` / `csv.DictReader`、基础控制流、函数封装和对象方法调用。
 - 后续重点从“大面积补写”转为逐章细读：统一术语、补交叉引用、补图表说明、补习题层次，并检查每章是否真正从概念引入走到可复现实操。
 
 `Part II. 天文/物理数据处理`
@@ -116,6 +119,7 @@
 - `ch10` 到 `ch15` 已接入 `book/main_zh.tex`，覆盖误差与不确定度、Gaia HR 图、FITS/WCS、光谱、时间序列与物理实验数据。
 - 配套小数据和 notebook 已建立，并通过完整 smoke test。
 - 第二轮教材化校订已经完成一轮全章检查，并补入多处“公式到算法到代码”的桥接段；下一步应先阅读、同步或根据反馈微调，而不是继续无限扩写。
+- 章节入口已明确标出 Part 0 前置能力：表格读取、循环筛选、函数封装、对象方法调用与随机种子意识。
 
 `Part III. 机器学习实战主线`
 
@@ -323,7 +327,7 @@ bash scripts/build_book_local.sh zh
 截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `440` 页）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `441` 页）
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
 上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。
@@ -555,8 +559,9 @@ AIforAstronomers/
 组织原则：
 
 - 以 notebook-first 为主。
-- 只覆盖进入正文所需的最低限度语法与代码组织能力。
+- 只覆盖进入正文所需的最低限度语法与代码组织能力，但这部分必须足以支撑后续 Part I/II 的阅读与练习。
 - 完成后应能读懂并修改基础 notebook，而不是成为一门独立的 Python 课程。
+- `book/chapters/part0/` 只保留可选 LaTeX 支持材料；主教材不 include Part 0。
 
 预备单元 A：Python 入门
 

@@ -1,17 +1,20 @@
-# Part 0 Drafts
+# Part 0: Python Prerequisite Module
 
-This directory stores the Python prerequisite materials that sit outside the
-main textbook spine.
+This directory stores optional LaTeX notes for the Python prerequisite module.
+Part 0 sits outside the main textbook spine and is not included by
+`book/main_zh.tex`.
 
 Part 0 is intentionally narrow: it should only teach the Python needed to enter
 the real textbook, not become a second standalone programming book.
 
-Current draft targets:
+Current LaTeX support note:
 
 - `ch03_basic_python_prereq.tex`
 
-Planned next drafts:
+Primary Part 0 materials live in:
 
-- `ch05_conditionals_loops.tex`
-- `ch07_functions_modules.tex`
-- `ch09_object_oriented_programming.tex`
+- `notebooks/part0_python_prereq/`
+
+Do not expand this directory into a full Python textbook unless the main course
+structure changes. New prerequisite material should normally be added as a small
+notebook-first supplement.

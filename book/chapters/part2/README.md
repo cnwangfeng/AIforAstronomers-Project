@@ -19,4 +19,5 @@ Current status:
 
 - The current pass is a textbook-depth refinement pass, not a new-chapter expansion.
 - Each chapter should connect concepts, formulas, algorithmic steps, code bridges, common errors, AI-assistant usage, exercises, and a short summary.
+- Part II assumes the reader has Part 0 under control and can follow small Python workflows with tables, loops, functions, and object-method calls without stopping to relearn the basics.
 - Before committing Part II changes, run `bash scripts/build_book_local.sh zh`, `python scripts/smoke_test_notebooks.py`, and `git diff --check`.

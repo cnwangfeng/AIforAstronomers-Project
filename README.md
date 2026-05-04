@@ -65,7 +65,7 @@ RELEASE_SYNC_CHECKLIST.md        # 最终同步与发布检查清单
 
 - `book/main_zh.tex` 对应教材正文主线；
 - `notebooks/part0_python_prereq/` 对应 Python 先修材料；
-- 后续会逐步把更通用的 Python 基础内容从正文迁到 `Part 0`。
+- `Part 0` 保持正文外 notebook-first 先修定位，不作为主书稿的正式部分扩写。
 
 ## 基本工作流
 

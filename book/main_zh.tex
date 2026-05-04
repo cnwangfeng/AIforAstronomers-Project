@@ -272,6 +272,19 @@
 
 如果你还不熟悉变量、容器、条件、循环、函数、模块和轻量面向对象接口，请先完成项目中的 Part 0 先修材料，再进入正文主线。Part 0 采用 notebook-first 组织，目的是补齐必要基础，而不占用本书主体的 AI 与科研工作流篇幅。
 
+可以用下面的清单判断自己是否需要先补 Part 0：
+
+\begin{itemize}
+    \item 能否从头到尾运行一个 notebook，并理解单元执行顺序；
+    \item 能否修改变量、列表、字典和简单表达式；
+    \item 能否读懂 \texttt{Path} 与 \texttt{csv.DictReader} 组成的最小数据读取示例；
+    \item 能否读懂 \texttt{if}、\texttt{for}、函数和 \texttt{import}；
+    \item 能否理解随机种子、路径和简单输出文件为什么会影响复现；
+    \item 能否识别 \texttt{table.read()}、\texttt{model.fit()} 这类对象方法调用。
+\end{itemize}
+
+如果这些问题大多已经清楚，可以直接从第 1 章进入正文；如果其中几项还不熟悉，建议先把 Part 0 当作课前热身，而不是把它当作本书正文的一部分。
+
 \include{chapters/part1/ch01_unix_linux_scientific_computing}
 \include{chapters/part1/ch02_git_reproducible_research}
 \include{chapters/part1/ch04_libraries_scripts_jupyter}

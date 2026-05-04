@@ -19,9 +19,9 @@
 
 正文结构说明：
 
-- 通用 Python 入门内容正在迁移到 `Part 0` 先修模块；
+- 通用 Python 入门内容已经下沉到 `Part 0` 先修模块；
 - `main_zh.tex` 默认不再承载 Python 零基础教学，而是从科研工作流主线进入；
-- `Part 0` 更适合以 notebook-first 形式组织，必要时再补充独立文字材料。
+- `Part 0` 保持 notebook-first、正文外、短先修定位，不继续扩成第二本 Python 教材。
 
 推荐的本地编译方式：
 

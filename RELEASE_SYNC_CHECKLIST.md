@@ -35,7 +35,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 bash scripts/sync_book_to_overleaf.sh
 ```
 
-- Review the dry-run file list carefully
+- Review the itemized dry-run file list carefully
 - Check for accidental large-file or notebook-output leakage
 - Confirm only intended `book/` content will be synced
 

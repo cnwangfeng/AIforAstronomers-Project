@@ -28,6 +28,7 @@ fi
 
 RSYNC_ARGS=(
   -av
+  --itemize-changes
   --delete
   --exclude ".git/"
   --exclude ".gitignore"

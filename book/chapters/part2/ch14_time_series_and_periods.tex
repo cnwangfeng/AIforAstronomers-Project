@@ -69,7 +69,7 @@ y(t) = C + A\sin\left(\frac{2\pi t}{P} + \phi\right) + \epsilon(t),
 
 \subsection{均匀采样直觉和不均匀采样现实并不一样}
 
-很多学生第一次学周期信号时，会自然想到“采样频率至少要高于信号频率的两倍”这一类 Nyquist 直觉。这个思想在均匀采样情形下非常重要，但在天文时域数据里，观测时刻往往并不均匀：
+很多学生第一次学周期信号时，会自然想到 Nyquist 采样直觉：采样频率至少要高于信号频率的两倍。这个思想在均匀采样情形下非常重要，但在天文时域数据里，观测时刻往往并不均匀：
 
 \begin{itemize}
     \item 夜间观测会被白天中断；
@@ -123,6 +123,33 @@ y(t) = C + A\sin\left(\frac{2\pi t}{P} + \phi\right) + \epsilon(t),
     \item 它常常比只看原始时间轴更容易暴露错误周期。
 \end{itemize}
 
+\subsection{相位分箱为什么有用}
+
+当折叠后的点仍然很散时，常见做法是在相位区间里再做分箱平均。这样做不是为了“把噪声抹掉”，而是为了更容易比较不同候选周期下的整体形状。
+
+若把相位区间分成若干箱，第 $k$ 个箱中的平均值可以写成：
+
+\[
+\bar{y}_k = \frac{1}{n_k}\sum_{i \in \mathrm{bin}\,k} y_i,
+\]
+
+其中 $n_k$ 是该箱中的点数。配套 notebook 里的相位分箱摘要，本质上就是在做这件事。
+
+\begin{examplebox}[最小相位分箱统计]
+\begin{lstlisting}[style=pythonstyle]
+def phase_bin_summary(folded_points, n_bins=5):
+    bins = [[] for _ in range(n_bins)]
+    for phase, flux in folded_points:
+        index = min(int(phase * n_bins), n_bins - 1)
+        bins[index].append(flux)
+    return [
+        (bin_index / n_bins, sum(values) / len(values), len(values))
+        for bin_index, values in enumerate(bins)
+        if values
+    ]
+\end{lstlisting}
+\end{examplebox}
+
 \section{从正弦模型到最小周期搜索}
 
 如果把上面的周期模型展开成
@@ -148,6 +175,37 @@ y(t) = C + a\sin\omega t + b\cos\omega t + \epsilon(t),
 
 最优周期通常对应较小的 $\chi^2$。这其实已经很接近周期图方法的基本思想。Lomb--Scargle 周期图之所以经典，就是因为它专门针对不均匀采样情形，把“给定频率下正弦拟合好不好”这件事写成了更系统的频域统计量。
 
+\subsection{固定周期后，求的是线性系数}
+
+当候选周期 $P$ 固定后，未知量不再是周期本身，而是系数 $C$、$a$ 和 $b$。这时问题可以写成一个很小的线性代数系统：
+
+\[
+\begin{bmatrix}
+1 & \sin \omega t_1 & \cos \omega t_1 \\
+1 & \sin \omega t_2 & \cos \omega t_2 \\
+\vdots & \vdots & \vdots \\
+1 & \sin \omega t_N & \cos \omega t_N
+\end{bmatrix}
+\begin{bmatrix}
+C \\ a \\ b
+\end{bmatrix}
+\approx
+\begin{bmatrix}
+y_1 \\ y_2 \\ \vdots \\ y_N
+\end{bmatrix}.
+\]
+
+这也是为什么很多周期搜索实现会先扫周期，再在每个候选周期上解一个最小二乘问题。对教学阶段来说，真正重要的是看见这一步：\textbf{周期是外层搜索变量，振幅和偏移是内层线性参数。}
+
+\begin{examplebox}[最小相位折叠函数]
+\begin{lstlisting}[style=pythonstyle]
+from math import floor
+
+def phase_fold(times, period):
+    return [(t / period) - floor(t / period) for t in times]
+\end{lstlisting}
+\end{examplebox}
+
 \subsection{把“扫描周期”改写成“扫描频率”更自然}
 
 虽然教学里我们更常直接说“扫描周期”，但从算法角度看，很多周期搜索其实更自然地是在扫描频率
@@ -167,6 +225,28 @@ f = \frac{1}{P},
 \end{itemize}
 
 因此，周期和频率只是两种等价视角；真正重要的是你是否清楚自己扫描的网格是什么、分辨率够不够，以及网格是否已经覆盖了想找的时间尺度。
+
+\subsection{候选周期网格怎么选}
+
+周期搜索开始前，应该先写清楚候选范围和网格间隔，而不是随手给一组数字。一个最小判断可以从三个量出发：
+
+\begin{itemize}
+    \item 总时间跨度 $T=t_{\max}-t_{\min}$ 决定你对低频结构的分辨能力；
+    \item 最短相邻观测间隔和典型 cadence 限制你能否看见快速变化；
+    \item 科学问题本身决定哪些周期范围有物理意义。
+\end{itemize}
+
+在频率空间里，常用的粗略直觉是相邻候选频率间隔应小于
+
+\[
+\Delta f \sim \frac{1}{T},
+\]
+
+实际扫描时还常会再做几倍 oversampling，以免错过峰值附近的结构。但更密的网格并不自动带来更可信的周期，它只是让候选更细；最终仍要靠折叠曲线、残差和采样窗口共同判断。
+
+\begin{warnbox}[搜索范围本身也是假设]
+如果你只在 $0.5$ 到 $2$ 天之间搜索周期，就不可能发现 $10$ 天周期。周期搜索结果必须和候选范围一起报告，否则读者无法判断“没找到”到底是物理结论，还是搜索范围太窄。
+\end{warnbox}
 
 \begin{protip}[本章 notebook 的算法是教材化简版]
 配套 notebook 不直接依赖科学计算重库，而是用一个极小的数据集和手写的最小线性代数步骤，演示“扫描候选周期并比较拟合残差”的核心思想。真正的 Lomb--Scargle 实现可以留到后续扩展或使用 \texttt{astropy} 时再系统展开。
@@ -206,6 +286,20 @@ f = \frac{1}{P},
 \end{itemize}
 
 这一层检查很重要，因为它把“数学候选”进一步转成“是否像真实周期信号”的判断。
+
+\section{候选周期应该怎样记录}
+
+一个更像科研记录的周期搜索结果，不应只保存最佳周期，而应至少记录前几个候选。每个候选可以包含：
+
+\begin{itemize}
+    \item 候选周期或频率；
+    \item 拟合残差、$\chi^2$ 或周期图功率；
+    \item 相位覆盖是否充分；
+    \item 折叠曲线是否平滑；
+    \item 是否接近已知窗口周期或混叠位置。
+\end{itemize}
+
+这种记录方式有一个直接好处：当后续加入更多数据、改变误差模型或改用 Lomb--Scargle 实现时，你可以回头比较候选排名是否稳定，而不是只记得“上次算出来一个周期”。
 
 \section{配套 notebook 做了什么}
 

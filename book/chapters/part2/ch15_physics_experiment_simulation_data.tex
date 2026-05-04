@@ -172,6 +172,47 @@ r_i = y_i - y_{\mathrm{model}}(x_i;\theta).
     \item 若 $\chi^2_\nu$ 接近 $1$，说明模型与误差量级大致一致，但仍不代表模型必然物理正确。
 \end{itemize}
 
+\section{参数搜索：从网格到最佳模型}
+
+在入门阶段，我们不必一开始就依赖复杂优化器。对只有一个主要参数 $\tau$ 的指数衰减模型，可以先用网格搜索建立最小算法直觉：
+
+\begin{enumerate}
+    \item 给定一组候选 $\tau$；
+    \item 对每个 $\tau$ 计算模型曲线 $V(t;\tau)$；
+    \item 计算对应的加权 $\chi^2(\tau)$；
+    \item 选择 $\chi^2$ 最小的候选作为当前最佳估计；
+    \item 再检查残差是否支持这个模型解释。
+\end{enumerate}
+
+如果模型还包含 $V_0$，可以把它一起放入网格，也可以在固定 $\tau$ 时求最优幅度。无论采用哪种实现，教学上最重要的是：\textbf{参数估计不是魔法函数给出的数字，而是模型预测和观测数据反复比较后的结果。}
+
+\begin{examplebox}[一维参数搜索的最小形状]
+\begin{lstlisting}[style=pythonstyle]
+best = None
+for tau in candidate_taus:
+    predictions = [v0 * math.exp(-time / tau) for time in times]
+    chi2 = sum(((obs - pred) / sigma) ** 2
+               for obs, pred, sigma in zip(voltages, predictions, sigmas))
+    if best is None or chi2 < best["chi2"]:
+        best = {"tau": tau, "chi2": chi2}
+\end{lstlisting}
+\end{examplebox}
+
+\section{残差图应该怎样读}
+
+残差分析的第一步不是计算更多指标，而是看残差是否还有结构。对指数衰减实验来说，可以特别检查：
+
+\begin{itemize}
+    \item 早期残差是否整体同号，暗示初始条件或响应延迟有问题；
+    \item 晚期残差是否随时间系统偏离，暗示背景偏置或噪声模型不对；
+    \item 残差大小是否明显超过误差条，暗示 $\sigma_i$ 可能被低估；
+    \item 残差是否呈随机上下波动，说明当前模型至少解释了主要趋势。
+\end{itemize}
+
+\begin{warnbox}[好看的曲线不等于好模型]
+一条曲线看起来穿过数据点，只能说明视觉上相近；残差是否有结构、参数是否有单位、模型是否来自机制关系，才决定它能否作为物理解释。
+\end{warnbox}
+
 \section{为什么模拟是实验分析的一部分}
 
 许多初学者把“实验数据分析”和“数值模拟”当成两件完全分开的事，但在科学实践中，两者往往是一条闭环：
@@ -190,6 +231,16 @@ V_{n+1} = V_n - \frac{\Delta t}{\tau} V_n.
 \]
 
 当 $\Delta t$ 足够小时，这个离散模型会逼近连续的指数衰减解。教学上，这能帮助学生理解“解析解”和“数值推进”之间的联系。
+
+\begin{examplebox}[最小前向模拟]
+\begin{lstlisting}[style=pythonstyle]
+def forward_euler_decay(v0, tau, dt, n_steps):
+    values = [v0]
+    for _ in range(n_steps):
+        values.append(values[-1] - (dt / tau) * values[-1])
+    return values
+\end{lstlisting}
+\end{examplebox}
 
 \section{为什么不能盲目做对数线性化}
 

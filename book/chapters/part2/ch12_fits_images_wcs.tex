@@ -157,6 +157,10 @@ WCS（World Coordinate System）就是把“像素坐标”映射到“天球坐
 
 WCS 并不是凭空把所有像素都映射到天空，而是先抓住一个参考锚点，再根据尺度和方向把周围像素展开出去。只要这个锚点思想真正建立起来，后面的更复杂旋转矩阵或投影变换就更容易理解。
 
+\begin{warnbox}[像素坐标约定必须先说清楚]
+真实 FITS/WCS 文档、Python 数组索引和绘图坐标有时采用不同的起点约定。Python 数组索引通常从 $0$ 开始，而 FITS 关键词里的参考像素常按天文约定书写。教学代码可以采用统一的简化约定，但真实项目中必须明确：当前公式里的 $x,y$ 到底是数组索引、像素中心坐标，还是 FITS/WCS 坐标。
+\end{warnbox}
+
 \section{背景与孔径测光：最小亮度估计}
 
 图像上一个亮源的像素值，不全都来自天体本身。背景天空、探测器读出、散射光等都会贡献信号。因此，最基本的测光思想是：
@@ -181,6 +185,26 @@ m_{\mathrm{inst}} = ZP - 2.5\log_{10} S_{\mathrm{net}}.
 \]
 
 本章并不追求把测光讲成完整天文测光课程，但学生必须理解：\textbf{从图像到亮度，最少也要经过背景估计与孔径求和这一步。}
+
+\subsection{净信号的不确定度从哪里来}
+
+背景修正后的 $S_{\mathrm{net}}$ 也不是一个绝对精确的数。即使孔径位置完全正确，净信号的不确定度至少会受到两类波动影响：
+
+\begin{itemize}
+    \item 孔径内像素本身的噪声；
+    \item 背景平均值估计的不确定度。
+\end{itemize}
+
+若孔径内每个像素的方差为 $\sigma_i^2$，背景区域有 $N_B$ 个像素，背景像素样本方差为 $s_B^2$，一个最小近似可以写成：
+
+\[
+\sigma^2(S_{\mathrm{net}})
+\approx
+\sum_{i\in \mathrm{ap}}\sigma_i^2
++ N_{\mathrm{pix}}^2\frac{s_B^2}{N_B}.
+\]
+
+第一项说明孔径内像素越多，孔径噪声会累积；第二项说明背景均值虽然是从背景区域估出来的，但它被乘以 $N_{\mathrm{pix}}$ 后会影响整个孔径修正。真实测光还会加入 Poisson 噪声、读出噪声、增益和零点误差等项，但这个最小公式已经足以说明：\textbf{背景不是扣掉就消失了，它的不确定度也会跟着进入结果。}
 
 \subsection{孔径半径为什么总是一个折中问题}
 
@@ -239,6 +263,22 @@ m_{\mathrm{inst}} = ZP - 2.5\log_{10} S_{\mathrm{net}}.
 \end{enumerate}
 
 这条流程看上去很短，但它已经比“把图显示出来然后观察”多出了一层真正的科研结构。后面的源检测、PSF 测光和更复杂图像建模，都是在这条最小骨架上继续向前发展。
+
+\section{把公式落到代码}
+
+前面的背景修正和 WCS 线性近似，都可以直接写成最小代码。这样做的目的，不是把物理压缩成几行脚本，而是让学生看到公式、变量和计算步骤之间的对应关系。
+
+\begin{examplebox}[背景修正与坐标映射的最小代码]
+\begin{lstlisting}[style=pythonstyle]
+import math
+
+background_mean = sum(background_pixels) / len(background_pixels)
+net_flux = aperture_sum - aperture_n_pix * background_mean
+
+ra_deg = crval1 + (x_pix - crpix1) * cdelt1 / math.cos(math.radians(crval2))
+dec_deg = crval2 + (y_pix - crpix2) * cdelt2
+\end{lstlisting}
+\end{examplebox}
 
 \section{配套 notebook 做了什么}
 

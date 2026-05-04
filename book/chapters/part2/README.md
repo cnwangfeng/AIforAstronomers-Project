@@ -1,13 +1,12 @@
-# Part II Drafts
+# Part II: Astronomy and Physics Data Processing
 
-This directory stores the future Chinese drafts for Part II: Astronomy and
+This directory stores the Chinese textbook chapters for Part II: Astronomy and
 Physics Data Processing.
 
-These files are not yet included by `book/main.tex`. They are being developed
-here first so the textbook can grow in Chinese without destabilizing the
-current Overleaf entry point.
+These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
+remains a separate stable entry point.
 
-Current draft targets:
+Current chapter files:
 
 - `ch10_measurement_uncertainty.tex`
 - `ch11_gaia_hr_diagram.tex`
@@ -15,3 +14,9 @@ Current draft targets:
 - `ch13_spectroscopy.tex`
 - `ch14_time_series_and_periods.tex`
 - `ch15_physics_experiment_simulation_data.tex`
+
+Current status:
+
+- The current pass is a textbook-depth refinement pass, not a new-chapter expansion.
+- Each chapter should connect concepts, formulas, algorithmic steps, code bridges, common errors, AI-assistant usage, exercises, and a short summary.
+- Before committing Part II changes, run `bash scripts/build_book_local.sh zh`, `python scripts/smoke_test_notebooks.py`, and `git diff --check`.

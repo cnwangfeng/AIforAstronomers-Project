@@ -1,8 +1,8 @@
 # Roadmap: 面向天文与物理本科生的 AI 实战教材
 
-版本日期：2026-05-03
+版本日期：2026-05-04
 
-## 0. 当前进展快照（2026-05-03）
+## 0. 当前进展快照（2026-05-04）
 
 本节用于会话切换、阶段交接和快速恢复工作状态；后续如需继续编写，请优先阅读本节。
 
@@ -13,56 +13,46 @@
 - `AIforAstronomers-Project/`：完整项目仓库，保存教材正文、notebooks、data、scripts、环境文件和课程资源。
 - `AIforAstronomers/`：Overleaf 同步书稿仓库，只保存 LaTeX 书稿和编译所需资源。
 
-截至本节编写前，最近完成的主题提交包括：
+截至本节编写前，最近已经推送的主题提交包括：
 
-- 完整项目仓库：`8fc2242`，提交信息 `Add Part IV galaxy-morphology case study draft`
-- Overleaf 书稿仓库：`9d4bd17`，提交信息 `Add Part IV galaxy-morphology case study draft`
+- 完整项目仓库：`889ac1a`，提交信息 `Complete textbook refresh and capstone expansion`
+- Overleaf 书稿仓库：`4da027b`，提交信息 `Sync textbook refresh and capstone chapters`
 
-当前完整项目仓库工作区已包含一组尚未提交的后续改动，主要是：
+本轮 `Part II` 第二轮教材化检查已经完成，完整项目仓库准备提交一个集中 checkpoint；Overleaf 书稿仓库当前为干净状态，但尚未同步这组新的 `Part II` 改动。
 
-- 第 29 章 `notebook`：`notebooks/part4_cases/ch29_galaxy_morphology_case_study.ipynb`
-- 第 29 章教学数据：`data/small/galaxy_morphology_case_demo.csv`
-- 第 29 章正文增强：`book/chapters/part4/ch29_galaxy_morphology_case_study.tex`
-- 第 30 章正文 / notebook / data：神经网络基础入口章节已接入 `Part V`
-- 第 31 章正文 / notebook / data：卷积与图像局部特征入口章节已接入 `Part V`，并从最小 source/target 迁移学习扩展到 `cnn_transfer_workflow_demo`、pure Python 的 tiny trainable `Conv2d`、validation threshold 与 review queue
-- 第 32 章正文 / notebook / data：一维卷积与光谱局部模式章节已接入 `Part V`，并补上第二组 workflow 教学数据、continuum normalization / quality gate / review queue 扩展，以及纯 Python 的 tiny trainable `Conv1d` learner
-- 第 33 章正文 / notebook / data：表示学习、自编码器与重构误差章节已接入 `Part V`，并补上 validation-calibrated anomaly workflow、latent 诊断，以及 latent retrieval / anomaly triage 扩展
-- 第 34 章正文 / notebook / data：Transformer、注意力与科学基础模型概念章节已接入 `Part V`，并补上 bag-of-2-patches、纯 Python 的 two-head masked-token learner，以及新的 masked-patch workflow / pretraining objective
-- 第 35 章正文 / notebook / data：LLM 辅助科研编程、代码验证与 notebook 工作流章节已接入 `Part V`
-- 第 36 章正文 / notebook / data：agentic research assistants、工具调用与分步科研工作流章节已接入 `Part V`
-- 第 37 章正文 / notebook / data：LLM 辅助文献阅读、claim ledger、引用核查与报告写作章节已接入 `Part V`
-- 第 38 章正文 / notebook / data：AI 伦理、版权、学术诚信与 AI-use statement 章节已接入 `Part V`
-- 第 39 章正文 / notebook / data：Capstone 项目工作流、项目模板与可信交付章节已启动 `Part VI`，并补上 `capstone_project_workflow_demo`、project board routing、next-step checklist 与 capstone assistant prompt
-- 第 40 章正文 / notebook / data：Capstone 项目选题、范围控制与可执行性章节已接入 `Part VI`，并补上 `capstone_project_scoping_demo`、proposal routing、narrow-scope checklist 与一周 pilot 计划
-- 第 41 章正文 / notebook / data：Capstone 报告、展示与最终签字章节已接入 `Part VI`，并补上 `capstone_delivery_review_demo`、final-delivery routing、最后一周 checklist 与 presentation / signoff prompt
-- 第 42 章正文 / notebook / data：Capstone 案例模板与评分 rubric 章节已接入 `Part VI`，并补上 `capstone_rubric_case_template_demo`、rubric routing、评分前 gate、revision checklist 与 case-template prompt
-- 第 43 章正文 / notebook / data：Capstone 试教材料与课程运行包章节已接入 `Part VI`，并补上 `capstone_trial_teaching_feedback_demo`、trial-teaching routing、student handout checklist、TA calibration 与 rollout prompt
-- 第 44 章正文 / notebook / data：Capstone 课程日历与里程碑章节已接入 `Part VI`，并补上 `capstone_course_calendar_demo`、16-week calendar routing、checkpoint / intervention / final-delivery 队列与 12-week compression prompt
-- 第 45 章正文 / notebook / data：Capstone 学生 handout 与助教评分指南章节已接入 `Part VI`，并补上 `capstone_student_handout_ta_guide_demo`、release routing、policy review、TA calibration、student clarity checklist 与 release prompt
-- 第 46 章正文 / notebook / data：Capstone 修订闭环、公开归档与课程反馈章节已接入 `Part VI`，并补上 `capstone_revision_archive_feedback_demo`、archive routing、reproducibility gate、public archive checklist 与 revision prompt
-- 第 47 章正文 / notebook / data：Capstone 教师交接包章节已接入 `Part VI`，并补上 `capstone_instructor_handoff_demo`、handoff routing、evidence digest、owner assignment 与 instructor handoff prompt
-- 第 48 章正文 / notebook / data：Capstone 公开发布索引与课程维护清单章节已接入 `Part VI`，并补上 `capstone_public_release_maintenance_demo`、release routing、license boundary、maintenance owner、stale-material audit 与 maintenance prompt
-- 第 49 章正文 / notebook / data：Capstone 公开发布 QA 与课程采用说明章节已接入 `Part VI`，并补上 `capstone_launch_qa_adoption_demo`、launch-QA routing、link check、release smoke test、adoption note 与 support boundary prompt
-- 第 50 章正文 / notebook / data：Capstone 采用反馈与维护节奏章节已接入 `Part VI`，并补上 `capstone_adoption_feedback_maintenance_demo`、feedback triage、severity routing、evidence check、owner assignment、maintenance cadence 与 retrospective prompt
-- 第 51 章正文 / notebook / data：Capstone 最终课程包索引与 Part VI 收束清单章节已接入 `Part VI`，并补上 `capstone_final_package_closure_demo`、final-package routing、closure gate、owner handoff、dependency sync 与 closure prompt
-- 第 52 章正文 / notebook / data：Capstone 课程包目录页与发布版本说明章节已接入 `Part VI`，并补上 `capstone_course_package_directory_release_notes_demo`、directory routing、release-note pointer、audience copy、hold-next-version 与 publication-entry prompt
-- 第 53 章正文 / notebook / data：Capstone 开课前预检与学期重启清单章节已接入 `Part VI`，并补上 `capstone_semester_reboot_preflight_demo`、reboot routing、startup owner、term refresh、blocker triage 与 semester reboot prompt
-- 第 54 章正文 / notebook / data：Capstone 故障模式与升级处理手册章节已接入 `Part VI`，并补上 `capstone_failure_mode_escalation_demo`、incident routing、local patch、pause-rollout、human review 与 escalation playbook prompt
-- 第 55 章正文 / notebook / data：Capstone 应急演练与替班教师接管手册章节已接入 `Part VI`，并补上 `capstone_contingency_substitute_handoff_demo`、substitute routing、minimal run package、context brief、substitute owner 与 emergency handoff prompt
-- 第 56 章正文 / notebook / data：Capstone 学期收尾与下一届 Warm Start 章节已接入 `Part VI`，并补上 `capstone_shutdown_warmstart_demo`、shutdown routing、archive snapshot、next-cohort seed、shutdown owner 与 warm-start prompt
-- 第 57 章正文 / notebook / data：Capstone 校友案例与导师接力章节已接入 `Part VI`，并补上 `capstone_alumni_mentor_relay_demo`、mentor relay routing、privacy boundary、mentor availability、handoff scope 与 relay prompt
-- 第 58 章正文 / notebook / data：Capstone 社群记忆与长期维护账本章节已接入 `Part VI`，并补上 `capstone_community_memory_maintenance_ledger_demo`、memory-ledger routing、refresh cadence、access boundary、staleness 与 ledger prompt
-- 第 59 章正文 / notebook / data：Capstone 外部合作边界与客座项目准入章节已接入 `Part VI`，并补上 `capstone_external_collaboration_guest_intake_demo`、guest-intake routing、boundary clarification、host owner、scope control 与 intake prompt
-- `Part I / Part II` 前半本首轮教材化补写已完成：`ch01`、`ch02`、`ch04`、`ch06`、`ch08` 与 `ch10` 到 `ch15` 均已接入中文主书稿；`ch01` notebook 已补上命令结构、帮助系统和磁盘占用检查，`ch02` notebook 已补上 `diff`、`restore`、tag / release 与数据边界演示，`ch04` notebook 已补上 `main()`、配置和最小日志演示，`ch06`、`ch08`、`ch10`、`ch11` 的 notebook 已同步补上字段契约、残差诊断、测量模型、加权平均、视差质量与 HR 图不确定度等教学演示。
-- `data/manifest.yml` 与相关 README 同步更新
-- 根目录已补统一发布说明 `COURSE_PACKAGE_RELEASE_NOTES.md` 与同步检查清单 `RELEASE_SYNC_CHECKLIST.md`
-- `book/main_zh.tex` 已接入 `ch01`、`ch02`、`ch04`、`ch06`、`ch08`，以及 `ch39` 到 `ch59` 的当前连续主线章节
-- `book/main_zh.tex` / `book/main.tex` 已接入 `pgfplots`
-- `scripts/build_book_local.sh` 已加入 MacTeX 路径兜底
+本轮 checkpoint 涉及的文件为：
 
-Overleaf 书稿仓库状态本轮未重新检查。
+- `Roadmap.md`
+- `book/chapters/part2/README.md`
+- `book/chapters/part2/ch10_measurement_uncertainty.tex`
+- `book/chapters/part2/ch11_gaia_hr_diagram.tex`
+- `book/chapters/part2/ch12_fits_images_wcs.tex`
+- `book/chapters/part2/ch13_spectroscopy.tex`
+- `book/chapters/part2/ch14_time_series_and_periods.tex`
+- `book/chapters/part2/ch15_physics_experiment_simulation_data.tex`
+- `notebooks/part2_data_processing/README.md`
 
-本轮已执行一次 `bash scripts/sync_book_to_overleaf.sh` dry-run，预览同步 `91` 个条目，未实际改动目标仓库文件。
+这组 `Part II` 第二轮改动的核心目标是把章节从“讲义式列表”继续推向“教材式解释”：补上从概念、公式、计算流程到代码的桥梁。本轮已经补入：
+
+- `ch10`：误差传播速记规则、加权平均最小代码、误差预算和结果报告模板。
+- `ch11`：Gaia HR 图最小质量筛选、绝对星等计算、字段契约和 HR 图三层解释框架。
+- `ch12`：FITS/WCS 背景校正、像素坐标到天球坐标的最小映射、像素坐标约定和净信号不确定度。
+- `ch13`：红移计算、长表谱线重组、离散等效宽度近似、多谱线一致性和线心估计。
+- `ch14`：固定周期线性最小二乘、相位折叠函数、相位分箱摘要、候选周期网格和候选记录方式。
+- `ch15`：物理实验/模拟数据的 forward Euler 衰变模拟入口、参数搜索和残差图解释。
+
+当前恢复判断：
+
+- 用户正在阅读 `Part I`；下一轮建议根据用户对 `Part I` 的反馈决定是否回头细改。
+- `Part II` 当前已经完成一轮全章检查；下一步不建议继续无边界扩写，而应先让用户阅读或按需同步到 Overleaf 书稿仓库。
+- 历史约束仍需保留：涉及网络/API 请求时控制 `RPM <= 6`；遇到 `400`、`429` 等短暂错误时可以等待 `3` 到 `5` 秒后重试，不必因此停止。
+
+最近一次验证状态：
+
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `432`。
+- `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
+- `git diff --check`：通过。
+- 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
 
 书稿同步方式：
 
@@ -73,7 +63,7 @@ Overleaf 书稿仓库状态本轮未重新检查。
 
 ### 0.2 当前已完成的内容
 
-截至 2026-05-03，项目已经从“路线图”推进到“可持续扩展的教材原型”，并完成以下内容：
+截至 2026-05-04，项目已经从“路线图”推进到“可持续扩展的教材原型”，并完成以下内容：
 
 - 中文教材正式题目已确定为《面向天文与物理本科生的 AI 科研实战》。
 - 英文副标题已确定为 `Practical AI for Astronomy and Physics`。
@@ -89,7 +79,7 @@ Overleaf 书稿仓库状态本轮未重新检查。
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：`422` 页
+- 中文书稿当前页数：`425` 页
 
 ### 0.3 各部分完成度
 
@@ -110,7 +100,7 @@ Overleaf 书稿仓库状态本轮未重新检查。
 
 - `ch10` 到 `ch15` 已接入 `book/main_zh.tex`，覆盖误差与不确定度、Gaia HR 图、FITS/WCS、光谱、时间序列与物理实验数据。
 - 配套小数据和 notebook 已建立，并通过完整 smoke test。
-- 后续重点是和 `Part I` 一起做细读校订：补公式推导的前后衔接、统一变量记号、补数据质量讨论、补练习难度梯度。
+- 第二轮教材化校订已经完成一轮全章检查，并补入多处“公式到算法到代码”的桥接段；下一步应先阅读、同步或根据反馈微调，而不是继续无限扩写。
 
 `Part III. 机器学习实战主线`
 
@@ -315,18 +305,17 @@ bash scripts/build_book_local.sh zh
 - `main.tex` PDF：`/tmp/aifor_book_main/main.pdf`
 - `main_zh.tex` PDF：`/tmp/aifor_book_main_zh/main_zh.pdf`
 
-截至 2026-05-03 的最近一次验证结果：
+截至 2026-05-04 的最近一次、与当前 `Part II` 工作直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `python scripts/validate_data_manifest.py`：通过（`52` 个数据集）
-- `bash scripts/build_book_local.sh main`：通过
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `422` 页；仍有一处 `ch14` 小幅 `Overfull \hbox`）
-- `bash scripts/sync_book_to_overleaf.sh`：dry-run 通过（预览同步 `91` 个条目，未实际改动）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `432` 页）
+- `git diff --check`：通过（当前 `Part II` 改动无空白格式问题）
+
+上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part II` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。
 
 当前编译中仍存在但不阻塞工作的提示：
 
 - 目录页与个别页面附近偶发 `Underfull \vbox`
-- `ch14` 中有一处小幅 `Overfull \hbox`
 - FontAwesome 相关 `ToUnicode CMap` warning
 
 这些提示目前不影响 PDF 生成，也不阻塞继续写作。
@@ -351,11 +340,11 @@ bash scripts/build_book_local.sh zh
 
 如果后续切换会话后继续推进，建议按以下顺序展开：
 
-1. `Part I / Part II` 前半本首轮教材化补写和 notebook 同步已经完成；下一步优先从 `ch01` 开始做逐章细读校订。
-2. 选择性继续推进 `Part V` 里仍有教学价值的“更真实模型”缺口，但优先挑那些能直接反哺 capstone 模板的内容：例如更真实的图像 CNN、规模更大的表示检索、以及更长序列的 patch-token / pretraining workflow。
-3. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料；不再默认继续扩写正文体量。
-4. 逐步为已完成章节补参考文献、图表清单和统一的“AI 助手如何使用与如何验证”小节。
-5. 视同步节奏安排，将 `book/` 变化用 `bash scripts/sync_book_to_overleaf.sh --apply` 同步到 Overleaf 书稿仓库并准备提交。
+1. 视需要将本轮 `Part II` 书稿变化同步到 Overleaf 书稿仓库，并在 `../AIforAstronomers/` 单独提交。
+2. 用户正在阅读 `Part I`；等用户反馈后再回到 `Part I` 做逐章细读校订，重点检查 Linux/Git/脚本/I/O/绘图是否真正达到教材深度。
+3. 若继续处理 `Part II`，优先做局部微调、交叉引用、图表说明和练习分层，不再默认大面积扩写。
+4. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料。
+5. 之后再选择性推进 `Part V` 里能反哺 capstone 的真实模型缺口，而不是单独增加难以收束的 toy 结构。
 
 ## 1. 教材定位
 
@@ -1060,102 +1049,25 @@ data 完成标准：
 
 ## 12. 近期下一步
 
-根据 2026-05-03 的实际完成状态，建议下一轮工作按这个顺序进行：
+根据 2026-05-04 的实际完成状态，建议下一轮工作按这个顺序进行：
 
-1. `Part I / Part II` 前半本首轮教材化补写和 notebook 同步已经完成；下一步优先从 `ch01` 开始做逐章细读校订，重点检查概念引入、公式推导、计算流程、图表解释、练习层次和章节过渡。
-2. `ch31`、`ch34`、`ch39`、`ch40`、`ch41`、`ch42`、`ch43`、`ch44`、`ch45`、`ch46`、`ch47`、`ch48`、`ch49`、`ch50`、`ch51`、`ch52`、`ch53`、`ch54`、`ch55`、`ch56`、`ch57`、`ch58` 和 `ch59` 已经分别把 transfer-learning、masked-patch pretraining、capstone routing、proposal scoping、final delivery review、rubric case-template、trial-teaching package、course calendar、student/TA release package、revision/archive feedback、instructor handoff、public release maintenance、launch-QA adoption、adoption-feedback maintenance、final-package closure、package-directory release notes、semester reboot preflight、failure-mode escalation、substitute-handoff contingency、shutdown-warmstart、alumni-mentor relay、community-memory ledger 与 guest-intake boundary 接到连续 workflow 上。下一步如继续扩模型，应优先挑那些能直接回流到 capstone 模板的内容，而不是单独增加“更炫但不收束”的 toy 结构。
-3. 回头整理 `Part I` 与 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料；不再默认继续扩写正文体量。
-4. 为已完成章节统一补充参考文献、图表清单和“AI 助手如何使用与如何验证”小节。
-5. 视同步节奏对 `book/` 执行一次 `sync_book_to_overleaf.sh --apply`，并在 Overleaf 书稿仓库单独提交本轮变更。
-6. 视课程节奏再补 `Part IV` 的时间序列 / 实验数据案例，使案例部分与深度学习部分保持双线推进。
+1. `Part II` 第二轮教材化全章检查已经完成；当前优先不是继续扩写，而是提交 checkpoint、等待阅读反馈或同步书稿。
+2. 如果需要同步书稿，先运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
+3. 用户正在阅读 `Part I`；等用户反馈后，再回到 `Part I` 做 Linux/Git/脚本/I/O/绘图的教材深度校订。
+4. 若继续微调 `Part II`，优先补交叉引用、图表说明、练习分层、术语统一和 notebook 互引，而不是继续增加大量正文。
+5. 之后再视课程结构推进 `Part IV/V` 中能反哺 capstone 的真实模型缺口。
 
 如果需要从当前状态直接恢复工作，优先入口为：
 
-- `Roadmap.md` 的“当前进展快照（2026-05-03）”
+- `Roadmap.md` 的“当前进展快照（2026-05-04）”
+- `book/main_zh.tex`
+- `book/chapters/part2/README.md`
+- `book/chapters/part2/ch10_measurement_uncertainty.tex`
+- `book/chapters/part2/ch11_gaia_hr_diagram.tex`
+- `book/chapters/part2/ch12_fits_images_wcs.tex`
+- `book/chapters/part2/ch13_spectroscopy.tex`
+- `book/chapters/part2/ch14_time_series_and_periods.tex`
+- `book/chapters/part2/ch15_physics_experiment_simulation_data.tex`
+- `notebooks/part2_data_processing/README.md`
 - `COURSE_PACKAGE_RELEASE_NOTES.md`
 - `RELEASE_SYNC_CHECKLIST.md`
-- `book/main_zh.tex`
-- `book/chapters/part6/ch39_capstone_project_workflow.tex`
-- `book/chapters/part6/ch40_capstone_project_scoping.tex`
-- `book/chapters/part6/ch41_capstone_report_presentation.tex`
-- `book/chapters/part6/ch42_capstone_case_template_rubric.tex`
-- `book/chapters/part6/ch43_capstone_trial_teaching_package.tex`
-- `book/chapters/part6/ch44_capstone_course_calendar_milestones.tex`
-- `book/chapters/part6/ch45_capstone_student_handout_ta_guide.tex`
-- `book/chapters/part6/ch46_capstone_revision_archive_feedback.tex`
-- `book/chapters/part6/ch47_capstone_instructor_handoff.tex`
-- `book/chapters/part6/ch48_capstone_public_release_maintenance.tex`
-- `book/chapters/part6/ch49_capstone_launch_qa_adoption.tex`
-- `book/chapters/part6/ch50_capstone_adoption_feedback_maintenance.tex`
-- `book/chapters/part6/ch51_capstone_final_package_closure.tex`
-- `book/chapters/part6/ch52_capstone_course_package_directory_release_notes.tex`
-- `book/chapters/part6/ch53_capstone_semester_reboot_preflight.tex`
-- `book/chapters/part6/ch54_capstone_failure_modes_escalation_playbook.tex`
-- `book/chapters/part6/ch55_capstone_contingency_substitute_handoff.tex`
-- `book/chapters/part6/ch56_capstone_shutdown_warmstart.tex`
-- `book/chapters/part6/ch57_capstone_alumni_mentor_relay.tex`
-- `book/chapters/part6/ch58_capstone_community_memory_maintenance_ledger.tex`
-- `book/chapters/part5/ch31_convolutional_neural_networks.tex`
-- `book/chapters/part5/ch32_one_dimensional_convolutions_for_spectra.tex`
-- `book/chapters/part5/ch38_ai_ethics_copyright_research_norms.tex`
-- `book/chapters/part5/ch37_llm_literature_reading_report_writing.tex`
-- `book/chapters/part5/ch35_llm_assisted_research_programming.tex`
-- `book/chapters/part5/ch36_agentic_research_assistants_tool_workflows.tex`
-- `notebooks/part6_capstone/ch39_capstone_project_workflow.ipynb`
-- `notebooks/part6_capstone/ch40_capstone_project_scoping.ipynb`
-- `notebooks/part6_capstone/ch41_capstone_report_presentation.ipynb`
-- `notebooks/part6_capstone/ch42_capstone_case_template_rubric.ipynb`
-- `notebooks/part6_capstone/ch43_capstone_trial_teaching_package.ipynb`
-- `notebooks/part6_capstone/ch44_capstone_course_calendar_milestones.ipynb`
-- `notebooks/part6_capstone/ch45_capstone_student_handout_ta_guide.ipynb`
-- `notebooks/part6_capstone/ch46_capstone_revision_archive_feedback.ipynb`
-- `notebooks/part6_capstone/ch47_capstone_instructor_handoff.ipynb`
-- `notebooks/part6_capstone/ch48_capstone_public_release_maintenance.ipynb`
-- `notebooks/part6_capstone/ch49_capstone_launch_qa_adoption.ipynb`
-- `notebooks/part6_capstone/ch50_capstone_adoption_feedback_maintenance.ipynb`
-- `notebooks/part6_capstone/ch51_capstone_final_package_closure.ipynb`
-- `notebooks/part6_capstone/ch52_capstone_course_package_directory_release_notes.ipynb`
-- `notebooks/part6_capstone/ch53_capstone_semester_reboot_preflight.ipynb`
-- `notebooks/part6_capstone/ch54_capstone_failure_modes_escalation_playbook.ipynb`
-- `notebooks/part6_capstone/ch55_capstone_contingency_substitute_handoff.ipynb`
-- `notebooks/part6_capstone/ch56_capstone_shutdown_warmstart.ipynb`
-- `notebooks/part6_capstone/ch57_capstone_alumni_mentor_relay.ipynb`
-- `notebooks/part6_capstone/ch58_capstone_community_memory_maintenance_ledger.ipynb`
-- `notebooks/part5_deep_learning_ai/ch38_ai_ethics_copyright_research_norms.ipynb`
-- `notebooks/part5_deep_learning_ai/ch37_llm_literature_reading_report_writing.ipynb`
-- `notebooks/part5_deep_learning_ai/ch35_llm_assisted_research_programming.ipynb`
-- `notebooks/part5_deep_learning_ai/ch36_agentic_research_assistants_tool_workflows.ipynb`
-- `notebooks/part5_deep_learning_ai/ch31_convolutional_neural_networks.ipynb`
-- `notebooks/part5_deep_learning_ai/ch32_one_dimensional_convolutions_for_spectra.ipynb`
-- `notebooks/part5_deep_learning_ai/ch33_representation_learning_autoencoders.ipynb`
-- `data/small/capstone_project_workflow_demo.csv`
-- `data/small/capstone_project_scoping_demo.csv`
-- `data/small/capstone_delivery_review_demo.csv`
-- `data/small/capstone_rubric_case_template_demo.csv`
-- `data/small/capstone_trial_teaching_feedback_demo.csv`
-- `data/small/capstone_course_calendar_demo.csv`
-- `data/small/capstone_student_handout_ta_guide_demo.csv`
-- `data/small/capstone_revision_archive_feedback_demo.csv`
-- `data/small/capstone_instructor_handoff_demo.csv`
-- `data/small/capstone_public_release_maintenance_demo.csv`
-- `data/small/capstone_launch_qa_adoption_demo.csv`
-- `data/small/capstone_adoption_feedback_maintenance_demo.csv`
-- `data/small/capstone_final_package_closure_demo.csv`
-- `data/small/capstone_course_package_directory_release_notes_demo.csv`
-- `data/small/capstone_semester_reboot_preflight_demo.csv`
-- `data/small/capstone_failure_mode_escalation_demo.csv`
-- `data/small/capstone_contingency_substitute_handoff_demo.csv`
-- `data/small/capstone_shutdown_warmstart_demo.csv`
-- `data/small/capstone_alumni_mentor_relay_demo.csv`
-- `data/small/capstone_community_memory_maintenance_ledger_demo.csv`
-- `data/small/ai_ethics_workflow_demo.csv`
-- `data/small/literature_reading_workflow_demo.csv`
-- `data/small/neural_network_regression_demo.csv`
-- `data/small/cnn_cutout_demo.csv`
-- `data/small/cnn_transfer_learning_demo.csv`
-- `data/small/cnn_transfer_workflow_demo.csv`
-- `data/small/spectral_masked_patch_workflow_demo.csv`
-- `data/small/spectral_conv1d_demo.csv`
-- `data/small/spectral_conv1d_workflow_demo.csv`
-- `data/small/spectral_autoencoder_demo.csv`
-- `data/manifest.yml`

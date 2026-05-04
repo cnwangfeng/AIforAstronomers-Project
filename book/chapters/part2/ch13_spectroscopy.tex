@@ -140,6 +140,32 @@ v \approx 0.02c \approx 6000\,\mathrm{km\,s^{-1}},
 
 这已经足以说明为什么光谱位移能够直接进入动力学或宇宙学讨论。
 
+\begin{examplebox}[最小红移计算]
+\begin{lstlisting}[style=pythonstyle]
+rest_halpha = 6563.0
+obs_halpha = 6694.0
+redshift = (obs_halpha - rest_halpha) / rest_halpha
+speed_km_s = 299792.458 * redshift
+\end{lstlisting}
+\end{examplebox}
+
+\subsection{一条线不够时：多谱线一致性}
+
+真实红移判断通常不应该只依赖一条谱线。原因很简单：某个峰或凹陷可能来自噪声、天空线残留、归一化问题，也可能是你把谱线身份认错了。更稳妥的做法，是同时检查多条候选谱线是否给出一致的红移。
+
+若第 $j$ 条本征谱线的波长为 $\lambda_{\mathrm{rest},j}$，观测线心为 $\lambda_{\mathrm{obs},j}$，则
+
+\[
+z_j = \frac{\lambda_{\mathrm{obs},j}-\lambda_{\mathrm{rest},j}}
+{\lambda_{\mathrm{rest},j}}.
+\]
+
+如果多个 $z_j$ 在误差范围内相互接近，红移解释才更可信；如果它们差异很大，就应优先怀疑线身份、线心测量或数据处理过程。
+
+\begin{protip}[红移判断是模式匹配，不只是单线代入]
+把一条观测线和一个本征波长配对只能给出候选红移。把多条谱线在同一个 $z$ 下同时对齐，才更接近真实光谱识别。
+\end{protip}
+
 \section{为什么要做归一化}
 
 在教学和真实分析中，光谱往往先做一种“连续谱归一化”，目的是把注意力从绝对亮度转向谱线形状。最简单的直觉写法可以是：
@@ -179,6 +205,42 @@ F_{\mathrm{norm}}(\lambda) = \frac{F(\lambda)}{C(\lambda)},
 \end{itemize}
 
 发射线的符号约定在不同文献中并不完全一致。有的约定发射线 EW 为负，有的更喜欢单独取正值并明确说明是 emission feature。教学阶段最重要的不是死记符号，而是始终在报告里说明你采用了哪套约定。
+
+在离散数据里，这个积分通常会写成近似求和：
+
+\[
+\mathrm{EW} \approx \sum_i \left(1 - \frac{F_i}{C_i}\right)\Delta \lambda_i.
+\]
+
+这也是为什么本章 notebook 会先把长表按对象重组成一条条光谱，再按波长排序后做线特征测量。只有先把点排好，积分或求和才有明确意义。
+
+\begin{examplebox}[离散等效宽度近似]
+\begin{lstlisting}[style=pythonstyle]
+ew_proxy = 0.0
+for left, right, flux, continuum in windows:
+    delta_lambda = right - left
+    ew_proxy += (1.0 - flux / continuum) * delta_lambda
+\end{lstlisting}
+\end{examplebox}
+
+\subsection{线心估计：不要只拿最大点当答案}
+
+对发射线来说，最亮的那个采样点常常接近线心，但它未必就是最好的线心估计。采样网格、噪声和分辨率都会让最大点发生偏移。一个更平滑的教学近似，是在谱线窗口内用线强作为权重计算加权中心：
+
+\[
+\lambda_c \approx
+\frac{\sum_i \lambda_i w_i}{\sum_i w_i}.
+\]
+
+对发射线，可以取 $w_i=\max(F_i-C_i,0)$；对吸收线，可以取 $w_i=\max(C_i-F_i,0)$。这仍然只是简化方法，但已经比“挑最大或最小点”更接近谱线测量的思想。
+
+\begin{examplebox}[教学版线心估计]
+\begin{lstlisting}[style=pythonstyle]
+weights = [max(flux - continuum, 0.0) for wavelength, flux, continuum in line_window]
+center = sum(wavelength * weight for (wavelength, _, _), weight in zip(line_window, weights))
+center /= sum(weights)
+\end{lstlisting}
+\end{examplebox}
 
 \section{信噪比与谱线测量为什么绑在一起}
 
@@ -238,6 +300,24 @@ F_{\mathrm{norm}}(\lambda) = \frac{F(\lambda)}{C(\lambda)},
     \item 不需要二进制文件也能演示完整光谱思路；
     \item 既能说明吸收星、金属线主导星和发射源的差别，也能嵌入一个 redshift probe 示例。
 \end{itemize}
+
+\section{从长表重组到单条光谱}
+
+本章的数据采用长表结构，这意味着同一个对象的多个波长点会分散在多行里。真正做谱线测量之前，先把它们按对象聚合成一条条小光谱，再按波长排序，通常是最稳妥的第一步。
+
+\begin{examplebox}[按对象重组光谱]
+\begin{lstlisting}[style=pythonstyle]
+spectra = {}
+for row in rows:
+    sample_id = row["sample_id"]
+    spectra.setdefault(sample_id, []).append(row)
+
+for sample_rows in spectra.values():
+    sample_rows.sort(key=lambda row: float(row["wavelength_rest_angstrom"]))
+\end{lstlisting}
+\end{examplebox}
+
+这样做之后，你才能更自然地去比较连续谱、吸收线和发射线，并对候选谱线做等效宽度或红移测量。
 
 \section{配套 notebook 做了什么}
 

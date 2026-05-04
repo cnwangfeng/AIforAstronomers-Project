@@ -45,6 +45,31 @@
 
 这里最值得强调的是：\textbf{星表分析并不是“看到很多列就都拿来用”，而是要先明确哪几列能回答当前科学问题。}
 
+\subsection{星表字段契约：先确认列能否支撑问题}
+
+进入任何星表分析前，都应该先写下一个很小的字段契约。所谓字段契约，就是明确本章分析需要哪些列、这些列的单位是什么、允许的数值范围是什么，以及缺失或异常时如何处理。
+
+对本章 HR 图任务来说，最小契约可以写成：
+
+\begin{itemize}
+    \item \texttt{bp\_rp} 必须是有限数值，单位为 mag；
+    \item \texttt{g\_mag} 必须是有限数值，单位为 mag；
+    \item \texttt{parallax\_mas} 必须为正，单位为 mas；
+    \item 若存在 \texttt{parallax\_error\_mas}，应优先检查视差信噪比；
+    \item 派生出的 \texttt{absolute\_g\_mag} 不能和原始表观星等混用。
+\end{itemize}
+
+\begin{examplebox}[最小字段契约检查]
+\begin{lstlisting}[style=pythonstyle]
+required_fields = ["bp_rp", "g_mag", "parallax_mas"]
+missing = [name for name in required_fields if name not in rows[0]]
+if missing:
+    raise ValueError(f"Missing required fields: {missing}")
+\end{lstlisting}
+\end{examplebox}
+
+这个检查看起来朴素，却能提前挡住很多后续错误。越是进入真实 Gaia 表，字段越多，越需要先把“当前分析真正依赖什么”说清楚。
+
 \section{从表观星等到绝对星等：为什么必须做这个变换}
 
 如果你直接把颜色指数和表观星等画在一起，图形当然也可能有一定结构，但它混入了距离效应。天体看起来暗，未必本征上暗；也可能只是更远。
@@ -125,6 +150,23 @@ M = m - 10 + 5\log_{10} p(\mathrm{mas})
 \begin{protip}[最小质量筛选]
 教学 notebook 中最常见的最小筛选条件可以先写成：数值有限、视差为正、视差信噪比足够高。真实项目里当然还要看更多质量标志，但这三步已经能避免很多明显错误。
 \end{protip}
+
+\subsection{最小筛选代码}
+
+本章的教学样本没有把 Gaia 全部质量标志都展开出来，所以最小筛选可以先写成“关键字段存在、视差为正、派生量可计算”。真实数据里通常还要继续看视差信噪比、天体测量拟合质量和消光影响，但这里先把最小流程跑通。
+
+\begin{examplebox}[HR 图前的最小筛选]
+\begin{lstlisting}[style=pythonstyle]
+import math
+
+selected_rows = [
+    row for row in rows
+    if row["parallax_mas"] > 0.0
+    and math.isfinite(row["bp_rp"])
+    and math.isfinite(row["g_mag"])
+]
+\end{lstlisting}
+\end{examplebox}
 
 \section{颜色指数为什么可以放在横轴}
 
@@ -208,6 +250,22 @@ ax.invert_yaxis()
 \end{enumerate}
 
 这条算法流程，在形式上和后面的机器学习 pipeline 并没有本质区别：先清楚数据，再构造派生量，再做可解释输出。
+
+\section{HR 图解释的三个层次}
+
+画出 HR 图以后，解释也应分层进行，而不是直接跳到“这是主序星”。一个更稳妥的阅读顺序是：
+
+\begin{enumerate}
+    \item \textbf{数据层}：点是否来自可信视差、有限颜色和合理星等；
+    \item \textbf{图形层}：点云是否形成主带、上方亮星区或蓝暗区域；
+    \item \textbf{物理层}：这些区域是否可以解释为主序星、巨星或白矮星，并且是否受到消光、双星或选择效应影响。
+\end{enumerate}
+
+这三个层次不能互相替代。数据层没有过关时，图形层的结构可能只是错误计算的结果；图形层没有描述清楚时，物理层的解释就容易变成背诵；物理层不讨论限制时，HR 图又会退化成一张漂亮散点图。
+
+\begin{protip}[先描述，再解释，最后限定]
+一段好的 HR 图解读通常先说明轴和样本筛选，再描述点云结构，然后给出物理解释，最后补一句当前解释的限制。这个顺序比直接说“这里是主序星”更接近科研写作。
+\end{protip}
 
 \section{样本筛选与选择效应：为什么“画出来”还不够}
 

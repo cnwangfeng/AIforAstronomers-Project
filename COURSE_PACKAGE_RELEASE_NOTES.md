@@ -15,6 +15,9 @@ This note summarizes the current release-ready state of the teaching package in
 - Notebook smoke-test status: `59` notebooks passed
 - Data manifest status: `52` datasets validated
 - `Part VI` status: `ch39` to `ch59` completed as a continuous capstone package
+- Capstone evidence frame: eight shared cards from project definition to
+  integrity signoff, with Part VI gate/route language aligned across scoring,
+  release, handoff, and maintenance chapters
 
 ## Audience Entry Points
 
@@ -81,7 +84,7 @@ Most recent verified state:
 - Normalize chapter references, figure captions, and bibliography coverage.
 - Review Part I/II from the beginning for textbook depth, terminology, and
   notebook-to-prose alignment.
-- Compress repetitive instructor-facing language in the Part VI operational
-  tail where needed.
+- Keep Part VI instructor-facing material concise during future wording passes;
+  the shared gate/route and final-package-index frame is now in place.
 - Do one controlled `sync_book_to_overleaf.sh --apply` cycle when ready to
   publish the current book state.

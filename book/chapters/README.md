@@ -13,6 +13,11 @@ Current organization:
 - `part5/`: deep learning and modern AI.
 - `part6/`: capstone project, course package, and handoff materials.
 
+The current Part III--VI synthesis layer uses a shared capstone evidence-card
+frame: Project, Data, Baseline, Model, Evaluation, Interpretation,
+Reproducibility, and Integrity. New revisions should preserve that handoff
+instead of creating isolated reporting templates.
+
 Most active writing now happens inside this tree. The legacy top-level chapter
 files under `book/` are retained only for compatibility with older entry points
 and should not be treated as the primary source for the Chinese textbook.

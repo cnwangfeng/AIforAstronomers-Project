@@ -27,6 +27,10 @@ Current notebook set:
 - `ch58_capstone_community_memory_maintenance_ledger.ipynb`
 - `ch59_capstone_external_collaboration_guest_intake.ipynb`
 
-Planned next notebooks:
+Current status:
 
-- Part VI operational tail complete; next focus can shift back to early-book rebuild
+- Part VI notebook set is complete and aligned with the textbook's shared
+  gate/route language for capstone workflow, scoring, release, handoff, and
+  maintenance.
+- Future notebook work should focus on terminology cleanup, runtime checks, and
+  small explanatory improvements rather than adding new Part VI notebooks.

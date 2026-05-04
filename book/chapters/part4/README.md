@@ -19,4 +19,5 @@ Current status:
 
 - Part IV has a guide chapter and synthesis chapter that connect the case studies back to Part II data processing and Part III machine-learning workflow.
 - Current cases cover Gaia HR diagrams and stellar classification, photometric redshift estimation, spectral classification, and galaxy morphology classification.
+- Each current case chapter now includes a minimum case-report template that turns the notebook workflow into a reusable project-delivery frame.
 - Possible later refinements include additional time-domain or simulation-centered case studies, but the current four-case backbone is already connected to `book/main_zh.tex` and ready for review.

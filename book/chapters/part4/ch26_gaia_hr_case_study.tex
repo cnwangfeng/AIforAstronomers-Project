@@ -171,6 +171,35 @@ M_G = g_mag + 5 * log10(parallax_mas) - 10
 
 因此，我们应该把它理解成一个\textbf{结构清楚的练习场}：先把方法和解释链条走顺，再准备进入更复杂的数据。
 
+\section{一个最小 Gaia HR 图案例报告模板}
+
+这个案例的报告不应只写“分类准确率是多少”。真正需要展示的是：数据筛选、HR 图结构、算法结果和物理解释是否连成一条证据链。一个最小报告可以按下面顺序组织：
+
+\begin{enumerate}
+    \item \textbf{问题定义}：说明你想用 Gaia 风格数据识别哪些恒星结构，而不是单纯追求分类分数；
+    \item \textbf{数据与质量筛选}：列出使用字段、视差信噪比阈值、被剔除样本及其原因；
+    \item \textbf{HR 图构造}：写明绝对星等公式，并解释颜色--星等坐标为什么有物理意义；
+    \item \textbf{结构探索}：报告无监督聚类是否与主序、巨星、白矮星区域一致；
+    \item \textbf{监督分类与错分复查}：报告测试结果、混淆矩阵，以及最值得解释的边界样本；
+    \item \textbf{适用边界}：说明教学样本无法覆盖真实 Gaia 数据中的消光、双星、变星和选择效应。
+\end{enumerate}
+
+\begin{examplebox}[Gaia HR 图案例报告骨架]
+\begin{lstlisting}[style=pythonstyle]
+gaia_hr_report = {
+    "quality_cut": "parallax_over_error > 5",
+    "hr_axes": ["bp_rp", "M_G"],
+    "unsupervised_summary": cluster_summary,
+    "classification_summary": confusion_matrix,
+    "boundary_examples": misclassified_or_low_margin_ids,
+    "physical_claim": "teaching-scale HR structure is recovered",
+    "limits": ["small sample", "no extinction correction", "simplified labels"],
+}
+\end{lstlisting}
+\end{examplebox}
+
+写这样的报告时，最重要的不是把每个数字都列出来，而是让读者看见：你为什么相信这些结构是真的、为什么这些错分值得讨论、以及为什么当前结论还不能直接外推到完整巡天。
+
 \begin{warnbox}[这个案例中的常见误区]
 \begin{itemize}
     \item 没有先做视差质量筛选，就直接画 HR 图；

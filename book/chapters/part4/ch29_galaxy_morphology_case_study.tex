@@ -318,6 +318,34 @@ review_misclassified_samples(pred, rows_test)
 
 因此，这一章很适合训练学生的工程判断：不是默认“新方法一定更好”，而是结合样本规模、标签质量、算力和科学目标选择恰当复杂度。
 
+\section{一个最小星系形态案例报告模板}
+
+星系形态分类报告必须把图像质量、标签可靠性和模型错误一起写清楚。一个最小报告可以包含：
+
+\begin{enumerate}
+    \item \textbf{形态任务定义}：说明类别是 \texttt{spiral}、\texttt{elliptical}、\texttt{edge\_on}，还是更细的形态体系；
+    \item \textbf{质量与标签筛选}：报告 \texttt{quality\_flag}、\texttt{vote\_fraction} 阈值，以及被送入人工复核的样本；
+    \item \textbf{传统特征 baseline}：说明使用哪些形态特征，以及它们和物理直觉是否一致；
+    \item \textbf{分类诊断}：报告混淆矩阵、每类 recall，以及主要错分方向；
+    \item \textbf{边界样本复查}：回看投影效应、低 SNR、邻源污染和低投票一致度；
+    \item \textbf{CNN 升级理由}：说明深度模型要解决的是局部结构表示问题，而不是替代数据质量控制。
+\end{enumerate}
+
+\begin{examplebox}[星系形态案例报告骨架]
+\begin{lstlisting}[style=pythonstyle]
+morphology_report = {
+    "quality_cut": "quality_flag == clean",
+    "vote_cut": "vote_fraction >= 0.70",
+    "baseline_features": ["axis_ratio", "concentration", "asymmetry"],
+    "class_metrics": per_class_metrics,
+    "review_queue": ["SP06", "EL05"],
+    "cnn_next_step": "compare against baseline only after image QC is stable",
+}
+\end{lstlisting}
+\end{examplebox}
+
+如果报告只写“模型把 SP06 分错了”，读者学不到什么；如果报告写清楚 SP06 的轴比、edge-on 倾向、旋臂可见度和投票一致度，错分就变成了理解形态边界的证据。
+
 \begin{warnbox}[星系形态分类中的常见误区]
 \begin{itemize}
     \item 没有处理尺度和居中问题，就直接喂图像给模型；

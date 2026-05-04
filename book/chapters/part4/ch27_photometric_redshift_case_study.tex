@@ -217,6 +217,37 @@ notebook 最后还提供了一个可选的 \texttt{scikit-learn} 随机森林对
 
 因此，我们不能把教学数据上的顺利结果，直接等价于真实巡天中的可发布模型。
 
+\section{一个最小光度红移案例报告模板}
+
+光度红移报告的核心，不是证明模型“会预测”，而是说明它在什么对象、什么颜色范围、什么训练覆盖条件下可以被信任。一个最小报告可以包含：
+
+\begin{enumerate}
+    \item \textbf{任务与标签}：说明输入是测光颜色和亮度，目标是参考光谱红移；
+    \item \textbf{baseline 对照}：报告单色 baseline 的误差，作为最低参照；
+    \item \textbf{改进模型}：报告多特征模型的 MAE、RMSE、偏差和相对改进；
+    \item \textbf{残差诊断}：列出最大残差样本，并检查它们是否集中在某类星系或某个颜色范围；
+    \item \textbf{覆盖与外推}：说明训练样本是否覆盖测试对象，哪些对象可能处在分布边缘；
+    \item \textbf{结论强度}：明确哪些说法只适用于教学数据，哪些工作需要真实巡天数据继续验证。
+\end{enumerate}
+
+\begin{examplebox}[光度红移案例报告骨架]
+\begin{lstlisting}[style=pythonstyle]
+photoz_report = {
+    "baseline": {"features": ["g_r"], "rmse": baseline_rmse},
+    "improved_model": {
+        "features": ["u_g", "g_r", "r_i", "i_z", "r_mag"],
+        "rmse": model_rmse,
+        "bias": mean_residual,
+    },
+    "largest_residuals": residual_table[:5],
+    "type_dependent_failure": type_error_summary,
+    "coverage_warning": coverage_notes,
+}
+\end{lstlisting}
+\end{examplebox}
+
+如果多特征模型平均误差下降，但最大残差仍然来自少见类型，那么报告中应同时写出“整体改进”和“局部失效”。这不是削弱结果，而是在把模型放回科学使用场景里。
+
 \begin{warnbox}[光度红移案例中的常见误区]
 \begin{itemize}
     \item 只看整体 MAE，不检查最大残差来自哪些对象；

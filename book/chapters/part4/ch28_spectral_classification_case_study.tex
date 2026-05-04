@@ -203,6 +203,34 @@ plot(pc1, pc2, color=label)
 
 因此，我们不应把这个案例理解成“光谱分类已经被解决”，而应把它理解成“怎样从原始光谱矩阵走到一个可解释分类结论”的最小练习场。
 
+\section{一个最小光谱分类案例报告模板}
+
+光谱分类报告最容易写偏成“某分类器准确率是多少”。更好的写法，是把预处理、结构观察、分类结果和错分复查连起来。一个最小报告可以包含：
+
+\begin{enumerate}
+    \item \textbf{光谱输入契约}：说明波长网格、通量列、信噪比字段和质量标记；
+    \item \textbf{预处理记录}：说明坏像元如何处理、归一化使用什么参考、是否剔除低质量样本；
+    \item \textbf{PCA 结构}：解释前两维主要对应连续谱斜率、吸收/发射线强度，还是其他变化；
+    \item \textbf{分类 baseline}：报告模型、特征空间、混淆矩阵和主要类别指标；
+    \item \textbf{错分光谱复查}：挑出最典型错分样本，回到原始光谱、SNR 和坏像元记录；
+    \item \textbf{升级条件}：说明何时才有必要引入一维 CNN 或更复杂表示学习。
+\end{enumerate}
+
+\begin{examplebox}[光谱分类案例报告骨架]
+\begin{lstlisting}[style=pythonstyle]
+spectral_report = {
+    "preprocessing": ["bad-pixel repair", "median normalization"],
+    "pca_interpretation": pca_component_notes,
+    "classifier": "nearest centroid on first two PCs",
+    "confusion_matrix": confusion_matrix,
+    "misclassified_spectra": review_ids,
+    "cnn_upgrade_reason": "only if baseline fails on stable local line patterns",
+}
+\end{lstlisting}
+\end{examplebox}
+
+这样的报告能防止一个常见误读：把光谱分类当成普通表格分类。光谱的每一列都来自波长、仪器和物理线形，分类结论必须能回到这些结构中解释。
+
 \begin{warnbox}[光谱分类中的常见误区]
 \begin{itemize}
     \item 没有统一归一化方式，就直接比较不同光谱；

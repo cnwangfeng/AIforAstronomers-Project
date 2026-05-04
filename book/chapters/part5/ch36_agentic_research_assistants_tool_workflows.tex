@@ -185,7 +185,7 @@ else:
 \draw[->, thick] (9.55,0) -- (10.8,0);
 \draw[->, thick] (13.55,0) -- (15.0,0);
 \end{tikzpicture}
-\caption{最小多步工具链示意图。}
+\caption{本章 notebook 中的最小多步工具链。候选体先经过质量门，再进入 novelty / crossmatch 检查和优先级评分；最终出口不是单一答案，而是 \texttt{follow\_now}、\texttt{manual\_review} 或 \texttt{reject}，这些步骤都会进入 action log。}
 \label{fig:ch36_agentic_pipeline}
 \end{figure}
 

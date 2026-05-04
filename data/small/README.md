@@ -17,6 +17,39 @@ Current datasets:
 - `spectral_wavelength_redshift_demo.csv`
   A tiny teaching spectroscopy table for the Part II wavelength, line feature,
   normalization, and redshift chapter and notebook.
+- `lightcurve_period_demo.csv`
+  A tiny time-series table for the Part II period-search, phase-folding, and
+  light-curve workflow chapter and notebook.
+- `physics_model_fit_demo.csv`
+  A tiny physics-experiment table for the Part II model-fitting, residual,
+  and Monte Carlo uncertainty chapter and notebook.
+- `photometric_redshift_demo.csv`
+  A tiny photometric-redshift table for the Part III regression workflow
+  notebook.
+- `object_classification_demo.csv`
+  A tiny object-classification table for the Part III classification and
+  model-evaluation notebooks.
+- `object_preprocessing_demo.csv`
+  A tiny preprocessing table for the Part III feature-engineering,
+  leakage-check, and preprocessing-audit notebook.
+- `stellar_teff_model_selection_demo.csv`
+  A tiny stellar color-temperature table for the Part III model-selection and
+  hyperparameter notebook.
+- `stellar_hr_unsupervised_demo.csv`
+  A tiny HR-diagram table for the Part III unsupervised-learning notebook.
+- `spectral_anomaly_demo.csv`
+  A tiny spectral-feature table for the Part III anomaly-detection notebook.
+- `gaia_hr_case_demo.csv`
+  A tiny Gaia HR case-study table for the Part IV HR-diagram case notebook.
+- `photoz_case_demo.csv`
+  A tiny photometric-redshift case-study table for the Part IV photo-z case
+  notebook.
+- `photoz_trust_demo.csv`
+  A tiny trust and coverage-diagnostic table for the Part IV photo-z
+  uncertainty and interpretation case workflow.
+- `spectral_classification_case_demo.csv`
+  A tiny spectral-classification case-study table for the Part IV spectrum
+  classification notebook.
 - `galaxy_morphology_case_demo.csv`
   A small synthetic Galaxy Zoo style morphology table for the Part IV galaxy
   morphology case study notebook.
@@ -143,6 +176,7 @@ Current datasets:
 
 Dataset notes:
 
+- current CSV files: 52, matching `data/manifest.yml`
 - keep files small enough for fast sync and classroom use
 - document units and provenance clearly
 - prefer CSV or similarly transparent formats for intro chapters

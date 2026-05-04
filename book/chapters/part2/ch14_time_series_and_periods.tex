@@ -199,6 +199,31 @@ y_1 \\ y_2 \\ \vdots \\ y_N
 
 这也是为什么很多周期搜索实现会先扫周期，再在每个候选周期上解一个最小二乘问题。对教学阶段来说，真正重要的是看见这一步：\textbf{周期是外层搜索变量，振幅和偏移是内层线性参数。}
 
+\subsection{从线性系数回到振幅和相位}
+
+把周期模型写成 $a\sin\omega t + b\cos\omega t$ 并不是为了改变物理含义，而是为了让固定周期下的拟合变成线性问题。拟合结束后，仍然可以回到更熟悉的振幅--相位形式：
+
+\[
+A\sin(\omega t+\phi)
+= A\cos\phi\,\sin\omega t + A\sin\phi\,\cos\omega t.
+\]
+
+因此，
+
+\[
+a = A\cos\phi,\qquad b = A\sin\phi,
+\]
+
+反过来就有
+
+\[
+A = \sqrt{a^2+b^2},
+\qquad
+\phi = \mathrm{atan2}(b,a).
+\]
+
+这说明一个好的周期搜索结果不只给出周期 $P$，还应该能解释该周期下的平均亮度、振幅和相位。否则，我们只是在读出一个候选数字，而没有真正建立信号模型。
+
 \begin{examplebox}[最小相位折叠函数]
 \begin{lstlisting}[style=pythonstyle]
 from math import floor

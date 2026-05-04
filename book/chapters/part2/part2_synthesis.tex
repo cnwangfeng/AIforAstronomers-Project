@@ -22,6 +22,27 @@
 
 这条算法比任何单个函数都重要。因为真实项目中函数会换、库会升级、数据会变大，但这八步所保护的科学边界不会消失。
 
+\section*{一张共同公式地图}
+
+Part II 的公式并不是孤立知识点。它们都在做同一件事：把观测记录转化为可解释的物理量，并同时说明不确定度或适用边界。可以把各章最核心的公式压缩成下面这张地图：
+
+\begin{center}
+\begin{tabular}{p{0.18\textwidth} p{0.32\textwidth} p{0.36\textwidth}}
+\toprule
+场景 & 核心公式 & 它保护的科学边界 \\
+\midrule
+误差传播 & \(\sigma_y^2 \approx \sum_i (\partial f/\partial x_i)^2\sigma_i^2\) & 派生量不能比输入测量更“精确” \\
+星表与 HR 图 & \(M=m-10+5\log_{10}p(\mathrm{mas})\) & 比较本征亮度前必须校正距离效应 \\
+图像测光 & \(S_{\mathrm{net}}=S_{\mathrm{ap}}-N_{\mathrm{pix}}B\) & 源亮度必须和背景贡献分开估计 \\
+光谱红移 & \(z=(\lambda_{\mathrm{obs}}-\lambda_{\mathrm{rest}})/\lambda_{\mathrm{rest}}\) & 谱线识别需要波长校准和多线一致性 \\
+时间序列 & \(\phi=(t/P)-\lfloor t/P\rfloor\) & 周期假设必须通过相位折叠检查 \\
+实验拟合 & \(\chi^2=\sum_i (y_i-y_{\mathrm{model},i})^2/\sigma_i^2\) & 模型好坏应和误差模型、残差结构一起判断 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+这张地图的目的不是让你背公式，而是让你看见共同结构：每个公式都回答“这个数值从哪里来、和什么基准比较、误差怎样进入、什么时候不能信”。如果一个公式在代码中只剩下一行计算，而没有这些边界说明，它就还没有真正成为科学分析。
+
 \section*{不同数据类型的最小交付件}
 
 \begin{center}

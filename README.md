@@ -22,12 +22,12 @@
 
 截至 2026-05-04，本项目已经进入发布前 QA 和同步收束阶段：
 
-- 中文主书稿 `book/main_zh.tex` 可本地编译，最近验证 PDF 约 `507` 页。
+- 中文主书稿 `book/main_zh.tex` 可本地编译，最近验证 PDF 约 `509` 页。
 - 配套 notebook smoke test 最近通过 `59` 个 notebooks。
 - `data/manifest.yml` 最近验证通过 `52` 个小型教学数据集。
 - `Part I` 到 `Part VI` 已形成连续教材主线，`Part VI` 保持 capstone/课程包收束定位，不再新增运维章节。
 - 图表、公式、capstone evidence cards、来源/许可证状态分别由 `book/*_QA.md` 台账维护；这些 QA 台账保留在完整项目仓库，默认不进入 Overleaf 同步 payload。
-- 正式公开发布仍需先完成 `PUBLICATION_DECISIONS.md` 中的许可证、引用归属和项目级 AI-use statement 决策。
+- 正式公开发布所需的 `LICENSE`、`NOTICE.md`、`CITATION.cff` 和项目级 AI-use statement 已补齐；`python scripts/check_publication_blockers.py --strict` 目前通过。
 
 ## 仓库分工
 
@@ -112,7 +112,7 @@ python scripts/check_release_inventory.py
 python scripts/check_publication_blockers.py
 ```
 
-`check_publication_blockers.py` 默认只报告许可证、归属、引用和项目级 AI-use 的未决项；最终公开发布前，可以在完成 `PUBLICATION_DECISIONS.md` 后用 `python scripts/check_publication_blockers.py --strict` 作为失败型检查。
+`check_publication_blockers.py` 默认只报告许可证、归属、引用和项目级 AI-use 的状态；当前版本已经可以把 `python scripts/check_publication_blockers.py --strict` 作为正式发布 gate。
 
 8. 在同步书稿前，可先做本地 LaTeX 编译检查：
 
@@ -154,11 +154,4 @@ bash scripts/run_release_checks.sh full
 
 ## 许可证
 
-教材、代码和数据许可证尚未最终确定。正式发布前必须分别确认：
-
-- 教材文字与图表许可证
-- 代码许可证
-- 教学数据许可证
-- 外部材料引用和改写授权
-
-发布路径、许可证拆分、引用归属和项目级 AI-use statement 的待决事项集中记录在 `PUBLICATION_DECISIONS.md`。
+本项目当前统一采用 CC BY-NC-SA 4.0 作为开放教学许可。`LICENSE`、`NOTICE.md`、`CITATION.cff` 和 `AI_USE_STATEMENT.md` 已补齐，`data/manifest.yml` 也已同步到同一许可表述。外部参考材料与第三方原作保持各自授权边界，具体说明见 `PUBLICATION_DECISIONS.md` 和 `NOTICE.md`。

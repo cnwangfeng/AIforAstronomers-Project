@@ -91,7 +91,9 @@ def build_results() -> list[CheckResult]:
     has_bibliography_hook = bool(
         re.search(r"\\bibliography{|\\addbibresource{|\\printbibliography", main_text)
     )
-    has_cites = bool(re.search(r"\\cite[a-zA-Z*]*{", main_text))
+    has_cites = bool(
+        re.search(r"\\cite[a-zA-Z*]*{", main_text) or re.search(r"\\nocite{", main_text)
+    )
 
     return [
         CheckResult(

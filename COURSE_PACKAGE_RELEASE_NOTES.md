@@ -11,7 +11,7 @@ This note summarizes the current release-ready state of the teaching package in
 - English subtitle: `Practical AI for Astronomy and Physics`
 - Main Chinese entry: `book/main_zh.tex`
 - Current Chinese PDF output: `/tmp/aifor_book_main_zh/main_zh.pdf`
-- Current verified Chinese page count: about `507` pages
+- Current verified Chinese page count: about `509` pages
 - Notebook smoke-test status: `59` notebooks passed
 - Data manifest status: `52` datasets validated
 - `Part VI` status: `ch39` to `ch59` completed as a continuous capstone package
@@ -70,15 +70,16 @@ Most recent verified state:
 
 - `validate_data_manifest.py`: passed
 - `check_release_inventory.py`: passed
-- `check_publication_blockers.py`: passed in informational mode and reports `7` current license, attribution, citation, bibliography, and AI-use blockers
+- `check_publication_blockers.py`: passed in informational mode and strict mode; reports `0` blockers
 - `smoke_test_notebooks.py`: passed (`59` notebooks)
 - `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
-- `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`507` pages)
+- `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`509` pages)
 - `check_latex_log.py`: passed for `/tmp/aifor_book_main_zh/main_zh.log`
 - `run_release_checks.sh quick`: passed, including Overleaf dry-run payload guard
 - `run_release_checks.sh full`: passed, including publication blocker report, notebook smoke test, both LaTeX builds, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
 - `git diff --check`: passed
 - LaTeX error scan: no `Overfull`, undefined references, `Missing $`, or fatal errors detected in `/tmp/aifor_book_main_zh/main_zh.log`
+- Release metadata: `LICENSE`, `NOTICE.md`, `CITATION.cff`, and `AI_USE_STATEMENT.md` now exist and are wired into the publication blocker gate
 
 ## Non-Blocking Known Issues
 
@@ -111,8 +112,8 @@ LaTeX sources and compile-time resources.
 
 - Continue from `book/FIGURE_TABLE_QA.md`, `book/EVIDENCE_CARD_QA.md`, and
   `book/FORMULA_QA.md`; use `book/SOURCE_LICENSE_QA.md` for bibliography,
-  source/license, attribution, and AI-use release decisions. Current
-  figure/table labels already have正文 `\ref{...}` entries.
+  source/license, attribution, and AI-use maintenance. Current figure/table
+  labels already have正文 `\ref{...}` entries.
 - Reader QA from Part I/II outward is no longer a blank sweep; use targeted
   reader feedback or the QA inventories above to decide the next polish patch.
 - Keep Part VI in compression mode only; no new operational chapters are

@@ -31,9 +31,8 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Confirm `notebooks/part6_capstone/README.md` matches actual notebooks
 - Confirm `data/small/README.md` and `data/manifest.yml` match current datasets
 - Confirm `COURSE_PACKAGE_RELEASE_NOTES.md` reflects current counts and outputs
-- Confirm `PUBLICATION_DECISIONS.md` has no unresolved blocker for the intended release path
-- After publication decisions are resolved, run
-  `python scripts/check_publication_blockers.py --strict`
+- Confirm `PUBLICATION_DECISIONS.md` matches the resolved CC BY-NC-SA 4.0 release path
+- Run `python scripts/check_publication_blockers.py --strict` as the final gate; it should pass in the current release state
 
 ## 3. Overleaf Sync Dry Run
 
@@ -90,7 +89,7 @@ If work needs to resume later, start here:
 
 Current recovery counts to confirm before sync:
 
-- Chinese PDF: about `507` pages
+- Chinese PDF: about `509` pages
 - Notebook smoke test: `59` notebooks
 - Data manifest: `52` datasets
 - Local validation: `build_book_local.sh main`, `build_book_local.sh zh`, notebook smoke, data manifest, `check_latex_log.py`, and `git diff --check` have passed; `run_release_checks.sh full` is the one-command equivalent for the final local pass
@@ -99,7 +98,7 @@ Current recovery counts to confirm before sync:
 
 - Reader QA is now targeted rather than a blank sweep; use QA inventories and reader feedback for focused patches
 - Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; source/license inventory is tracked in `book/SOURCE_LICENSE_QA.md`; these QA files are project-side release records and are excluded from the default Overleaf sync payload
-- Bibliography, source, license, and AI-use statement audit remain blocked on final project-level license decisions
-- `scripts/check_publication_blockers.py` tracks those blockers in a runnable report; use `--strict` only after final publication decisions are made
+- Bibliography, source, license, and AI-use statement audit are now complete; keep the files in sync if scope or references change
+- `scripts/check_publication_blockers.py` tracks the final release gate in a runnable report; use `--strict` as the last local check before sync
 - Final wording pass on release notes and audience-facing copy
 - Overleaf dry-run before any `--apply` sync

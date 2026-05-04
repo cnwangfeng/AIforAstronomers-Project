@@ -3,7 +3,7 @@ datasets:
     path: data/small/planetary_orbits_demo.csv
     type: csv
     source: "Educational compilation based on standard Solar System reference values."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - planet
@@ -24,7 +24,7 @@ datasets:
     path: data/small/stellar_photometry_demo.csv
     type: csv
     source: "Small synthetic Gaia-style teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - source_id
@@ -46,7 +46,7 @@ datasets:
     path: data/small/fits_wcs_cutout_demo.csv
     type: csv
     source: "Small synthetic image cutout dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - x_pix
@@ -62,7 +62,7 @@ datasets:
     path: data/small/spectral_wavelength_redshift_demo.csv
     type: csv
     source: "Small synthetic spectroscopy teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - sample_id
@@ -79,7 +79,7 @@ datasets:
     path: data/small/lightcurve_period_demo.csv
     type: csv
     source: "Small synthetic time-series teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - sample_id
@@ -98,7 +98,7 @@ datasets:
     path: data/small/physics_model_fit_demo.csv
     type: csv
     source: "Small synthetic physics experiment teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - sample_id
@@ -117,7 +117,7 @@ datasets:
     path: data/small/photometric_redshift_demo.csv
     type: csv
     source: "Small synthetic SDSS-style teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - galaxy_id
@@ -138,7 +138,7 @@ datasets:
     path: data/small/object_classification_demo.csv
     type: csv
     source: "Small synthetic SDSS-style object-classification teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - object_id
@@ -159,7 +159,7 @@ datasets:
     path: data/small/object_preprocessing_demo.csv
     type: csv
     source: "Small synthetic survey-style preprocessing teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - object_id
@@ -182,7 +182,7 @@ datasets:
     path: data/small/stellar_teff_model_selection_demo.csv
     type: csv
     source: "Small synthetic Gaia-style color-temperature teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - source_id
@@ -197,7 +197,7 @@ datasets:
     path: data/small/stellar_hr_unsupervised_demo.csv
     type: csv
     source: "Small synthetic HR-diagram teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - source_id
@@ -214,7 +214,7 @@ datasets:
     path: data/small/spectral_anomaly_demo.csv
     type: csv
     source: "Small synthetic spectral-feature anomaly-detection teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - spectrum_id
@@ -235,7 +235,7 @@ datasets:
     path: data/small/photoz_trust_demo.csv
     type: csv
     source: "Small synthetic photometric-redshift trust and uncertainty teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - galaxy_id
@@ -257,7 +257,7 @@ datasets:
     path: data/small/gaia_hr_case_demo.csv
     type: csv
     source: "Small synthetic Gaia-style HR-diagram case-study dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - source_id
@@ -277,7 +277,7 @@ datasets:
     path: data/small/photoz_case_demo.csv
     type: csv
     source: "Small synthetic SDSS-style photometric-redshift case-study dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - galaxy_id
@@ -301,7 +301,7 @@ datasets:
     path: data/small/spectral_classification_case_demo.csv
     type: csv
     source: "Small synthetic SDSS/LAMOST-style spectral-classification case-study dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - spectrum_id
@@ -330,7 +330,7 @@ datasets:
     path: data/small/galaxy_morphology_case_demo.csv
     type: csv
     source: "Small synthetic Galaxy Zoo-style morphology case-study dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - galaxy_id
@@ -366,7 +366,7 @@ datasets:
     path: data/small/neural_network_regression_demo.csv
     type: csv
     source: "Small synthetic nonlinear-response teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -382,7 +382,7 @@ datasets:
     path: data/small/cnn_cutout_demo.csv
     type: csv
     source: "Small synthetic galaxy-cutout teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -397,7 +397,7 @@ datasets:
     path: data/small/cnn_transfer_learning_demo.csv
     type: csv
     source: "Small synthetic source/target galaxy-cutout teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -413,7 +413,7 @@ datasets:
     path: data/small/cnn_transfer_workflow_demo.csv
     type: csv
     source: "Small synthetic source/target cutout workflow dataset with validation and review roles created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-27"
     fields:
       - sample_id
@@ -430,7 +430,7 @@ datasets:
     path: data/small/spectral_conv1d_demo.csv
     type: csv
     source: "Small synthetic spectral-window teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -445,7 +445,7 @@ datasets:
     path: data/small/spectral_conv1d_workflow_demo.csv
     type: csv
     source: "Small synthetic spectral-window workflow dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -461,7 +461,7 @@ datasets:
     path: data/small/spectral_autoencoder_demo.csv
     type: csv
     source: "Small synthetic spectral-window representation-learning teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -481,7 +481,7 @@ datasets:
     path: data/small/spectral_token_attention_demo.csv
     type: csv
     source: "Small synthetic tokenized spectral-sequence teaching dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -506,7 +506,7 @@ datasets:
     path: data/small/spectral_masked_token_workflow_demo.csv
     type: csv
     source: "Small synthetic masked-token spectral-sequence workflow dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - sample_id
@@ -536,7 +536,7 @@ datasets:
     path: data/small/spectral_masked_patch_workflow_demo.csv
     type: csv
     source: "Small synthetic masked-patch spectral-sequence workflow dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-27"
     fields:
       - sample_id
@@ -560,7 +560,7 @@ datasets:
     path: data/small/lightcurve_debug_demo.csv
     type: csv
     source: "Small synthetic transit-light-curve debugging dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - cadence_id
@@ -579,7 +579,7 @@ datasets:
     path: data/small/transient_agent_workflow_demo.csv
     type: csv
     source: "Small synthetic transient-candidate triage dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - candidate_id
@@ -601,7 +601,7 @@ datasets:
     path: data/small/literature_reading_workflow_demo.csv
     type: csv
     source: "Small synthetic paper-evidence-card dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - note_id
@@ -622,7 +622,7 @@ datasets:
     path: data/small/ai_ethics_workflow_demo.csv
     type: csv
     source: "Small synthetic AI-usage-case workflow dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-26"
     fields:
       - case_id
@@ -643,7 +643,7 @@ datasets:
     path: data/small/capstone_project_workflow_demo.csv
     type: csv
     source: "Small synthetic capstone-project board dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-27"
     fields:
       - project_id
@@ -666,7 +666,7 @@ datasets:
     path: data/small/capstone_project_scoping_demo.csv
     type: csv
     source: "Small synthetic capstone-project proposal-scoping dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-04-27"
     fields:
       - proposal_id
@@ -687,7 +687,7 @@ datasets:
     path: data/small/capstone_delivery_review_demo.csv
     type: csv
     source: "Small synthetic capstone final-delivery review dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - delivery_id
@@ -710,7 +710,7 @@ datasets:
     path: data/small/capstone_rubric_case_template_demo.csv
     type: csv
     source: "Small synthetic capstone rubric and case-template dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - case_id
@@ -740,7 +740,7 @@ datasets:
     path: data/small/capstone_trial_teaching_feedback_demo.csv
     type: csv
     source: "Small synthetic capstone trial-teaching feedback dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - trial_id
@@ -761,7 +761,7 @@ datasets:
     path: data/small/capstone_course_calendar_demo.csv
     type: csv
     source: "Small synthetic 16-week capstone course-calendar dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - week
@@ -781,7 +781,7 @@ datasets:
     path: data/small/capstone_student_handout_ta_guide_demo.csv
     type: csv
     source: "Small synthetic capstone student-handout and TA grading-guide release dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - item_id
@@ -801,7 +801,7 @@ datasets:
     path: data/small/capstone_revision_archive_feedback_demo.csv
     type: csv
     source: "Small synthetic capstone revision and archive-feedback dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - item_id
@@ -822,7 +822,7 @@ datasets:
     path: data/small/capstone_instructor_handoff_demo.csv
     type: csv
     source: "Small synthetic capstone instructor-handoff dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - handoff_id
@@ -842,7 +842,7 @@ datasets:
     path: data/small/capstone_public_release_maintenance_demo.csv
     type: csv
     source: "Small synthetic capstone public-release and course-maintenance dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - release_id
@@ -862,7 +862,7 @@ datasets:
     path: data/small/capstone_launch_qa_adoption_demo.csv
     type: csv
     source: "Small synthetic capstone launch-QA and adoption-note dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - qa_id
@@ -882,7 +882,7 @@ datasets:
     path: data/small/capstone_adoption_feedback_maintenance_demo.csv
     type: csv
     source: "Small synthetic capstone adoption-feedback and course-maintenance dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - feedback_id
@@ -902,7 +902,7 @@ datasets:
     path: data/small/capstone_final_package_closure_demo.csv
     type: csv
     source: "Small synthetic capstone final-package and closure-checklist dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - package_id
@@ -922,7 +922,7 @@ datasets:
     path: data/small/capstone_course_package_directory_release_notes_demo.csv
     type: csv
     source: "Small synthetic capstone course-package directory and release-note dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - entry_id
@@ -942,7 +942,7 @@ datasets:
     path: data/small/capstone_semester_reboot_preflight_demo.csv
     type: csv
     source: "Small synthetic capstone semester-reboot and preflight dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - reboot_id
@@ -962,7 +962,7 @@ datasets:
     path: data/small/capstone_failure_mode_escalation_demo.csv
     type: csv
     source: "Small synthetic capstone failure-mode and escalation dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - incident_id
@@ -982,7 +982,7 @@ datasets:
     path: data/small/capstone_contingency_substitute_handoff_demo.csv
     type: csv
     source: "Small synthetic capstone contingency and substitute-handoff dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - handoff_id
@@ -1002,7 +1002,7 @@ datasets:
     path: data/small/capstone_shutdown_warmstart_demo.csv
     type: csv
     source: "Small synthetic capstone shutdown and warm-start dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - shutdown_id
@@ -1022,7 +1022,7 @@ datasets:
     path: data/small/capstone_alumni_mentor_relay_demo.csv
     type: csv
     source: "Small synthetic capstone alumni-example and mentor-relay dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - relay_id
@@ -1042,7 +1042,7 @@ datasets:
     path: data/small/capstone_community_memory_maintenance_ledger_demo.csv
     type: csv
     source: "Small synthetic capstone community-memory and long-term-maintenance dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - ledger_id
@@ -1062,7 +1062,7 @@ datasets:
     path: data/small/capstone_external_collaboration_guest_intake_demo.csv
     type: csv
     source: "Small synthetic capstone external-collaboration and guest-intake dataset created for the textbook project."
-    license: "Repository educational content; verify final project-wide license before publication."
+    license: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)"
     download_date: "2026-05-03"
     fields:
       - intake_id

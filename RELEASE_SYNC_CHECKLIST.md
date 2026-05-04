@@ -8,6 +8,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 ## 1. Pre-Release Validation
 
 - Run `python scripts/validate_data_manifest.py`
+- Run `python scripts/check_release_inventory.py`
 - Run `python scripts/smoke_test_notebooks.py`
 - Run `bash scripts/build_book_local.sh main`
 - Run `bash scripts/build_book_local.sh zh`

@@ -283,6 +283,26 @@ $ rg "target 042" "logs/observation notes.txt"
 
 在真实项目里，统一的命名规则往往比“记住很多技巧”更重要。
 
+\subsection{shell 展开：命令真正收到的参数是什么}
+
+当你输入一条命令时，程序通常不是直接看到你写下的原始文本。shell 会先做若干预处理，例如展开通配符、处理引号、识别重定向，再把一组参数交给真正的程序。
+
+\begin{examplebox}[先预览 shell 展开结果]
+\begin{lstlisting}[style=pythonstyle]
+$ printf "%s\n" raw/*.fits
+$ ls raw/*.fits
+\end{lstlisting}
+\end{examplebox}
+
+如果 \texttt{raw/} 里有三个 FITS 文件，那么 \texttt{rm raw/*.fits} 里的 \texttt{*.fits} 通常会先被展开成三个具体路径，然后 \texttt{rm} 收到的已经不是“一个模式”，而是一串文件名。理解这一点非常重要，因为它解释了两个常见现象：
+
+\begin{itemize}
+    \item 通配符匹配到多少文件，批量命令就会影响多少文件；
+    \item 引号会改变 shell 的预处理方式，例如 \texttt{"*.fits"} 不再按通配符展开，而是作为普通字符串传给程序。
+\end{itemize}
+
+所以，批量操作前的预览并不是形式主义。你不是在“多敲一条命令”，而是在确认 shell 将要交给程序的真实目标集合。
+
 \subsection{查看文件内容与快速预览}
 
 真正进入科研之后，你会频繁面对日志、说明文件和小型文本结果。这时候，\texttt{head}、\texttt{tail}、\texttt{wc} 和 \texttt{less} 这类命令会比“把整个文件打开”更实用。
@@ -374,6 +394,10 @@ $ rg "target_042" logs/ >> nightly_notes.txt
 
 这类操作在科研里非常常见，因为终端命令本身也经常是流程证据的一部分。
 
+\begin{warnbox}[重定向也是一种写操作]
+\texttt{>} 会覆盖已有文件。如果你运行 \texttt{python analyze.py > results.txt}，而 \texttt{results.txt} 原来已经保存了重要输出，那么原内容会被新输出替换。需要保留历史时，应考虑使用 \texttt{>>} 追加、换一个带日期或版本的文件名，或者先把旧文件归档。
+\end{warnbox}
+
 \subsection{管道}
 
 管道符号 \texttt{|} 的作用，是把前一条命令的输出直接作为后一条命令的输入。例如：
@@ -392,6 +416,18 @@ $ ls raw | rg ".fits"
 \end{itemize}
 
 这种“先生成，再过滤”的方式，是很多科研数据工作流的最小原型。
+
+\subsection{用 \texttt{tee} 同时看输出和保存记录}
+
+有些时候你既想在屏幕上看到程序输出，又想把它保存成日志。直接用 \texttt{>} 会让屏幕上不再显示正常输出；这时可以使用 \texttt{tee}。
+
+\begin{examplebox}[同时显示和保存]
+\begin{lstlisting}[style=pythonstyle]
+$ python analyze.py | tee logs/analyze_run.txt
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{tee} 的名字来自管道里的 T 形分流：一份输出继续显示在终端，一份写入文件。对课程项目来说，这是一种很好的运行证据：以后你不仅有结果文件，还能看到当时程序报告了哪些输入、参数和摘要统计。
 
 \subsection{标准输入、标准输出与标准错误}
 
@@ -567,6 +603,24 @@ $ python long_task.py &
 
 \texttt{ps} 和 \texttt{top} 这类命令能帮助你查看当前有哪些进程正在运行，以及哪些程序占用了较多资源。入门时不需要背所有列名，但要知道：当程序“好像卡住了”，你应先确认它是否还活着，而不是立刻重复执行。
 
+\subsection{长任务的最小运行记录}
+
+长时间任务最怕的不是慢，而是慢完之后没有证据。至少应记录三类信息：
+
+\begin{itemize}
+    \item 运行了哪条命令；
+    \item 输出和错误信息保存在哪里；
+    \item 任务开始和结束的大致时间。
+\end{itemize}
+
+\begin{examplebox}[给长任务留下证据]
+\begin{lstlisting}[style=pythonstyle]
+$ time python reduce_night.py > logs/reduce.out 2> logs/reduce.err
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{time} 会报告程序运行耗时，\texttt{logs/reduce.out} 保存正常输出，\texttt{logs/reduce.err} 保存错误信息。这个例子还不等于完整的集群作业系统，但已经具备了科研工作流最重要的意识：不要只相信“我按过回车”，而要留下“它如何运行、是否失败、用了多久”的记录。
+
 \section{最小 shell 脚本：把命令串变成流程入口}
 
 当你发现自己反复运行同一串命令时，就应该考虑写一个 shell 脚本。
@@ -574,6 +628,7 @@ $ python long_task.py &
 \begin{examplebox}[最小 shell 脚本示意]
 \begin{lstlisting}[style=pythonstyle]
 #!/bin/bash
+set -euo pipefail
 mkdir -p results
 python clean_catalog.py
 python make_plot.py
@@ -581,6 +636,16 @@ python make_plot.py
 \end{examplebox}
 
 这类脚本不一定负责复杂科学计算，但非常适合作为工作流入口，把目录准备、脚本执行和结果生成按顺序固定下来。
+
+这里的 \texttt{set -euo pipefail} 是一个常见的安全开关组合：
+
+\begin{itemize}
+    \item \texttt{-e}：某条命令失败时尽早停止脚本；
+    \item \texttt{-u}：使用未定义变量时报错；
+    \item \texttt{pipefail}：管道中间步骤失败时，不要只看最后一条命令是否成功。
+\end{itemize}
+
+入门阶段不必把它当成魔法咒语背下来，但要理解它的意图：科研脚本应该尽早暴露失败，而不是悄悄带着错误继续生成貌似正常的结果。
 
 \section{从命令到工作流：一个最小科研目录算法}
 

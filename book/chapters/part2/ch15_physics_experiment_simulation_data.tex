@@ -188,6 +188,44 @@ r_i = y_i - y_{\mathrm{model}}(x_i;\theta).
 
 如果模型还包含 $V_0$，可以把它一起放入网格，也可以在固定 $\tau$ 时求最优幅度。无论采用哪种实现，教学上最重要的是：\textbf{参数估计不是魔法函数给出的数字，而是模型预测和观测数据反复比较后的结果。}
 
+\subsection{固定 \texorpdfstring{$\tau$}{tau} 时怎样求最优 \texorpdfstring{$V_0$}{V0}}
+
+指数模型可以写成
+
+\[
+V_i \approx V_0 a_i,
+\qquad
+a_i = e^{-t_i/\tau}.
+\]
+
+如果 $\tau$ 已经固定，未知量只剩下 $V_0$。这时加权卡方为
+
+\[
+\chi^2(V_0\mid\tau)
+= \sum_i \frac{(V_i - V_0 a_i)^2}{\sigma_i^2}.
+\]
+
+对 $V_0$ 求导并令导数为零，可以得到
+
+\[
+\hat{V}_0(\tau)
+=
+\frac{\sum_i V_i a_i/\sigma_i^2}
+{\sum_i a_i^2/\sigma_i^2}.
+\]
+
+这一步很重要，因为它把二维搜索压缩成了一维搜索：外层扫描 $\tau$，内层直接算出该 $\tau$ 下最优的 $V_0$。许多更复杂的拟合算法也在做类似事情：把一部分参数通过解析或线性代数求出，把真正困难的参数留给外层优化。
+
+\begin{examplebox}[固定 tau 时估计 V0]
+\begin{lstlisting}[style=pythonstyle]
+def best_v0_for_tau(times, voltages, sigmas, tau):
+    basis = [math.exp(-time / tau) for time in times]
+    numerator = sum(v * a / (s ** 2) for v, a, s in zip(voltages, basis, sigmas))
+    denominator = sum((a ** 2) / (s ** 2) for a, s in zip(basis, sigmas))
+    return numerator / denominator
+\end{lstlisting}
+\end{examplebox}
+
 \begin{examplebox}[一维参数搜索的最小形状]
 \begin{lstlisting}[style=pythonstyle]
 best = None
@@ -292,6 +330,43 @@ def forward_euler_decay(v0, tau, dt, n_steps):
 \end{itemize}
 
 因此，Monte Carlo 很重要，但它仍然只是可信度分析中的一层，不是全部答案。
+
+\subsection{最小 Monte Carlo 代码骨架}
+
+Monte Carlo 的核心是“扰动数据，重复完整拟合流程”，而不是只在最佳参数附近随便加一个误差条。最小代码骨架可以写成：
+
+\begin{examplebox}[扰动数据并重复拟合]
+\begin{lstlisting}[style=pythonstyle]
+import random
+
+tau_samples = []
+for _ in range(n_trials):
+    perturbed = [
+        random.gauss(value, sigma)
+        for value, sigma in zip(voltages, sigmas)
+    ]
+    best_tau = fit_tau_by_grid(times, perturbed, sigmas, candidate_taus)
+    tau_samples.append(best_tau)
+
+tau_mean = sum(tau_samples) / len(tau_samples)
+\end{lstlisting}
+\end{examplebox}
+
+这段伪代码故意把 \texttt{fit\_tau\_by\_grid} 保留为一个函数名，因为教学重点是流程：每一次扰动后都要重新走完整参数估计，而不是只对最后结果做表面修饰。
+
+\section{参数结果应该怎样报告}
+
+一个更像科研报告的拟合结果，不应该只写“最佳 $\tau=2.15\,\mathrm{s}$”。至少应包含：
+
+\begin{itemize}
+    \item 最佳参数及其单位；
+    \item 参数不确定度或 Monte Carlo 分布摘要；
+    \item 使用的数据范围、误差模型和自由度；
+    \item 残差是否存在系统结构；
+    \item 与简单 baseline 或经验模型的比较。
+\end{itemize}
+
+例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。
 
 \section{为什么还要和数据驱动近似比较}
 

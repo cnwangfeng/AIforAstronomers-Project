@@ -21,7 +21,7 @@ Current status:
 
 - The current pass is a textbook-depth refinement pass, not a new-chapter expansion.
 - Part II now includes a Chinese guide chapter and a synthesis chapter, connecting all data types through data contracts, units/errors, type-specific algorithms, diagnostics, and model-readiness.
-- The synthesis chapter now includes a shared formula map, and the current refinement pass deepens distance modulus, aperture-photometry net flux, and period-search coefficient interpretation.
+- The synthesis chapter now includes a shared formula map, and the current refinement pass deepens distance modulus, aperture-photometry net flux, redshift/EW interpretation, period-search coefficient interpretation, and physics-fit parameter reporting.
 - Each chapter should connect concepts, formulas, algorithmic steps, code bridges, common errors, AI-assistant usage, exercises, and a short summary.
 - Part II assumes the reader has Part 0 under control and can follow small Python workflows with tables, loops, functions, and object-method calls without stopping to relearn the basics.
 - Before committing Part II changes, run `bash scripts/build_book_local.sh zh`, `python scripts/smoke_test_notebooks.py`, and `git diff --check`.

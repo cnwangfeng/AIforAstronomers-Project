@@ -37,6 +37,7 @@ AIforAstronomers/           # Overleaf 同步书稿仓库
 - 路线图和课程资源：`Roadmap.md`
 - 统一课程包发布说明：`COURSE_PACKAGE_RELEASE_NOTES.md`
 - 同步/发布检查清单：`RELEASE_SYNC_CHECKLIST.md`
+- 发布前非技术决策清单：`PUBLICATION_DECISIONS.md`
 
 Overleaf 同步仓库只保留：
 
@@ -122,3 +123,5 @@ bash scripts/build_book_local.sh zh
 - 代码许可证
 - 教学数据许可证
 - 外部材料引用和改写授权
+
+发布路径、许可证拆分、引用归属和项目级 AI-use statement 的待决事项集中记录在 `PUBLICATION_DECISIONS.md`。

@@ -21,6 +21,7 @@
 
 ## 发布前必须补齐
 
+- 顶层 `PUBLICATION_DECISIONS.md`：集中确认发布路径、许可证拆分、引用归属和项目级 AI-use statement 的选择。
 - 顶层 `LICENSE`：说明教材文字、代码和教学数据是否采用同一许可证，或分别采用不同许可证。
 - 顶层 `NOTICE` 或 `ATTRIBUTION`：如继续保留 Python for Astronomers、astroML、Acquaviva、Ivezic et al. 等参考来源，应说明引用、改写和授权边界。
 - 顶层 `CITATION.cff` 或 `CITATION.md`：说明课程包如何被引用。

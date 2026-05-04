@@ -1084,6 +1084,7 @@ data 完成标准：
 - 已建立 `book/SOURCE_LICENSE_QA.md`，记录 bibliography、数据 manifest、许可证占位、外部来源和 AI-use statement 的发布前状态。
 - `data/manifest.yml` 已验证通过，当前登记 `52` 个小型教学数据集，所有路径存在；许可证仍等待项目级最终决策。
 - 下一步需要项目级决策：教材文字/图表、代码、教学数据是否采用同一许可证，是否公开教学发布、非商业共享或预留商业出版路径。
+- 这些发布前非技术决策已集中到 `PUBLICATION_DECISIONS.md`，避免在 README、release notes 和 license 文件之间分散追踪。
 - 待许可证决策后，再补顶层 `LICENSE`、`NOTICE` / attribution、`CITATION`、项目级 AI-use statement，并决定是否把 `book/references.bib` 接入正文 bibliography。
 
 阶段 E：验证、同步和推送

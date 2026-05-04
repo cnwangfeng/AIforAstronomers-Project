@@ -86,6 +86,7 @@ Most recent verified state:
 - Small teaching datasets: `data/small/`
 - Data registry: `data/manifest.yml`
 - Recovery and project state: `Roadmap.md`
+- Publication decision tracker: `PUBLICATION_DECISIONS.md`
 - Overleaf sync helper: `scripts/sync_book_to_overleaf.sh`
 
 ## Immediate Polish Queue

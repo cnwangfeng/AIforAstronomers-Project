@@ -27,6 +27,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Confirm `notebooks/part6_capstone/README.md` matches actual notebooks
 - Confirm `data/small/README.md` and `data/manifest.yml` match current datasets
 - Confirm `COURSE_PACKAGE_RELEASE_NOTES.md` reflects current counts and outputs
+- Confirm `PUBLICATION_DECISIONS.md` has no unresolved blocker for the intended release path
 
 ## 3. Overleaf Sync Dry Run
 

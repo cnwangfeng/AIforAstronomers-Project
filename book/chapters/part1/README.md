@@ -19,4 +19,5 @@ Current status:
 
 - These chapters have completed the first textbook-depth pass and are being reviewed for polish.
 - Part I should emphasize reproducible habits: safe command-line work, clear Git history, stable scripts, data contracts, and scientific figure standards.
+- Each chapter now includes an explicit bridge from textbook prose to its companion notebook workflow.
 - Before committing Part I changes, run `bash scripts/build_book_local.sh zh`, `python scripts/smoke_test_notebooks.py`, and `git diff --check`.

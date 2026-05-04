@@ -334,6 +334,20 @@ fig.savefig("results/orbit_period_vs_axis.pdf")
 
 这个清单会在后面的 HR 图、光谱、时间序列和机器学习诊断图中反复出现。也就是说，本章学到的不是 Matplotlib 技巧，而是科研证据表达的底层规范。
 
+\section{配套 notebook 做了什么}
+
+配套 notebook 延续 \texttt{planetary\_orbits\_demo.csv} 这个小数据集，从读取半长轴和轨道周期开始，逐步完成：
+
+\begin{itemize}
+    \item 检查数据点数量、变量范围和单位；
+    \item 计算 $P^2/a^3$，把图像与 Kepler 关系联系起来；
+    \item 比较线性直觉和对数坐标下的幂律结构；
+    \item 构造一个最小模型并计算残差；
+    \item 在有 \texttt{matplotlib} 的环境中生成图像，在没有图形库时仍保留数值解释。
+\end{itemize}
+
+这个设计故意不依赖复杂数据。它要训练的是一件更基础的事：一张图不能只是 notebook 输出，它必须能回答“变量是什么、单位是什么、关系是什么、模型哪里没有解释好”。
+
 \section{常见错误}
 
 \begin{warnbox}[科研绘图中的典型问题]

@@ -437,6 +437,20 @@ $ git log --oneline -5
 
 后面写项目报告时，不要求学生把每个中间结果都写成复杂的工程文档；但对于最终图表、最终模型和最终报告，至少应能说清“它们来自哪一版代码”。这就是 Git 从“程序员工具”变成科研记录系统的关键一步。
 
+\section{配套 notebook 做了什么}
+
+配套 notebook 会在临时目录里创建一个小型 Git 仓库，因此不会污染你当前项目。它的路线是：
+
+\begin{itemize}
+    \item 初始化仓库，创建 README 和小型数据文件；
+    \item 观察 \texttt{status}、\texttt{add}、\texttt{commit} 和 \texttt{diff} 之间的状态变化；
+    \item 练习暂存、取消暂存和恢复局部修改；
+    \item 创建一个实验分支，并把稳定结果打成教学 tag；
+    \item 写一条最小 release note，把代码版本、数据说明和入口文件连起来。
+\end{itemize}
+
+这份 notebook 的重点不是让你记住所有 Git 命令，而是把 Git 看成科研时间轴：每一次好提交都应该让未来的自己知道发生了什么、为什么发生、如何回到那一刻。
+
 \section{常见错误}
 
 \begin{warnbox}[Git 入门中的典型问题]

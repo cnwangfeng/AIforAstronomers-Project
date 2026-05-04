@@ -51,6 +51,7 @@
 - `ch04`：明确 notebook、script 和 module 的三层分工，防止把探索代码误当作可维护工作流。
 - `ch06`：把 CSV 字段契约与 FITS header 契约统一为“先理解数据契约，再解释数值”的数据入口原则。
 - `ch08`：补上视觉编码的解释风险，强调颜色、线型、坐标范围和图例并非纯装饰。
+- `ch01/ch02/ch04/ch08`：补齐“配套 notebook 做了什么”小节，使 Part I 每章都明确正文概念如何落到可运行 notebook。
 
 当前恢复判断：
 
@@ -61,7 +62,7 @@
 
 最近一次验证状态：
 
-- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `439`。
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `440`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
@@ -91,7 +92,7 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：约 `439` 页
+- 中文书稿当前页数：约 `440` 页
 
 ### 0.3 各部分完成度
 
@@ -107,7 +108,7 @@
 - `ch01`、`ch02`、`ch04`、`ch06`、`ch08` 已接回 `book/main_zh.tex`，并完成首轮教材化重写。
 - 配套 notebook 已同步到当前正文主线，并通过完整 smoke test。
 - 轻量二轮补强已加入 Linux 安全操作、好提交标准、最小脚本交付、I/O 检查记录和图表自审清单。
-- 深读补强已经开始，当前新增重点是 Linux/shell 执行模型、Git 结果版本线索、notebook/script/module 分工、数据契约和科研图表视觉编码风险。
+- 深读补强已经开始，当前新增重点是 Linux/shell 执行模型、Git 结果版本线索、notebook/script/module 分工、数据契约、科研图表视觉编码风险，以及每章正文到 notebook 的桥接说明。
 - 后续重点从“大面积补写”转为逐章细读：统一术语、补交叉引用、补图表说明、补习题层次，并检查每章是否真正从概念引入走到可复现实操。
 
 `Part II. 天文/物理数据处理`
@@ -322,7 +323,7 @@ bash scripts/build_book_local.sh zh
 截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `439` 页）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `440` 页）
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
 上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。

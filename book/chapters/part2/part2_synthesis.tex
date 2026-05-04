@@ -57,6 +57,20 @@ Part II 的公式并不是孤立知识点。它们都在做同一件事：把观
 
 这五问把 Part II 的各章连接起来。星表、图像、光谱、时间序列和实验数据的技术细节不同，但只要结果报告能稳定回答这五个问题，它就已经具备进入 Part III 机器学习工作流的基本可信度。
 
+\section*{Part II 的证据会进入哪些卡片}
+
+到了最终 capstone，Part II 的数据处理记录会成为几张证据卡的主体：
+
+\begin{itemize}
+    \item 数据来源、字段、单位、坐标、采样方式、许可证和筛选条件进入 Data card；
+    \item 派生量公式、背景扣除、归一化、周期搜索或实验拟合流程进入 Reproducibility card；
+    \item 误差预算、质量标记、残差、Monte Carlo 分布和失败样本进入 Evaluation card；
+    \item 当前结果能支持什么、不能支持什么，以及选择效应和模型假设边界进入 Interpretation card；
+    \item 如果数据不能公开、不能上传外部服务或需要特殊署名，这些边界进入 Integrity card。
+\end{itemize}
+
+也就是说，Part II 的目标不是把数据“处理干净”后交给后面的模型，而是把数据处理过程本身写成可以被复查的证据。后续模型越复杂，这些证据卡越重要。
+
 \section*{不同数据类型的最小交付件}
 
 \begin{center}

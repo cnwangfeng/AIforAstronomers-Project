@@ -18,40 +18,22 @@
 - 完整项目仓库：`889ac1a`，提交信息 `Complete textbook refresh and capstone expansion`
 - Overleaf 书稿仓库：`4da027b`，提交信息 `Sync textbook refresh and capstone chapters`
 
-`Part II` 第二轮教材化检查已经完成，并已在完整项目仓库形成本地提交：
+在最近一次远端推送之后，完整项目仓库已经形成一组本地 checkpoint。当前 `main` 分支相对 `origin/main` 至少领先 `12` 个提交，具体数量以 `git status -sb` 为准；如继续写作，可以直接在当前状态上工作，如需要发布或备份，应先推送完整项目仓库，再同步 Overleaf 书稿仓库。
 
-- 完整项目仓库本地提交：`0d5dcf1`，提交信息 `Refine Part II textbook bridge material`
-- 当前 `main` 分支相对 `origin/main` 至少领先 `1` 个提交；尚未把 `0d5dcf1` 推送到远端。
-- Overleaf 书稿仓库当前仍停在 `4da027b`，尚未同步这组新的 `Part II` 改动。
+当前尚未推送到远端的主要本地 checkpoint 包括：
 
-在上述 checkpoint 之后，完整项目仓库又新增了多轮本地 checkpoint：
-
+- `0d5dcf1`，提交信息 `Refine Part II textbook bridge material`
 - `7ec2a1d`，提交信息 `Strengthen Part 0 prerequisites and bridges`
 - `813ec30`，提交信息 `Update roadmap with latest checkpoint`
-- 当前 `main` 分支相对 `origin/main` 已领先多个本地提交；具体数量以 `git status -sb` 为准。
-- 这一轮把 `Part 0` 的先修底线、`Part I/II` 的前置桥接，以及若干入口说明同步到了当前状态。
+- `80f44b7`，提交信息 `Deepen Part I Linux and figure reading`
+- `6d67da9`，提交信息 `Add part-level textbook framing`
+- `1047634`，提交信息 `Close ML and photo-z textbook loops`
+- `31dcfb5`，提交信息 `Round out case exercises and capstone map`
+- `4328069`，提交信息 `Refresh book entry documentation`
 
-本轮已经完成验证、准备作为 checkpoint 保留的是 `Part I` 轻量二轮补强，涉及文件为：
+Overleaf 书稿仓库当前仍停在 `4da027b`，尚未同步这些后续本地书稿改动。同步方式见本节后面的“书稿同步方式”。
 
-- `Roadmap.md`
-- `book/chapters/part1/README.md`
-- `book/chapters/part1/ch01_unix_linux_scientific_computing.tex`
-- `book/chapters/part1/ch02_git_reproducible_research.tex`
-- `book/chapters/part1/ch04_libraries_scripts_jupyter.tex`
-- `book/chapters/part1/ch06_data_io_fits.tex`
-- `book/chapters/part1/ch08_plotting_scientific_figures.tex`
-- `notebooks/part1_scientific_computing/README.md`
-
-这组 `Part I` 轻量二轮改动的核心目标，是在不重新大改章节结构的前提下，为 Linux/Git/脚本/I/O/绘图补上更明确的科研工作流检查点。本轮已经补入：
-
-- `ch01`：破坏性 Linux 命令前的三步安全确认。
-- `ch02`：一次好 Git 提交的边界、证据和说明标准。
-- `ch04`：最小可复现脚本交付件标准。
-- `ch06`：数据读入后的 I/O 检查记录模板。
-- `ch08`：科研图表交付前的自审清单。
-- `Part I` 正文和 notebook README：从“draft/future”语气调整为当前正式章节状态。
-
-在这个基础上，后续又开始了更深一层的教材化加厚，重点放在：
+近期本地 checkpoint 的核心内容包括：
 
 - `ch01`：shell 展开顺序、重定向覆盖风险、`tee` 记录、长任务运行证据和 `set -euo pipefail` 脚本安全习惯。
 - `ch01`：命令查找与 `PATH`、环境变量与 alias 边界、`sort/uniq/cut/xargs` 的最小统计与批处理。
@@ -61,19 +43,24 @@
 - `ch08`：补上视觉编码的解释风险，强调颜色、线型、坐标范围和图例并非纯装饰。
 - `ch01/ch02/ch04/ch08`：补齐“配套 notebook 做了什么”小节，使 Part I 每章都明确正文概念如何落到可运行 notebook。
 - 全书中文入口已补入六大 Part 显式分隔；Part I--VI 均新增或接入导读/收束层，用于说明每一部分的学习主线、能力边界和前后衔接。
+- Part III 收束综合已补入机器学习方法章共通常见误区。
+- Part IV 第 26、27、28、29 章均已对齐基础/进阶/开放练习层；Part IV 收束综合补入四个案例的共同交付物清单。
+- Part VI 导读已补入学生项目层、课程运行层和课程包维护层的三层阅读地图。
+- `book/README.md`、`book/chapters/README.md`、`notebooks/README.md` 与 `book/main_zh.tex` 封面状态已同步到当前中文教材主线。
 
 当前恢复判断：
 
-- 用户正在阅读 `Part I`；这轮轻量补强只是把明显缺口先补齐，后续仍应根据用户反馈决定是否逐章深改，尤其是 `ch01` Linux 操作深度。
-- `Part II` 已完成一轮全章检查并提交；下一步若继续处理，应优先做局部微调、交叉引用、图表说明和练习分层。
-- 近期如果要发布或备份，需先决定是否推送完整项目仓库的本地提交，并是否把 `book/` 同步到 Overleaf 书稿仓库。
+- `Part I/II` 已具备完整教材骨架：概念展开、公式/算法桥接、notebook 互引、常见错误、AI 助手边界、练习和小结均已接入。
+- `Part III/IV/V` 的正文主线已经成体系；后续更适合做细读、术语统一、图表说明、交叉引用和个别案例加厚，而不是继续无限扩新章。
+- `Part VI` 已形成完整 capstone/课程包闭环；后续重点应是减少重复、统一 rubric 口径、压缩教师运维材料，而不是继续增加章节数量。
+- 近期如果要发布或备份，应先推送完整项目仓库的本地提交，并按脚本把 `book/` 同步到 Overleaf 书稿仓库。
 - 历史约束仍需保留：涉及网络/API 请求时控制 `RPM <= 6`；遇到 `400`、`429` 等短暂错误时可以等待 `3` 到 `5` 秒后重试，不必因此停止。
 
 最近一次验证状态：
 
 - `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `477`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
-- `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
+- `git diff --check`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
 
 书稿同步方式：
@@ -383,11 +370,11 @@ bash scripts/build_book_local.sh zh
 
 如果后续切换会话后继续推进，建议按以下顺序展开：
 
-1. 若尚未提交，先提交当前 `Part I` 轻量二轮补强 checkpoint。
-2. 用户正在阅读 `Part I`；等用户反馈后再回到 `Part I` 做逐章细读校订，重点检查 Linux/Git/脚本/I/O/绘图是否真正达到教材深度。
-3. 视需要将已经提交的 `Part II` 书稿变化同步到 Overleaf 书稿仓库，并在 `../AIforAstronomers/` 单独提交。
-4. 若继续处理 `Part II`，优先做局部微调、交叉引用、图表说明和练习分层，不再默认大面积扩写。
-5. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料。
+1. 先确认是否要推送完整项目仓库当前领先 `origin/main` 的本地提交。
+2. 如果要同步书稿，先在完整项目仓库运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
+3. 若继续写作，优先做从头细读：Part I/II 的术语、交叉引用、图表说明、习题层次和 notebook 互引。
+4. 若处理 Part VI，优先减少重复、统一 rubric 语言、压缩教师运维材料，不再扩新章节。
+5. 系统整理旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料。
 
 ## 1. 教材定位
 
@@ -1095,11 +1082,11 @@ data 完成标准：
 
 根据 2026-05-04 的实际完成状态，建议下一轮工作按这个顺序进行：
 
-1. `Part I` 轻量二轮补强已经通过构建和 smoke test；若尚未提交，先提交当前 checkpoint。
-2. `Part II` 第二轮教材化全章检查已经完成并形成本地提交 `0d5dcf1`；当前优先不是继续扩写，而是等待阅读反馈或同步书稿。
-3. 如果需要同步书稿，先运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
-4. 用户正在阅读 `Part I`；等用户反馈后，再回到 `Part I` 做 Linux/Git/脚本/I/O/绘图的教材深度校订。
-5. 若继续微调 `Part II`，优先补交叉引用、图表说明、练习分层、术语统一和 notebook 互引，而不是继续增加大量正文。
+1. 确认是否推送完整项目仓库当前本地提交；当前 `main` 相对 `origin/main` 至少领先 `12` 个提交，具体数量以 `git status -sb` 为准。
+2. 如果需要同步书稿，先运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
+3. 若继续正文工作，优先从头细读 Part I/II，重点检查 Linux/Git/脚本/I/O/绘图、误差/单位、星表、FITS、光谱、时间序列和实验数据是否读起来像教材而不是讲义。
+4. 若继续后半本工作，优先做 Part III--VI 的术语统一、图表说明、案例报告模板、rubric 语言和重复压缩。
+5. 继续保留 `RPM <= 6` 的网络/API 请求约束；本地编译、grep、git、notebook smoke test 不受这个限制。
 
 如果需要从当前状态直接恢复工作，优先入口为：
 

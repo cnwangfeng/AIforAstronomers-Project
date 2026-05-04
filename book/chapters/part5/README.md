@@ -24,4 +24,4 @@ Current status:
 
 - Part V has a guide chapter and synthesis chapter, emphasizing baseline-first deep learning and verified use of modern AI tools.
 - Current chapters cover neural networks, CNNs, one-dimensional convolutions, autoencoders, Transformer/attention concepts, LLM-assisted programming, agentic workflows, literature/report workflows, and AI ethics.
-- Future expansion can add deeper transfer-learning or real-data deep-learning case studies after the current text is reviewed.
+- Possible later refinements include deeper transfer-learning or real-data deep-learning case studies after the current text is reviewed.

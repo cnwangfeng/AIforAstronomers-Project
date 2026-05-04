@@ -30,9 +30,10 @@ Current chapter files:
 - `ch57_capstone_alumni_mentor_relay.tex`
 - `ch58_capstone_community_memory_maintenance_ledger.tex`
 - `ch59_capstone_external_collaboration_guest_intake.tex`
+- `part6_synthesis.tex`
 - `book_closure.tex`
 
 Current status:
 
-- Part VI has a guide chapter and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
+- Part VI has a guide chapter, synthesis chapter, and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
 - The operational tail is complete enough for review; next refinements should focus on reducing repetition, aligning rubrics, and keeping instructor-facing material concise.

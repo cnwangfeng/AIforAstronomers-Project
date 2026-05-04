@@ -8,12 +8,12 @@
 - 教材英文副标题：Practical AI for Astronomy and Physics
 - 仓库名继续保留：AIforAstronomers
 
-说明：当前 `main.tex` 仍沿用英文可编译标题，以避免在正式切换到中文 LaTeX 编译链前影响 Overleaf 稳定性。后续在引入 XeLaTeX/中文支持时，再将封面和元数据切换为中文主标题 + 英文副标题。
+说明：`main_zh.tex` 是当前中文教材主入口，使用 XeLaTeX 编译；`main.tex` 保留为英文/兼容入口，主要用于历史书稿和稳定性检查。
 
-中文编译入口准备：
+当前编译入口：
 
-- `main.tex` 继续作为当前稳定入口；
-- `main_zh.tex` 作为中文正文主线入口，供 Overleaf/XeLaTeX 试编译；
+- `main_zh.tex` 是中文正文主线入口；
+- `main.tex` 继续作为兼容入口；
 - `main.tex` 已在本机通过 `latexmk -pdf` 编译验证；
 - `main_zh.tex` 已在本机通过 `latexmk -xelatex` 编译验证。
 
@@ -37,29 +37,31 @@ bash scripts/build_book_local.sh zh
 
 如果第一次从零开始编译中文入口，`latexmk` 可能需要多轮生成目录和各章辅助文件；脚本已经处理了这类情况。
 
-当前内容来自原有书稿仓库，后续将逐步整理为：
+当前主要书稿结构已经整理为：
 
 ```text
 book/
   main.tex
+  main_zh.tex
   chapters/
-  appendices/
   figures/
   references.bib
 ```
 
-短期内保留当前扁平结构，避免一次性大改影响编译。当前已经完成：
+旧的扁平章节文件仍保留在 `book/` 下，用于兼容历史入口；中文主书稿已经转向 `chapters/part*/` 结构。当前已经完成：
 
 - `main.tex` 的 `\include` 扩展名清理
 - `Glossary` 引用修正
 - `references.bib` 初始建立
+- `main_zh.tex` 的 Part I--VI 主线接入
+- Part 0 Python 先修模块从正文主线中独立
 
 后续清理顺序建议：
 
-1. 把章节逐步迁移到 `chapters/`。
-2. 建立统一图表目录。
-3. 切换到支持中文的 LaTeX 编译链。
-4. 将正文全部改写为中文，并按路线图扩展完整内容。
+1. 继续统一图表目录和图表来源说明。
+2. 清理不再使用的历史扁平章节文件。
+3. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。
+4. 同步到 Overleaf 书稿仓库前运行中文编译检查。
 
 同步到 Overleaf 前，请在项目根目录运行：
 

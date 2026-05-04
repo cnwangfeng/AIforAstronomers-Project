@@ -1,43 +1,27 @@
-# Chapters Migration Plan
+# Chapters Directory
 
-This directory will become the long-term home for the textbook chapters.
+This directory is the active chapter tree for the Chinese textbook entry point
+`book/main_zh.tex`.
 
-For now, the textbook still uses the legacy flat layout in `book/` to avoid
-breaking the current Overleaf workflow before we finish the first cleanup pass.
+Current organization:
 
-Draft policy:
+- `part0/`: Python prerequisite text kept outside the main book flow.
+- `part1/`: scientific computing foundations.
+- `part2/`: astronomy and physics data processing.
+- `part3/`: machine-learning workflow and scientific inference.
+- `part4/`: astronomy and physics case studies.
+- `part5/`: deep learning and modern AI.
+- `part6/`: capstone project, course package, and handoff materials.
 
-- new Chinese chapter drafts can be written here before they are wired into
-  `book/main.tex`
-- this lets us author the future textbook structure without breaking the current
-  stable Overleaf entry point
-- once a draft is mature and the Chinese LaTeX toolchain is ready, it can
-  replace the legacy chapter file in the main build
+Most active writing now happens inside this tree. The legacy top-level chapter
+files under `book/` are retained only for compatibility with older entry points
+and should not be treated as the primary source for the Chinese textbook.
 
-Planned migration map:
+When adding or revising a chapter, keep it aligned with the current pattern:
 
-- `UnixLinux.tex` -> `chapters/part1/ch01_unix_linux.tex`
-- `VersionControl/VersionControl.tex` -> `chapters/part1/ch02_git.tex`
-- `Chapter2.tex` -> `chapters/part0/ch03_basic_python_prereq.tex`
-- `Chapter3.tex` -> `chapters/part1/ch04_libraries_and_scripts.tex`
-- `Chapter4.tex` -> `chapters/part0/ch05_conditionals_and_loops.tex`
-- `Chapter5.tex` -> `chapters/part1/ch06_data_io_and_fits.tex`
-- `Chapter6.tex` -> `chapters/part0/ch07_functions_and_code_organization.tex`
-- `Chapter7.tex` -> `chapters/part1/ch08_plotting.tex`
-- `Chapter8.tex` -> `chapters/part0/ch09_object_oriented_programming.tex`
-
-Later parts will be added under:
-
-- `chapters/part0/`
-- `chapters/part2/`
-- `chapters/part3/`
-- `chapters/part4/`
-- `chapters/part5/`
-- `chapters/part6/`
-
-Current draft progress:
-
-- Part 0 has begun absorbing the generic Python prerequisite materials
-- Part I currently focuses on Linux, Git, Jupyter, data I/O, and plotting
-- Part II is beginning with uncertainty and HR-diagram chapter drafts
-- Part VI has now begun with capstone workflow, scoping, delivery, and rubric drafts
+- learning goals and scientific motivation;
+- conceptual explanation before code details;
+- a clear connection to the paired notebook and teaching data;
+- common pitfalls or failure modes;
+- basic, advanced, and open exercises;
+- a short summary that states what the method can and cannot support.

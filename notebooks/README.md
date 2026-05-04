@@ -37,10 +37,12 @@ notebooks/
 
 当前进展：
 
-- `part0_python_prereq/` 已开始接收 Python 入门、条件循环、函数与轻量 OOP 材料。
-- `part1_scientific_computing/` 已从“Python 零基础”调整为“科研计算与可复现工作流”主线。
-- `part2_data_processing/` 已开始加入误差传播与 HR 图 notebook。
-- `part3_machine_learning/` 已开始加入规则 baseline 和最小分类工作流 notebook。
-- `part4_cases/` 已开始接收 Gaia HR 图、光度红移估计、光谱分类等案例型 notebook。
-- `part5_deep_learning_ai/` 已开始接收神经网络基础、卷积与图像局部特征、一维卷积与光谱局部模式、表示学习与自编码器、Transformer/注意力概念、LLM 辅助科研编程与验证工作流、agentic research workflow、文献阅读/报告写作，以及 AI 伦理/使用声明 notebook。
-- 后续优先将这些骨架扩展为真正的教学 notebook，再依次推进 Part II 到 Part VI。
+- `part0_python_prereq/` 已覆盖 Python 入门、条件循环、函数模块与轻量 OOP。
+- `part1_scientific_computing/` 已对应 Linux、Git、脚本/Jupyter、数据 I/O 与科学绘图。
+- `part2_data_processing/` 已对应误差、不确定度、Gaia HR 图、FITS/WCS、光谱、时间序列与实验/模拟数据。
+- `part3_machine_learning/` 已对应 AI/ML 科学推断、最小 workflow、回归、分类、评估、预处理、模型选择、无监督、异常检测和可信度。
+- `part4_cases/` 已对应 Gaia HR 图、光度红移估计、光谱分类和星系形态分类案例。
+- `part5_deep_learning_ai/` 已对应神经网络、CNN、一维卷积、自编码器、Transformer/注意力、LLM 辅助编程、agentic workflow、文献阅读/报告写作和 AI 伦理。
+- `part6_capstone/` 已对应 capstone workflow、选题、报告展示、rubric、试教、课程运行、发布维护、交接和长期维护。
+
+最近一次完整 smoke test 已通过 `59` 个 notebook。后续 notebook 工作的重点不再是补空目录，而是和正文一起做细读：统一术语、控制运行时间、补图表解释、补失败案例和维护每章数据契约。

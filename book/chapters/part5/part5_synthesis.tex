@@ -75,10 +75,10 @@ part5_delivery = {
 Part VI 不会要求学生另外写一套孤立的 AI 附录。更好的做法，是把 Part V 的可信交付包嵌入 capstone case template：
 
 \begin{itemize}
-    \item 深度模型的任务、baseline、训练验证和失效边界进入 Model card 与 Evaluation card；
-    \item 输入预处理、样本质量门和人工复核队列进入 Data card 与 Reproducibility card；
-    \item LLM、agent 和 AI 辅助写作的 usage log 进入 Integrity card；
-    \item AI-use statement、human signoff 和公开声明进入最终报告与展示材料。
+    \item 深度模型的任务、baseline、训练验证和失效边界进入 Baseline / Model / Evaluation cards；
+    \item 输入预处理、样本质量门、verification loop 和人工复核队列进入 Data / Reproducibility / Evaluation cards；
+    \item action log、claim ledger 和 caveat 说明进入 Interpretation / Integrity cards；
+    \item LLM、agent 和 AI 辅助写作的 usage log、AI-use statement、human signoff 和公开声明进入 Integrity card 与最终报告。
 \end{itemize}
 
 这样处理后，复杂工具不会漂浮在项目之外。它们会被放回同一套证据结构中，和科学问题、数据、baseline、诊断图、错误样本和限制说明一起接受检查。

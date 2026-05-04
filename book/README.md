@@ -56,13 +56,15 @@ book/
 - `main_zh.tex` 的 Part I--VI 主线接入
 - Part 0 Python 先修模块从正文主线中独立
 - `FIGURE_TABLE_QA.md` 已建立，用于记录中文主线图表、表格、来源和发布前 QA 状态
+- `EVIDENCE_CARD_QA.md` 已建立，用于记录八张 capstone evidence cards 的 canonical 名称、桥接状态和发布前 QA 状态
 
 后续清理顺序建议：
 
 1. 持续更新 `FIGURE_TABLE_QA.md`，统一图表目录和图表来源说明。
-2. 清理不再使用的历史扁平章节文件。
-3. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。
-4. 同步到 Overleaf 书稿仓库前运行中文编译检查。
+2. 持续更新 `EVIDENCE_CARD_QA.md`，避免八张证据卡在新增章节中漂移。
+3. 清理不再使用的历史扁平章节文件。
+4. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。
+5. 同步到 Overleaf 书稿仓库前运行中文编译检查。
 
 同步到 Overleaf 前，请在项目根目录运行：
 

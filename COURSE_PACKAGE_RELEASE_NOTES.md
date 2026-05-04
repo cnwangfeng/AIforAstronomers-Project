@@ -81,10 +81,11 @@ Most recent verified state:
 
 ## Immediate Polish Queue
 
-- Normalize chapter references, figure captions, and bibliography coverage.
-- Review Part I/II from the beginning for textbook depth, terminology, and
-  notebook-to-prose alignment.
-- Keep Part VI instructor-facing material concise during future wording passes;
-  the shared gate/route and final-package-index frame is now in place.
-- Do one controlled `sync_book_to_overleaf.sh --apply` cycle when ready to
-  publish the current book state.
+- Run reader QA from Part I/II outward, focusing on textbook depth,
+  terminology, notebook-to-prose alignment, and exercise levels.
+- Inventory figures, tables, chapter references, evidence-card links,
+  bibliography coverage, and source/license notes.
+- Keep Part VI in compression mode only; no new operational chapters are
+  planned for the current version.
+- Do one controlled `sync_book_to_overleaf.sh` dry-run and, after confirmation,
+  one `--apply` cycle when ready to publish the current book state.

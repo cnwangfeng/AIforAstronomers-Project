@@ -76,7 +76,8 @@ Current recovery counts to confirm before sync:
 
 ## 7. Remaining Publication Polish
 
-- Bibliography normalization
-- Figure inventory / figure polish
+- Reader QA from Part I/II outward
+- Figure, table, formula, and cross-reference inventory
+- Bibliography, source, license, and AI-use statement audit
 - Final wording pass on release notes and audience-facing copy
-- License clarification before public release
+- Overleaf dry-run before any `--apply` sync

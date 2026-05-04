@@ -354,7 +354,7 @@ tau_mean = sum(tau_samples) / len(tau_samples)
 
 这段伪代码故意把 \texttt{fit\_tau\_by\_grid} 保留为一个函数名，因为教学重点是流程：每一次扰动后都要重新走完整参数估计，而不是只对最后结果做表面修饰。
 
-\section{参数结果应该怎样报告}
+\section{一个最小实验拟合结果报告模板}
 
 一个更像科研报告的拟合结果，不应该只写“最佳 $\tau=2.15\,\mathrm{s}$”。至少应包含：
 
@@ -366,7 +366,7 @@ tau_mean = sum(tau_samples) / len(tau_samples)
     \item 与简单 baseline 或经验模型的比较。
 \end{itemize}
 
-例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。
+例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。到了最终项目包，原始实验字段和误差模型进入 Data card，拟合流程和随机扰动方法进入 Reproducibility card，残差与 baseline 比较进入 Evaluation card，物理解释和模型假设则进入 Interpretation card。
 
 \section{为什么还要和数据驱动近似比较}
 

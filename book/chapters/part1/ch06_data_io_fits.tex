@@ -219,6 +219,23 @@ data_provenance = {
 
 这段记录本身不做科学计算，但它让后续 notebook、脚本和报告更容易回答“我到底用了哪份数据”这个问题。
 
+\section{字段契约与 header 契约：同一个思想的两种形式}
+
+CSV 和 FITS 看起来很不一样：前者像普通表格文本，后者像天文专用数据容器。但从工作流角度看，它们遵循同一个原则：\textbf{先理解数据契约，再解释数值。}
+
+对于 CSV，契约通常藏在字段名、单位说明和缺失值规则里；对于 FITS，契约更多藏在 header 关键字、HDU 结构和仪器元数据里。无论格式如何，读入后都应该先问：
+
+\begin{enumerate}
+    \item 这份文件声称自己包含什么；
+    \item 哪些字段、header 或数组维度是后续分析必需的；
+    \item 单位、坐标、曝光时间或处理状态是否足以支持当前解释；
+    \item 如果某个关键说明缺失，后续结果应如何降级或标记。
+\end{enumerate}
+
+\begin{protip}[不要让文件格式替你思考]
+FITS 比 CSV 更强大，但它不会自动保证科学解释正确。格式只是容器；真正让数据可信的是契约、校验和 provenance。
+\end{protip}
+
 \section{FITS：为什么天文特别依赖它}
 
 FITS（Flexible Image Transport System）是天文学里最常见的数据格式之一。它之所以重要，不只是因为“很多图像都存成 FITS”，而是因为它通常把\textbf{数据本体}和\textbf{元数据描述}放在一起。

@@ -175,6 +175,32 @@ for repeat in range(B):
 
 只有三者一起过关，模型输出才有资格进入科学解释。
 
+\section{一个最小可信度声明模板}
+
+当模型结果要进入论文草稿、项目报告或课程展示时，最好附上一段简短但明确的可信度声明。它的目的不是显得保守，而是告诉读者：你知道这个模型在哪些地方可靠、哪些地方不能过度解释。
+
+\begin{enumerate}
+    \item \textbf{误差声明}：报告测试误差、典型残差或混淆模式，而不是只给单个预测例子；
+    \item \textbf{不确定度声明}：说明 bootstrap、交叉验证或重复切分覆盖的是哪类波动；
+    \item \textbf{解释性声明}：说明特征重要性和局部解释描述的是模型行为，不是物理因果；
+    \item \textbf{适用范围声明}：说明训练集覆盖的颜色、亮度、红移、信噪比或其他关键范围；
+    \item \textbf{失效风险声明}：指出分布外样本、选择效应和观测条件变化可能如何破坏结论。
+\end{enumerate}
+
+\begin{examplebox}[可信度声明的最小骨架]
+\begin{lstlisting}[style=pythonstyle]
+trust_statement = {
+    "test_error": test_error_summary,
+    "uncertainty_method": "bootstrap over training rows",
+    "interpretability_scope": "model behavior, not causal proof",
+    "training_coverage": coverage_summary,
+    "known_failure_modes": ["out_of_distribution", "selection_effects"],
+}
+\end{lstlisting}
+\end{examplebox}
+
+如果一个模型在训练覆盖范围内表现稳定，但对边界外样本误差明显升高，那么可信度声明中就应明确写出这一点。科学可信度不是把模型包装得更强，而是把模型能承担的证据责任说清楚。
+
 \begin{warnbox}[可信度评估中的常见误区]
 \begin{itemize}
     \item 把 bootstrap 区间当作“已经包含全部不确定度”；

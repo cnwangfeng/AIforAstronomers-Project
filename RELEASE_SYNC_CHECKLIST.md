@@ -70,7 +70,7 @@ If work needs to resume later, start here:
 
 Current recovery counts to confirm before sync:
 
-- Chinese PDF: about `492` pages
+- Chinese PDF: about `495` pages
 - Notebook smoke test: `59` notebooks
 - Data manifest: `52` datasets
 

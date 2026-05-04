@@ -158,6 +158,34 @@ anomaly_score = mean(distance to k nearest neighbors)
 
 真正的“新奇发现”往往诞生在这一步之后，而不是诞生在排行榜本身。
 
+\section{一个最小异常候选复核表}
+
+异常检测的交付物不应该只是一个按分数排序的表，而应该是一个可以进入人工复核的候选清单。每个高分候选至少需要记录：
+
+\begin{enumerate}
+    \item \textbf{候选身份}：样本编号、原始观测来源和基本质量标记；
+    \item \textbf{异常证据}：异常分数、排名、触发该分数的主要特征或波段；
+    \item \textbf{质量排查}：是否存在低信噪比、坏像元、饱和、拼接错误或背景扣除问题；
+    \item \textbf{外部交叉检查}：其他波段、其他巡天或其他历元是否支持这个异常；
+    \item \textbf{复核结论}：暂定为物理候选、数据伪影、边界普通样本，还是需要更多信息。
+\end{enumerate}
+
+\begin{examplebox}[异常候选复核记录]
+\begin{lstlisting}[style=pythonstyle]
+candidate_review = {
+    "object_id": object_id,
+    "rank": rank,
+    "anomaly_score": score,
+    "trigger_features": ["halpha_ew", "blue_red_ratio"],
+    "quality_flags_checked": True,
+    "cross_match_status": "needs_follow_up",
+    "review_label": "candidate_not_confirmed",
+}
+\end{lstlisting}
+\end{examplebox}
+
+这样记录的好处是，它把“算法觉得奇怪”和“科学上值得相信”隔开了。前者可以自动化，后者必须经过证据、质量和后续验证共同支撑。
+
 \section{一个容易被忽略的问题：你到底在找什么异常}
 
 异常检测常常被误解成一个统一问题，但实际上“异常”可能有很多含义：

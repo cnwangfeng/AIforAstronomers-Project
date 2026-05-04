@@ -71,7 +71,7 @@
 
 最近一次验证状态：
 
-- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `476`。
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `477`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
@@ -102,7 +102,7 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：约 `476` 页
+- 中文书稿当前页数：约 `477` 页
 
 ### 0.3 各部分完成度
 
@@ -158,6 +158,7 @@
 
 - 第 26 章：Gaia HR 图与恒星分类
   - 正文：已完成
+  - 练习：已补入视差质量阈值、边界错分样本和真实 Gaia 扩展检查
   - notebook：已完成
   - data：已完成
 - 第 27 章：光度红移估计案例
@@ -167,6 +168,7 @@
   - data：已完成
 - 第 28 章：光谱分类案例
   - 正文：已完成
+  - 练习：已补入坏像元、归一化方法和真实巡天光谱扩展检查
   - notebook：已完成
   - data：已完成
 - 第 29 章：星系形态分类案例
@@ -174,6 +176,7 @@
   - notebook：已完成（传统形态特征 baseline 版本）
   - data：已完成（教学用 morphology demo 数据）
 - 已新增 Part IV 导读与收束综合，把四个案例明确组织为从数据处理、机器学习 workflow 到完整项目意识的装配训练。
+- Part IV 收束综合已补入四个案例的共同交付物清单，要求问题定义、数据契约、baseline、诊断图、错误案例分析和有限结论同时存在。
 
 `Part V. 深度学习与现代 AI`
 
@@ -305,6 +308,7 @@
   - data：已完成（external-collaboration / guest-intake demo 数据）
 - `Part VI` 的课程包闭环、读者入口层、跨学期重启入口、运行期故障升级层、替班接管层、跨届收尾层、长期导师接力层、长期记忆层和外部合作准入层已经形成；下一步可以从头回到前半本。
 - 已新增 Part VI 导读和全书收束章，把 capstone 明确定位为可信交付，并把全书主线收束到“从会运行到会负责”。
+- Part VI 导读已补入三层阅读地图：学生项目层、课程运行层和课程包维护层，降低后段章节读起来像平铺清单的风险。
 
 ### 0.4 已验证的本地环境与工作流
 
@@ -344,10 +348,10 @@ bash scripts/build_book_local.sh zh
 - `main.tex` PDF：`/tmp/aifor_book_main/main.pdf`
 - `main_zh.tex` PDF：`/tmp/aifor_book_main_zh/main_zh.pdf`
 
-截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
+截至 2026-05-04 的最近一次验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `476` 页）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `477` 页）
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
 上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。

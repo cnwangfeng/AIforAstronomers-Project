@@ -343,7 +343,13 @@ S_{\mathrm{net}} = S_{\mathrm{ap}} - N_{\mathrm{pix}} B
 \texttt{planetary\_orbits\_demo.csv} 已读入，8 行，关键字段完整，单位与数据契约一致，后续可以进入 Kepler 关系检查。
 \end{quote}
 
-这种写法看似朴素，却能显著降低“我好像读进来了，但后来不知道用了哪份数据”的风险。随着数据变复杂，这条检查记录也会越来越像正式 provenance 的起点。
+如果需要更接近模板化的写法，可以进一步展开为：
+
+\begin{quote}
+数据入口为 \nolinkurl{data/small/planetary_orbits_demo.csv}，读取脚本或 notebook 为 \nolinkurl{notebooks/ch06_data_io_fits.ipynb}。读入后共有 8 行、3 个必需字段，字段 \texttt{semi\_major\_axis\_au} 与 \texttt{orbital\_period\_years} 已完成数值转换，未发现关键字段缺失；单位按数据说明解释为 au 与 year；后续分析只使用通过字段契约检查的行。
+\end{quote}
+
+这种写法看似朴素，却能显著降低“我好像读进来了，但后来不知道用了哪份数据”的风险。随着数据变复杂，这条检查记录也会越来越像正式 provenance 的起点。到了最终项目包，它会进入 Data card 和 Reproducibility card：前者记录数据入口、字段契约和单位解释，后者记录读取入口和可复跑路径。
 
 \section{配套 notebook 做了什么}
 

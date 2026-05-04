@@ -230,11 +230,12 @@ def best_v0_for_tau(times, voltages, sigmas, tau):
 \begin{lstlisting}[style=pythonstyle]
 best = None
 for tau in candidate_taus:
+    v0 = best_v0_for_tau(times, voltages, sigmas, tau)
     predictions = [v0 * math.exp(-time / tau) for time in times]
     chi2 = sum(((obs - pred) / sigma) ** 2
                for obs, pred, sigma in zip(voltages, predictions, sigmas))
     if best is None or chi2 < best["chi2"]:
-        best = {"tau": tau, "chi2": chi2}
+        best = {"tau": tau, "v0": v0, "chi2": chi2}
 \end{lstlisting}
 \end{examplebox}
 

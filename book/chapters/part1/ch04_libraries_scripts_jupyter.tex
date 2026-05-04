@@ -365,6 +365,16 @@ print(f"Writing {config['output_path']}")
 
 这组要求并不复杂，但它能把“我这里能跑”推进到“别人知道怎么跑，也知道跑出了什么”。后面进入机器学习章节时，这个标准会变得更重要，因为训练/验证划分、随机种子、模型参数和输出指标都必须被稳定记录。
 
+\section{一个最小脚本运行记录模板}
+
+脚本交付件还需要配一条运行记录。否则，读者只能看到代码，却不知道这段代码最近一次是否真的跑过、用了什么输入、生成了什么输出。一个教学项目里的最小写法可以是：
+
+\begin{quote}
+运行入口位于 \nolinkurl{scripts/make_orbit_summary.py}，配置文件为 \nolinkurl{configs/demo.yml}。输入数据为 \nolinkurl{data/small/planetary_orbits_demo.csv}；随机种子为 \texttt{20260504}；输出为 \nolinkurl{results/orbit_summary.csv} 和 \nolinkurl{results/orbit_period_vs_axis.png}；运行日志显示共处理 8 行，无缺失关键字段。
+\end{quote}
+
+这条记录把 notebook、script、data 和 result 连成一条线。后续如果模型分数、图表或报告结论发生变化，就可以回到这条线索检查：是输入数据变了，配置变了，脚本变了，还是运行环境变了？这也是 Part I 进入最终 Reproducibility card 的核心方式。
+
 \section{配套 notebook 做了什么}
 
 配套 notebook 主要承担两个任务。第一，它用标准库示例说明 \texttt{import}、随机种子、均值计算和模块可用性检查并不是形式动作，而是可复现运行环境的一部分。第二，它在临时目录中生成一个小脚本和一个最小入口脚本，让你看到 notebook 探索如何逐步变成可重复运行的脚本。

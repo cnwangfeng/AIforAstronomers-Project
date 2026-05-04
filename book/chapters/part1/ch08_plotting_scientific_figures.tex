@@ -352,7 +352,17 @@ fig.savefig("results/orbit_period_vs_axis.pdf")
 图注应该帮助读者理解这张图支持什么判断。一个好图注通常包含：数据来源、关键处理、坐标含义、主要结构和限制条件。只写“某某关系图”通常不够。
 \end{protip}
 
-这个清单会在后面的 HR 图、光谱、时间序列和机器学习诊断图中反复出现。也就是说，本章学到的不是 Matplotlib 技巧，而是科研证据表达的底层规范。
+\section{一个最小图表说明模板}
+
+图表进入报告前，最好配一段短说明，而不只是保存成文件。一个最小模板可以写成：
+
+\begin{quote}
+图 \texttt{orbit\_period\_vs\_axis.png} 使用 \texttt{planetary\_orbits\_demo.csv} 中的半长轴和轨道周期，横轴单位为 AU，纵轴单位为 year。对数坐标下点列近似满足 \(P^2/a^3\) 为常数的结构，支持 Kepler 第三定律的教学判断；该图只包含少量教学行星样本，不应用来讨论真实观测误差、样本选择或多体摄动。
+\end{quote}
+
+这段话把图表文件、数据来源、坐标单位、主要 claim 和限制条件放在一起。到了最终项目包，图表本身不是证据的全部；图表说明才把视觉结构连接到 Interpretation card，并把数据来源和生成入口连接到 Data card 与 Reproducibility card。
+
+这个清单和模板会在后面的 HR 图、光谱、时间序列和机器学习诊断图中反复出现。也就是说，本章学到的不是 Matplotlib 技巧，而是科研证据表达的底层规范。
 
 \section{配套 notebook 做了什么}
 

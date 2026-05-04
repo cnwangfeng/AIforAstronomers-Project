@@ -964,7 +964,7 @@ Milestone 1：Part 0 与 Part I 重构
 
 Milestone 2：Part II 数据处理章节
 
-- 先完成星表、FITS 图像、光谱、时间序列四条数据线。
+- 先完成星表、FITS 图像、光谱、时间序列、物理实验/模拟五条数据线，并把误差与单位作为共同基础层。
 - 每条数据线至少一个小数据集和一个 notebook。
 
 Milestone 3：Part III 机器学习主线

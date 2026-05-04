@@ -24,6 +24,12 @@
 - 当前 `main` 分支相对 `origin/main` 至少领先 `1` 个提交；尚未把 `0d5dcf1` 推送到远端。
 - Overleaf 书稿仓库当前仍停在 `4da027b`，尚未同步这组新的 `Part II` 改动。
 
+在上述 checkpoint 之后，完整项目仓库又新增了一轮本地提交：
+
+- 完整项目仓库最新本地提交：`7ec2a1d`，提交信息 `Strengthen Part 0 prerequisites and bridges`
+- 当前 `main` 分支相对 `origin/main` 领先 `6` 个提交。
+- 这一轮把 `Part 0` 的先修底线、`Part I/II` 的前置桥接，以及若干入口说明同步到了当前状态。
+
 本轮已经完成验证、准备作为 checkpoint 保留的是 `Part I` 轻量二轮补强，涉及文件为：
 
 - `Roadmap.md`

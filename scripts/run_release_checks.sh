@@ -36,6 +36,7 @@ run_overleaf_dry_run() {
 run_quick() {
   run_step python scripts/validate_data_manifest.py
   run_step python scripts/check_release_inventory.py
+  run_step python scripts/check_publication_blockers.py
 
   if [[ -f "${ZH_LOG}" ]]; then
     run_step python scripts/check_latex_log.py
@@ -52,6 +53,7 @@ run_quick() {
 run_full() {
   run_step python scripts/validate_data_manifest.py
   run_step python scripts/check_release_inventory.py
+  run_step python scripts/check_publication_blockers.py
   run_step python scripts/smoke_test_notebooks.py
   run_step bash scripts/build_book_local.sh main
   run_step bash scripts/build_book_local.sh zh

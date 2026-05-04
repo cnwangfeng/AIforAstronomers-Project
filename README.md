@@ -109,7 +109,10 @@ python scripts/smoke_test_notebooks.py
 ```bash
 python scripts/validate_data_manifest.py
 python scripts/check_release_inventory.py
+python scripts/check_publication_blockers.py
 ```
+
+`check_publication_blockers.py` 默认只报告许可证、归属、引用和项目级 AI-use 的未决项；最终公开发布前，可以在完成 `PUBLICATION_DECISIONS.md` 后用 `python scripts/check_publication_blockers.py --strict` 作为失败型检查。
 
 8. 在同步书稿前，可先做本地 LaTeX 编译检查：
 

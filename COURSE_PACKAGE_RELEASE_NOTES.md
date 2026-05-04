@@ -52,6 +52,7 @@ Run from repo root:
 ```bash
 python scripts/validate_data_manifest.py
 python scripts/check_release_inventory.py
+python scripts/check_publication_blockers.py
 python scripts/smoke_test_notebooks.py
 bash scripts/build_book_local.sh main
 bash scripts/build_book_local.sh zh
@@ -69,12 +70,13 @@ Most recent verified state:
 
 - `validate_data_manifest.py`: passed
 - `check_release_inventory.py`: passed
+- `check_publication_blockers.py`: passed in informational mode and reports `7` current license, attribution, citation, bibliography, and AI-use blockers
 - `smoke_test_notebooks.py`: passed (`59` notebooks)
 - `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
 - `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`507` pages)
 - `check_latex_log.py`: passed for `/tmp/aifor_book_main_zh/main_zh.log`
 - `run_release_checks.sh quick`: passed, including Overleaf dry-run payload guard
-- `run_release_checks.sh full`: passed, including notebook smoke test, both LaTeX builds, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
+- `run_release_checks.sh full`: passed, including publication blocker report, notebook smoke test, both LaTeX builds, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
 - `git diff --check`: passed
 - LaTeX error scan: no `Overfull`, undefined references, `Missing $`, or fatal errors detected in `/tmp/aifor_book_main_zh/main_zh.log`
 
@@ -97,6 +99,7 @@ Most recent verified state:
 - Data registry: `data/manifest.yml`
 - Recovery and project state: `Roadmap.md`
 - Publication decision tracker: `PUBLICATION_DECISIONS.md`
+- Publication blocker report: `scripts/check_publication_blockers.py`
 - Overleaf sync helper: `scripts/sync_book_to_overleaf.sh`
 
 The QA inventory files above are release-maintenance records in the full

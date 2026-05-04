@@ -11,6 +11,7 @@
 - `book/references.bib` 已有 `4` 个基础参考条目：Acquaviva、Ivezic et al.、astroML、Python for Astronomers。
 - 当前中文主线 `book/main_zh.tex` 未接入 bibliography，也未出现 `\cite{...}` 调用；参考文献仍是发布前待接入项。
 - 当前中文主线未使用外部图片 `\includegraphics`；正文图表主要由 TikZ、PGFPlots 或 LaTeX 内嵌教学数据生成。
+- `scripts/check_publication_blockers.py` 已建立，用于把上述来源、许可证、引用和 AI-use 未决项转成可运行报告；默认信息模式不阻塞技术 QA，`--strict` 只应在最终发布决策完成后启用。
 
 ## 当前 QA 结论
 
@@ -18,6 +19,7 @@
 - Python for Astronomers、astroML 和相关教材目前主要作为项目路线图与参考书目条目存在；中文正文没有直接复制外部教材段落的显式迹象，但正式发布前仍需做最后一次人工抽查。
 - AI-use statement 主线已经进入第 38 章和 Part VI delivery / rubric / project workflow；当前缺的是项目级发布声明，而不是章节教学内容。
 - 许可证是当前发布前的真实阻塞项：教材文字/图表、代码、教学数据和外部材料引用边界需要分别确认。
+- 最近一次 `python scripts/check_publication_blockers.py` 信息模式报告 `7` 个开放项：顶层 license、notice/attribution、citation、项目级 AI-use statement、`52` 个 data license 占位、中文 bibliography hook 和中文 citation commands。
 
 ## 发布前必须补齐
 
@@ -27,6 +29,7 @@
 - 顶层 `CITATION.cff` 或 `CITATION.md`：说明课程包如何被引用。
 - 正文 bibliography：决定是否在 `book/main_zh.tex` 中接入 `references.bib`，以及哪些章节需要显式引用。
 - 项目级 AI-use statement：说明本课程包中 AI 辅助写作、代码生成、检查和人工确认的边界。
+- 最终发布 gate：完成上述决策后，运行 `python scripts/check_publication_blockers.py --strict`，确认开放项已经关闭。
 
 ## 建议决策顺序
 

@@ -9,6 +9,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 
 - Run `python scripts/validate_data_manifest.py`
 - Run `python scripts/check_release_inventory.py`
+- Run `python scripts/check_publication_blockers.py`
 - Run `python scripts/smoke_test_notebooks.py`
 - Run `bash scripts/build_book_local.sh main`
 - Run `bash scripts/build_book_local.sh zh`
@@ -31,6 +32,8 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Confirm `data/small/README.md` and `data/manifest.yml` match current datasets
 - Confirm `COURSE_PACKAGE_RELEASE_NOTES.md` reflects current counts and outputs
 - Confirm `PUBLICATION_DECISIONS.md` has no unresolved blocker for the intended release path
+- After publication decisions are resolved, run
+  `python scripts/check_publication_blockers.py --strict`
 
 ## 3. Overleaf Sync Dry Run
 
@@ -97,5 +100,6 @@ Current recovery counts to confirm before sync:
 - Reader QA is now targeted rather than a blank sweep; use QA inventories and reader feedback for focused patches
 - Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; source/license inventory is tracked in `book/SOURCE_LICENSE_QA.md`; these QA files are project-side release records and are excluded from the default Overleaf sync payload
 - Bibliography, source, license, and AI-use statement audit remain blocked on final project-level license decisions
+- `scripts/check_publication_blockers.py` tracks those blockers in a runnable report; use `--strict` only after final publication decisions are made
 - Final wording pass on release notes and audience-facing copy
 - Overleaf dry-run before any `--apply` sync

@@ -293,6 +293,25 @@ fig.savefig("results/orbit_period_vs_axis.pdf")
 不要把最终图命名为 \texttt{plot.png}、\texttt{new.png} 或 \texttt{final2.png}。更好的文件名应包含对象、变量关系、版本或日期线索，例如 \texttt{hr\_diagram\_quality\_cut\_v1.pdf}。
 \end{warnbox}
 
+\section{图表交付前的自审清单}
+
+科研图表在进入报告、作业或论文草稿前，最好先做一次自审。一个最小清单可以包括：
+
+\begin{enumerate}
+    \item 轴标签是否包含变量名和单位；
+    \item 图例是否解释了颜色、符号或线型；
+    \item 坐标尺度是否适合数据动态范围；
+    \item 是否需要误差棒、残差图或样本量说明；
+    \item 文件名是否能追踪图的内容和版本；
+    \item 图注是否说明了数据来源、筛选条件和主要结论。
+\end{enumerate}
+
+\begin{protip}[图注不是装饰]
+图注应该帮助读者理解这张图支持什么判断。一个好图注通常包含：数据来源、关键处理、坐标含义、主要结构和限制条件。只写“某某关系图”通常不够。
+\end{protip}
+
+这个清单会在后面的 HR 图、光谱、时间序列和机器学习诊断图中反复出现。也就是说，本章学到的不是 Matplotlib 技巧，而是科研证据表达的底层规范。
+
 \section{常见错误}
 
 \begin{warnbox}[科研绘图中的典型问题]

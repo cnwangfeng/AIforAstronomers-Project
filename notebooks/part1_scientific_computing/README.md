@@ -4,7 +4,7 @@ These notebooks belong to the main scientific-computing workflow of the
 textbook. Part I now assumes the reader has already completed the lightweight
 Python prerequisite track in `notebooks/part0_python_prereq/`.
 
-Current notebook plan:
+Current notebook set:
 
 - `ch01_unix_linux_scientific_computing.ipynb`
 - `ch02_git_reproducible_research.ipynb`
@@ -12,7 +12,7 @@ Current notebook plan:
 - `ch06_data_io_fits.ipynb`
 - `ch08_plotting_scientific_figures.ipynb`
 
-Each notebook should eventually include:
+Notebook alignment checklist:
 
 - Chinese narrative cells
 - explicit learning goals
@@ -20,3 +20,8 @@ Each notebook should eventually include:
 - one runnable worked example
 - one practice exercise section
 - a closing interpretation section
+
+Current status:
+
+- These notebooks are already aligned with the Chinese Part I chapters in `book/main_zh.tex`.
+- The current review pass is polish and alignment, not adding a new notebook layer.

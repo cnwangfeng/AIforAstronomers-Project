@@ -1,14 +1,13 @@
-# Part I Drafts
+# Part I: Scientific Computing Foundations
 
-This directory stores the future Chinese drafts for Part I: scientific
+This directory stores the Chinese textbook chapters for Part I: scientific
 computing and reproducible workflow after the reader has completed the Python
 prerequisite materials.
 
-These draft files are not yet included by `book/main.tex`. They are written
-here first so the project can advance the Chinese textbook content while the
-legacy Overleaf-compatible flat structure remains stable.
+These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
+remains a separate stable entry point.
 
-Current draft targets:
+Current chapter files:
 
 - `ch01_unix_linux_scientific_computing.tex`
 - `ch02_git_reproducible_research.tex`
@@ -18,5 +17,6 @@ Current draft targets:
 
 Current status:
 
-- These chapters are now reflected in `book/main_zh.tex` and should be treated as the Chinese Part I drafting area.
-- Next pass is review and polish: tighter transitions, clearer formulas, richer exercises, and reference alignment.
+- These chapters have completed the first textbook-depth pass and are being reviewed for polish.
+- Part I should emphasize reproducible habits: safe command-line work, clear Git history, stable scripts, data contracts, and scientific figure standards.
+- Before committing Part I changes, run `bash scripts/build_book_local.sh zh`, `python scripts/smoke_test_notebooks.py`, and `git diff --check`.

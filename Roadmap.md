@@ -18,40 +18,44 @@
 - 完整项目仓库：`889ac1a`，提交信息 `Complete textbook refresh and capstone expansion`
 - Overleaf 书稿仓库：`4da027b`，提交信息 `Sync textbook refresh and capstone chapters`
 
-本轮 `Part II` 第二轮教材化检查已经完成，完整项目仓库准备提交一个集中 checkpoint；Overleaf 书稿仓库当前为干净状态，但尚未同步这组新的 `Part II` 改动。
+`Part II` 第二轮教材化检查已经完成，并已在完整项目仓库形成本地提交：
 
-本轮 checkpoint 涉及的文件为：
+- 完整项目仓库本地提交：`0d5dcf1`，提交信息 `Refine Part II textbook bridge material`
+- 当前 `main` 分支相对 `origin/main` 至少领先 `1` 个提交；尚未把 `0d5dcf1` 推送到远端。
+- Overleaf 书稿仓库当前仍停在 `4da027b`，尚未同步这组新的 `Part II` 改动。
+
+本轮已经完成验证、准备作为 checkpoint 保留的是 `Part I` 轻量二轮补强，涉及文件为：
 
 - `Roadmap.md`
-- `book/chapters/part2/README.md`
-- `book/chapters/part2/ch10_measurement_uncertainty.tex`
-- `book/chapters/part2/ch11_gaia_hr_diagram.tex`
-- `book/chapters/part2/ch12_fits_images_wcs.tex`
-- `book/chapters/part2/ch13_spectroscopy.tex`
-- `book/chapters/part2/ch14_time_series_and_periods.tex`
-- `book/chapters/part2/ch15_physics_experiment_simulation_data.tex`
-- `notebooks/part2_data_processing/README.md`
+- `book/chapters/part1/README.md`
+- `book/chapters/part1/ch01_unix_linux_scientific_computing.tex`
+- `book/chapters/part1/ch02_git_reproducible_research.tex`
+- `book/chapters/part1/ch04_libraries_scripts_jupyter.tex`
+- `book/chapters/part1/ch06_data_io_fits.tex`
+- `book/chapters/part1/ch08_plotting_scientific_figures.tex`
+- `notebooks/part1_scientific_computing/README.md`
 
-这组 `Part II` 第二轮改动的核心目标是把章节从“讲义式列表”继续推向“教材式解释”：补上从概念、公式、计算流程到代码的桥梁。本轮已经补入：
+这组 `Part I` 轻量二轮改动的核心目标，是在不重新大改章节结构的前提下，为 Linux/Git/脚本/I/O/绘图补上更明确的科研工作流检查点。本轮已经补入：
 
-- `ch10`：误差传播速记规则、加权平均最小代码、误差预算和结果报告模板。
-- `ch11`：Gaia HR 图最小质量筛选、绝对星等计算、字段契约和 HR 图三层解释框架。
-- `ch12`：FITS/WCS 背景校正、像素坐标到天球坐标的最小映射、像素坐标约定和净信号不确定度。
-- `ch13`：红移计算、长表谱线重组、离散等效宽度近似、多谱线一致性和线心估计。
-- `ch14`：固定周期线性最小二乘、相位折叠函数、相位分箱摘要、候选周期网格和候选记录方式。
-- `ch15`：物理实验/模拟数据的 forward Euler 衰变模拟入口、参数搜索和残差图解释。
+- `ch01`：破坏性 Linux 命令前的三步安全确认。
+- `ch02`：一次好 Git 提交的边界、证据和说明标准。
+- `ch04`：最小可复现脚本交付件标准。
+- `ch06`：数据读入后的 I/O 检查记录模板。
+- `ch08`：科研图表交付前的自审清单。
+- `Part I` 正文和 notebook README：从“draft/future”语气调整为当前正式章节状态。
 
 当前恢复判断：
 
-- 用户正在阅读 `Part I`；下一轮建议根据用户对 `Part I` 的反馈决定是否回头细改。
-- `Part II` 当前已经完成一轮全章检查；下一步不建议继续无边界扩写，而应先让用户阅读或按需同步到 Overleaf 书稿仓库。
+- 用户正在阅读 `Part I`；这轮轻量补强只是把明显缺口先补齐，后续仍应根据用户反馈决定是否逐章深改，尤其是 `ch01` Linux 操作深度。
+- `Part II` 已完成一轮全章检查并提交；下一步若继续处理，应优先做局部微调、交叉引用、图表说明和练习分层。
+- 近期如果要发布或备份，需先决定是否推送完整项目仓库的本地提交，并是否把 `book/` 同步到 Overleaf 书稿仓库。
 - 历史约束仍需保留：涉及网络/API 请求时控制 `RPM <= 6`；遇到 `400`、`429` 等短暂错误时可以等待 `3` 到 `5` 秒后重试，不必因此停止。
 
 最近一次验证状态：
 
 - `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `432`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
-- `git diff --check`：通过。
+- `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
 
 书稿同步方式：
@@ -79,7 +83,7 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：`425` 页
+- 中文书稿当前页数：约 `432` 页
 
 ### 0.3 各部分完成度
 
@@ -94,6 +98,7 @@
 - 已有 Linux、Git、脚本/Jupyter、数据 I/O、科学绘图等内容。
 - `ch01`、`ch02`、`ch04`、`ch06`、`ch08` 已接回 `book/main_zh.tex`，并完成首轮教材化重写。
 - 配套 notebook 已同步到当前正文主线，并通过完整 smoke test。
+- 轻量二轮补强已加入 Linux 安全操作、好提交标准、最小脚本交付、I/O 检查记录和图表自审清单。
 - 后续重点从“大面积补写”转为逐章细读：统一术语、补交叉引用、补图表说明、补习题层次，并检查每章是否真正从概念引入走到可复现实操。
 
 `Part II. 天文/物理数据处理`
@@ -305,13 +310,13 @@ bash scripts/build_book_local.sh zh
 - `main.tex` PDF：`/tmp/aifor_book_main/main.pdf`
 - `main_zh.tex` PDF：`/tmp/aifor_book_main_zh/main_zh.pdf`
 
-截至 2026-05-04 的最近一次、与当前 `Part II` 工作直接相关的验证结果：
+截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
 - `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `432` 页）
-- `git diff --check`：通过（当前 `Part II` 改动无空白格式问题）
+- `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
-上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part II` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。
+上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。
 
 当前编译中仍存在但不阻塞工作的提示：
 
@@ -340,11 +345,11 @@ bash scripts/build_book_local.sh zh
 
 如果后续切换会话后继续推进，建议按以下顺序展开：
 
-1. 视需要将本轮 `Part II` 书稿变化同步到 Overleaf 书稿仓库，并在 `../AIforAstronomers/` 单独提交。
+1. 若尚未提交，先提交当前 `Part I` 轻量二轮补强 checkpoint。
 2. 用户正在阅读 `Part I`；等用户反馈后再回到 `Part I` 做逐章细读校订，重点检查 Linux/Git/脚本/I/O/绘图是否真正达到教材深度。
-3. 若继续处理 `Part II`，优先做局部微调、交叉引用、图表说明和练习分层，不再默认大面积扩写。
-4. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料。
-5. 之后再选择性推进 `Part V` 里能反哺 capstone 的真实模型缺口，而不是单独增加难以收束的 toy 结构。
+3. 视需要将已经提交的 `Part II` 书稿变化同步到 Overleaf 书稿仓库，并在 `../AIforAstronomers/` 单独提交。
+4. 若继续处理 `Part II`，优先做局部微调、交叉引用、图表说明和练习分层，不再默认大面积扩写。
+5. 系统整理 `Part I` 和 `Part II` 的旧书稿资产，确认是否还有值得迁入的例题、图表、习题或参考资料。
 
 ## 1. 教材定位
 
@@ -1051,23 +1056,22 @@ data 完成标准：
 
 根据 2026-05-04 的实际完成状态，建议下一轮工作按这个顺序进行：
 
-1. `Part II` 第二轮教材化全章检查已经完成；当前优先不是继续扩写，而是提交 checkpoint、等待阅读反馈或同步书稿。
-2. 如果需要同步书稿，先运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
-3. 用户正在阅读 `Part I`；等用户反馈后，再回到 `Part I` 做 Linux/Git/脚本/I/O/绘图的教材深度校订。
-4. 若继续微调 `Part II`，优先补交叉引用、图表说明、练习分层、术语统一和 notebook 互引，而不是继续增加大量正文。
-5. 之后再视课程结构推进 `Part IV/V` 中能反哺 capstone 的真实模型缺口。
+1. `Part I` 轻量二轮补强已经通过构建和 smoke test；若尚未提交，先提交当前 checkpoint。
+2. `Part II` 第二轮教材化全章检查已经完成并形成本地提交 `0d5dcf1`；当前优先不是继续扩写，而是等待阅读反馈或同步书稿。
+3. 如果需要同步书稿，先运行 `bash scripts/sync_book_to_overleaf.sh` dry-run，再运行 `bash scripts/sync_book_to_overleaf.sh --apply`，然后在 `../AIforAstronomers/` 单独提交并推送。
+4. 用户正在阅读 `Part I`；等用户反馈后，再回到 `Part I` 做 Linux/Git/脚本/I/O/绘图的教材深度校订。
+5. 若继续微调 `Part II`，优先补交叉引用、图表说明、练习分层、术语统一和 notebook 互引，而不是继续增加大量正文。
 
 如果需要从当前状态直接恢复工作，优先入口为：
 
 - `Roadmap.md` 的“当前进展快照（2026-05-04）”
 - `book/main_zh.tex`
-- `book/chapters/part2/README.md`
-- `book/chapters/part2/ch10_measurement_uncertainty.tex`
-- `book/chapters/part2/ch11_gaia_hr_diagram.tex`
-- `book/chapters/part2/ch12_fits_images_wcs.tex`
-- `book/chapters/part2/ch13_spectroscopy.tex`
-- `book/chapters/part2/ch14_time_series_and_periods.tex`
-- `book/chapters/part2/ch15_physics_experiment_simulation_data.tex`
+- `book/chapters/part1/README.md`
+- `book/chapters/part1/ch01_unix_linux_scientific_computing.tex`
+- `book/chapters/part1/ch02_git_reproducible_research.tex`
+- `book/chapters/part1/ch04_libraries_scripts_jupyter.tex`
+- `book/chapters/part1/ch06_data_io_fits.tex`
+- `book/chapters/part1/ch08_plotting_scientific_figures.tex`
 - `notebooks/part2_data_processing/README.md`
 - `COURSE_PACKAGE_RELEASE_NOTES.md`
 - `RELEASE_SYNC_CHECKLIST.md`

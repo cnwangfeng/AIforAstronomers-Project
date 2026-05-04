@@ -30,6 +30,9 @@ RSYNC_ARGS=(
   -av
   --itemize-changes
   --delete
+  # QA inventories live in the full project repo; keep the Overleaf-facing
+  # repository focused on compile-facing book sources.
+  --exclude "*_QA.md"
   --exclude ".git/"
   --exclude ".gitignore"
   --exclude ".DS_Store"

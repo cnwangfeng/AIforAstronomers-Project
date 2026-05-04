@@ -60,6 +60,8 @@ book/
 - `FORMULA_QA.md` 已建立，用于记录中文主线公式数量、解释标准和发布前公式 QA 状态
 - `SOURCE_LICENSE_QA.md` 已建立，用于记录 bibliography、数据来源、许可证、外部材料边界和 AI-use 发布前 QA 状态
 
+说明：这些 `*_QA.md` 文件是完整项目仓库中的发布维护台账；默认 Overleaf 同步会排除它们，使书稿仓库保持在 LaTeX 源文件、编译资源和必要说明文件范围内。
+
 后续清理顺序建议：
 
 1. 持续更新 `FIGURE_TABLE_QA.md`，统一图表目录和图表来源说明。

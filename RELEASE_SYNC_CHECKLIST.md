@@ -12,8 +12,11 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Run `python scripts/smoke_test_notebooks.py`
 - Run `bash scripts/build_book_local.sh main`
 - Run `bash scripts/build_book_local.sh zh`
+- Run `python scripts/check_latex_log.py`
+- Or run `bash scripts/run_release_checks.sh full` for the full local sequence
 - Confirm `/tmp/aifor_book_main_zh/main_zh.pdf` builds successfully
-- Confirm recent log has no blocking `Overfull \hbox`
+- Confirm recent Chinese log has no blocking `Overfull \hbox`, undefined
+  references, missing math delimiters, or fatal LaTeX errors
 - Review `Roadmap.md` counts and recovery pointers
 
 ## 2. Package Sanity Check
@@ -39,6 +42,10 @@ bash scripts/sync_book_to_overleaf.sh
 
 - Review the itemized dry-run file list carefully
 - Check for accidental large-file or notebook-output leakage
+- Confirm project-side QA inventories such as `*_QA.md` stay out of the
+  Overleaf-facing sync payload unless explicitly needed for a special review
+- `bash scripts/run_release_checks.sh quick` also fails if the dry-run payload
+  includes QA inventories, notebooks, or LaTeX build artifacts
 - Confirm only intended `book/` content will be synced
 
 ## 4. Overleaf Sync Apply
@@ -83,12 +90,12 @@ Current recovery counts to confirm before sync:
 - Chinese PDF: about `507` pages
 - Notebook smoke test: `59` notebooks
 - Data manifest: `52` datasets
-- Local validation: `build_book_local.sh main`, `build_book_local.sh zh`, notebook smoke, data manifest, LaTeX error scan, and `git diff --check` have passed
+- Local validation: `build_book_local.sh main`, `build_book_local.sh zh`, notebook smoke, data manifest, `check_latex_log.py`, and `git diff --check` have passed; `run_release_checks.sh full` is the one-command equivalent for the final local pass
 
 ## 7. Remaining Publication Polish
 
 - Reader QA is now targeted rather than a blank sweep; use QA inventories and reader feedback for focused patches
-- Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; source/license inventory is tracked in `book/SOURCE_LICENSE_QA.md`
+- Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; source/license inventory is tracked in `book/SOURCE_LICENSE_QA.md`; these QA files are project-side release records and are excluded from the default Overleaf sync payload
 - Bibliography, source, license, and AI-use statement audit remain blocked on final project-level license decisions
 - Final wording pass on release notes and audience-facing copy
 - Overleaf dry-run before any `--apply` sync

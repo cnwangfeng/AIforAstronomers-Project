@@ -55,7 +55,14 @@ python scripts/check_release_inventory.py
 python scripts/smoke_test_notebooks.py
 bash scripts/build_book_local.sh main
 bash scripts/build_book_local.sh zh
+python scripts/check_latex_log.py
 git diff --check
+```
+
+For a one-command release pass, run:
+
+```bash
+bash scripts/run_release_checks.sh full
 ```
 
 Most recent verified state:
@@ -65,6 +72,9 @@ Most recent verified state:
 - `smoke_test_notebooks.py`: passed (`59` notebooks)
 - `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
 - `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`507` pages)
+- `check_latex_log.py`: passed for `/tmp/aifor_book_main_zh/main_zh.log`
+- `run_release_checks.sh quick`: passed, including Overleaf dry-run payload guard
+- `run_release_checks.sh full`: passed, including notebook smoke test, both LaTeX builds, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
 - `git diff --check`: passed
 - LaTeX error scan: no `Overfull`, undefined references, `Missing $`, or fatal errors detected in `/tmp/aifor_book_main_zh/main_zh.log`
 
@@ -88,6 +98,11 @@ Most recent verified state:
 - Recovery and project state: `Roadmap.md`
 - Publication decision tracker: `PUBLICATION_DECISIONS.md`
 - Overleaf sync helper: `scripts/sync_book_to_overleaf.sh`
+
+The QA inventory files above are release-maintenance records in the full
+project repository. The default Overleaf sync keeps them out of the
+Overleaf-facing book repository so that the book-side payload stays focused on
+LaTeX sources and compile-time resources.
 
 ## Immediate Polish Queue
 

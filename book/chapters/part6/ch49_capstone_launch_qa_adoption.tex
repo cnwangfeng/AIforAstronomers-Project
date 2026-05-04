@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 会把坏链接、失败的 smoke test 和支持边界不清的材料一起推到发布队列。对外部采用者来说，这些问题不是小瑕疵，而是第一印象。
 
-在本章教学数据上，只按发布优先级取前四项，真正可发布的精度只有 0.25，未就绪材料混入率是 0.75。结构化 launch-QA workflow 会先检查链接，再检查 smoke test，再看支持边界，最后补采用说明：
+在本章教学数据上，只按发布优先级取前四项，真正可发布的精度只有 0.25，未就绪材料混入率是 0.75。表~\ref{tab:ch49_priority_vs_launch_qa} 展示了结构化 launch-QA workflow 如何先检查链接，再检查 smoke test，再看支持边界，最后补采用说明：
 
 \begin{table}[htbp]
 \centering

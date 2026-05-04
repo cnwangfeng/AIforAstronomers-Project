@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 的危险在于，它会把“看起来快好了”的材料推到最前面，却忽略 blocker、owner 缺失或跨包依赖未同步的问题。最终课程包最怕的不是材料少，而是“差一点没收完”的假完成状态。
 
-在本章教学数据上，只按最终 readiness 取前四项，真正可收束的精度只有 0.25，未就绪材料混入率是 0.75。结构化 final-package workflow 会先检查 closure gate，再检查 final owner，再看 dependency sync，最后补 package index：
+在本章教学数据上，只按最终 readiness 取前四项，真正可收束的精度只有 0.25，未就绪材料混入率是 0.75。表~\ref{tab:ch51_readiness_vs_closure} 展示了结构化 final-package workflow 如何先检查 closure gate，再检查 final owner，再看 dependency sync，最后补 package index：
 
 \begin{table}[htbp]
 \centering

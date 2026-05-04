@@ -84,9 +84,9 @@ Most recent verified state:
 
 - Run reader QA from Part I/II outward, focusing on textbook depth,
   terminology, notebook-to-prose alignment, and exercise levels.
-- Continue from `book/FIGURE_TABLE_QA.md` for figure/table checks, then finish
-  chapter references, evidence-card links, bibliography coverage, and
-  source/license notes.
+- Continue from `book/FIGURE_TABLE_QA.md` for formula explanation checks,
+  evidence-card links, bibliography coverage, and source/license notes; current
+  figure/table labels already have正文 `\ref{...}` entries.
 - Keep Part VI in compression mode only; no new operational chapters are
   planned for the current version.
 - Do one controlled `sync_book_to_overleaf.sh` dry-run and, after confirmation,

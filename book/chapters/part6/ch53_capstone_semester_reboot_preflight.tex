@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 会把最重要但仍有 blocker 或预检未完成的模块一起推到启动队列。对新学期来说，这种“高优先级假 ready”是最危险的状态。
 
-在本章教学数据上，只按重启优先级取前四项，真正可重启的精度只有 0.25，未就绪项混入率是 0.75。结构化 reboot workflow 会先检查 blocker，再看 owner，再检查是否仍停留在旧学期状态，最后才判断 preflight 是否完成：
+在本章教学数据上，只按重启优先级取前四项，真正可重启的精度只有 0.25，未就绪项混入率是 0.75。表~\ref{tab:ch53_priority_vs_reboot} 展示了结构化 reboot workflow 如何先检查 blocker，再看 owner，再检查是否仍停留在旧学期状态，最后才判断 preflight 是否完成：
 
 \begin{table}[htbp]
 \centering

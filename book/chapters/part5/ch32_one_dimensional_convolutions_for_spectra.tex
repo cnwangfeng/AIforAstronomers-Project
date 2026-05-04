@@ -70,6 +70,8 @@
     \item 平移后的 \texttt{double\_peak\_emission} 被误判为 \texttt{narrow\_emission}。
 \end{itemize}
 
+表~\ref{tab:ch32_raw_vs_conv1d} 把这个 raw-feature baseline 与一维卷积特征的最小结果放在一起。
+
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lcc}
@@ -203,7 +205,7 @@ score = sum(
 
 这一步的教学重点，不再只是“卷积比 raw features 更稳健”，而是把学生往真实 workflow 再推一步：\textbf{先做质量门和连续谱归一化，再决定哪些窗口可以送进模型。}
 
-在 notebook 里，这个最小 workflow 采用的是非常克制的处理：
+在 notebook 里，这个最小 workflow 采用的是非常克制的处理，表~\ref{tab:ch32_workflow_extension} 汇总了对应的 workflow-level 对照：
 
 \begin{itemize}
     \item 用窗口前 3 个和后 3 个 bin 的平均值估计一个线性连续谱基线；

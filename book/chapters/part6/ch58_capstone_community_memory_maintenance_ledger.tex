@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 的问题在于，高价值不代表高可用。某个条目可能非常重要，但如果没有 owner、没有刷新频率、已经陈旧，或者访问边界不清，它进入账本后只会制造新的误导。
 
-在本章教学数据上，只按 continuity priority 取前四项，真正适合直接进入长期账本的精度只有 0.25，未就绪项混入率是 0.75。结构化 memory workflow 会先看访问边界，再看 owner，再检查 staleness，最后确认更新频率：
+在本章教学数据上，只按 continuity priority 取前四项，真正适合直接进入长期账本的精度只有 0.25，未就绪项混入率是 0.75。表~\ref{tab:ch58_priority_vs_memory_ledger} 展示了结构化 memory workflow 如何先看访问边界，再看 owner，再检查 staleness，最后确认更新频率：
 
 \begin{table}[htbp]
 \centering

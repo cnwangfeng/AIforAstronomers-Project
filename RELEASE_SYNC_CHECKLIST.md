@@ -79,7 +79,7 @@ Current recovery counts to confirm before sync:
 ## 7. Remaining Publication Polish
 
 - Reader QA from Part I/II outward
-- Figure/table inventory is started in `book/FIGURE_TABLE_QA.md`; continue formula and cross-reference inventory
+- Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; continue formula explanation, evidence-card, bibliography, and license inventory
 - Bibliography, source, license, and AI-use statement audit
 - Final wording pass on release notes and audience-facing copy
 - Overleaf dry-run before any `--apply` sync

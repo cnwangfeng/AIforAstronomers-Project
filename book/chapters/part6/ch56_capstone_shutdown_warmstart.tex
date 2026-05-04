@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 的问题在于，压力高不一定代表该任务已经 ready。它可能还缺 shutdown check、archive snapshot，或者根本没有整理成下一届可以直接接手的种子包。
 
-在本章教学数据上，只按收尾压力取前四项，真正可收尾的精度只有 0.25，未就绪项混入率是 0.75。结构化 shutdown workflow 会先看 owner，再看 shutdown check，再看 archive snapshot，最后检查 next-cohort seed：
+在本章教学数据上，只按收尾压力取前四项，真正可收尾的精度只有 0.25，未就绪项混入率是 0.75。表~\ref{tab:ch56_pressure_vs_shutdown} 展示了结构化 shutdown workflow 如何先看 owner，再看 shutdown check，再看 archive snapshot，最后检查 next-cohort seed：
 
 \begin{table}[htbp]
 \centering

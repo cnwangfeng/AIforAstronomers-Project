@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 很容易把“看起来差不多”的场景和真正能安全接手的场景混在一起。尤其是当 minimal run package 还不完整、context brief 过期，或者某个场景本身带有政策边界时，高分反而会制造过度自信。
 
-在本章教学数据上，只按 readiness score 取前四项，真正替班可接手的精度只有 0.25，未就绪场景混入率是 0.75。结构化 substitute workflow 会先看 escalation，再看 owner，再检查 minimal run package，最后确认 context brief：
+在本章教学数据上，只按 readiness score 取前四项，真正替班可接手的精度只有 0.25，未就绪场景混入率是 0.75。表~\ref{tab:ch55_readiness_vs_substitute} 展示了结构化 substitute workflow 如何先看 escalation，再看 owner，再检查 minimal run package，最后确认 context brief：
 
 \begin{table}[htbp]
 \centering

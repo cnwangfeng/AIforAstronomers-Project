@@ -1070,7 +1070,8 @@ data 完成标准：
 阶段 C：图表、引用和证据卡盘点
 
 - 已建立 `book/FIGURE_TABLE_QA.md`，记录当前中文主线 `10` 个 figure、`33` 个 table、`43` 个 caption/label，以及当前图表来源边界。
-- 继续确认核心章节的图表、表格、公式和流程图都有正文解读。
+- 已补齐当前 `43` 个图表 label 的正文 `\ref{...}` 入口；当前没有未定义引用或孤立图表 label。
+- 当前中文主线有 `140` 个 display math block、无编号 equation / align 环境；下一步继续抽查公式前后是否有变量、单位、适用条件和 notebook 计算角色说明。
 - 检查章节交叉引用和八张 capstone evidence cards 的入口、过渡和收束是否统一。
 - 对缺少来源、单位、许可证或解释边界的图表和数据说明做补丁。
 

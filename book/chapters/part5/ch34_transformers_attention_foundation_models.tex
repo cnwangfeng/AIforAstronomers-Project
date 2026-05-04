@@ -71,7 +71,7 @@ feature[token] = count_in_sequence(token)
 \end{lstlisting}
 \end{examplebox}
 
-在这个教学数据上，bag-of-tokens baseline 的测试集准确率只有 \texttt{0.33}。这并不奇怪，因为三个类别的 token 计数向量完全相同，模型失去了所有顺序信息。
+在这个教学数据上，bag-of-tokens baseline 的测试集准确率只有 \texttt{0.33}。这并不奇怪，因为三个类别的 token 计数向量完全相同，模型失去了所有顺序信息。表~\ref{tab:ch34_bag_vs_attention} 把它与 patch token 和位置感知注意力头放在同一个最小对照中。
 
 \begin{table}[htbp]
 \centering

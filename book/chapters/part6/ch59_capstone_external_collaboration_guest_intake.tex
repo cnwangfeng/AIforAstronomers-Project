@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 的危险在于，高价值合作里往往混入了最棘手的边界问题。未发表方法、权限受限数据、scope 过大的项目都很容易在价值排序里排到最前。
 
-在本章教学数据上，只按合作价值取前四项，真正可准入的精度只有 0.25，未就绪项混入率是 0.75。结构化 intake workflow 会先看 boundary，再看 host owner，再检查 scope 和 guest material：
+在本章教学数据上，只按合作价值取前四项，真正可准入的精度只有 0.25，未就绪项混入率是 0.75。表~\ref{tab:ch59_value_vs_guest_intake} 展示了结构化 intake workflow 如何先看 boundary，再看 host owner，再检查 scope 和 guest material：
 
 \begin{table}[htbp]
 \centering

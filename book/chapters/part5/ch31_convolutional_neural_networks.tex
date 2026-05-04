@@ -53,7 +53,7 @@ features = [pixel_00, pixel_01, ..., pixel_55]
 
 和前面所有章节一样，我们仍然先做 baseline。notebook 的第一个对照组，是把 \(6\times 6\) 小图直接摊平成 36 维向量，再做最近中心分类。这个 baseline 的意义不是追求最好成绩，而是提醒学生：\textbf{如果模型直接记住像素坐标，它会对位置变化很敏感。}
 
-在当前教学数据上，raw-pixel 最近中心分类器在测试集上的准确率约为 \texttt{0.67}。它能识别中心亮核和边缘盘状结构，但会把平移过的 \texttt{double\_source} 样本误判为 \texttt{edge\_on\_disk}。
+在当前教学数据上，raw-pixel 最近中心分类器在测试集上的准确率约为 \texttt{0.67}。它能识别中心亮核和边缘盘状结构，但会把平移过的 \texttt{double\_source} 样本误判为 \texttt{edge\_on\_disk}。表~\ref{tab:ch31_baseline_vs_conv} 汇总了这个最小 baseline 与卷积特征对照的差别。
 
 \begin{table}[htbp]
 \centering
@@ -180,7 +180,7 @@ score = sum(
 
 这样一来，notebook 就可以在不引入大型框架训练成本的前提下，演示一个很接近迁移学习直觉的问题：\textbf{如果 source domain 已经给了你一个有用的局部特征提取器，那么进入 target domain 时，是否真的还需要从 raw pixels 重新开始？}
 
-本章 notebook 用四个极小对照组来回答这个问题：
+本章 notebook 用四个极小对照组来回答这个问题，结果汇总在表~\ref{tab:ch31_transfer_learning_extension} 中：
 
 \begin{table}[htbp]
 \centering

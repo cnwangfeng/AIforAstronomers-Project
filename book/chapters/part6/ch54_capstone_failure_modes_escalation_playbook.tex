@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 的问题在于，紧急不等于可直接修复。高紧急度事件里，可能混入政策问题、隐私边界问题、需要暂停 rollout 的系统性问题，或者根本还没复现成功的问题。
 
-在本章教学数据上，只按紧急程度取前四项，真正适合本地补丁处理的精度只有 0.25，非本地修复项混入率是 0.75。结构化 escalation workflow 会先看 boundary，再看 signal 是否已经扩散，再检查 owner 与 reproducibility：
+在本章教学数据上，只按紧急程度取前四项，真正适合本地补丁处理的精度只有 0.25，非本地修复项混入率是 0.75。表~\ref{tab:ch54_urgency_vs_escalation} 展示了结构化 escalation workflow 如何先看 boundary，再看 signal 是否已经扩散，再检查 owner 与 reproducibility：
 
 \begin{table}[htbp]
 \centering

@@ -63,7 +63,7 @@ top4 = sorted(
 
 这个 baseline 会把应该 hold 的条目、版本指针没同步的条目和目录信息不完整的条目一起推到入口区。外部读者会首先遇到这些问题。
 
-在本章教学数据上，只按下一版优先级取前四项，真正目录可发布的精度只有 0.25，未就绪条目混入率是 0.75。结构化 directory workflow 会先看 release-note 状态，再看 version pointer，再看 audience copy，最后补 directory entry：
+在本章教学数据上，只按下一版优先级取前四项，真正目录可发布的精度只有 0.25，未就绪条目混入率是 0.75。表~\ref{tab:ch52_directory_vs_priority} 展示了结构化 directory workflow 如何先看 release-note 状态，再看 version pointer，再看 audience copy，最后补 directory entry：
 
 \begin{table}[htbp]
 \centering

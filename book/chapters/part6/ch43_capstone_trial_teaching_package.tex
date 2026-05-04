@@ -71,7 +71,7 @@ top3 = sorted(
 
 这个 baseline 的问题是：修订负担低不代表材料可以运行。有些环节只需要补 TA feedback 格式，看起来负担不高；但如果助教不能统一反馈，正式课程里仍然会出现评分漂移。
 
-在本章教学数据上，只按 revision load 取前三个环节时，可正式运行的精度是 0.67。结构化 trial workflow 会先检查 privacy boundary 和 notebook runtime，再处理 rubric calibration 与材料清晰度：
+在本章教学数据上，只按 revision load 取前三个环节时，可正式运行的精度是 0.67。表~\ref{tab:ch43_revision_load_vs_trial_workflow} 展示了结构化 trial workflow 如何先检查 privacy boundary 和 notebook runtime，再处理 rubric calibration 与材料清晰度：
 
 \begin{table}[htbp]
 \centering

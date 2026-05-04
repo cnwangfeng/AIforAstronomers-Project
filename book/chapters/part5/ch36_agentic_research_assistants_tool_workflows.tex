@@ -284,6 +284,8 @@ prompt = """
 
 但这些事情能不能安全地自动化，不取决于代理“像不像智能体”，而取决于你有没有把工具边界、行动日志、停止条件和人工复核出口预先设计好。
 
+在最终 capstone 包里，action log 会成为 Integrity card 的一部分，manual review queue 会进入 Evaluation / Interpretation cards。它们共同回答一个问题：代理每一步为什么这样做，以及它在哪些边界处停下来交还给人。
+
 \begin{warnbox}[科研代理 workflow 中的常见误区]
 \begin{itemize}
     \item 让代理直接输出最终队列，却不保留中间工具步骤；

@@ -243,6 +243,8 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 
 这段报告的核心是把“模型给了标签”改写成“模型在某个标签体系和样本覆盖范围内给出了可诊断的预测”。分类结果越要进入科学筛选，越不能省略错分类型和错误代价。
 
+进入 capstone 时，这类分类记录会分别支撑 Baseline card、Evaluation card 和 Interpretation card：baseline 说明模型是否真的改进，混淆矩阵说明错误结构，错分样本复查则说明哪些标签边界仍需要人工判断。
+
 \begin{warnbox}[分类中的常见误区]
 \begin{itemize}
     \item 只看准确率，不检查哪一类最容易被错分；

@@ -118,6 +118,19 @@ else:
 
 这份索引的目的不是取代具体材料，而是让课程团队在收束时只看一页就知道整套课程包还差哪一步。
 
+\section{不要让后半部分变成重复清单}
+
+从第 47 章到第 59 章，很多章节都会反复出现 owner、boundary、archive、release、maintenance 和 handoff。真正使用这些材料时，不需要为每一章都单独维护一套孤立表格。更稳妥的做法，是把它们都挂到同一份 final package index 上：
+
+\begin{itemize}
+    \item 教师交接、替班接管和学期重启共享同一组 owner 与风险字段；
+    \item 公开发布、采用反馈和维护节奏共享同一组 release note、support boundary 和 issue 入口；
+    \item warm-start、mentor relay、community memory 和 guest intake 共享同一组 archive、privacy boundary 和长期责任字段；
+    \item 所有 bundle 都用同一套 closure 状态：\texttt{ready}、\texttt{hold}、\texttt{blocked}、\texttt{needs\_owner}、\texttt{needs\_sync}。
+\end{itemize}
+
+这不是为了把后半部分压成一个巨大表格，而是为了避免“每章都说得有道理，但课程团队不知道最终该维护哪一份”。最终课程包索引应该成为 Part VI 后半段的单一状态面板，具体章节则提供不同场景下如何判断、如何修订、如何交接的说明。
+
 \section{配套 notebook 做了什么}
 
 本章 notebook 采用的是一个 teaching-first 的最小设计：

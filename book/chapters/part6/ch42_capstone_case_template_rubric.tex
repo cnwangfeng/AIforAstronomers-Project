@@ -140,6 +140,21 @@ else:
 
 这八张卡片的作用，是让 Capstone 从“做了很多事情”变成“每个 claim 都知道证据在哪里”。
 
+\section{把八张卡片接回评分维度}
+
+为了避免 rubric 看起来像另一张独立表格，建议在学生材料中明确写出 case template 和评分维度的对应关系：
+
+\begin{itemize}
+    \item Project card 对应科学问题清晰度；
+    \item Data card 和 Reproducibility card 共同对应数据处理与可复现性；
+    \item Baseline card、Model card 和 Evaluation card 共同对应模型建立与评估；
+    \item Interpretation card 对应结果解释、局限性和不确定度；
+    \item Reproducibility card 同时支撑代码质量、Git 记录和 notebook 复跑；
+    \item Integrity card 不直接加分，而是 AI 使用披露、引用核查、公开边界和 human signoff 的评分前 gate。
+\end{itemize}
+
+这样写的目的，是防止学生把“准备材料”和“争取分数”理解成两件事。真正稳定的 rubric 应该让学生从第一周就知道：每多补一张证据卡，都是在补最终评分所需要的证据，而不是在期末临时迎合格式。
+
 \section{配套 notebook 做了什么}
 
 本章 notebook 采用的是一个 teaching-first 的最小设计：

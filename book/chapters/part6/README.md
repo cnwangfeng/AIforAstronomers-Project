@@ -36,4 +36,4 @@ Current chapter files:
 Current status:
 
 - Part VI has a guide chapter, synthesis chapter, and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
-- The operational tail is complete enough for review; next refinements should focus on reducing repetition, aligning rubrics, and keeping instructor-facing material concise.
+- The operational tail is complete enough for review; current refinements add common gate/route language so later chapters read as one course-asset workflow rather than separate checklists.

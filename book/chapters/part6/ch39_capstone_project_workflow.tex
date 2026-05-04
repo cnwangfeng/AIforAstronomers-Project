@@ -133,6 +133,8 @@ top_projects = sorted(
     \item \textbf{第 38 章：AI 使用、版权、许可与声明边界}。也就是共享边界和 AI 使用说明都要写清楚：哪些材料可以共享、哪些步骤用了 AI、哪些结论仍由人签字。
 \end{itemize}
 
+如果项目使用了第 30--34 章的深度模型，或者第 35--38 章的 LLM / agent 工具，那么 Part V 收束章里的“可信交付包”也应该成为 project board 的一部分。深度模型至少要留下 model-card 式记录：任务、baseline、训练验证、输入预处理、主要错误和失效边界；LLM 或 agent workflow 至少要留下 usage-log 式记录：使用场景、材料边界、人工核查、失败接管和公开声明。
+
 因此，本章 notebook 的最小 routing 逻辑不是“哪个题目更火”，而更接近下面这种结构：
 
 \begin{examplebox}[一个最小 capstone routing 逻辑]
@@ -200,7 +202,7 @@ else:
     \item \textbf{科学问题}：你究竟想回答什么问题，为什么它值得回答；
     \item \textbf{数据与许可证}：数据来自哪里，能否公开重跑，哪些材料不能外发；
     \item \textbf{baseline}：在更复杂模型之前，有没有一个简单但可信的参考方案；
-    \item \textbf{模型与诊断}：至少两个可比较实现，以及必要的误差分析、不确定度或异常样本解释；
+    \item \textbf{模型、AI 工具与诊断}：至少两个可比较实现，以及必要的误差分析、不确定度、异常样本解释或 Part V 可信交付包；
     \item \textbf{literature ledger}：related work、核心 claim 和 caveat 是否已经整理成可回查结构；
     \item \textbf{AI-use statement}：AI 具体帮助了哪一步，哪些判断没有交给 AI，哪些材料没有被发送到外部服务；
     \item \textbf{最终交付}：report、notebook、图表、Git 记录和展示结构是否已经准备好。

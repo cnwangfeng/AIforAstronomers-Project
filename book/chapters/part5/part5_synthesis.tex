@@ -70,6 +70,19 @@ part5_delivery = {
 
 这份交付包的作用，是把“复杂工具很强”转换成“复杂工具可以被课程项目安全使用”。如果这一包材料写不出来，就说明当前工具还没有准备好进入最终项目结论。
 
+\section*{可信交付包怎样进入 Part VI}
+
+Part VI 不会要求学生另外写一套孤立的 AI 附录。更好的做法，是把 Part V 的可信交付包嵌入 capstone case template：
+
+\begin{itemize}
+    \item 深度模型的任务、baseline、训练验证和失效边界进入 Model card 与 Evaluation card；
+    \item 输入预处理、样本质量门和人工复核队列进入 Data card 与 Reproducibility card；
+    \item LLM、agent 和 AI 辅助写作的 usage log 进入 Integrity card；
+    \item AI-use statement、human signoff 和公开声明进入最终报告与展示材料。
+\end{itemize}
+
+这样处理后，复杂工具不会漂浮在项目之外。它们会被放回同一套证据结构中，和科学问题、数据、baseline、诊断图、错误样本和限制说明一起接受检查。
+
 \section*{进入 Capstone 前的选择原则}
 
 Part VI 会要求学生完成一个完整项目。此时最重要的能力不是会多少模型，而是会做选择：

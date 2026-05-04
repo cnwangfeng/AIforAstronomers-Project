@@ -20,6 +20,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Confirm `book/main_zh.tex` includes the intended chapter set
 - Confirm `book/FIGURE_TABLE_QA.md` reflects current figure/table counts
 - Confirm `book/EVIDENCE_CARD_QA.md` reflects current capstone evidence-card names
+- Confirm `book/FORMULA_QA.md` reflects current formula counts and explanation policy
 - Confirm `book/chapters/part6/README.md` matches actual chapter files
 - Confirm `notebooks/part6_capstone/README.md` matches actual notebooks
 - Confirm `data/small/README.md` and `data/manifest.yml` match current datasets
@@ -66,6 +67,7 @@ If work needs to resume later, start here:
 - `book/README.md`
 - `book/FIGURE_TABLE_QA.md`
 - `book/EVIDENCE_CARD_QA.md`
+- `book/FORMULA_QA.md`
 - `COURSE_PACKAGE_RELEASE_NOTES.md`
 - `book/main_zh.tex`
 - `book/chapters/part6/README.md`
@@ -81,7 +83,7 @@ Current recovery counts to confirm before sync:
 ## 7. Remaining Publication Polish
 
 - Reader QA from Part I/II outward
-- Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; continue formula explanation, bibliography, and license inventory
+- Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; continue bibliography and license inventory
 - Bibliography, source, license, and AI-use statement audit
 - Final wording pass on release notes and audience-facing copy
 - Overleaf dry-run before any `--apply` sync

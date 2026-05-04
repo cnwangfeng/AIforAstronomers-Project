@@ -54,6 +54,7 @@ python scripts/validate_data_manifest.py
 python scripts/smoke_test_notebooks.py
 bash scripts/build_book_local.sh main
 bash scripts/build_book_local.sh zh
+git diff --check
 ```
 
 Most recent verified state:
@@ -62,6 +63,8 @@ Most recent verified state:
 - `smoke_test_notebooks.py`: passed (`59` notebooks)
 - `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
 - `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`507` pages)
+- `git diff --check`: passed
+- LaTeX error scan: no `Overfull`, undefined references, `Missing $`, or fatal errors detected in `/tmp/aifor_book_main_zh/main_zh.log`
 
 ## Non-Blocking Known Issues
 
@@ -85,12 +88,12 @@ Most recent verified state:
 
 ## Immediate Polish Queue
 
-- Run reader QA from Part I/II outward, focusing on textbook depth,
-  terminology, notebook-to-prose alignment, and exercise levels.
 - Continue from `book/FIGURE_TABLE_QA.md`, `book/EVIDENCE_CARD_QA.md`, and
   `book/FORMULA_QA.md`; use `book/SOURCE_LICENSE_QA.md` for bibliography,
   source/license, attribution, and AI-use release decisions. Current
   figure/table labels already have正文 `\ref{...}` entries.
+- Reader QA from Part I/II outward is no longer a blank sweep; use targeted
+  reader feedback or the QA inventories above to decide the next polish patch.
 - Keep Part VI in compression mode only; no new operational chapters are
   planned for the current version.
 - Do one controlled `sync_book_to_overleaf.sh` dry-run and, after confirmation,

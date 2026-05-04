@@ -81,10 +81,11 @@ Current recovery counts to confirm before sync:
 - Chinese PDF: about `507` pages
 - Notebook smoke test: `59` notebooks
 - Data manifest: `52` datasets
+- Local validation: `build_book_local.sh main`, `build_book_local.sh zh`, notebook smoke, data manifest, LaTeX error scan, and `git diff --check` have passed
 
 ## 7. Remaining Publication Polish
 
-- Reader QA from Part I/II outward
+- Reader QA is now targeted rather than a blank sweep; use QA inventories and reader feedback for focused patches
 - Figure/table inventory is tracked in `book/FIGURE_TABLE_QA.md`; evidence-card inventory is tracked in `book/EVIDENCE_CARD_QA.md`; formula inventory is tracked in `book/FORMULA_QA.md`; source/license inventory is tracked in `book/SOURCE_LICENSE_QA.md`
 - Bibliography, source, license, and AI-use statement audit remain blocked on final project-level license decisions
 - Final wording pass on release notes and audience-facing copy

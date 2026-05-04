@@ -24,10 +24,11 @@
 - 当前 `main` 分支相对 `origin/main` 至少领先 `1` 个提交；尚未把 `0d5dcf1` 推送到远端。
 - Overleaf 书稿仓库当前仍停在 `4da027b`，尚未同步这组新的 `Part II` 改动。
 
-在上述 checkpoint 之后，完整项目仓库又新增了一轮本地提交：
+在上述 checkpoint 之后，完整项目仓库又新增了多轮本地 checkpoint：
 
-- 完整项目仓库最新本地提交：`7ec2a1d`，提交信息 `Strengthen Part 0 prerequisites and bridges`
-- 当前 `main` 分支相对 `origin/main` 领先 `6` 个提交。
+- `7ec2a1d`，提交信息 `Strengthen Part 0 prerequisites and bridges`
+- `813ec30`，提交信息 `Update roadmap with latest checkpoint`
+- 当前 `main` 分支相对 `origin/main` 已领先多个本地提交；具体数量以 `git status -sb` 为准。
 - 这一轮把 `Part 0` 的先修底线、`Part I/II` 的前置桥接，以及若干入口说明同步到了当前状态。
 
 本轮已经完成验证、准备作为 checkpoint 保留的是 `Part I` 轻量二轮补强，涉及文件为：
@@ -53,6 +54,7 @@
 在这个基础上，后续又开始了更深一层的教材化加厚，重点放在：
 
 - `ch01`：shell 展开顺序、重定向覆盖风险、`tee` 记录、长任务运行证据和 `set -euo pipefail` 脚本安全习惯。
+- `ch01`：命令查找与 `PATH`、环境变量与 alias 边界、`sort/uniq/cut/xargs` 的最小统计与批处理。
 - `ch02`：把结果、数据版本和 commit 线索连起来，形成可复查的科学记录。
 - `ch04`：明确 notebook、script 和 module 的三层分工，防止把探索代码误当作可维护工作流。
 - `ch06`：把 CSV 字段契约与 FITS header 契约统一为“先理解数据契约，再解释数值”的数据入口原则。
@@ -68,7 +70,7 @@
 
 最近一次验证状态：
 
-- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `441`。
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `445`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
@@ -98,7 +100,7 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：约 `441` 页
+- 中文书稿当前页数：约 `445` 页
 
 ### 0.3 各部分完成度
 
@@ -118,6 +120,8 @@
 - 轻量二轮补强已加入 Linux 安全操作、好提交标准、最小脚本交付、I/O 检查记录和图表自审清单。
 - 深读补强已经开始，当前新增重点是 Linux/shell 执行模型、Git 结果版本线索、notebook/script/module 分工、数据契约、科研图表视觉编码风险，以及每章正文到 notebook 的桥接说明。
 - 章节入口已明确标出 Part 0 前置能力：`Path` / `csv.DictReader`、基础控制流、函数封装和对象方法调用。
+- `ch08` 已补入 claim--evidence--limit 读图框架，强调图表如何从视觉输出进入科学论断。
+- `ch01` 已补入命令查找与 `PATH`、环境变量边界，以及 `sort/uniq/cut/xargs` 的最小统计与批处理。
 - 后续重点从“大面积补写”转为逐章细读：统一术语、补交叉引用、补图表说明、补习题层次，并检查每章是否真正从概念引入走到可复现实操。
 
 `Part II. 天文/物理数据处理`
@@ -333,7 +337,7 @@ bash scripts/build_book_local.sh zh
 截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `441` 页）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `445` 页）
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
 上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。

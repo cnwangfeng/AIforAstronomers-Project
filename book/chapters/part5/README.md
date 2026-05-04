@@ -1,10 +1,14 @@
-# Part V Drafts
+# Part V: Deep Learning and Modern AI
 
-This directory stores the future Chinese drafts for Part V: Deep Learning and
-Modern AI.
+This directory stores the Chinese textbook chapters for Part V: Deep Learning
+and Modern AI.
 
-Current draft targets:
+These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
+remains a separate stable entry point.
 
+Current chapter files:
+
+- `part5_intro.tex`
 - `ch30_neural_network_basics.tex`
 - `ch31_convolutional_neural_networks.tex`
 - `ch32_one_dimensional_convolutions_for_spectra.tex`
@@ -14,8 +18,10 @@ Current draft targets:
 - `ch36_agentic_research_assistants_tool_workflows.tex`
 - `ch37_llm_literature_reading_report_writing.tex`
 - `ch38_ai_ethics_copyright_research_norms.tex`
+- `part5_synthesis.tex`
 
-Planned next drafts:
+Current status:
 
-- transfer-learning on real cutouts / spectra chapters
-- deeper workflow-integrated CNN / spectral-model chapters that feed the Part VI capstone templates
+- Part V has a guide chapter and synthesis chapter, emphasizing baseline-first deep learning and verified use of modern AI tools.
+- Current chapters cover neural networks, CNNs, one-dimensional convolutions, autoencoders, Transformer/attention concepts, LLM-assisted programming, agentic workflows, literature/report workflows, and AI ethics.
+- Future expansion can add deeper transfer-learning or real-data deep-learning case studies after the current text is reviewed.

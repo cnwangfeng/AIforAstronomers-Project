@@ -1,9 +1,14 @@
-# Part VI Drafts
+# Part VI: Capstone Projects
 
-This directory stores the future Chinese drafts for Part VI: Capstone Projects.
+This directory stores the Chinese textbook chapters for Part VI: Capstone
+Projects.
 
-Current draft targets:
+These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
+remains a separate stable entry point.
 
+Current chapter files:
+
+- `part6_intro.tex`
 - `ch39_capstone_project_workflow.tex`
 - `ch40_capstone_project_scoping.tex`
 - `ch41_capstone_report_presentation.tex`
@@ -25,7 +30,9 @@ Current draft targets:
 - `ch57_capstone_alumni_mentor_relay.tex`
 - `ch58_capstone_community_memory_maintenance_ledger.tex`
 - `ch59_capstone_external_collaboration_guest_intake.tex`
+- `book_closure.tex`
 
-Planned next drafts:
+Current status:
 
-- Part VI operational tail complete; next focus can shift back to early-book rebuild
+- Part VI has a guide chapter and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
+- The operational tail is complete enough for review; next refinements should focus on reducing repetition, aligning rubrics, and keeping instructor-facing material concise.

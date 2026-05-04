@@ -1,10 +1,14 @@
-# Part III Drafts
+# Part III: Machine Learning Practice
 
-This directory stores the future Chinese drafts for Part III: Machine Learning
-Practice.
+This directory stores the Chinese textbook chapters for Part III: Machine
+Learning Practice.
 
-Current draft targets:
+These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
+remains a separate stable entry point.
 
+Current chapter files:
+
+- `part3_intro.tex`
 - `ch16_ai_ml_scientific_inference.tex`
 - `ch17_ml_workflow.tex`
 - `ch18_regression.tex`
@@ -15,7 +19,10 @@ Current draft targets:
 - `ch23_unsupervised_learning.tex`
 - `ch24_anomaly_detection.tex`
 - `ch25_uncertainty_interpretability_trust.tex`
+- `part3_synthesis.tex`
 
-Planned next drafts:
+Current status:
 
-- `part4/ch26_gaia_hr_case_study.tex`
+- Part III has a guide chapter and synthesis chapter, framing machine learning as scientific inference rather than model invocation.
+- The chapter sequence covers task definition, baseline workflow, regression, classification, evaluation, preprocessing, model selection, unsupervised learning, anomaly detection, uncertainty, interpretability, and trust.
+- The next refinement pass should focus on consistency of notation, notebook bridges, figure explanations, and exercise levels.

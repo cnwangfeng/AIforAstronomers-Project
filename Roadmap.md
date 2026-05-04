@@ -60,6 +60,7 @@
 - `ch06`：把 CSV 字段契约与 FITS header 契约统一为“先理解数据契约，再解释数值”的数据入口原则。
 - `ch08`：补上视觉编码的解释风险，强调颜色、线型、坐标范围和图例并非纯装饰。
 - `ch01/ch02/ch04/ch08`：补齐“配套 notebook 做了什么”小节，使 Part I 每章都明确正文概念如何落到可运行 notebook。
+- 全书中文入口已补入六大 Part 显式分隔；Part I--VI 均新增或接入导读/收束层，用于说明每一部分的学习主线、能力边界和前后衔接。
 
 当前恢复判断：
 
@@ -70,7 +71,7 @@
 
 最近一次验证状态：
 
-- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `445`。
+- `bash scripts/build_book_local.sh zh`：通过，中文 PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`，页数 `476`。
 - `python scripts/smoke_test_notebooks.py`：通过，`59` 个 notebook。
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过。
 - 仍有非阻塞提示：既有 `Underfull` 和 FontAwesome `ToUnicode` warning；`ch14` Nyquist 附近的小幅 `Overfull \hbox` 已处理。
@@ -93,6 +94,7 @@
 - `Part IV` 已经启动，并完成多个连续案例章节。
 - `Part V` 已经启动，并形成连续九章的深度学习与现代 AI 入口。
 - `Part VI` 已经启动，并完成前二十一章 capstone workflow / project-integration / rubric / trial-teaching / course-calendar / release package / revision-archive / instructor-handoff / public-release-maintenance / launch-QA-adoption / adoption-feedback-maintenance / final-package-closure / package-directory-release-notes / semester-reboot-preflight / failure-mode-escalation / substitute-handoff-contingency / shutdown-warmstart / alumni-mentor-relay / community-memory-ledger / guest-intake-boundary 入口。
+- 中文主书稿已经有六大 Part 分隔，并为 Part I--VI 补入导读、收束或全书收束层，避免正文变成孤立章节堆叠。
 - 中文主书稿入口 `book/main_zh.tex` 已建立并保持可编译。
 - 本地 LaTeX 编译、notebook smoke test、data manifest 校验已接入日常工作流。
 
@@ -100,7 +102,7 @@
 
 - 已通过 smoke test 的 notebook：`59` 个
 - 已登记并通过校验的教学数据集：`52` 个
-- 中文书稿当前页数：约 `445` 页
+- 中文书稿当前页数：约 `476` 页
 
 ### 0.3 各部分完成度
 
@@ -122,6 +124,7 @@
 - 章节入口已明确标出 Part 0 前置能力：`Path` / `csv.DictReader`、基础控制流、函数封装和对象方法调用。
 - `ch08` 已补入 claim--evidence--limit 读图框架，强调图表如何从视觉输出进入科学论断。
 - `ch01` 已补入命令查找与 `PATH`、环境变量边界，以及 `sort/uniq/cut/xargs` 的最小统计与批处理。
+- `book/main_zh.tex` 已补入显式六大 Part 分隔；`Part I` 已新增导读，把 Linux/Git/脚本/I/O/绘图组织成一条可复现科研工作流。
 - 后续重点从“大面积补写”转为逐章细读：统一术语、补交叉引用、补图表说明、补习题层次，并检查每章是否真正从概念引入走到可复现实操。
 
 `Part II. 天文/物理数据处理`
@@ -130,6 +133,7 @@
 - 配套小数据和 notebook 已建立，并通过完整 smoke test。
 - 第二轮教材化校订已经完成一轮全章检查，并补入多处“公式到算法到代码”的桥接段；下一步应先阅读、同步或根据反馈微调，而不是继续无限扩写。
 - 章节入口已明确标出 Part 0 前置能力：表格读取、循环筛选、函数封装、对象方法调用与随机种子意识。
+- 已新增 `Part II` 导读与收束综合，明确把星表、图像、光谱、时间序列、实验/模拟数据统一到“数据契约、单位误差、类型算法、诊断图表、可建模样本”的共同框架。
 
 `Part III. 机器学习实战主线`
 
@@ -145,6 +149,7 @@
   - 异常检测
   - 不确定度、解释性与科学可信度
 - 这一部分目前是全书最完整、最成体系的主干。
+- 已新增 Part III 导读与收束综合，强调机器学习作为科学推断工具，而不是单纯模型调用。
 
 `Part IV. 天文与物理案例`
 
@@ -166,6 +171,7 @@
   - 正文：已扩写并补充图表、练习与 notebook 指引
   - notebook：已完成（传统形态特征 baseline 版本）
   - data：已完成（教学用 morphology demo 数据）
+- 已新增 Part IV 导读与收束综合，把四个案例明确组织为从数据处理、机器学习 workflow 到完整项目意识的装配训练。
 
 `Part V. 深度学习与现代 AI`
 
@@ -206,6 +212,7 @@
   - 正文：已完成教学版首稿
   - notebook：已完成
   - data：已完成
+- 已新增 Part V 导读与收束综合，强调 baseline-first deep learning、现代 AI 工具的验证边界，以及进入 capstone 前的复杂度选择原则。
 
 `Part VI. Capstone 项目`
 
@@ -295,6 +302,7 @@
   - notebook：已完成
   - data：已完成（external-collaboration / guest-intake demo 数据）
 - `Part VI` 的课程包闭环、读者入口层、跨学期重启入口、运行期故障升级层、替班接管层、跨届收尾层、长期导师接力层、长期记忆层和外部合作准入层已经形成；下一步可以从头回到前半本。
+- 已新增 Part VI 导读和全书收束章，把 capstone 明确定位为可信交付，并把全书主线收束到“从会运行到会负责”。
 
 ### 0.4 已验证的本地环境与工作流
 
@@ -337,7 +345,7 @@ bash scripts/build_book_local.sh zh
 截至 2026-05-04 的最近一次、与当前 `Part I` 轻量补强直接相关的验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
-- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `445` 页）
+- `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `476` 页）
 - `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
 
 上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。

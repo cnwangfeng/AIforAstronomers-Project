@@ -76,6 +76,7 @@ Most recent verified state:
 - Figure/table QA inventory: `book/FIGURE_TABLE_QA.md`
 - Evidence-card QA inventory: `book/EVIDENCE_CARD_QA.md`
 - Formula QA inventory: `book/FORMULA_QA.md`
+- Source/license QA inventory: `book/SOURCE_LICENSE_QA.md`
 - Capstone notebooks: `notebooks/part6_capstone/`
 - Small teaching datasets: `data/small/`
 - Data registry: `data/manifest.yml`
@@ -87,8 +88,9 @@ Most recent verified state:
 - Run reader QA from Part I/II outward, focusing on textbook depth,
   terminology, notebook-to-prose alignment, and exercise levels.
 - Continue from `book/FIGURE_TABLE_QA.md`, `book/EVIDENCE_CARD_QA.md`, and
-  `book/FORMULA_QA.md` for bibliography coverage and source/license notes;
-  current figure/table labels already have正文 `\ref{...}` entries.
+  `book/FORMULA_QA.md`; use `book/SOURCE_LICENSE_QA.md` for bibliography,
+  source/license, attribution, and AI-use release decisions. Current
+  figure/table labels already have正文 `\ref{...}` entries.
 - Keep Part VI in compression mode only; no new operational chapters are
   planned for the current version.
 - Do one controlled `sync_book_to_overleaf.sh` dry-run and, after confirmation,

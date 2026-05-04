@@ -34,5 +34,6 @@ data/
 
 当前进展：
 
-- `data/small/planetary_orbits_demo.csv`
-  已作为 Part I 的最小教学数据加入仓库，用于 Python、I/O 和绘图章节的早期 notebook 示例。
+- `data/manifest.yml` 是当前数据来源、字段、单位、使用章节和许可证边界的权威清单。
+- 最近一次 `python scripts/validate_data_manifest.py` 已通过，当前登记 `52` 个小型教学数据集。
+- 当前所有教学数据集仍使用项目级教育内容许可证占位说明；正式发布前必须先确认最终项目许可证。

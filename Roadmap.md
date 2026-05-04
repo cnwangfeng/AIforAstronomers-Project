@@ -1078,6 +1078,8 @@ data 完成标准：
 
 阶段 D：发布前来源与许可证核查
 
+- 已建立 `book/SOURCE_LICENSE_QA.md`，记录 bibliography、数据 manifest、许可证占位、外部来源和 AI-use statement 的发布前状态。
+- `data/manifest.yml` 已验证通过，当前登记 `52` 个小型教学数据集，所有路径存在；许可证仍等待项目级最终决策。
 - 核查 Python for Astronomers、astroML、教材图表、公开数据和 AI 生成材料的引用与授权边界。
 - 如果内容可能触碰 CC BY-NC-SA 或商业出版限制，优先完全改写、替换或只作为参考引用。
 - 更新 bibliography、release notes、license / attribution 文档和 AI-use statement。

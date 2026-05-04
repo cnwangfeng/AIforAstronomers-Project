@@ -58,15 +58,17 @@ book/
 - `FIGURE_TABLE_QA.md` 已建立，用于记录中文主线图表、表格、来源和发布前 QA 状态
 - `EVIDENCE_CARD_QA.md` 已建立，用于记录八张 capstone evidence cards 的 canonical 名称、桥接状态和发布前 QA 状态
 - `FORMULA_QA.md` 已建立，用于记录中文主线公式数量、解释标准和发布前公式 QA 状态
+- `SOURCE_LICENSE_QA.md` 已建立，用于记录 bibliography、数据来源、许可证、外部材料边界和 AI-use 发布前 QA 状态
 
 后续清理顺序建议：
 
 1. 持续更新 `FIGURE_TABLE_QA.md`，统一图表目录和图表来源说明。
 2. 持续更新 `EVIDENCE_CARD_QA.md`，避免八张证据卡在新增章节中漂移。
 3. 持续更新 `FORMULA_QA.md`，确保新增公式有变量、单位、计算角色和适用边界。
-4. 清理不再使用的历史扁平章节文件。
-5. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。
-6. 同步到 Overleaf 书稿仓库前运行中文编译检查。
+4. 持续更新 `SOURCE_LICENSE_QA.md`，把许可证、引用和 AI-use 决策从正文润色中分离出来。
+5. 清理不再使用的历史扁平章节文件。
+6. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。
+7. 同步到 Overleaf 书稿仓库前运行中文编译检查。
 
 同步到 Overleaf 前，请在项目根目录运行：
 

@@ -1,6 +1,6 @@
 # Release Sync Checklist
 
-Version date: `2026-05-03`
+Version date: `2026-05-04`
 
 This checklist is the practical companion to the capstone release chapters. It
 is meant for the final repo-to-Overleaf sync and publication pass.
@@ -12,7 +12,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 - Run `bash scripts/build_book_local.sh main`
 - Run `bash scripts/build_book_local.sh zh`
 - Confirm `/tmp/aifor_book_main_zh/main_zh.pdf` builds successfully
-- Confirm recent log has no `Overfull \hbox`
+- Confirm recent log has no blocking `Overfull \hbox`
 - Review `Roadmap.md` counts and recovery pointers
 
 ## 2. Package Sanity Check
@@ -67,6 +67,12 @@ If work needs to resume later, start here:
 - `book/chapters/part6/README.md`
 - `notebooks/part6_capstone/README.md`
 - `data/manifest.yml`
+
+Current recovery counts to confirm before sync:
+
+- Chinese PDF: about `477` pages
+- Notebook smoke test: `59` notebooks
+- Data manifest: `52` datasets
 
 ## 7. Remaining Publication Polish
 

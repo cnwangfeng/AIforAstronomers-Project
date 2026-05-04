@@ -1,6 +1,6 @@
 # Course Package Release Notes
 
-Version date: `2026-05-03`
+Version date: `2026-05-04`
 
 This note summarizes the current release-ready state of the teaching package in
 `AIforAstronomers-Project/`.
@@ -11,9 +11,9 @@ This note summarizes the current release-ready state of the teaching package in
 - English subtitle: `Practical AI for Astronomy and Physics`
 - Main Chinese entry: `book/main_zh.tex`
 - Current Chinese PDF output: `/tmp/aifor_book_main_zh/main_zh.pdf`
-- Current verified Chinese page count: about `323` pages
-- Notebook smoke-test status: `55` notebooks passed
-- Data manifest status: `48` datasets validated
+- Current verified Chinese page count: about `477` pages
+- Notebook smoke-test status: `59` notebooks passed
+- Data manifest status: `52` datasets validated
 - `Part VI` status: `ch39` to `ch59` completed as a continuous capstone package
 
 ## Audience Entry Points
@@ -56,9 +56,9 @@ bash scripts/build_book_local.sh zh
 Most recent verified state:
 
 - `validate_data_manifest.py`: passed
-- `smoke_test_notebooks.py`: passed
-- `build_book_local.sh main`: passed
-- `build_book_local.sh zh`: passed
+- `smoke_test_notebooks.py`: passed (`59` notebooks)
+- `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
+- `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf`
 
 ## Non-Blocking Known Issues
 
@@ -78,10 +78,10 @@ Most recent verified state:
 
 ## Immediate Polish Queue
 
-- Add or normalize chapter references and bibliography coverage.
-- Add figure inventories / figure polish where chapters still rely mostly on
-  text-first explanations.
-- Prepare final sync-ready release note wording for the Overleaf-facing book
-  repository.
+- Normalize chapter references, figure captions, and bibliography coverage.
+- Review Part I/II from the beginning for textbook depth, terminology, and
+  notebook-to-prose alignment.
+- Compress repetitive instructor-facing language in the Part VI operational
+  tail where needed.
 - Do one controlled `sync_book_to_overleaf.sh --apply` cycle when ready to
   publish the current book state.

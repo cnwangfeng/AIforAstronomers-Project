@@ -338,10 +338,12 @@ bash scripts/build_book_local.sh zh
 截至 2026-05-04 的最近一次验证结果：
 
 - `python scripts/smoke_test_notebooks.py`：通过（`59` 个 notebook）
+- `python scripts/validate_data_manifest.py`：通过（`52` 个数据集）
+- `bash scripts/build_book_local.sh main`：通过
 - `bash scripts/build_book_local.sh zh`：通过（当前中文书稿 `477` 页）
-- `git diff --check -- book/chapters/part1 notebooks/part1_scientific_computing/README.md`：通过（当前 `Part I` 改动无空白格式问题）
+- `git diff --check`：通过
 
-上一轮完整发布检查中，`python scripts/validate_data_manifest.py`、`bash scripts/build_book_local.sh main` 和 `bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前 `Part I` 改动主要是 LaTeX 正文与 README，不涉及数据 manifest 或 notebook 代码。
+上一轮完整发布检查中，`bash scripts/sync_book_to_overleaf.sh` dry-run 也已经通过；当前尚未执行真实 Overleaf 同步。
 
 当前编译中仍存在但不阻塞工作的提示：
 

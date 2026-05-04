@@ -11,7 +11,7 @@ This note summarizes the current release-ready state of the teaching package in
 - English subtitle: `Practical AI for Astronomy and Physics`
 - Main Chinese entry: `book/main_zh.tex`
 - Current Chinese PDF output: `/tmp/aifor_book_main_zh/main_zh.pdf`
-- Current verified Chinese page count: about `484` pages
+- Current verified Chinese page count: about `487` pages
 - Notebook smoke-test status: `59` notebooks passed
 - Data manifest status: `52` datasets validated
 - `Part VI` status: `ch39` to `ch59` completed as a continuous capstone package

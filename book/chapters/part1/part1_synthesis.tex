@@ -1,0 +1,108 @@
+\chapter*{第一部分收束：从会运行到可复现项目包}
+\addcontentsline{toc}{chapter}{第一部分收束：从会运行到可复现项目包}
+
+完成 Part I 后，你已经接触了 Linux 命令行、Git、脚本与 notebook、文件 I/O 和科学绘图。它们表面上像五组工具，但在科研训练中其实服务同一个目标：让一次分析不只是在自己电脑上“跑过一次”，而是能被自己、同伴、助教或未来的你重新找到、重新运行、重新检查。
+
+因此，Part I 的真正交付物不是一串命令清单，而是一个\textbf{最小可复现项目包}。
+
+\section*{五层项目包}
+
+一个入门阶段就足够好的科研计算项目，至少应有五层结构。
+
+第一层是\textbf{环境层}。它回答“这段代码在哪里、用什么环境运行”：
+
+\begin{itemize}
+    \item 项目目录结构清楚；
+    \item 相对路径稳定；
+    \item Python 版本、关键库和运行入口有记录；
+    \item 临时文件、输出文件和原始数据不会混在一起。
+\end{itemize}
+
+第二层是\textbf{版本层}。它回答“这个结果对应哪一次代码状态”：
+
+\begin{itemize}
+    \item Git 提交粒度能解释一次变化；
+    \item 提交前检查过 \texttt{diff}；
+    \item 分支用于试错，tag 或 release 用于冻结结果；
+    \item 大数据不盲目进入 Git，但数据来源、版本和校验线索被记录下来。
+\end{itemize}
+
+第三层是\textbf{运行层}。它回答“别人怎样重新运行这件事”：
+
+\begin{itemize}
+    \item notebook 用于探索、解释和展示；
+    \item script 用于稳定重复执行；
+    \item module 用于保存可复用逻辑；
+    \item 入口脚本、参数、日志和错误信息足够清楚。
+\end{itemize}
+
+第四层是\textbf{数据层}。它回答“输入数据是否被正确理解”：
+
+\begin{itemize}
+    \item 文件路径、字段、单位、缺失值和非法值被检查；
+    \item CSV 字段契约和 FITS/header 契约被当成同一类元数据约束；
+    \item 数据来源、处理历史和后续分析入口有 provenance 记录；
+    \item 读入成功不等于可以分析，必须先确认数据契约。
+\end{itemize}
+
+第五层是\textbf{证据层}。它回答“结果怎样变成可以讨论的科学证据”：
+
+\begin{itemize}
+    \item 图表有清楚变量、单位、坐标和图例；
+    \item 对数坐标、误差棒、残差图和视觉编码都有明确用途；
+    \item 图像文件本身作为科研记录保存；
+    \item 图表解读遵循 claim--evidence--limit，而不是只描述形状。
+\end{itemize}
+
+\section*{Part I 的共同算法}
+
+可以把 Part I 学到的工作方式压缩成下面这条算法：
+
+\begin{enumerate}
+    \item 建立清楚的项目目录；
+    \item 记录当前环境和运行入口；
+    \item 读取数据前先写字段、单位和路径契约；
+    \item 用 notebook 探索，用脚本固定可重复流程；
+    \item 每次重要变化前后检查 \texttt{git status} 和 \texttt{git diff}；
+    \item 把结果图、日志、参数和数据版本一起保存；
+    \item 用一段短说明把结果、代码版本和限制连起来；
+    \item 对准备继续使用的状态打 tag 或形成 release note。
+\end{enumerate}
+
+这条算法没有复杂数学，却是后面所有数据分析、机器学习和 capstone 项目的地基。真正的困难不是记住命令，而是在项目变复杂、文件变多、时间拉长时仍然保持这些习惯。
+
+\section*{一个最小交付清单}
+
+\begin{center}
+\begin{tabular}{p{0.22\textwidth} p{0.32\textwidth} p{0.32\textwidth}}
+\toprule
+交付对象 & 最小内容 & 最容易失效的地方 \\
+\midrule
+项目目录 & \texttt{data/}、\texttt{notebooks/}、\texttt{scripts/}、\texttt{results/} & 临时文件和最终结果混在一起 \\
+版本记录 & 清楚提交、关键 tag、简短 release note & 结果图找不到对应 commit \\
+运行入口 & notebook 解释流程，script 固定流程 & notebook 顺序依赖导致无法重跑 \\
+数据记录 & 字段契约、单位、来源、缺失值处理 & 文件能读但物理含义不清 \\
+图表证据 & 带单位图表、误差或残差诊断、限制说明 & 图好看但不能支撑论断 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+这张表可以当作每个后续小项目的提交前检查表。如果某一行完全说不清，通常说明项目还没有准备好进入下一阶段。
+
+\section*{AI 助手在 Part I 之后应该怎样使用}
+
+到了这里，AI 助手可以帮助你写命令、解释报错、整理脚本、检查 README、生成图表说明和提醒复现清单。但有三件事不能外包：
+
+\begin{itemize}
+    \item 你必须知道当前命令会读写哪些文件；
+    \item 你必须确认数据字段、单位和来源是否可信；
+    \item 你必须能把图表和结果限制讲给别人听。
+\end{itemize}
+
+换句话说，AI 助手可以提高工作速度，但不能替你承担科研记录的责任。越是使用 AI，越要保留清楚的运行证据、版本证据和判断边界。
+
+\section*{进入 Part II 前}
+
+Part II 会开始处理具体天文和物理数据：误差、星表、图像、光谱、时间序列和实验模型。那时你会发现，很多“数据分析问题”其实会先退回 Part I 的地基问题：路径是否稳定、数据是否有契约、代码是否能重跑、图是否能支撑解释、结果是否能对应到某次提交。
+
+如果这些问题已经能回答，Part II 就不会只是学习更多文件格式，而会自然变成下一步：把一个可复现项目包里的数据，读成带物理含义的科学证据。

@@ -15,11 +15,13 @@ Current chapter files:
 - `ch04_libraries_scripts_jupyter.tex`
 - `ch06_data_io_fits.tex`
 - `ch08_plotting_scientific_figures.tex`
+- `part1_synthesis.tex`
 
 Current status:
 
 - These chapters have completed the first textbook-depth pass and are being reviewed for polish.
-- Part I now has an explicit Chinese guide chapter in `part1_intro.tex`, framing Linux, Git, scripting, I/O, and plotting as one reproducible research workflow.
+- Part I now has an explicit Chinese guide chapter and synthesis chapter, framing Linux, Git, scripting, I/O, and plotting as one reproducible research workflow.
+- The synthesis chapter compresses Part I into a minimum reproducible project package: environment, version, execution, data-contract, and evidence layers.
 - Part I should emphasize reproducible habits: safe command-line work, clear Git history, stable scripts, data contracts, and scientific figure standards.
 - Each chapter now includes an explicit bridge from textbook prose to its companion notebook workflow.
 - Part I assumes the reader has completed Part 0 and can already run notebooks, read small tables with `Path`/`csv`, follow `if`/`for`/`while`, and read small functions and object-method calls.

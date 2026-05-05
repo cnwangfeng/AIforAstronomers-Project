@@ -1,5 +1,13 @@
 \chapter{什么是 AI、机器学习与科学推断}
 
+\section{本章导读：先把科学问题翻译成学习问题}
+
+进入机器学习部分时，最危险的起点不是“不会调模型”，而是还没有说清楚模型究竟要帮助我们回答什么科学问题。AI、机器学习和统计建模常被混在一起使用，但在科研训练中，它们承担的责任并不相同：有的负责预测，有的负责估计，有的负责发现结构，有的只是帮助我们组织证据。
+
+本章的任务，是在学生第一次接触模型之前先建立边界：样本是什么，特征从哪里来，标签是否可靠，损失函数在惩罚什么，baseline 为什么是认识论锚点。只有这些对象被定义清楚，后面的回归、分类、评估和解释性才不会变成孤立的库函数练习。
+
+读这一章时，请不要急着问“用哪个模型最好”。更应该先问：这个问题是否真的适合机器学习，模型输出能支持哪类结论，又有哪些结论必须保留给物理解释、误差分析和人工复核。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,25 @@
     \item 理解 baseline 在科研机器学习中的作用，不把“复杂模型”误当成“更科学”；
     \item 从一个极小恒星分类示例出发，看清规则方法和数据驱动方法之间的联系与差别。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目不是训练一个复杂模型，而是把一个恒星分类问题写成清楚的机器学习问题陈述。正文负责解释 AI、统计模型、机器学习和科学推断之间的边界；训练材料则要求你把样本、特征、标签、baseline 和解释目标写成一份可复查的问题定义。
+
+\begin{examplebox}[最小机器学习问题定义项目]
+\begin{lstlisting}[style=terminal]
+ml_inference_demo/
+  data/
+    stellar_photometry_demo.csv
+  notebooks/
+    ch16_ai_ml_scientific_inference.ipynb
+  results/
+    problem_statement.txt
+    baseline_assumptions.txt
+\end{lstlisting}
+\end{examplebox}
+
+完成本章训练后，你应该能交付：样本单位说明、特征和标签来源、规则 baseline、机器学习模型可能提供的增益，以及当前任务不能支持的机制解释。这份记录会成为后续所有模型实验的第一页。
 
 \section{为什么在 Part II 之后进入机器学习}
 
@@ -118,6 +145,65 @@
     \item 训练结果总是与数据集、特征定义和标签质量绑定在一起。
 \end{itemize}
 
+\section{从科学问题到学习问题：四步翻译}
+
+对初学者来说，最困难的往往不是理解上面的公式，而是把一个真实科学问题翻译成公式中的对象。可以把这件事固定成四步：
+
+\begin{enumerate}
+    \item \textbf{确定样本单位}：一行数据到底代表一颗恒星、一幅图像、一个光谱，还是一次实验运行；
+    \item \textbf{确定输入特征}：模型在预测时允许看到哪些量，这些量是否真的能在应用时获得；
+    \item \textbf{确定目标标签或目标值}：模型要预测的是离散类别、连续物理量，还是候选排序；
+    \item \textbf{确定损失函数和评估方式}：训练时惩罚哪种错误，报告时用什么方式判断结果是否有用。
+\end{enumerate}
+
+以教学版恒星分类为例，这四步可以写成表~\ref{tab:ch16_ml_problem_translation}：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.22\textwidth}p{0.30\textwidth}p{0.36\textwidth}}
+\toprule
+对象 & 本章例子 & 需要人工确认的问题 \\
+\midrule
+样本单位 & 一颗恒星 & 是否每一行都是独立对象，是否有重复源 \\
+输入特征 & \texttt{bp\_rp}, \texttt{absolute\_g\_mag} & 颜色和绝对星等是否已经过质量筛选 \\
+标签 & \texttt{stellar\_class} & 标签来自教学规则、人工标注还是外部目录 \\
+评估目标 & 分类是否合理 & 错分白矮星和错分巨星的科学代价是否相同 \\
+\bottomrule
+\end{tabular}
+\caption{把教学版恒星分类问题翻译成机器学习对象的四个检查点。}
+\label{tab:ch16_ml_problem_translation}
+\end{table}
+
+这张表的意义，是把“机器学习问题”从一句口号压成可复查的对象。只要其中一行说不清，后面的模型训练就很容易变成表面上能跑、实质上无法解释的练习。
+
+\section{损失函数的一步手算}
+
+为了让经验风险不显得抽象，我们看一个极小二分类例子。假设真实标签为
+
+\[
+y = (1,0,1,1),
+\]
+
+模型预测分数经过阈值后给出
+
+\[
+\hat{y} = (1,0,0,1).
+\]
+
+如果用最简单的 $0$--$1$ 损失，预测正确时损失为 $0$，预测错误时损失为 $1$，则四个样本的损失是
+
+\[
+(0,0,1,0).
+\]
+
+经验风险就是平均损失：
+
+\[
+\hat{R} = \frac{0+0+1+0}{4}=0.25.
+\]
+
+这一步手算告诉我们一件朴素但重要的事：训练和评估本质上都在把“模型错在哪里”转成可比较的数值。不同损失函数改变的是这种比较方式。分类中的交叉熵、回归中的平方误差、异常检测中的重构误差，本质上都在回答：我们愿意怎样惩罚错误。
+
 \section{特征、标签与目标：三者不能混为一谈}
 
 初学者经常把“表中的每一列”都视为可以直接喂给模型的内容，但在科学任务里，特征工程本身就包含理论判断。
@@ -197,6 +283,29 @@ y_i \in \{\texttt{main\_sequence}, \texttt{giant}, \texttt{white\_dwarf}\}.
     \item 数据驱动方法让边界由样本分布间接形成；
     \item 二者都依赖特征定义，也都离不开科学判断。
 \end{itemize}
+
+\section{一份最小问题定义记录}
+
+从本章开始，每次进入模型实验前，都应该先写一份问题定义记录。它可以非常短，但必须先于模型代码出现。
+
+\begin{examplebox}[问题定义记录模板]
+\begin{lstlisting}[style=pythonstyle]
+problem_statement = {
+    "scientific_question": "classify broad stellar populations",
+    "sample_unit": "one star",
+    "features": ["bp_rp", "absolute_g_mag"],
+    "target": "stellar_class",
+    "label_source": "teaching labels based on HR diagram regions",
+    "baseline": "hand-written HR diagram rule",
+    "not_supported_claims": [
+        "detailed stellar evolutionary stage",
+        "physical mechanism of classification boundary",
+    ],
+}
+\end{lstlisting}
+\end{examplebox}
+
+这份记录看起来朴素，却能防止很多后续错误。它会提醒你：教学标签并不等于自然界的最终类别，baseline 并不是可省略的形式，模型能支持的是当前任务下的预测，而不是完整物理机制解释。
 
 \section{为什么评估设计在下一章还要单独展开}
 

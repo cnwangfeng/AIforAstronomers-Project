@@ -1,5 +1,13 @@
 \chapter{物理实验、模型拟合与模拟数据}
 
+\section{本章导读：拟合曲线不是终点，解释参数才是目标}
+
+前面几章主要从不同数据类型出发学习观测记录如何变成测量结果。本章再向前走一步：当我们已经有一个候选机制模型时，数据分析就不只是描述曲线形状，而是要用数据约束模型参数，并判断这些参数是否有合理的单位、数量级和物理解释。
+
+这也是物理实验和许多普通预测任务的根本差别。一个多项式或灵活模型可能把曲线贴得很好，但它未必告诉你系统时间常数是多少、残差是否暴露了模型缺陷、误差条是否被正确使用、参数不确定度是否真实反映了观测限制。对科学训练来说，最低误差并不自动等于最好解释。
+
+本章用指数衰减作为最小例子，是因为它能把前向模型、参数搜索、残差诊断、\(\chi^2\)、Monte Carlo 不确定度和 baseline 比较放在同一条线里。学完本章后，你应该能把“我拟合出了一条曲线”升级成“我用某个机制模型得到了一组带边界的参数估计”。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -13,6 +21,28 @@
 \end{itemize}
 
 进入本章前，建议你已经能写小函数、读懂循环，并理解随机种子为何影响结果，因为后面的模拟和参数扫描都要反复调用这些最小能力。
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是对一个教学版 RC 放电数据集做指数模型拟合。正文负责解释机制模型、参数、残差、\(\chi^2\) 和 Monte Carlo 不确定度；训练材料则要求你交付一份能被复查的拟合记录，而不是只报告一条曲线或一个最佳参数。
+
+\begin{examplebox}[最小物理拟合项目结构]
+\begin{lstlisting}[style=terminal]
+physics_fit_demo/
+  data/
+    physics_model_fit_demo.csv
+  notebooks/
+    fit_decay_model.ipynb
+  scripts/
+    fit_decay_tau.py
+  figures/
+    decay_fit_residuals.png
+  results/
+    model_fit_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+项目交付应包含：变量单位、候选模型、参数搜索范围、最佳参数、残差诊断、Monte Carlo 不确定度、baseline 比较和模型假设限制。这个结构会为 Part III 的模型评估和 Part VI 的 capstone 结果报告打底。
 
 \section{为什么物理数据分析不能只停留在“相关性”}
 
@@ -51,7 +81,7 @@ y_{\mathrm{model}}(x;\theta),
 
 并希望通过数据去约束参数 $\theta$。
 
-\subsection{从“描述曲线”到“解释系统”}
+\paragraph{从“描述曲线”到“解释系统”}
 
 这正是实验型数据和许多普通机器学习表格任务的最大差别之一。对实验数据来说，我们通常不仅想知道：
 
@@ -156,7 +186,7 @@ r_i = y_i - y_{\mathrm{model}}(x_i;\theta).
 
 在最小二乘或最大似然的高斯误差近似下，寻找较小的 $\chi^2$ 就对应寻找更合理的参数。
 
-\subsection{为什么还要看缩并卡方}
+\paragraph{为什么还要看缩并卡方}
 
 单独报告 $\chi^2$ 往往还不够，因为样本点数越多，$\chi^2$ 通常也会自然增大。为了更方便比较不同拟合设置，我们常进一步看\textbf{缩并卡方}
 
@@ -188,7 +218,7 @@ r_i = y_i - y_{\mathrm{model}}(x_i;\theta).
 
 如果模型还包含 $V_0$，可以把它一起放入网格，也可以在固定 $\tau$ 时求最优幅度。无论采用哪种实现，教学上最重要的是：\textbf{参数估计不是魔法函数给出的数字，而是模型预测和观测数据反复比较后的结果。}
 
-\subsection{固定 \texorpdfstring{$\tau$}{tau} 时怎样求最优 \texorpdfstring{$V_0$}{V0}}
+\paragraph{固定 \texorpdfstring{$\tau$}{tau} 时怎样求最优 \texorpdfstring{$V_0$}{V0}}
 
 指数模型可以写成
 

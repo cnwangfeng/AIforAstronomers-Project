@@ -1,5 +1,13 @@
 \chapter{机器学习项目流程}
 
+\section{本章导读：机器学习实验也需要实验规程}
+
+很多初学者第一次做机器学习项目时，会把流程想成“读数据、调模型、看分数”。这和实验课里“接上线、读数、写结论”一样危险：如果任务定义、样本切分、baseline、评估指标和错误复查没有事先安排好，最后得到的分数可能很漂亮，却不知道到底在证明什么。
+
+本章把机器学习 workflow 当成一种实验规程来讲。训练集、验证集和测试集不是形式主义；baseline 不是低级模型；混淆矩阵和错误样本也不是附录。它们共同决定一个模型结果是否能被别人复查，是否能避免数据泄漏，是否能回到科学问题本身。
+
+学完本章后，你应该形成一个很硬的习惯：先切分，再训练；先 baseline，再复杂模型；先检查错误结构，再解释平均分。这个顺序会反复出现在后面的每一个案例项目里。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,27 @@
     \item 用一个极小的恒星分类数据集走通“切分 $\rightarrow$ baseline $\rightarrow$ 训练 $\rightarrow$ 评估 $\rightarrow$ 误差检查”的完整骨架；
     \item 理解准确率、混淆矩阵和错误案例分析为什么比单个分数更重要。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是走通一个极小恒星分类 workflow。正文负责说明任务定义、切分、baseline、训练、评估和错误分析的顺序；训练材料则要求你把这个顺序真正落到一次可复跑的模型实验中。
+
+\begin{examplebox}[最小机器学习 workflow 项目]
+\begin{lstlisting}[style=terminal]
+minimal_ml_workflow_demo/
+  data/
+    stellar_photometry_demo.csv
+  notebooks/
+    ch17_minimal_classification_workflow.ipynb
+  scripts/
+    run_minimal_workflow.py
+  results/
+    split_record.txt
+    model_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+最终交付应包含：任务定义、切分策略、baseline 结果、模型预测、准确率、混淆矩阵、错误样本说明和复现入口。这样做的目的，是让“流程先于模型”不只是口号，而是变成每次模型实验的固定骨架。
 
 \section{为什么流程先于模型}
 
@@ -49,6 +78,31 @@
 \end{enumerate}
 
 本章最重要的思想是：\textbf{这些步骤并不是官僚流程，而是保证评估结果有意义的最小条件。}
+
+\section{把工作流写成可执行伪代码}
+
+工作流如果只停留在文字上，学生很容易在 notebook 中又回到“先试模型、再补记录”的习惯。更稳妥的做法，是先把流程写成伪代码：
+
+\begin{examplebox}[最小 workflow 伪代码]
+\begin{lstlisting}[style=pythonstyle]
+rows = read_rows(data_path)
+features, labels = define_features_and_labels(rows)
+
+train_rows, test_rows = split_before_training(rows)
+
+baseline = build_baseline(train_rows)
+baseline_predictions = predict_all(baseline, test_rows)
+
+model = train_model(train_rows)
+model_predictions = predict_all(model, test_rows)
+
+evaluation = evaluate_predictions(test_rows, model_predictions)
+errors = collect_error_cases(test_rows, model_predictions)
+write_model_record(evaluation, errors)
+\end{lstlisting}
+\end{examplebox}
+
+这段伪代码没有绑定任何具体库，但它固定了顺序。尤其要注意，\texttt{split\_before\_training} 必须出现在 \texttt{train\_model} 之前；\texttt{collect\_error\_cases} 必须出现在整体分数之后，把模型从一个数字重新拉回样本。
 
 \section{任务定义：先回答“要预测什么”}
 
@@ -157,8 +211,28 @@ def build_centroids(training_rows):
         grouped.setdefault(row["stellar_class"], []).append(
             feature_vector(row)
         )
+    centroids = {}
+    for label, vectors in grouped.items():
+        mean_bp_rp = sum(v[0] for v in vectors) / len(vectors)
+        mean_abs_g = sum(v[1] for v in vectors) / len(vectors)
+        centroids[label] = (mean_bp_rp, mean_abs_g)
+    return centroids
+
+def squared_distance(a, b):
+    return sum((x - y) ** 2 for x, y in zip(a, b))
+
+def predict_centroid(row, centroids):
+    vector = feature_vector(row)
+    return min(
+        centroids,
+        key=lambda label: squared_distance(vector, centroids[label]),
+    )
 \end{lstlisting}
 \end{examplebox}
+
+\paragraph{这段代码在“学习”什么}
+
+最近类别中心分类器的训练结果不是一组神秘参数，而是每一类的中心位置。模型之所以能预测，是因为它假设同一类样本在特征空间中会靠得更近。这个假设在 HR 图教学例子中相当自然，但在其他任务中未必成立。理解这一点，比记住函数名字更重要。
 
 \section{评估：为什么不能只说“看起来还行”}
 
@@ -249,6 +323,34 @@ def build_centroids(training_rows):
 \end{itemize}
 
 这些工作看上去不像“模型创新”，却是把一个课堂示例变成科研工作流的关键。
+
+\section{从模型输出到实验记录}
+
+本章最终希望你形成一份 \texttt{model\_record.txt}。它不需要很长，但至少应该包含：
+
+\begin{enumerate}
+    \item \textbf{任务定义}：样本、特征、标签和目标；
+    \item \textbf{切分记录}：训练集和测试集如何形成，是否保证类别覆盖；
+    \item \textbf{baseline 结果}：规则或简单模型的表现；
+    \item \textbf{正式模型结果}：准确率、混淆矩阵和主要错误；
+    \item \textbf{解释边界}：哪些结论只适用于教学数据，不能直接外推。
+\end{enumerate}
+
+\begin{examplebox}[模型记录的最小字段]
+\begin{lstlisting}[style=pythonstyle]
+model_record = {
+    "task": "stellar class prediction",
+    "split": "one held-out example per class",
+    "features": ["bp_rp", "absolute_g_mag"],
+    "baseline_accuracy": baseline_accuracy,
+    "model_accuracy": model_accuracy,
+    "main_error_cases": error_case_ids,
+    "scope": "teaching sample only",
+}
+\end{lstlisting}
+\end{examplebox}
+
+这类记录会在后续章节不断变厚：回归会加入残差，分类会加入按类别指标，模型选择会加入验证曲线，可信度章节会加入覆盖范围。这里先把骨架立起来。
 
 \begin{warnbox}[机器学习流程中的典型问题]
 \begin{itemize}

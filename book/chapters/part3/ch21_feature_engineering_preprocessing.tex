@@ -1,5 +1,13 @@
 \chapter{特征工程与数据预处理}
 
+\section{本章导读：预处理会改变模型看见的世界}
+
+特征工程和预处理经常被讲成模型前的清洗步骤，好像只是把数据整理得更好看。但在科学机器学习中，预处理会直接改变模型可见的信息、距离关系、权重尺度和泄漏风险。缺失值怎么填、特征如何标准化、类别变量怎么编码、哪些派生量能不能用，都会改变模型真正学习到的东西。
+
+本章的核心不是背一组预处理技巧，而是建立一个原则：所有从数据到特征矩阵的变换都必须被记录，并且只能从训练集学习该学习的信息。否则，标准化均值、缺失值填补规则、特征选择甚至派生列，都可能把测试信息提前泄漏给模型。
+
+读这一章时，请把预处理当成数据语义的一部分。一个特征进入模型之前，应该能回答它来自哪里、单位是什么、是否由标签间接推导、是否只用训练数据拟合，以及它改变了哪种模型假设。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,26 @@
     \item 明白预处理步骤必须只在训练集上拟合，从而避免数据泄漏；
     \item 认识到特征工程不是“多造几列”，而是在重新定义模型真正看到的世界。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是一份预处理审计。正文负责解释缺失值、标准化、类别编码、领域特征、特征删除和数据泄漏；训练材料则要求你把预处理步骤写成一份可以复查的 pipeline 记录。
+
+\begin{examplebox}[最小预处理项目结构]
+\begin{lstlisting}[style=terminal]
+preprocessing_audit_demo/
+  data/
+    object_preprocessing_demo.csv
+  notebooks/
+    ch21_feature_engineering_preprocessing.ipynb
+  scripts/
+    audit_preprocessing_pipeline.py
+  results/
+    preprocessing_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+最终交付应包含：每个字段的处理方式、缺失值策略、标准化参数来自哪里、哪些步骤只能在训练集上拟合、哪些特征可能泄漏答案，以及预处理后样本是否仍代表原科学问题。
 
 \section{为什么预处理会直接改变模型结果}
 
@@ -61,6 +89,19 @@
 
 这并不是唯一正确的方法，但足够帮助学生建立一个关键原则：\textbf{填补参数必须由训练集决定，而不是偷看测试集。}
 
+\section{缺失值也可能携带信息}
+
+缺失值并不总是“随机掉了一个数”。在观测数据里，某个字段缺失本身可能意味着：
+
+\begin{itemize}
+    \item 目标太暗，某个波段没有可靠测量；
+    \item 天区没有被某次巡天覆盖；
+    \item 管线因为质量问题拒绝给出结果；
+    \item 某类对象更容易触发缺测。
+\end{itemize}
+
+因此，填补缺失值之前要先问：缺失机制是否和科学目标有关。如果缺失不是随机的，简单均值填补虽然能让代码跑下去，却可能抹掉非常重要的观测条件信号。实际项目中常见做法是同时加入一个缺失指示特征，例如 \texttt{is\_seeing\_missing}，让模型知道这个值曾经缺失过。
+
 \section{为什么“先看全数据再补”会导致泄漏}
 
 设某个数值特征在训练集上的均值为 $\mu_{\mathrm{train}}$，在测试集上的均值为 $\mu_{\mathrm{test}}$。如果你直接用全数据均值
@@ -94,6 +135,22 @@ z = (x - mean_train) / std_train
 \end{examplebox}
 
 标准化的作用，不是把数据“变好看”，而是让不同特征在比较距离或系数时站到更可比的尺度上。
+
+\section{标准化的一步数值例子}
+
+假设训练集中某个颜色特征的均值和标准差为：
+
+\[
+\mu_{\mathrm{train}}=0.80,\qquad \sigma_{\mathrm{train}}=0.20.
+\]
+
+一个测试样本的原始颜色为 $x=1.10$，则标准化后为：
+
+\[
+z=\frac{1.10-0.80}{0.20}=1.5.
+\]
+
+注意这里使用的是训练集统计量，而不是测试集自己的均值和标准差。测试集的角色是被同一把尺子测量，而不是重新定义尺子。这个细节看似技术，却是避免泄漏的核心。
 
 \section{为什么量纲差异会误导分类器}
 
@@ -177,6 +234,29 @@ one-hot 编码的本质，是告诉模型：“这是互斥类别，不是有序
 \end{itemize}
 
 这正是 \texttt{Pipeline} 和 \texttt{ColumnTransformer} 的价值所在：它们能把预处理和模型训练明确串起来，减少手工重复和泄漏风险。
+
+\section{把预处理写成训练/应用两阶段算法}
+
+无论是否使用标准库，一个可靠的预处理流程都应分成两个阶段：
+
+\begin{enumerate}
+    \item \textbf{fit 阶段}：只在训练集上学习均值、方差、众数、编码表和特征选择规则；
+    \item \textbf{transform 阶段}：把已经学到的规则应用到训练集、验证集、测试集和未来新数据。
+\end{enumerate}
+
+\begin{examplebox}[预处理算法骨架]
+\begin{lstlisting}[style=pythonstyle]
+preprocessor = fit_preprocessor(train_rows)
+
+train_features = transform(preprocessor, train_rows)
+test_features = transform(preprocessor, test_rows)
+
+model = train_model(train_features, train_labels)
+predictions = model.predict(test_features)
+\end{lstlisting}
+\end{examplebox}
+
+这段骨架的关键在于：测试集永远不能调用 \texttt{fit\_preprocessor}。它只能使用训练阶段已经固定好的转换规则。很多数据泄漏并不发生在模型训练函数里，而是发生在这一步之前。
 
 \section{一个最小预处理审计表}
 

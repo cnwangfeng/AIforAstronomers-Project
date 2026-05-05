@@ -1,426 +1,581 @@
 \chapter{可视化与科研图表}
 
-\section{学习目标}
+\section{本章导读：图表是科学论证，不是装饰}
+
+很多学生第一次学习绘图时，会把目标理解成“用 matplotlib 把数据画出来”。这只是最表层的技能。科研图表真正承担的是论证任务：它把数据关系、测量不确定度、模型诊断和解释边界组织成读者可以检查的视觉证据。
+
+一张图如果只有点、线和颜色，但没有变量、单位、尺度、样本选择、误差和读图说明，那么它很可能只是“漂亮输出”，还不是科学图表。反过来，一张图即使很朴素，只要能清楚回答“比较什么、证据在哪里、不能过度解释什么”，它就已经开始发挥科研作用。
+
+本章承接前面几章：
+
+\begin{itemize}
+    \item Linux 章让你知道图像文件应该保存在哪里；
+    \item Git 章让你知道图表来自哪个版本；
+    \item 脚本章让你知道图表如何从稳定入口生成；
+    \item I/O 章让你知道图表输入是否经过检查；
+    \item 本章则讨论图表本身如何成为证据。
+\end{itemize}
+
+\section{学习目标与训练目标}
 
 学完本章后，你应该能够：
 
 \begin{itemize}
-    \item 理解科研图表的目标是传达结构、比较关系和支持论证，而不只是“把数据画出来”；
-    \item 说清楚一张合格科学图至少应包含变量、单位、范围、标注和解读线索；
-    \item 根据数据的数量级和关系特点，判断何时使用线性坐标、对数坐标、误差棒和标注；
-    \item 从一个极小教学数据集生成可解释的散点图，并把图像与物理规律联系起来；
-    \item 为后续的 HR 图、光谱图、时间域图和模型诊断图建立统一的图表思维方式。
+    \item 解释为什么科研图表不是分析结束后的装饰；
+    \item 区分变量、单位、对象、尺度和视觉编码在图表中的作用；
+    \item 根据关系类型选择散点图、折线图、直方图、误差棒图、图像图或残差图；
+    \item 理解线性坐标、对数坐标和归一化显示的适用场景；
+    \item 用 claim--evidence--limit 框架把图表转化为科学表述；
+    \item 识别颜色、点大小、坐标范围、bin 宽度和图例可能造成的误导；
+    \item 保存图像文件时记录数据来源、代码版本、参数和输出路径。
 \end{itemize}
 
-进入本章前，建议你已经完成 Part 0 的基础训练，并能顺着读懂列表、循环、简单函数、文件读取和对象方法调用。本章会直接在这些能力之上讨论图像如何成为证据链的一部分。
+训练目标是完成一个小型图表交付：从一份教学数据中生成主图和一个诊断图，写出图注、读图说明、自审清单和 figure record。
 
-\section{为什么科研图表不是“会用 matplotlib 就行”}
+\section{贯穿本章的微型项目}
 
-很多初学者会把绘图理解成最后一步：前面分析做完了，最后调用几条命令，把图画出来。但在科研里，图表并不是分析的装饰，而是分析论证的一部分。
+本章使用一个小型行星轨道教学数据表作为贯穿示例。它包含行星名称、半长轴和轨道周期。这个例子很简单，正适合训练图表基本功：变量清楚、单位清楚、物理关系清楚、图表解释清楚。
 
-一张图是否真正有用，取决于它能不能帮助读者回答以下问题：
+\begin{examplebox}[最小图表项目结构]
+\begin{lstlisting}[style=terminal]
+figure_demo/
+  data/
+    planetary_orbits_demo.csv
+  notebooks/
+    plot_orbits.ipynb
+  scripts/
+    make_orbit_figure.py
+  figures/
+    orbit_period_vs_axis.png
+  results/
+    figure_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+本章最终希望你不只是生成一张 PNG，而是能交付：
 
 \begin{itemize}
-    \item 横轴和纵轴分别是什么物理量；
-    \item 量纲和单位是否清楚；
-    \item 图中的趋势究竟说明了什么关系；
-    \item 数据散布是真实结构、观测误差，还是样本选择效应；
-    \item 这张图是否足以支撑文本中的论断。
+    \item 图像文件；
+    \item 生成图像的脚本或 notebook 入口；
+    \item 变量、单位和样本说明；
+    \item 图表支持的 claim；
+    \item 图表不能支持的 limit；
+    \item 图像保存参数和版本记录。
 \end{itemize}
 
-\begin{defbox}[科学图表]
-科学图表是把数据、关系和解释组织成视觉证据的工具。它的目标不是单纯美观，而是让读者更高效地理解并检验一个科学论点。
-\end{defbox}
+\section{从数据到图像：绘图前已经有假设}
 
-因此，本章真正讨论的不是“如何调用作图库”，而是“怎样把一张图变成一条论证链的一部分”。
-
-\section{从数据到图像：绘图前你其实已经做了很多决定}
-
-在任何一张科研图出现之前，你至少已经做了四个层面的决定：
+图表不是中性地把数据“显示出来”。在画图前，你已经做出一系列选择：
 
 \begin{enumerate}
-    \item \textbf{选择了哪些数据}：不是所有字段都应该进图；
-    \item \textbf{选择了什么关系}：是比较 $x$ 与 $y$，还是比较残差与误差；
-    \item \textbf{选择了什么尺度}：线性、对数，还是归一化；
-    \item \textbf{选择了什么编码}：颜色、符号、误差棒、标注。
+    \item 选择哪些样本进入图；
+    \item 选择哪些变量作为横轴和纵轴；
+    \item 选择是否做单位转换或归一化；
+    \item 选择线性坐标还是对数坐标；
+    \item 选择用点、线、颜色、大小、形状还是误差棒编码信息；
+    \item 选择是否标注对象名称或理论参考线。
 \end{enumerate}
 
-换句话说，图并不是“中性结果展示”，而是研究者对数据关系的一次有意识表达。
+这些选择共同决定读者会看到什么，也决定读者容易忽略什么。因此，绘图不是中立动作，而是一次视觉建模。
 
-\section{一个最小示例：为什么行星轨道图有教学价值}
+\begin{defbox}[科学图表]
+科学图表是把数据、关系、诊断和解释边界组织成视觉证据的表达方式。它的目标不是单纯美观，而是帮助读者检验一个科学判断。
+\end{defbox}
 
-本章继续使用一个小型行星教学数据表，包含半长轴和轨道周期。这个例子之所以适合 Part I，并不是因为它复杂，而正是因为它足够简单，让你能集中思考图表逻辑本身。
+\section{图表的五个基本组成}
+
+一张可读的科学图至少包含表~\ref{tab:ch08_figure_components} 中的五个组成：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.18\textwidth}p{0.32\textwidth}p{0.36\textwidth}}
+\toprule
+组成 & 作用 & 常见问题 \\
+\midrule
+变量 & 说明横轴、纵轴或颜色表示什么 & 只写代码变量名，不写物理含义 \\
+单位 & 让数值有量纲和尺度 & 度、弧度、像素、星等、通量混用 \\
+尺度 & 决定线性、对数或归一化显示 & 用线性轴压扁大动态范围结构 \\
+编码 & 用点、线、颜色、形状表达关系 & 颜色暗示不存在的类别或顺序 \\
+解释 & 把视觉结构连接到科学判断 & 只写“如图所示”，没有 claim \\
+\bottomrule
+\end{tabular}
+\caption{科学图表的五个基本组成及常见问题。}
+\label{tab:ch08_figure_components}
+\end{table}
+
+这五项比某个绘图库的语法更重要。即使用不同工具画图，科学图表的判断标准仍然相同。
+
+\section{准备变量：图表从字段选择开始}
+
+以行星轨道数据为例，最小准备过程是：
 
 \begin{examplebox}[读取教学数据并准备变量]
 \begin{lstlisting}[style=pythonstyle]
 import csv
 from pathlib import Path
 
-data_path = Path("../../data/small/planetary_orbits_demo.csv")
-with data_path.open(newline="", encoding="utf-8") as f:
-    rows = list(csv.DictReader(f))
+data_path = Path("data/planetary_orbits_demo.csv")
+with data_path.open(newline="", encoding="utf-8") as handle:
+    rows = list(csv.DictReader(handle))
 
 planet_names = [row["planet"] for row in rows]
-x_values = [float(row["semi_major_axis_au"]) for row in rows]
-y_values = [float(row["orbital_period_years"]) for row in rows]
+semi_major_axis_au = [float(row["semi_major_axis_au"]) for row in rows]
+orbital_period_years = [float(row["orbital_period_years"]) for row in rows]
 \end{lstlisting}
 \end{examplebox}
 
-到这里为止，我们还没有开始画图，但已经完成了一个最小可视化算法的前三步：
+这段代码已经完成三件科学选择：
 
 \begin{itemize}
-    \item 选择数据列；
-    \item 明确横纵变量；
-    \item 把文本数据转换为可计算的数值。
+    \item 选择对象集合：太阳系行星教学样本；
+    \item 选择横轴变量：半长轴；
+    \item 选择纵轴变量：轨道周期。
 \end{itemize}
 
-\section{变量、单位与标注：图表的最小语言}
+如果字段含义、单位或样本选择没有写清，后面的图再漂亮也不可靠。
 
-一张科学图至少需要解决三种语言问题：
+\section{变量、单位与对象名称}
 
-\subsection{变量语言}
-
-读者必须知道横轴和纵轴代表什么量。例如本章中是：
+图表的轴标签不是形式要求，而是读者理解图像的入口。对于行星轨道示例，横轴和纵轴可以写成：
 
 \[
-x = a \quad (\text{semi-major axis}),
-\qquad
-y = P \quad (\text{orbital period}).
+a\;[\mathrm{au}], \qquad P\;[\mathrm{yr}].
 \]
 
-\subsection{单位语言}
+其中 \(a\) 是半长轴，\(P\) 是轨道周期。单位 \(\mathrm{au}\) 和 \(\mathrm{yr}\) 让读者知道数值尺度。对于小样本且对象身份重要的图，还应该考虑标注对象名称。
 
-变量名如果没有单位，解释会立刻变得含糊。例如：
-
-\[
-a \; [\mathrm{au}], \qquad P \; [\mathrm{yr}]
-\]
-
-和单写“semi-major axis”“orbital period”相比，前者更完整，因为它告诉读者数值的量纲。
-
-\subsection{对象语言}
-
-当样本很少且个体身份重要时，单靠点本身还不够，你往往需要标出对象名称。对于行星数据，这样做特别合理，因为每一个点都对应一个熟悉的天体，而不是一个大样本中的匿名成员。
-
-\section{一张最小散点图是怎样构成的}
-
-在 notebook 中，最小散点图代码如下：
-
-\begin{examplebox}[绘制轨道周期与半长轴]
+\begin{examplebox}[最小散点图]
 \begin{lstlisting}[style=pythonstyle]
+import matplotlib.pyplot as plt
+
 fig, ax = plt.subplots(figsize=(6, 4))
-ax.scatter(x_values, y_values, color="tab:blue")
+ax.scatter(semi_major_axis_au, orbital_period_years, color="tab:blue")
 
-for name, x_value, y_value in zip(planet_names, x_values, y_values):
-    ax.annotate(name, (x_value, y_value), fontsize=8,
-                xytext=(4, 4), textcoords="offset points")
+for name, x_value, y_value in zip(
+    planet_names, semi_major_axis_au, orbital_period_years
+):
+    ax.annotate(name, (x_value, y_value), xytext=(4, 4),
+                textcoords="offset points", fontsize=8)
 
-ax.set_title("Orbital Period vs. Semi-major Axis")
 ax.set_xlabel("Semi-major axis [au]")
 ax.set_ylabel("Orbital period [yr]")
+ax.set_title("Orbital period vs. semi-major axis")
 ax.grid(alpha=0.3)
 \end{lstlisting}
 \end{examplebox}
 
-代码表面上只是几个函数调用，但每一行都对应一个图表设计决策：
+这段代码中的每一行都对应一个设计选择：点表示离散对象，标注表示对象身份，轴标签说明变量和单位，网格帮助读数但不应抢走注意力。
+
+\section{为什么推荐 \texttt{fig, ax} 写法}
+
+Matplotlib 有多种写法。入门时常见的 \texttt{plt.plot(...)} 很方便，但当图表变复杂时，推荐使用：
+
+\begin{lstlisting}[style=pythonstyle]
+fig, ax = plt.subplots()
+\end{lstlisting}
+
+这里 \texttt{fig} 表示整张画布，\texttt{ax} 表示其中一个坐标轴区域。这样写的好处是：
 
 \begin{itemize}
-    \item \texttt{scatter} 用于强调离散样本；
-    \item \texttt{annotate} 用于识别个体；
-    \item 标题说明“比较关系是什么”；
-    \item 轴标签说明“量是什么、单位是什么”；
-    \item 网格线提高读图效率，但强度被压低，避免喧宾夺主。
+    \item 图中有多个子图时，每个 \texttt{ax} 的职责清楚；
+    \item 保存图像、添加颜色条、调整坐标轴更容易控制；
+    \item 函数可以接收 \texttt{ax} 参数，从而把绘图逻辑复用到不同图里。
 \end{itemize}
 
-\section{图表类型选择：关系决定图形}
+科研图表经常需要主图、残差图、颜色条和多个面板。越早理解 \texttt{fig} 与 \texttt{ax} 的分工，后面越不容易陷入“能画出来但无法维护”的状态。
 
-初学者很容易把“画图”理解成“先试一个散点图”。散点图当然重要，但科研图表的第一步应该是判断你想表达什么关系。常见选择可以先记住下面这组最小对应：
+\section{图表类型：问题决定形式}
 
-\begin{center}
-\begin{tabular}{lll}
+图表类型应服务于问题，而不是服务于习惯。最小对应关系见表~\ref{tab:ch08_plot_type_questions}：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.24\textwidth}p{0.20\textwidth}p{0.42\textwidth}}
 \toprule
-目标 & 常见图表 & 适合回答的问题 \\
+想回答的问题 & 常见图表 & 示例 \\
 \midrule
-两个连续变量关系 & 散点图 & 是否有关联或趋势 \\
-随时间或波长变化 & 折线图 & 结构是否沿有序轴变化 \\
-样本分布 & 直方图 & 数值集中在哪些范围 \\
-模型诊断 & 残差图 & 模型是否留下系统结构 \\
-测量不确定度 & 误差棒图 & 点的位置是否足够可信 \\
+两个连续变量是否相关 & 散点图 & 颜色--绝对星等、半长轴--周期 \\
+量是否随有序轴变化 & 折线图 & 光谱随波长、亮度随时间 \\
+样本集中在哪些范围 & 直方图 & 星等分布、误差分布 \\
+二维位置上哪里更亮 & 图像图 & FITS cutout、探测器图像 \\
+模型误差是否有结构 & 残差图 & 预测值--残差、时间--残差 \\
+测量值是否可信 & 误差棒图 & 带不确定度的光度或拟合参数 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{常见科学问题与图表类型的最小对应关系。}
+\label{tab:ch08_plot_type_questions}
+\end{table}
 
-这张表不是固定规则，而是提醒你：图表类型应当服务于问题。HR 图强调颜色和绝对星等关系，适合散点图；光谱有自然波长轴，通常用折线图；周期搜索后的残差，则应该用诊断图来检查模型遗漏了什么。
+如果你说不清一张图想回答什么问题，通常也很难选对图表类型。写代码前先写一句：“这张图用来比较什么？”
 
-\begin{protip}[先说问题，再选图]
-如果你说不清一张图想回答什么问题，通常也很难选对图表类型。先写一句“这张图用来比较什么”，再写绘图代码。
-\end{protip}
+\section{对数坐标：当关系跨越数量级}
 
-\section{为什么有时要使用对数坐标}
+许多天文和物理量跨越多个数量级。线性坐标会把小值挤在一起，导致结构难以观察。对数坐标适合展示乘法关系、幂律关系和大动态范围数据。
 
-很多自然科学关系不是“加法式变化”，而是“乘法式变化”或幂律关系。此时，对数坐标非常重要。
-
-例如，开普勒第三定律可以写成：
+行星轨道示例背后是开普勒第三定律：
 
 \[
 P^2 \propto a^3.
 \]
 
-若取对数，就得到：
+取对数可得：
 
 \[
-\log P = \frac{3}{2} \log a + C,
+\log P = \frac{3}{2}\log a + C.
 \]
 
-其中 $C$ 是常数。这说明：\textbf{如果原始关系是幂律，那么在对数坐标下会更接近直线。}
+这说明如果原始关系是幂律，在对数坐标下会更接近直线。
 
-这也是为什么天文和物理中很多图都喜欢用对数轴。它不是为了显得高级，而是因为：
+\begin{examplebox}[使用对数坐标]
+\begin{lstlisting}[style=pythonstyle]
+ax.set_xscale("log")
+ax.set_yscale("log")
+\end{lstlisting}
+\end{examplebox}
 
-\begin{itemize}
-    \item 大动态范围数据更容易看；
-    \item 乘法关系更容易被识别；
-    \item 不同数量级的对象可以放到同一张图里比较。
-\end{itemize}
+对数坐标不是为了显得高级，而是为了让适合的结构可见。需要注意的是，对数轴不能直接显示非正数；如果数据包含零或负值，必须先理解这些值的来源。
 
-\section{图表不只要“画出来”，还要“读出来”}
+\section{在图上画参考关系}
 
-对于本章这个最小行星数据集，图中最重要的信息并不是“点很多”，而是：
+如果图表要支持一个物理关系，仅画散点往往不够。以开普勒第三定律为例，可以在图中画一条参考关系：
 
-\begin{itemize}
-    \item 半长轴越大，轨道周期越长；
-    \item 这种增长不是简单线性，而更接近幂律关系；
-    \item 小样本图像仍然可以服务于物理判断，而不只是数据展示。
-\end{itemize}
+\[
+P = a^{3/2},
+\]
 
-这也是教学中的关键一跃：画图从“输出结果”变成“组织直觉”。后面不论是 HR 图、回归残差图、ROC 曲线还是光谱线型图，本质上都要回到这一点。
+其中 \(a\) 用 au、\(P\) 用 year。教学代码可以写成：
+
+\begin{examplebox}[参考关系线]
+\begin{lstlisting}[style=pythonstyle]
+axis_grid = [0.4, 0.7, 1.0, 2.0, 5.0, 10.0, 30.0]
+reference_period = [axis ** 1.5 for axis in axis_grid]
+
+ax.plot(axis_grid, reference_period,
+        color="black", linestyle="--", label="P = a^(3/2)")
+ax.legend()
+\end{lstlisting}
+\end{examplebox}
+
+参考线的作用不是替代数据，而是让读者知道你在比较什么理论或经验关系。没有参考关系的散点图只能说“看起来相关”；有了参考关系，图表才更接近“数据是否支持某个预期关系”的科学论证。
 
 \section{从图到论断：claim--evidence--limit}
 
-科研图表真正进入报告或论文时，不能只停留在“如图所示”。一张图应当至少支持三句话：
+科研图表必须能转化成文字判断。最小框架是：
 
 \begin{enumerate}
-    \item \textbf{论断（claim）}：你希望读者从图中相信什么；
-    \item \textbf{证据（evidence）}：图中的哪些结构支持这个判断；
-    \item \textbf{限制（limit）}：这个判断在哪些条件下成立，哪里还不能过度解释。
+    \item \textbf{Claim}：这张图支持什么论断；
+    \item \textbf{Evidence}：图中的哪些结构支持该论断；
+    \item \textbf{Limit}：这个论断在哪些条件下成立，哪里不能过度解释。
 \end{enumerate}
 
-对行星轨道示例来说，一个合格的读图表述可以是：
+\begin{examplebox}[行星轨道图的三句式说明]
+Claim：轨道周期随半长轴增大而增大，并且更接近幂律关系。
 
-\begin{examplebox}[把图转成科学表述]
-这张图支持“轨道周期随半长轴增大而增大，并且更接近幂律而不是线性关系”的判断。证据是内外行星在对数坐标下呈现近似直线趋势，且 $P^2/a^3$ 的数值在教学数据中接近常数。限制是样本只包含太阳系行星，不能直接推广到所有系外行星系统。
+Evidence：在对数坐标下，太阳系行星样本呈现近似直线趋势，符合 \(P^2 \propto a^3\) 的直觉。
+
+Limit：样本只包含教学用太阳系行星数据，不能直接推广到所有系外行星系统。
 \end{examplebox}
 
-这个三句式看起来朴素，但很适合训练初学者。第一句防止图变成装饰；第二句要求你真的回到数据结构；第三句则防止从一张小图跳到过大的结论。后面的 HR 图、光谱线型图、模型残差图和混淆矩阵，都可以用同样方式阅读。
+这个三句式很朴素，但非常重要。它防止图表变成装饰，也防止读者从图中过度读出没有被数据支持的结论。
 
-\section{图表中的误差、比较与诊断}
+\section{误差棒：把测量不确定度画出来}
 
-一张真正有分析价值的科学图，往往不仅仅展示一个变量关系，还应该考虑：
+如果每个点都有测量不确定度，就应该考虑误差棒。误差棒不是为了让图更复杂，而是告诉读者点的位置有多可靠。
 
-\begin{itemize}
-    \item 是否需要误差棒；
-    \item 是否需要对照组；
-    \item 是否需要拟合线、残差图或分组颜色；
-    \item 是否需要说明哪些点是异常值、边界样本或低质量样本。
-\end{itemize}
-
-虽然本章还不要求一次覆盖所有图表类型，但必须让学生知道：\textbf{“散点图 + 标题”只是最小起点，不是全部。}
-
-\section{误差棒与残差图：让图表承担诊断功能}
-
-如果每个观测点都有不确定度，图中最好不要只画点。误差棒能直接告诉读者：一个点的位置大致可信到什么程度。
-
-\begin{examplebox}[最小误差棒代码]
+\begin{examplebox}[最小误差棒图]
 \begin{lstlisting}[style=pythonstyle]
-ax.errorbar(
-    x_values,
-    y_values,
-    yerr=y_errors,
-    fmt="o",
-    capsize=3,
-    color="tab:blue",
-)
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.errorbar(time_days, magnitude, yerr=mag_error,
+            fmt="o", capsize=3, color="tab:blue")
+ax.set_xlabel("Time [day]")
+ax.set_ylabel("Magnitude [mag]")
 \end{lstlisting}
 \end{examplebox}
 
-误差棒的意义不是让图“更专业”，而是让读者能判断趋势是否明显超过测量噪声。如果两个点的误差范围大幅重叠，那么单靠点的位置差异就不应该被过度解释。
-
-\subsection{残差图为什么经常比主图更诚实}
-
-当你有一个模型预测 $y_{\mathrm{model}}(x)$ 时，残差定义为：
-
-\[
-r_i = y_i - y_{\mathrm{model}}(x_i).
-\]
-
-主图常常让人先看到“模型大体贴合数据”，但残差图会更直接地暴露模型哪里没解释好。一个好的残差图通常应该检查：
+误差棒需要解释：
 
 \begin{itemize}
-    \item 残差是否围绕零上下波动；
-    \item 残差是否随 $x$ 出现系统趋势；
-    \item 是否有少数异常点主导了拟合结果；
-    \item 残差大小是否与误差棒量级一致。
+    \item 它表示 1 sigma、标准误、置信区间，还是其他量；
+    \item 是否只包含随机误差；
+    \item 是否存在系统误差没有画出来；
+    \item 误差是否与数据点相互独立。
 \end{itemize}
+
+没有说明的误差棒，很容易制造“看起来很严谨”的错觉。
+
+\section{残差图：让模型接受检查}
+
+如果图中包含模型线，仅仅展示模型和数据重合是不够的。残差图常常比主图更诚实。
+
+设观测值为 \(y_i\)，模型预测为 \(\hat{y}_i\)，残差为：
+
+\[
+r_i = y_i - \hat{y}_i.
+\]
+
+如果模型合适，残差通常应围绕零随机分布；如果残差随 \(x\) 呈现结构，说明模型遗漏了某种关系。
 
 \begin{examplebox}[最小残差计算]
 \begin{lstlisting}[style=pythonstyle]
-residuals = [
-    y_obs - y_model
-    for y_obs, y_model in zip(y_values, model_values)
-]
+residuals = [observed - predicted
+             for observed, predicted in zip(y_values, y_pred)]
+
+fig, ax = plt.subplots(figsize=(6, 3))
+ax.axhline(0, color="black", linewidth=1)
+ax.scatter(x_values, residuals, color="tab:orange")
+ax.set_xlabel("x")
+ax.set_ylabel("Residual")
 \end{lstlisting}
 \end{examplebox}
 
-这也是后面机器学习和物理拟合章节会反复出现的习惯：不要只画预测值，也要画模型没有解释掉的部分。
+后续机器学习评估、回归、分类和案例章节都会反复使用这种诊断思想。
 
-\section{视觉编码也会影响科学判断}
+\section{视觉编码：颜色、大小和范围会影响判断}
 
-图表的颜色、点大小、线宽和坐标范围并不是中性的装饰。它们会影响读者先看到什么、忽略什么，以及对差异大小的直觉判断。
+视觉编码不是装饰。颜色、点大小、透明度、坐标范围、bin 宽度、图例顺序都会影响读者判断。
 
-例如，同一组数据如果把纵轴范围截得很窄，微小变化会显得非常剧烈；如果颜色映射没有说明单位和范围，读者可能会把颜色差异误读成物理分类；如果图例缺失，分组信息就很难被复查。
+\begin{warnbox}[视觉编码中的常见误导]
+\begin{itemize}
+    \item 用彩虹色图让连续量产生虚假分界；
+    \item 坐标轴截断让差异看起来更大；
+    \item 点太大或不透明，掩盖密集区域；
+    \item 直方图 bin 宽度改变结论观感；
+    \item 图例颜色和正文类别解释不一致；
+    \item 没有说明筛选条件，使图中样本看似完整。
+\end{itemize}
+\end{warnbox}
 
-\begin{protip}[把视觉编码翻译回科学含义]
-每使用一种颜色、符号、线型或点大小，都应该能回答一句话：它编码的是什么科学信息？如果回答不出来，这个视觉元素往往就是噪声。
-\end{protip}
+图表自审时，不要只问“好不好看”，要问“有没有诱导读者相信数据并不支持的东西”。
 
-一个安全的自问流程是：
+\section{颜色选择与可读性}
 
-\begin{enumerate}
-    \item 这个视觉元素对应哪个变量或分类；
-    \item 它是否有图例、色标或文字说明；
-    \item 它会不会夸大某个差异；
-    \item 色盲读者或黑白打印时是否仍能理解主要结构；
-    \item 图中最醒目的部分是否真的对应最重要的科学信息。
-\end{enumerate}
+颜色最容易被误当成审美问题。实际上，颜色首先是信息编码。一个更稳妥的原则是：
 
-这类问题在后面的 HR 图、光谱分类、异常检测和模型诊断里尤其重要。图表越漂亮，越要警惕它是否把读者带向了错误的解释。
+\begin{itemize}
+    \item 连续量使用连续色图，例如灰度、viridis 类顺序色图；
+    \item 离散类别使用彼此区分清楚的分类颜色；
+    \item 不要只靠红绿区分关键类别；
+    \item 打印成灰度后仍应尽量能读；
+    \item 颜色条或图例必须说明颜色含义。
+\end{itemize}
 
-\section{从绘图命令到最小工作流算法}
+如果颜色承载了科学信息，就必须像轴标签一样解释。否则读者可能把颜色差异误读成数据差异，或完全看不出你想表达的结构。
 
-把本章内容压缩成一个最小算法，可以写成：
+\section{图像图与颜色条}
 
-\begin{enumerate}
-    \item 明确想比较的物理量；
-    \item 检查它们的单位与数量级；
-    \item 判断线性还是对数坐标更适合；
-    \item 选择点、线、颜色、误差棒等图形编码；
-    \item 添加标题、轴标签和必要标注；
-    \item 保存图像并记录生成代码；
-    \item 回到物理问题，解释图中结构意味着什么。
-\end{enumerate}
+天文图像、探测器图像和二维模拟结果常常用图像图展示。此时颜色表示数值大小，而不是类别。颜色条就是图像图的单位说明。
 
-真正“会画科研图”的标志，不是记住了多少 Matplotlib 参数，而是能把这条流程稳定走通。
+\begin{examplebox}[最小图像图]
+\begin{lstlisting}[style=pythonstyle]
+fig, ax = plt.subplots(figsize=(5, 4))
+image_handle = ax.imshow(image_data, origin="lower", cmap="gray")
+fig.colorbar(image_handle, ax=ax, label="Counts")
+ax.set_xlabel("x [pixel]")
+ax.set_ylabel("y [pixel]")
+\end{lstlisting}
+\end{examplebox}
+
+图像显示还需要考虑：
+
+\begin{itemize}
+    \item \texttt{origin} 是否符合图像坐标习惯；
+    \item 灰度范围是否被截断；
+    \item 颜色条单位是什么；
+    \item 是否需要对数、平方根或百分位拉伸；
+    \item 图像是否已经背景修正。
+\end{itemize}
 
 \section{保存图像：输出文件也是科研记录}
 
-一张图如果只存在于 notebook 当前输出里，就很难进入报告、论文、复现流程或版本控制。科研图表通常应该显式保存，并且文件名要能表达图的内容和版本。
+图像保存不只是最后一行代码。你需要记录图像来自哪份数据、哪段代码、哪个 commit、什么参数和什么输出格式。
 
-\begin{examplebox}[保存图像的最小写法]
+\begin{examplebox}[保存图像]
 \begin{lstlisting}[style=pythonstyle]
-fig.tight_layout()
-fig.savefig("results/orbit_period_vs_axis.png", dpi=200)
-fig.savefig("results/orbit_period_vs_axis.pdf")
+fig.savefig("figures/orbit_period_vs_axis.png",
+            dpi=200, bbox_inches="tight")
 \end{lstlisting}
 \end{examplebox}
 
-常见格式可以这样理解：
+课程项目中，一张最终图至少应能追踪到：
 
 \begin{itemize}
-    \item \texttt{png}：适合网页、课件和快速预览；
-    \item \texttt{pdf}：适合论文、讲义和矢量输出；
-    \item \texttt{svg}：适合可编辑矢量图，但要注意字体兼容；
-    \item \texttt{jpg}：适合照片，不适合线图和文字较多的科研图。
+    \item 输入数据文件；
+    \item 绘图脚本或 notebook；
+    \item 代码版本；
+    \item 图像文件路径；
+    \item 坐标尺度和关键参数；
+    \item 图注和解释限制。
 \end{itemize}
 
-\begin{warnbox}[图像文件名也要可复现]
-不要把最终图命名为 \texttt{plot.png}、\texttt{new.png} 或 \texttt{final2.png}。更好的文件名应包含对象、变量关系、版本或日期线索，例如 \texttt{hr\_diagram\_quality\_cut\_v1.pdf}。
-\end{warnbox}
+\section{把绘图流程写成脚本}
+
+最终图不应该只存在于 notebook 的某个执行状态里。一个最小绘图脚本可以长这样：
+
+\begin{examplebox}[绘图脚本骨架]
+\begin{lstlisting}[style=pythonstyle]
+import csv
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
+
+def read_rows(data_path):
+    with data_path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
+
+
+def prepare_variables(rows):
+    names = [row["planet"] for row in rows]
+    axis_au = [float(row["semi_major_axis_au"]) for row in rows]
+    period_year = [float(row["orbital_period_years"]) for row in rows]
+    return names, axis_au, period_year
+
+
+def make_figure(data_path, figure_path):
+    rows = read_rows(data_path)
+    names, axis_au, period_year = prepare_variables(rows)
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.scatter(axis_au, period_year, color="tab:blue")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+
+    for name, x_value, y_value in zip(names, axis_au, period_year):
+        ax.annotate(name, (x_value, y_value), xytext=(4, 4),
+                    textcoords="offset points", fontsize=8)
+
+    ax.set_xlabel("Semi-major axis [au]")
+    ax.set_ylabel("Orbital period [yr]")
+    ax.set_title("Orbital period vs. semi-major axis")
+    ax.grid(alpha=0.3)
+
+    figure_path.parent.mkdir(exist_ok=True)
+    fig.savefig(figure_path, dpi=200, bbox_inches="tight")
+
+
+def main():
+    make_figure(
+        Path("data/planetary_orbits_demo.csv"),
+        Path("figures/orbit_period_vs_axis.png"),
+    )
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+\end{examplebox}
+
+这个脚本仍然很小，但已经包含完整结构：读取数据、准备变量、绘图、保存图像和命令行入口。后续报告应能指向这个脚本，而不是只说“图是 notebook 画的”。如果要进一步提高可复现性，可以把输入路径、输出路径和坐标尺度改成命令行参数，并把 commit hash 写入 figure record。
+
+\section{最小图注模板}
+
+图注不是重复标题，而是帮助读者理解图像证据。
+
+\begin{examplebox}[图注模板]
+\begin{lstlisting}[style=terminal]
+Figure:
+Data:
+Variables:
+- x:
+- y:
+Encoding:
+- color:
+- marker:
+Scale:
+- x axis:
+- y axis:
+Claim:
+Evidence:
+Limit:
+Generated by:
+Commit:
+\end{lstlisting}
+\end{examplebox}
+
+如果你不能填写这份模板，说明图表还没有准备好进入报告。
 
 \section{图表交付前的自审清单}
 
-科研图表在进入报告、作业或论文草稿前，最好先做一次自审。一个最小清单可以包括：
-
 \begin{enumerate}
-    \item 轴标签是否包含变量名和单位；
-    \item 图例是否解释了颜色、符号或线型；
-    \item 坐标尺度是否适合数据动态范围；
-    \item 是否需要误差棒、残差图或样本量说明；
-    \item 文件名是否能追踪图的内容和版本；
-    \item 图注是否说明了数据来源、筛选条件和主要结论。
+    \item 横轴和纵轴是否有变量名和单位；
+    \item 图表类型是否服务于问题；
+    \item 坐标尺度是否合理；
+    \item 颜色、大小、透明度和图例是否解释清楚；
+    \item 是否需要误差棒或残差图；
+    \item 是否说明样本筛选条件；
+    \item 图像文件是否可从脚本重新生成；
+    \item 图注是否包含 claim、evidence 和 limit；
+    \item 输出文件是否记录在 Git 或结果记录中。
 \end{enumerate}
 
-\begin{protip}[图注不是装饰]
-图注应该帮助读者理解这张图支持什么判断。一个好图注通常包含：数据来源、关键处理、坐标含义、主要结构和限制条件。只写“某某关系图”通常不够。
-\end{protip}
+这份清单会在后续 HR 图、FITS 图像、光谱、时间序列、模型诊断图和 capstone 报告中反复使用。
 
-\section{一个最小图表说明模板}
+\section{配套 notebook 如何训练}
 
-图表进入报告前，最好配一段短说明，而不只是保存成文件。一个最小模板可以写成：
+本章配套 notebook 会完成一条小型图表工作流：
 
-\begin{quote}
-图 \texttt{orbit\_period\_vs\_axis.png} 使用 \texttt{planetary\_orbits\_demo.csv} 中的半长轴和轨道周期，横轴单位为 AU，纵轴单位为 year。对数坐标下点列近似满足 \(P^2/a^3\) 为常数的结构，支持 Kepler 第三定律的教学判断；该图只包含少量教学行星样本，不应用来讨论真实观测误差、样本选择或多体摄动。
-\end{quote}
+\begin{enumerate}
+    \item 读入教学数据；
+    \item 检查字段和单位；
+    \item 绘制最小散点图；
+    \item 尝试线性坐标和对数坐标；
+    \item 添加对象标注；
+    \item 生成一个诊断或辅助图；
+    \item 保存图像文件；
+    \item 写出图注和 figure record。
+\end{enumerate}
 
-这段话把图表文件、数据来源、坐标单位、主要 claim 和限制条件放在一起。到了最终项目包，图表本身不是证据的全部；图表说明才把视觉结构连接到 Interpretation card，并把数据来源和生成入口连接到 Data card 与 Reproducibility card。
+notebook 的作用是训练你把图读出来，而不是只把图画出来。
 
-这个清单和模板会在后面的 HR 图、光谱、时间序列和机器学习诊断图中反复出现。也就是说，本章学到的不是 Matplotlib 技巧，而是科研证据表达的底层规范。
+\section{常见错误与诊断}
 
-\section{配套 notebook 做了什么}
-
-配套 notebook 延续 \texttt{planetary\_orbits\_demo.csv} 这个小数据集，从读取半长轴和轨道周期开始，逐步完成：
-
+\begin{warnbox}[科研图表中的典型问题]
 \begin{itemize}
-    \item 检查数据点数量、变量范围和单位；
-    \item 计算 $P^2/a^3$，把图像与 Kepler 关系联系起来；
-    \item 比较线性直觉和对数坐标下的幂律结构；
-    \item 构造一个最小模型并计算残差；
-    \item 在有 \texttt{matplotlib} 的环境中生成图像，在没有图形库时仍保留数值解释。
-\end{itemize}
-
-这个设计故意不依赖复杂数据。它要训练的是一件更基础的事：一张图不能只是 notebook 输出，它必须能回答“变量是什么、单位是什么、关系是什么、模型哪里没有解释好”。
-
-\section{常见错误}
-
-\begin{warnbox}[科研绘图中的典型问题]
-\begin{itemize}
-    \item 没有标题或没有轴标签；
-    \item 有变量名但没有单位；
-    \item 量纲跨度很大却坚持用不合适的线性坐标；
-    \item 一张图里元素太多，却没有图例、说明或视觉层次；
-    \item 只把图当成装饰，不去解释图中的关系和结构。
+    \item 轴标签只有变量名，没有单位；
+    \item 图表类型和问题不匹配；
+    \item 对数坐标使用后没有说明；
+    \item 颜色编码没有图例或颜色条；
+    \item 坐标范围截断导致差异被夸大；
+    \item 只展示主图，不做误差或残差诊断；
+    \item 图注只描述“画了什么”，没有说明支持什么论断；
+    \item 图像文件无法从脚本或 notebook 重新生成。
 \end{itemize}
 \end{warnbox}
 
+诊断图表问题时，可以从三个问题开始：这张图比较什么？图中的哪个结构支持我的结论？这张图不能说明什么？
+
 \section{AI 助手如何帮助你}
 
-在这一章，AI 助手适合帮助你：
+AI 助手可以帮助你改进图注、检查轴标签、建议图表类型、指出可能误导的视觉编码、审查 claim--evidence--limit 是否匹配。但它不能替你确认数据是否可靠，也不能替你决定科学结论。
 
-\begin{itemize}
-    \item 帮你把基础绘图代码整理得更清楚；
-    \item 提醒你是否遗漏了标题、单位、图例或误差说明；
-    \item 根据数据动态范围建议是否尝试对数坐标；
-    \item 帮你把图像描述改写成更有物理含义的文字说明。
-\end{itemize}
+一个合适的提示词是：
 
-但图表到底应该支持什么科学论点、某种坐标变换是否会误导读者、以及异常点应如何解释，仍然必须由你自己判断。
+\begin{lstlisting}[style=terminal]
+请审查这张科研图的说明。重点检查变量和单位是否清楚，
+图表类型是否匹配问题，claim 是否被图中结构支持，
+limit 是否写得足够具体。
+\end{lstlisting}
 
-\section{练习}
+如果让 AI 生成绘图代码，也应该要求它解释每个视觉编码选择，而不是只给出可运行代码。
+
+\section{练习与交付}
 
 \begin{exercisebox}[基础练习]
-把纵轴改为对数坐标，并结合公式
-\[
-\log P = \frac{3}{2}\log a + C
-\]
-说明为什么对数图在幂律关系中更有解释力。
+读取一份包含两个连续变量的小型 CSV，绘制散点图。要求横轴、纵轴、标题和单位完整。
 \end{exercisebox}
 
-\begin{exercisebox}[进阶练习]
-尝试将内行星和外行星用不同颜色显示，并写一段说明：这种分组编码到底在帮助读者看到什么，而不仅仅是在“区分颜色”。
+\begin{exercisebox}[尺度练习]
+对同一组数据分别使用线性坐标和对数坐标。比较哪一种更能展示结构，并说明原因。
 \end{exercisebox}
 
-\begin{exercisebox}[开放练习]
-为你自己的一个科学小项目设计“绘图前检查清单”，至少包含：变量、单位、坐标尺度、图形编码、解释目标和可能误导读者的风险。
+\begin{exercisebox}[诊断练习]
+给定一组观测值和模型预测值，计算残差并画残差图。判断残差是否呈现系统结构。
+\end{exercisebox}
+
+\begin{exercisebox}[交付练习]
+保存最终图像，写一份 figure record，至少包含数据来源、绘图入口、变量单位、坐标尺度、claim、evidence、limit 和 commit hash。
 \end{exercisebox}
 
 \section{本章小结}
 
-科研图表不是把数据变成图，而是把数据变成可讨论、可比较、可检验的视觉证据。本章用最小行星例子说明了一个重要思想：图表的真正价值，在于帮助你和读者一起看见结构、组织直觉，并把后续分析建立在更清楚的证据表达上。
+科研图表的目标不是“画得好看”，而是让数据关系变成可检查的视觉证据。好的图表必须说明变量、单位、尺度、样本、视觉编码和解释边界；好的图注必须说明 claim、evidence 和 limit；好的交付还必须让图像可以从数据和脚本重新生成。掌握这套习惯后，后面的 HR 图、光谱图、时间序列图、模型评估图和 capstone 报告都会更可靠。

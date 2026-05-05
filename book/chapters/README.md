@@ -18,13 +18,15 @@ frame: Project, Data, Baseline, Model, Evaluation, Interpretation,
 Reproducibility, and Integrity. New revisions should preserve that handoff
 instead of creating isolated reporting templates.
 
-Most active writing now happens inside this tree. The legacy top-level chapter
-files under `book/` are retained only for compatibility with older entry points
-and should not be treated as the primary source for the Chinese textbook.
+All active textbook writing now happens inside this tree. The legacy top-level
+chapter files under `book/` and the old `main.tex` compatibility entry have
+been removed, so new revisions should target `book/main_zh.tex` and this
+chapter tree only.
 
 When adding or revising a chapter, keep it aligned with the current pattern:
 
 - learning goals and scientific motivation;
+- a training goal or micro-project / record when the chapter has a paired workflow;
 - conceptual explanation before code details;
 - a clear connection to the paired notebook and teaching data;
 - common pitfalls or failure modes;

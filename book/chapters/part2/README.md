@@ -3,8 +3,8 @@
 This directory stores the Chinese textbook chapters for Part II: Astronomy and
 Physics Data Processing.
 
-These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
-remains a separate stable entry point.
+These chapters are included by `book/main_zh.tex`, the only active textbook
+entry point.
 
 Current chapter files:
 
@@ -21,7 +21,10 @@ Current status:
 
 - The current pass is a textbook-depth refinement pass, not a new-chapter expansion.
 - Part II now includes a Chinese guide chapter and a synthesis chapter, connecting all data types through data contracts, units/errors, type-specific algorithms, diagnostics, and model-readiness.
+- The 2026-05-05 pass adds chapter-level training goals and micro-project records: measurement, HR diagram, photometry, spectrum, period, and model-fit records.
+- The latest continuation pass adds chapter-opening guide sections to `ch10`--`ch15`, so each chapter now starts from the scientific question, evidence chain, and interpretation boundary before listing learning goals.
 - The synthesis chapter now includes a shared formula map, and the current refinement pass deepens distance modulus, aperture-photometry net flux, redshift/EW interpretation, period-search coefficient interpretation, and physics-fit parameter reporting.
+- The synthesis chapter now also includes an immediately assignable Part II evidence-packet task that asks students to connect a data contract, one core formula, a reproducible script, a diagnostic figure, and a boundary statement.
 - The latest polish pass adds minimum result-report templates for the HR diagram, aperture photometry, spectroscopy, period-search, and physics-fitting chapters, so students can connect computed values to evidence, assumptions, and limitations.
 - Each chapter should connect concepts, formulas, algorithmic steps, code bridges, common errors, AI-assistant usage, exercises, and a short summary.
 - Part II assumes the reader has Part 0 under control and can follow small Python workflows with tables, loops, functions, and object-method calls without stopping to relearn the basics.

@@ -1,856 +1,910 @@
 \chapter{Unix/Linux 与科研计算环境}
 
-\section{学习目标}
+\section{本章导读：从会敲命令到会组织科研工作}
 
-学完本章后，你应该能够：
+许多学生第一次学习 Linux 时，会把它理解成一张命令表：\texttt{ls} 是看文件，\texttt{cd} 是换目录，\texttt{cp} 是复制，\texttt{rm} 是删除。这样学当然能应付几道练习题，但一旦进入真实科研环境，问题马上会变得更复杂：服务器上有几千个文件，数据分散在多个目录，脚本要运行很久，输出需要保存，错误日志需要检查，别人还要知道你到底做了哪些操作。
 
-\begin{itemize}
-    \item 解释为什么 Unix/Linux 是现代天文与物理科研中最常见的工作环境；
-    \item 理解文件系统、绝对路径、相对路径和当前工作目录的含义；
-    \item 熟练使用 \texttt{pwd}、\texttt{ls}、\texttt{cd}、\texttt{mkdir}、\texttt{cp}、\texttt{mv}、\texttt{rm}、\texttt{find} 和 \texttt{grep}/\texttt{rg} 这类基础命令；
-    \item 理解 \texttt{which}、\texttt{type}、\texttt{PATH}、环境变量和 alias 如何影响命令执行；
-    \item 使用 \texttt{sort}、\texttt{uniq}、\texttt{cut} 和 \texttt{xargs} 对文本输出和路径列表做最小统计与批处理；
-    \item 说清楚为什么命令行比图形界面更适合批量数据处理和远程计算；
-    \item 把“文件管理”理解成科研工作流的一部分，而不是琐碎准备步骤。
-\end{itemize}
+因此，本章不把 Unix/Linux 当成一组孤立命令，而把它当成\textbf{科研计算工作流的最低层接口}。这一层接口负责回答五个问题：
 
-\section{为什么科研工作离不开 Linux}
+\begin{enumerate}
+    \item 我现在在哪个计算环境里？
+    \item 我要处理的文件、目录和数据在哪里？
+    \item 这条命令会读取什么、写入什么、改变什么？
+    \item 这一步运行后留下了什么可检查的证据？
+    \item 这套操作能否被自己、同学或助教重新执行？
+\end{enumerate}
 
-对于很多初学者来说，Linux 似乎只是另一套操作系统界面。但在真实科研里，它更像一种\textbf{工作方式}。原因并不神秘：
+如果只会背命令，但不能回答这些问题，那么学生在远程服务器、共享目录或期末项目里仍然会迷路。本章的目标不是把所有 Linux 命令讲完，而是让你建立一个稳定的科研计算习惯：\textbf{先定位，再检查，再操作，再记录，最后自动化}。
 
-\begin{itemize}
-    \item 天文巡天和物理实验会产生大量文件，图形界面不擅长处理上千个数据文件；
-    \item 远程服务器、GPU 节点、共享集群和高性能计算环境大多运行在 Unix/Linux 生态中；
-    \item 科研任务常常需要把许多小工具串起来，形成“下载数据 $\rightarrow$ 清洗数据 $\rightarrow$ 运行脚本 $\rightarrow$ 生成图表”的流水线；
-    \item 当你的分析需要被别人复现时，命令行步骤更容易被记录、复制和自动化。
-\end{itemize}
-
-\begin{defbox}[Linux 在科研中的角色]
-在天文与物理科研中，Linux 不是“高级程序员的偏好”，而是数据管理、远程计算、批处理与可复现工作流的标准环境之一。
+\begin{defbox}[Unix/Linux]
+Unix/Linux 是一类多用户、多任务操作系统及其工具生态。现代天文、物理和数据科学中的服务器、集群、远程计算环境、容器和许多科研软件，都大量使用 Unix/Linux 风格的命令行接口。
 \end{defbox}
 
-如果你面对的是一个包含几千张 FITS 图像的目录、一个远程集群上的批处理任务，或者一份需要一年后还能完整复跑的分析记录，那么命令行通常不是更麻烦的选择，而是更可靠的选择。
+本章适合用“读一小节，马上做一小步”的方式学习。不要只看示例命令，也不要在自己的重要目录里随便试。最好的方法是在一个临时项目目录中创建少量模拟文件，然后反复练习定位、查看、搜索、复制、记录和归档。命令行不是靠眼睛学会的，它更像实验操作，必须动手。
 
-\section{命令行不是古老工具，而是最小工作流接口}
+\section{学习目标与训练目标}
 
-图形界面适合做低频、局部和一次性的事情，例如打开一个文件夹、点击一个图标、拖拽一份文档。但科研工作常常具有三种特点：
+学完本章后，你应该能够做到两类事情。第一类是\textbf{读懂}：能解释文件系统、路径、shell、命令、参数、重定向、管道、权限、进程和远程登录这些概念。第二类是\textbf{练会}：能在一个小型科研项目目录中完成最小的数据整理和运行记录。
 
-\begin{enumerate}
-    \item \textbf{高重复性}：同一类动作要做很多次；
-    \item \textbf{高规模性}：要处理成百上千个文件；
-    \item \textbf{高可记录性}：别人需要知道你到底做了什么。
-\end{enumerate}
+具体来说，你应该能够：
 
-命令行正适合这三点。你输入的命令既是动作本身，也是可记录的流程描述。
+\begin{itemize}
+    \item 解释为什么 Unix/Linux 是现代天文与物理科研中的常见基础环境；
+    \item 区分根目录、家目录、当前工作目录、绝对路径和相对路径；
+    \item 使用 \texttt{pwd}、\texttt{ls}、\texttt{cd}、\texttt{mkdir}、\texttt{cp}、\texttt{mv}、\texttt{rm}、\texttt{find} 和 \texttt{grep}/\texttt{rg} 完成基本文件管理；
+    \item 理解 shell 如何解析一条命令，包括命令名、选项、参数、通配符、引号和重定向；
+    \item 使用 \texttt{head}、\texttt{tail}、\texttt{wc}、\texttt{sort}、\texttt{uniq}、\texttt{cut}、\texttt{xargs} 对文本文件和路径列表做快速检查；
+    \item 使用 \texttt{which}、\texttt{type}、\texttt{PATH} 和环境变量检查命令来源；
+    \item 把稳定的多步操作写成最小 shell 脚本，并保存运行日志；
+    \item 在破坏性命令前完成预览、确认和备份。
+\end{itemize}
 
-\begin{examplebox}[一个典型夜间观测后的最小工作流]
-假设你从远程服务器下载了一夜巡天数据，最小整理步骤可能是：
-\begin{enumerate}
-    \item 创建原始数据目录和处理后目录；
-    \item 把 \texttt{.fits} 文件和日志文件分别放进不同位置；
-    \item 用命令快速检查文件数量和总大小；
-    \item 搜索包含某个目标名的日志记录；
-    \item 对处理后的结果打包归档。
-\end{enumerate}
+训练材料的目标略有不同。配套 notebook 不负责替代正文解释，而负责让你\textbf{反复操作}。本章结束时，你至少应该交出一份小型运行记录，其中包含项目目录结构、关键命令、输出摘要、脚本入口、归档文件和已知风险。
+
+\section{为什么科研工作离不开命令行}
+
+图形界面很直观，也很适合低频、一次性的操作。例如打开一个文件、拖动一张图片、检查一个目录中的少量文件，这些事情用鼠标做没有问题。但科研计算经常具有另外几种特征。
+
+\begin{itemize}
+    \item \textbf{文件很多}：一次巡天观测可能产生大量图像、光谱、日志和中间结果。
+    \item \textbf{任务重复}：同一段处理流程要应用到多个目标、多个夜晚或多个参数设置。
+    \item \textbf{环境远程}：GPU 节点、HPC 集群、实验室服务器和云主机通常没有完整图形桌面。
+    \item \textbf{过程要留痕}：科研结果需要解释“用什么数据、在哪个环境、运行了哪些步骤”。
+\end{itemize}
+
+命令行的优势正来自这些场景。你输入的命令既是操作，也是记录；你写出的脚本既是自动化工具，也是可复现说明。对于科研来说，命令行不是“更酷的打开文件方式”，而是一种把文件、程序、环境和证据连接起来的接口。
+
+\begin{examplebox}[一个真实感很强的小问题]
+假设一位学生拿到一夜观测后的目录，里面有图像文件、日志文件和上一位同学留下的脚本。老师问：
+\begin{itemize}
+    \item 一共有多少个 FITS 文件？
+    \item 日志里有没有 \texttt{target042} 的记录？
+    \item 哪些脚本最近被改动过？
+    \item 这次运行的输出保存在哪里？
+\end{itemize}
+这些问题如果靠手动点击目录，既慢又容易漏。用命令行则可以把检查过程写下来，并在以后复查。
 \end{examplebox}
 
-这一整套流程，如果完全依赖鼠标点击，不仅慢，而且很难让别人复现。
+这一章的核心思想是：\textbf{Linux 命令不是目的，科研工作流才是目的}。如果某条命令不能帮助你定位、检查、转换、记录或复现，它就不是本章的重点。
 
-\section{一条命令到底由什么组成}
+\section{贯穿本章的微型项目}
 
-很多初学者把命令行看成“记单词”。更好的理解方式是把它看成一条最小的可执行句子：
+为了避免把命令讲成零散清单，我们使用一个贯穿本章的微型项目。它模拟一次简单的夜间观测整理任务。真实数据可以是 FITS、CSV 或日志；为了入门安全，训练时可以先用文本文件代替。
 
-\begin{examplebox}[命令的基本结构]
-\begin{lstlisting}[style=pythonstyle]
-$ ls -lh raw
-$ cp raw/night1_target042.fits intermediate/
-$ rg "target_042" logs/
+\begin{examplebox}[微型项目目录]
+\begin{lstlisting}[style=terminal]
+gaia_night1/
+  raw/
+    night1_target042.fits
+    night1_target108.fits
+    night1_bias01.fits
+  logs/
+    night1.log
+  scripts/
+    run_pipeline.sh
+  results/
+  notes/
 \end{lstlisting}
 \end{examplebox}
 
-通常可以把一条命令拆成三部分：
+这个目录虽然小，但已经包含真实科研项目的基本角色，见表~\ref{tab:ch01_project_dirs}：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.22\textwidth}p{0.30\textwidth}p{0.36\textwidth}}
+\toprule
+目录 & 保存什么 & 科研含义 \\
+\midrule
+\texttt{raw/} & 原始数据 & 尽量只读，不随意覆盖，是后续分析的来源 \\
+\texttt{logs/} & 运行日志、检查快照 & 记录命令输出、错误信息和运行时间 \\
+\texttt{scripts/} & 可重复运行的脚本 & 把稳定流程从手工操作变成入口 \\
+\texttt{results/} & 派生结果 & 可以重新生成，需要说明来自哪一步 \\
+\texttt{notes/} & 人写的说明 & 记录判断、异常、边界和待办事项 \\
+\bottomrule
+\end{tabular}
+\caption{微型观测项目目录中各类子目录的科研角色。}
+\label{tab:ch01_project_dirs}
+\end{table}
+
+请注意，目录结构本身就是科研设计的一部分。把原始数据、中间结果、脚本和说明混在同一个目录里，短期看省事，长期看会让项目失控。一个好的项目目录应该让别人不用问你，也能猜到哪些文件是输入，哪些是输出，哪些步骤可以重新运行。
+
+\section{Shell：你和操作系统之间的解释器}
+
+终端窗口里真正和你对话的程序通常叫 \textbf{shell}。shell 读取你输入的文本，解析命令名、选项、参数、通配符、变量和重定向，然后把处理后的指令交给系统执行。
+
+\begin{defbox}[Shell]
+Shell 是命令解释器。它接收用户输入的命令文本，完成路径展开、变量替换、重定向、管道连接等预处理，然后调用真正的程序。
+\end{defbox}
+
+这一点很重要，因为很多错误并不是程序本身造成的，而是 shell 在程序运行前就已经把你的输入解释成了另一个含义。例如：
 
 \begin{itemize}
-    \item \textbf{命令名}：例如 \texttt{ls}、\texttt{cp}、\texttt{rg}；
-    \item \textbf{选项}：例如 \texttt{-l}、\texttt{-h}，用来改变命令行为；
-    \item \textbf{参数}：例如目录名、文件名、搜索关键词。
+    \item \texttt{*.fits} 会被 shell 展开成当前目录中匹配的文件名列表；
+    \item \texttt{"*.fits"} 因为加了引号，通常不会被展开，而是作为普通字符串传给程序；
+    \item \texttt{>} 会把标准输出写入文件，并可能覆盖已有文件；
+    \item \texttt{|} 会把前一条命令的输出传给后一条命令。
 \end{itemize}
 
-理解这三部分之后，学生就不再是“背命令”，而是在学一套可组合的动作语法。
+所以学习 Linux 时，不能只问“这个命令是什么意思”，还要问“shell 在程序收到参数之前做了什么”。这就是命令行入门和科研安全之间的连接点。
 
-\subsection{帮助系统：不要靠猜}
+\section{一条命令的解剖}
 
-命令行最重要的学习习惯之一，是遇到不确定时先查帮助，而不是硬试。
+一条命令通常由三部分组成：命令名、选项和参数。以查看原始数据目录为例：
+
+\begin{examplebox}[命令的基本结构]
+\begin{lstlisting}[style=terminal]
+$ ls -lh raw
+\end{lstlisting}
+\end{examplebox}
+
+这里：
+
+\begin{itemize}
+    \item \texttt{ls} 是命令名，表示列出目录内容；
+    \item \texttt{-l} 是选项，表示使用长格式；
+    \item \texttt{-h} 是选项，表示用更容易读的单位显示大小；
+    \item \texttt{raw} 是参数，表示检查对象是 \texttt{raw/} 目录；
+    \item 输出默认显示在屏幕上，不会修改文件。
+\end{itemize}
+
+读一条命令时，可以固定问四个问题：
+
+\begin{enumerate}
+    \item \textbf{谁在执行？} 命令来自系统、Python 环境、Git，还是你自己写的脚本？
+    \item \textbf{怎样执行？} 选项改变了什么行为？
+    \item \textbf{作用于谁？} 参数指向哪个文件、目录、关键词或模式？
+    \item \textbf{结果到哪里？} 输出到屏幕、写入文件、传给下一条命令，还是改变磁盘内容？
+\end{enumerate}
+
+这四问比死记命令更重要。它们可以帮助你结合表~\ref{tab:ch01_command_risk} 判断一条命令是只读检查，还是会改变项目状态。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.23\textwidth}p{0.28\textwidth}p{0.36\textwidth}}
+\toprule
+类型 & 常见命令 & 风险判断 \\
+\midrule
+只读检查 & \texttt{pwd}, \texttt{ls}, \texttt{head}, \texttt{rg} & 通常不改文件，适合先练习 \\
+写入或移动 & \texttt{cp}, \texttt{mv}, \texttt{mkdir}, \texttt{>} & 会改变目录或文件，需要确认目标 \\
+破坏性操作 & \texttt{rm}, 覆盖重定向, 批量 \texttt{mv} & 可能难以恢复，必须先预览 \\
+环境改变 & \texttt{export}, \texttt{alias}, \texttt{chmod} & 会影响后续运行或权限，需要记录 \\
+\bottomrule
+\end{tabular}
+\caption{常见命令类型与初学阶段的风险判断。}
+\label{tab:ch01_command_risk}
+\end{table}
+
+\section{帮助系统：把不会用变成会查}
+
+初学命令行时，不可能也不应该记住所有选项。更可靠的学习方式是查帮助、读示例、只练当前任务需要的部分。
 
 \begin{examplebox}[查看帮助]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ ls --help
 $ man ls
 $ history
 \end{lstlisting}
 \end{examplebox}
 
+\texttt{--help} 通常给出简要说明，\texttt{man} 提供更完整的手册页，\texttt{history} 可以查看自己曾经运行过的命令。帮助系统不是附录，而是命令行学习的主要入口。
+
+例如你不确定 \texttt{ls -lh} 中 \texttt{-h} 的含义，可以运行：
+
+\begin{examplebox}[在帮助中搜索关键词]
+\begin{lstlisting}[style=terminal]
+$ ls --help | grep human
+\end{lstlisting}
+\end{examplebox}
+
+这条命令本身也展示了一个重要思想：帮助文本也是文本，可以搜索、筛选和保存。科研计算中的很多输入和输出最终都是文本，命令行擅长处理文本，正是它长期有效的原因之一。
+
+\begin{warnbox}[不要复制自己不理解的命令]
+从网页、聊天工具或 AI 助手那里复制命令前，至少要能说清楚它会读哪些文件、写哪些文件、是否包含 \texttt{rm}、\texttt{mv}、\texttt{>}、\texttt{chmod} 或远程传输。不能回答这些问题时，不要在真实数据目录中运行。
+\end{warnbox}
+
+\section{文件系统：所有操作都从路径开始}
+
+Linux 文件系统是树状结构。所有路径都从根目录 \texttt{/} 开始向下展开。你日常工作的默认位置通常是家目录，例如 \texttt{/home/student} 或 macOS 上的 \texttt{/Users/student}。科研项目最好放在一个清楚命名的项目目录中，而不是散落在桌面、下载目录和临时文件夹里。
+
+\begin{defbox}[路径]
+路径是文件或目录在文件系统中的位置描述。绝对路径从根目录开始，例如 \texttt{/home/student/gaia\_night1/raw}；相对路径从当前工作目录开始，例如 \texttt{raw/night1\_target042.fits}。
+\end{defbox}
+
+路径理解不清，是命令行入门中最常见的错误源。很多“文件不存在”的报错，本质上不是文件真的不存在，而是你当前所在目录和你以为的不一样。
+
+\begin{examplebox}[三个定位命令]
+\begin{lstlisting}[style=terminal]
+$ pwd
+$ ls
+$ ls raw
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{pwd} 回答“我在哪”，\texttt{ls} 回答“这里有什么”，\texttt{ls raw} 回答“这个子目录里有什么”。这三个问题构成了所有文件操作的起点。任何写操作之前，都应该先确认位置和对象。
+
+\section{目录导航：不要在文件系统里迷路}
+
+切换目录使用 \texttt{cd}。相对路径和绝对路径都可以作为参数：
+
+\begin{examplebox}[切换目录]
+\begin{lstlisting}[style=terminal]
+$ cd gaia_night1
+$ pwd
+$ cd raw
+$ pwd
+$ cd ..
+$ pwd
+\end{lstlisting}
+\end{examplebox}
+
+这里的 \texttt{..} 表示上一级目录，\texttt{.} 表示当前目录。初学者需要特别小心的一点是：同样的相对路径，在不同当前目录下指向不同对象。例如在项目根目录中，下面这个路径是有效的：
+
+\begin{lstlisting}[style=terminal]
+raw/night1_target042.fits
+\end{lstlisting}
+
+但如果你已经进入 \texttt{raw/}，再写同样的相对路径，shell 会把它解释成：
+
+\begin{lstlisting}[style=terminal]
+raw/raw/night1_target042.fits
+\end{lstlisting}
+
+这通常会报错，因为当前位置下并不存在第二层 \texttt{raw/} 目录。
+
+一个稳妥的训练习惯是：每次进入一个目录后，马上运行 \texttt{pwd} 和 \texttt{ls}。看似多余，实际上是在建立空间感。等你熟练之后可以减少频率，但初学阶段不要省这两步。
+
+\section{查看目录内容：从文件名读出项目状态}
+
+\texttt{ls} 不只是“看一下文件”。在科研项目中，它还帮助你判断目录是否整洁、文件是否按预期生成、时间戳是否合理、大小是否异常。
+
+\begin{examplebox}[常用查看方式]
+\begin{lstlisting}[style=terminal]
+$ ls
+$ ls -l
+$ ls -lh
+$ ls -lh raw logs results
+$ ls -lt results
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{-l} 显示长格式，包含权限、所有者、大小、修改时间和文件名。\texttt{-h} 让文件大小更易读。\texttt{-t} 按修改时间排序，适合检查“刚才运行的结果是否真的更新了”。
+
+看到 \texttt{ls -l} 输出时，不必一开始理解每个字段的全部细节，但至少要知道：
+
 \begin{itemize}
-    \item \texttt{--help} 通常给出简要说明；
-    \item \texttt{man} 提供更完整的手册页；
-    \item \texttt{history} 能让你回看曾经执行过的命令。
+    \item 第一列包含文件类型和权限；
+    \item 中间列包含所有者、大小和修改时间；
+    \item 最后一列是文件或目录名；
+    \item 以 \texttt{d} 开头的是目录，以 \texttt{-} 开头的通常是普通文件。
 \end{itemize}
 
-这三样东西在科研中非常实用，因为它们都在帮助你建立“我到底做过什么”的记录。
+这类观察会帮助你在后续章节中理解脚本权限、数据文件大小、输出更新时间和远程服务器权限问题。
 
-\section{Shell 环境：命令从哪里来}
+\section{创建、复制、移动和删除}
 
-当你输入 \texttt{python}、\texttt{ls} 或 \texttt{git} 时，shell 并不是凭空知道这些名字的含义。它会按照一组规则寻找要执行的程序，有些命令来自系统目录，有些来自你安装的环境，有些甚至是 shell 自己内置的功能。
+项目开始时，常常需要创建目录结构。最小命令是 \texttt{mkdir}：
 
-这件事在科研计算里非常重要。许多“代码昨天能跑、今天不能跑”的问题，表面上像是 Python 或数据出错，实际原因却是你运行了另一个环境里的 \texttt{python}，或者脚本在远程服务器上找不到本地机器里才有的命令。
+\begin{examplebox}[创建项目目录结构]
+\begin{lstlisting}[style=terminal]
+$ mkdir -p gaia_night1/raw gaia_night1/logs
+$ mkdir -p gaia_night1/scripts gaia_night1/results gaia_night1/notes
+\end{lstlisting}
+\end{examplebox}
 
-\subsection{\texttt{which}、\texttt{type} 与 \texttt{PATH}}
+\texttt{-p} 的意思是：如果中间目录不存在就一起创建，如果目录已存在也不要报错。这对于脚本化创建项目结构很有用。
 
-\texttt{which} 用来询问某个外部命令实际来自哪里；\texttt{type} 还能告诉你一个名字是不是 shell 内置命令、alias 或外部程序。
+复制、移动和删除分别使用 \texttt{cp}、\texttt{mv}、\texttt{rm}：
+
+\begin{examplebox}[复制、改名与删除]
+\begin{lstlisting}[style=terminal]
+$ cp raw/night1_target042.fits results/target042_copy.fits
+$ mv results/target042_copy.fits results/target042_check.fits
+$ rm results/target042_check.fits
+\end{lstlisting}
+\end{examplebox}
+
+这三条命令的风险等级不同。\texttt{cp} 通常较安全，但可能覆盖同名目标。\texttt{mv} 既可以移动文件，也可以改名，如果目标写错，文件会出现在意外位置。\texttt{rm} 删除文件，通常不会进入图形界面的回收站。
+
+\begin{warnbox}[\texttt{rm} 没有温柔的撤销按钮]
+初学阶段不要在真实数据目录中练习 \texttt{rm -r} 或 \texttt{rm -rf}。如果必须删除目录，先用 \texttt{ls} 或 \texttt{find} 预览目标，再删除。任何批量删除都应该能解释目标集合来自哪里。
+\end{warnbox}
+
+\section{路径解析例题：先在脑中运行命令}
+
+很多命令行错误不是因为命令不会用，而是因为路径没有在脑中先解析一遍。下面用同一个项目目录做一个小例题。假设你当前在项目根目录：
+
+\begin{lstlisting}[style=terminal]
+gaia_night1/
+  raw/
+  logs/
+  results/
+\end{lstlisting}
+
+这时命令
+
+\begin{lstlisting}[style=terminal]
+$ cp raw/night1_target042.fits results/
+\end{lstlisting}
+
+可以读成一句完整的话：从当前目录下的 \texttt{raw/} 子目录读取 \texttt{night1\_target042.fits}，复制到当前目录下的 \texttt{results/} 子目录。若你先运行了
+
+\begin{lstlisting}[style=terminal]
+$ cd raw
+\end{lstlisting}
+
+同样的相对路径就不再指向原文件，而会被解释成下面这个新路径：
+
+\begin{lstlisting}[style=terminal]
+raw/raw/night1_target042.fits
+\end{lstlisting}
+
+这就是为什么写命令前要先问：\textbf{当前工作目录是什么，路径是从哪里开始算的。}
+
+换成自然语言，这个错误其实很容易发现：你已经站在 \texttt{raw/} 里面，却又要求系统“再进入一个名叫 \texttt{raw/} 的子目录”。如果当前目录下没有第二层 \texttt{raw/}，命令就会失败；如果恰好有同名子目录，命令甚至可能作用到完全不是你想要的文件。路径错误最危险的地方不一定是报错，而是\textbf{没有报错但作用对象错了}。
+
+\begin{protip}[把相对路径翻译成自然语言]
+每次遇到复杂路径时，先把它翻译成“从哪里出发、进入哪个目录、作用于哪个文件”。如果这句话说不清，就不要执行写操作。
+\end{protip}
+
+\section{通配符与引号：shell 先帮你选文件}
+
+通配符让你用模式表示一组文件。常见模式包括：
+
+\begin{itemize}
+    \item \texttt{*.fits}：匹配当前目录下所有以 \texttt{.fits} 结尾的文件；
+    \item \texttt{night1\_*.fits}：匹配所有以 \texttt{night1\_} 开头、以 \texttt{.fits} 结尾的文件；
+    \item \texttt{target??.fits}：用两个问号匹配两个任意字符。
+\end{itemize}
+
+\begin{examplebox}[先预览再批量操作]
+\begin{lstlisting}[style=terminal]
+$ ls raw/*.fits
+$ cp raw/*.fits results/
+\end{lstlisting}
+\end{examplebox}
+
+这里真正执行 \texttt{cp} 之前，shell 会先把 \texttt{raw/*.fits} 展开成具体文件名列表。因此，批量复制、移动或删除之前，最好先用 \texttt{ls} 预览匹配结果。
+
+引号会改变 shell 的解释方式：
+
+\begin{examplebox}[引号改变展开行为]
+\begin{lstlisting}[style=terminal]
+$ echo raw/*.fits
+$ echo "raw/*.fits"
+\end{lstlisting}
+\end{examplebox}
+
+第一条命令通常输出匹配到的文件名，第二条命令输出字面字符串 \texttt{raw/*.fits}。这解释了为什么很多命令在处理包含空格、星号或特殊字符的路径时需要引号。
+
+\section{查看文件内容：先抽样，不要一上来全打开}
+
+科研日志、CSV 表格和配置文件通常是文本文件。查看文本时，不要一开始就把完整文件打印到屏幕，尤其是文件很大时。更好的方法是先抽样。
+
+\begin{examplebox}[文本文件快速预览]
+\begin{lstlisting}[style=terminal]
+$ head logs/night1.log
+$ tail logs/night1.log
+$ wc -l logs/night1.log
+$ less logs/night1.log
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{head} 看开头，\texttt{tail} 看结尾，\texttt{wc -l} 统计行数，\texttt{less} 分页浏览。对于大型日志，\texttt{tail} 尤其重要，因为错误信息常常出现在最后。
+
+对于表格文件，第一眼应该检查三件事：
+
+\begin{itemize}
+    \item 是否有表头；
+    \item 分隔符是什么，例如逗号、空格还是制表符；
+    \item 行数是否接近预期。
+\end{itemize}
+
+这三件事看似简单，却能避免许多后续 Python 读入错误。
+
+\section{搜索：让计算机替你翻目录}
+
+当文件很多时，搜索比肉眼翻目录重要得多。搜索有两类常见对象：搜索文件名和搜索文件内容。
+
+\begin{examplebox}[按文件名搜索]
+\begin{lstlisting}[style=terminal]
+$ find raw -name "*.fits"
+$ find . -name "*.log"
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{find} 的基本思想是：从某个目录开始，按条件查找路径。上面的 \texttt{find raw -name "*.fits"} 表示从 \texttt{raw/} 开始，寻找名字匹配 \texttt{*.fits} 的文件。
+
+搜索文件内容可以用 \texttt{grep} 或更现代的 \texttt{rg}：
+
+\begin{examplebox}[按内容搜索]
+\begin{lstlisting}[style=terminal]
+$ grep "target042" logs/night1.log
+$ grep -R "ERROR" logs
+$ rg "target042|ERROR" logs
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{grep -R} 递归搜索目录，\texttt{rg} 通常速度更快、默认行为更适合项目目录。课程中如果系统没有安装 \texttt{rg}，使用 \texttt{grep} 即可。
+
+\section{快速统计：把输出变成检查表}
+
+科研项目中常常需要快速回答“有多少”“有哪些”“是否重复”。这些问题不一定需要 Python，很多时候终端工具已经足够。
+
+\begin{examplebox}[文件数量和后缀统计]
+\begin{lstlisting}[style=terminal]
+$ find raw -name "*.fits" | wc -l
+$ find raw -type f | sed 's/.*\\.//' | sort | uniq -c
+\end{lstlisting}
+\end{examplebox}
+
+第一条命令统计 FITS 文件数量。第二条命令从文件名中提取扩展名，排序后统计每种扩展名出现次数。即使你还不熟悉 \texttt{sed}，也应该看懂这条管道的思路：\textbf{列出文件 -> 提取字段 -> 排序 -> 统计}。
+
+更常见的文本字段检查可以用 \texttt{cut}、\texttt{sort} 和 \texttt{uniq}：
+
+\begin{examplebox}[从 CSV 中统计类别]
+\begin{lstlisting}[style=terminal]
+$ cut -d, -f3 targets.csv | sort | uniq -c
+\end{lstlisting}
+\end{examplebox}
+
+这条命令假设 \texttt{targets.csv} 是逗号分隔文件，第三列是类别。它不是严肃数据分析的终点，但非常适合做第一轮 sanity check。
+
+\section{重定向：把屏幕输出保存成证据}
+
+默认情况下，许多命令把结果打印到屏幕。屏幕输出看完就消失，不适合当科研记录。重定向可以把输出写入文件。
+
+\begin{examplebox}[保存目录快照]
+\begin{lstlisting}[style=terminal]
+$ ls -lh raw > logs/raw_listing.txt
+$ find raw -name "*.fits" | sort > logs/fits_files.txt
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{>} 会覆盖目标文件，\texttt{>>} 会追加到目标文件末尾：
+
+\begin{examplebox}[覆盖与追加]
+\begin{lstlisting}[style=terminal]
+$ date > logs/run_record.txt
+$ pwd >> logs/run_record.txt
+$ find raw -name "*.fits" | wc -l >> logs/run_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+覆盖和追加的差异非常重要。很多学生以为自己在“保存一份记录”，其实用 \texttt{>} 覆盖了旧记录。写入前先确认目标文件是否已经存在，是一个很好的习惯。
+
+\section{管道：把小工具接成流程}
+
+管道符号 \texttt{|} 会把前一条命令的标准输出传给后一条命令的标准输入。它让多个小工具组合成一个工作流。
+
+\begin{examplebox}[管道示例]
+\begin{lstlisting}[style=terminal]
+$ find raw -name "*.fits" | sort | head
+$ grep "ERROR" logs/night1.log | wc -l
+$ find raw -type f | sort | tee logs/all_raw_files.txt | wc -l
+\end{lstlisting}
+\end{examplebox}
+
+第三条命令中的 \texttt{tee} 很适合科研记录：它一边把输出继续传给后面的 \texttt{wc -l}，一边保存一份到 \texttt{logs/all\_raw\_files.txt}。这样你既能看到数量，也能保留文件清单。
+
+管道的思维方式可以概括为：
+
+\begin{center}
+\texttt{产生列表 -> 筛选 -> 排序 -> 统计 -> 保存证据}
+\end{center}
+
+后续学习 Python、pandas、机器学习和深度学习时，这种“数据流”思维仍然会反复出现。
+
+\section{管道 worked example：从科研问题到命令}
+
+假设你想回答一个很普通但真实的问题：\textbf{这夜观测中，名字里带 target 的 FITS 文件有多少个，清单是什么？}
+
+不要一开始就写复杂脚本。可以先把问题拆成四步：
+
+\begin{enumerate}
+    \item 从 \texttt{raw/} 中列出所有 FITS 文件；
+    \item 只保留名字中包含 \texttt{target} 的文件；
+    \item 排序，保证记录稳定；
+    \item 一边保存清单，一边统计数量。
+\end{enumerate}
+
+对应的命令是：
+
+\begin{examplebox}[从问题到管道]
+\begin{lstlisting}[style=terminal]
+$ find raw -name "*.fits" \
+    | grep "target" \
+    | sort \
+    | tee logs/target_fits_files.txt \
+    | wc -l
+\end{lstlisting}
+\end{examplebox}
+
+这条命令的价值不只是得到一个数字。它还留下了 \texttt{logs/target\_fits\_files.txt}，以后你可以检查到底统计了哪些文件。如果只保存最后的数量，别人就无法判断这个数量是否来自正确的筛选条件。
+
+\begin{warnbox}[管道中的每一步都应该能单独解释]
+如果一条管道很长，不要一次性相信它。先运行前一段，例如只运行到 \texttt{grep "target"}，确认输出符合预期，再继续接 \texttt{sort}、\texttt{tee} 和 \texttt{wc -l}。
+\end{warnbox}
+
+\section{标准输出、标准错误和退出状态}
+
+命令运行时通常有三条信息通道：
+
+\begin{itemize}
+    \item 标准输入：程序读取的数据来源；
+    \item 标准输出：正常结果；
+    \item 标准错误：错误、警告和诊断信息。
+\end{itemize}
+
+有些程序即使出错，也可能仍然把部分正常输出打印出来。因此，长任务最好同时保存输出和错误。
+
+\begin{examplebox}[保存输出和错误]
+\begin{lstlisting}[style=terminal]
+$ ./scripts/run_pipeline.sh > logs/pipeline.out 2> logs/pipeline.err
+$ echo $?
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{\$?} 保存上一条命令的退出状态。通常 \texttt{0} 表示成功，非零值表示失败。脚本中可以利用退出状态判断是否继续执行后续步骤。
+
+\begin{protip}[错误日志不是垃圾]
+科研项目中的 \texttt{.err}、\texttt{.log} 和运行记录常常比最终图更能说明问题来源。不要在没有检查的情况下删除它们。
+\end{protip}
+
+\section{命令从哪里来：\texttt{PATH}、环境变量与 alias}
+
+当你输入 \texttt{python}、\texttt{git} 或 \texttt{pip} 时，shell 需要知道去哪里找对应程序。这个查找路径由环境变量 \texttt{PATH} 控制。
 
 \begin{examplebox}[检查命令来源]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ which python
+$ python --version
 $ which git
 $ type cd
 $ echo $PATH
 \end{lstlisting}
 \end{examplebox}
 
-\begin{defbox}[\texttt{PATH}]
-\texttt{PATH} 是 shell 用来查找可执行程序的一组目录。你输入一个命令名时，shell 会按 \texttt{PATH} 中的目录顺序寻找对应程序。
-\end{defbox}
+\texttt{which} 告诉你外部命令来自哪个路径，\texttt{type} 还能识别 shell 内置命令和 alias。科研计算中，这一步非常关键：同样输入 \texttt{python}，不同 conda 环境、不同服务器、不同终端配置可能运行的是不同解释器。
 
-这解释了一个常见现象：同样输入 \texttt{python}，不同电脑、不同 conda 环境、不同远程服务器上运行的可能不是同一个解释器。因此，在课程项目和科研项目中，\texttt{which python}、\texttt{python --version} 和环境文件不是形式主义，而是在确认“我究竟用哪个工具生成了这个结果”。
+环境变量可以保存路径或配置：
 
-\subsection{环境变量与 alias：方便，但要有边界}
-
-环境变量可以把某些路径、选项或配置暴露给程序。例如：
-
-\begin{examplebox}[设置一个项目路径变量]
-\begin{lstlisting}[style=pythonstyle]
-$ export PROJECT_ROOT=$HOME/gaia_project
+\begin{examplebox}[设置项目路径变量]
+\begin{lstlisting}[style=terminal]
+$ export PROJECT_ROOT=$HOME/gaia_night1
 $ echo $PROJECT_ROOT
 \end{lstlisting}
 \end{examplebox}
 
-alias 则常用于给常用命令起短名字：
+alias 可以给常用命令起短名字：
 
 \begin{examplebox}[一个常见 alias]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ alias ll='ls -lh'
 \end{lstlisting}
 \end{examplebox}
 
-这些工具能提高交互效率，但不能滥用。特别是在脚本中，不要假设别人的终端里也定义了同样的 alias；需要依赖的环境变量也应在 README、运行脚本或课程说明中写清楚。否则，一个只在你自己电脑上“刚好能跑”的流程，换到同学、助教或服务器那里就会失效。
+环境变量和 alias 很方便，但要有边界。脚本中不要依赖只有你自己终端里才有的 alias；需要依赖的环境变量应该写进 README 或脚本说明。否则流程只能在你自己的电脑上“刚好能跑”，不能成为可复现科研工作流。
 
-\section{文件系统：从“我在哪”开始}
+\section{权限与可执行脚本}
 
-Linux 文件系统是树状结构，所有路径都从根目录 \texttt{/} 开始向下展开。理解这个结构，是一切命令的前提。
+Linux 中每个文件都有权限。使用 \texttt{ls -l} 时，第一列类似：
 
-\subsection{根目录、家目录与项目目录}
-
-\begin{itemize}
-    \item \texttt{/}：根目录，所有文件路径的起点；
-    \item \texttt{/home/username}：用户家目录，通常是你日常工作的默认入口；
-    \item 项目目录：你为某项科研任务建立的专门工作空间。
-\end{itemize}
-
-例如：
-
-\begin{examplebox}[一个科研项目路径]
-\begin{lstlisting}[style=pythonstyle]
-/home/student/gaia_project/raw
-/home/student/gaia_project/scripts
-/home/student/gaia_project/results
-\end{lstlisting}
-\end{examplebox}
-
-这组路径并不只是“放文件的地方”，它本身就是项目结构的一部分。只要目录结构混乱，后面的脚本、notebook 和图表输出通常也会跟着混乱。
-
-\subsection{绝对路径与相对路径}
-
-\begin{defbox}[绝对路径与相对路径]
-绝对路径从根目录 \texttt{/} 开始书写，例如 \texttt{/home/student/project/data}；相对路径则从当前工作目录出发书写，例如 \texttt{data/catalog.csv}。
-\end{defbox}
-
-这两者的区别并不是语法细节，而是\textbf{工作流边界}：
-
-\begin{itemize}
-    \item 绝对路径更明确，但可移植性较差；
-    \item 相对路径更适合项目内可复现脚本，因为它依赖项目结构而不是某一台机器的用户名。
-\end{itemize}
-
-后面写 notebook 和脚本时，我们通常更鼓励使用相对路径，因为教材项目最终需要在不同机器上运行。
-
-\section{最常用的导航命令}
-
-\subsection{\texttt{pwd}：当前工作目录}
-
-\texttt{pwd} 的全称是 \textit{print working directory}，它回答的问题非常朴素：\textbf{我现在到底在哪个目录？}
-
-\begin{examplebox}[查看当前位置]
-\begin{lstlisting}[style=pythonstyle]
-$ pwd
-/home/student/gaia_project
-\end{lstlisting}
-\end{examplebox}
-
-这条命令之所以重要，是因为很多危险命令都依赖“当前位置”。如果你不知道自己在哪，删除、移动和覆盖文件时就很容易出错。
-
-\subsection{\texttt{ls}：查看目录内容}
-
-\texttt{ls} 用来列出当前目录下的文件与子目录。最常用的选项包括：
-
-\begin{itemize}
-    \item \texttt{-l}：显示详细信息；
-    \item \texttt{-h}：把大小显示为更易读的单位，例如 \texttt{K}、\texttt{M}、\texttt{G}；
-    \item \texttt{-a}：显示隐藏文件；
-    \item \texttt{-t}：按修改时间排序。
-\end{itemize}
-
-\begin{examplebox}[最常见的检查方式]
-\begin{lstlisting}[style=pythonstyle]
-$ ls -lh
-\end{lstlisting}
-\end{examplebox}
-
-这通常是科研目录里最值得优先掌握的组合，因为它能同时告诉你：
-
-\begin{itemize}
-    \item 文件名；
-    \item 文件大小；
-    \item 修改时间；
-    \item 某些路径到底是文件还是目录。
-\end{itemize}
-
-\subsection{\texttt{cd}：切换目录}
-
-\texttt{cd} 用来在目录之间移动。最常见的几种写法：
-
-\begin{examplebox}[目录切换]
-\begin{lstlisting}[style=pythonstyle]
-$ cd data
-$ cd ..
-$ cd ~
-$ cd /
-$ cd -
-\end{lstlisting}
-\end{examplebox}
-
-其中：
-
-\begin{itemize}
-    \item \texttt{cd ..} 回到上一级目录；
-    \item \texttt{cd \textasciitilde} 回到家目录；
-    \item \texttt{cd -} 回到上一个工作目录。
-\end{itemize}
-
-\texttt{cd -} 在科研中非常好用，因为你常常需要在脚本目录和数据目录之间来回切换。
-
-\section{文件与目录管理}
-
-\subsection{\texttt{mkdir}：创建项目结构}
-
-项目一开始最值得投入时间的，不是写模型，而是把目录结构建对。常见的最小项目结构可能是：
-
-\begin{itemize}
-    \item \texttt{raw/}：原始数据；
-    \item \texttt{intermediate/}：处理中间结果；
-    \item \texttt{scripts/}：脚本；
-    \item \texttt{notebooks/}：探索和教学 notebook；
-    \item \texttt{results/}：图表、表格和最终输出。
-\end{itemize}
-
-\begin{examplebox}[一次性创建多层目录]
-\begin{lstlisting}[style=pythonstyle]
-$ mkdir -p gaia_project/{raw,intermediate,scripts,results}
-\end{lstlisting}
-\end{examplebox}
-
-\subsection{\texttt{cp}、\texttt{mv} 与 \texttt{rm}}
-
-\begin{itemize}
-    \item \texttt{cp}：复制；
-    \item \texttt{mv}：移动或重命名；
-    \item \texttt{rm}：删除。
-\end{itemize}
-
-\begin{warnbox}[删除前先确认]
-\texttt{rm} 删除文件后默认不会进入回收站。在远程服务器或共享集群上，这通常意味着文件会直接消失。因此，在执行类似
-\begin{lstlisting}[style=pythonstyle]
-$ rm *.fits
-\end{lstlisting}
-之前，必须先确认当前位置和匹配范围。
-\end{warnbox}
-
-在科研项目中，更安全的习惯通常是：
-
-\begin{itemize}
-    \item 先用 \texttt{ls} 查看将要匹配的文件；
-    \item 重要文件优先移动到备份目录，而不是直接删除；
-    \item 对批量删除保持谨慎，尤其是通配符 \texttt{*}。
-\end{itemize}
-
-\subsection{通配符：让 shell 先帮你选文件}
-
-在命令行里，很多批量操作并不是由程序自己“认识模式”，而是由 shell 先把通配符展开成一组具体文件。最常见的模式有：
-
-\begin{itemize}
-    \item \texttt{*}：匹配任意长度的字符；
-    \item \texttt{?}：匹配单个字符；
-    \item \texttt{[abc]}：匹配方括号中的任意一个字符。
-\end{itemize}
-
-\begin{examplebox}[通配符的最小用途]
-\begin{lstlisting}[style=pythonstyle]
-$ ls *.fits
-$ cp night_??.csv results/
-$ find raw -name "gaia_*.csv"
-\end{lstlisting}
-\end{examplebox}
-
-这里最重要的不是语法本身，而是理解 shell 会先把模式变成一批文件名，再交给命令处理。因此，执行前先看一眼匹配范围，是批量操作里最基本的安全习惯。
-
-\subsection{文件名、空格与引号}
-
-很多命令行错误并不是命令写错，而是文件名里有空格、特殊符号或路径被错误拆分。最稳妥的习惯是：
-
-\begin{itemize}
-    \item 尽量避免在科研文件名中使用空格；
-    \item 需要保护路径时，用引号包起来；
-    \item 对包含通配符、空格或中文的路径更要谨慎。
-\end{itemize}
-
-\begin{examplebox}[引号保护路径]
-\begin{lstlisting}[style=pythonstyle]
-$ cp "night 1 target 042.fits" raw/
-$ rg "target 042" "logs/observation notes.txt"
-\end{lstlisting}
-\end{examplebox}
-
-在真实项目里，统一的命名规则往往比“记住很多技巧”更重要。
-
-\subsection{shell 展开：命令真正收到的参数是什么}
-
-当你输入一条命令时，程序通常不是直接看到你写下的原始文本。shell 会先做若干预处理，例如展开通配符、处理引号、识别重定向，再把一组参数交给真正的程序。
-
-\begin{examplebox}[先预览 shell 展开结果]
-\begin{lstlisting}[style=pythonstyle]
-$ printf "%s\n" raw/*.fits
-$ ls raw/*.fits
-\end{lstlisting}
-\end{examplebox}
-
-如果 \texttt{raw/} 里有三个 FITS 文件，那么 \texttt{rm raw/*.fits} 里的 \texttt{*.fits} 通常会先被展开成三个具体路径，然后 \texttt{rm} 收到的已经不是“一个模式”，而是一串文件名。理解这一点非常重要，因为它解释了两个常见现象：
-
-\begin{itemize}
-    \item 通配符匹配到多少文件，批量命令就会影响多少文件；
-    \item 引号会改变 shell 的预处理方式，例如 \texttt{"*.fits"} 不再按通配符展开，而是作为普通字符串传给程序。
-\end{itemize}
-
-所以，批量操作前的预览并不是形式主义。你不是在“多敲一条命令”，而是在确认 shell 将要交给程序的真实目标集合。
-
-\subsection{查看文件内容与快速预览}
-
-真正进入科研之后，你会频繁面对日志、说明文件和小型文本结果。这时候，\texttt{head}、\texttt{tail}、\texttt{wc} 和 \texttt{less} 这类命令会比“把整个文件打开”更实用。
-
-\begin{examplebox}[最小预览命令]
-\begin{lstlisting}[style=pythonstyle]
-$ head -n 5 logs/night1.txt
-$ tail -n 20 logs/night1.txt
-$ wc -l raw/*.csv
-$ less logs/night1.txt
-\end{lstlisting}
-\end{examplebox}
-
-\begin{itemize}
-    \item \texttt{head} 看开头，适合检查表头和格式；
-    \item \texttt{tail} 看结尾，适合追踪最近的日志信息；
-    \item \texttt{wc -l} 统计行数，适合快速判断数据规模；
-    \item \texttt{less} 适合翻页查看长文本，按 \texttt{q} 退出。
-\end{itemize}
-
-在教学里还要特别提醒一点：\texttt{cat} 可以直接把内容输出到终端，但它并不适合查看很大的文件。对小文件可以用，对长日志和大表格则应优先考虑 \texttt{less}、\texttt{head} 和 \texttt{tail}。
-
-\subsection{目录大小与磁盘空间}
-
-科研项目不只是“文件很多”，还经常会突然“磁盘不够”。因此要尽早学会看目录体积和磁盘剩余空间。
-
-\begin{examplebox}[检查占用与剩余空间]
-\begin{lstlisting}[style=pythonstyle]
-$ du -sh raw results
-$ df -h .
-\end{lstlisting}
-\end{examplebox}
-
-\begin{itemize}
-    \item \texttt{du -sh} 常用于看目录大概占了多少空间；
-    \item \texttt{df -h} 常用于看当前磁盘还剩多少空间。
-\end{itemize}
-
-\section{搜索、检查与快速统计}
-
-\subsection{为什么搜索比翻目录重要}
-
-当文件数量很少时，人可以靠眼睛浏览目录；当文件数量达到几百上千时，\textbf{搜索}比“看见”更重要。
-
-\subsection{\texttt{find} 与 \texttt{rg}}
-
-\texttt{find} 适合按文件名、目录层级和类型搜索路径，\texttt{rg}（ripgrep）适合在文本内容中搜索关键词。
-
-\begin{examplebox}[搜索文件和日志内容]
-\begin{lstlisting}[style=pythonstyle]
-$ find raw -name "*.fits"
-$ rg "target_042" logs/
-\end{lstlisting}
-\end{examplebox}
-
-前者回答“文件在哪”，后者回答“内容里有没有这个关键词”。
-
-\subsection{批量数据管理中的最小统计思维}
-
-科研目录管理并不只是找文件，还需要快速回答一些数量问题，例如：
-
-\begin{itemize}
-    \item 今晚到底下载了多少张图像？
-    \item 某个目录为什么突然大了几十 GB？
-    \item 哪类文件在处理中被漏掉了？
-\end{itemize}
-
-这些问题本质上都是\textbf{快速统计问题}。命令行的优势在于，你能把“列出来”立即变成“数一数、搜一搜、筛一筛”。
-
-\subsection{\texttt{sort}、\texttt{uniq} 和 \texttt{cut}：终端里的小型检查表}
-
-许多科研检查并不需要立刻打开完整 notebook。只要数据是简单文本、日志或规则分隔的表格，终端就可以快速给出第一轮答案。
-
-\begin{examplebox}[统计哪些日志文件包含错误信息]
-\begin{lstlisting}[style=pythonstyle]
-$ rg "ERROR" logs/*.txt | cut -d: -f1 | sort | uniq -c
-\end{lstlisting}
-\end{examplebox}
-
-这条命令可以读成一条小算法：
-
-\begin{enumerate}
-    \item \texttt{rg} 找出包含 \texttt{ERROR} 的日志行；
-    \item \texttt{cut -d: -f1} 取出冒号前的文件名；
-    \item \texttt{sort} 把相同文件名排在一起；
-    \item \texttt{uniq -c} 统计每个文件出现了多少次。
-\end{enumerate}
-
-如果你只想快速查看一个逗号分隔小表格中的某一列，也可以先用 \texttt{cut} 做粗略检查：
-
-\begin{examplebox}[粗略查看某一列的取值分布]
-\begin{lstlisting}[style=pythonstyle]
-$ cut -d, -f2 raw/catalog.csv | sort | uniq -c
-\end{lstlisting}
-\end{examplebox}
-
-\begin{warnbox}[文本工具不是通用 CSV 解析器]
-\texttt{cut} 很适合处理简单分隔文本，但它不理解带引号、嵌入逗号或复杂缺失值规则的 CSV。真正进入科学分析时，仍应使用 Python 的 \texttt{csv} 模块、Pandas 或 Astropy Table 来可靠解析表格。这里的终端工具主要用于快速预览和 sanity check。
-\end{warnbox}
-
-\subsection{\texttt{xargs}：把路径列表交给下一条命令}
-
-\texttt{find} 和 \texttt{rg} 经常生成一串候选路径。下一步常常不是“看完这些路径”，而是把这些路径交给另一个命令继续处理。此时可以使用 \texttt{xargs}。
-
-\begin{examplebox}[统计一批日志文件的行数]
-\begin{lstlisting}[style=pythonstyle]
-$ find logs -name "*.txt" -print0 | xargs -0 wc -l
-\end{lstlisting}
-\end{examplebox}
-
-这里的 \texttt{-print0} 和 \texttt{xargs -0} 表示用空字符分隔路径，而不是用空格或换行分隔。这种写法看起来稍微复杂，但它能更安全地处理带空格的文件名。入门阶段可以先记住这条原则：\textbf{只要路径是批量生成的，就要格外关心它们如何被传给下一条命令。}
-
-\section{重定向与管道：把小命令接成工作流}
-
-命令行真正强大的地方，不只是每条命令本身，而是它们能够被组合。最基础的两个机制是\textbf{重定向}和\textbf{管道}。
-
-\subsection{重定向}
-
-有时候你并不希望结果只停留在终端窗口里，而是想把结果保存下来作为日志、快照或中间文件。这时就会用到：
-
-\begin{itemize}
-    \item \texttt{>}：把输出写入文件，若文件存在则覆盖；
-    \item \texttt{>>}：把输出追加到文件末尾。
-\end{itemize}
-
-\begin{examplebox}[把终端结果保存成记录文件]
-\begin{lstlisting}[style=pythonstyle]
-$ ls -lh > directory_snapshot.txt
-$ rg "target_042" logs/ >> nightly_notes.txt
-\end{lstlisting}
-\end{examplebox}
-
-这类操作在科研里非常常见，因为终端命令本身也经常是流程证据的一部分。
-
-\begin{warnbox}[重定向也是一种写操作]
-\texttt{>} 会覆盖已有文件。如果你运行 \texttt{python analyze.py > results.txt}，而 \texttt{results.txt} 原来已经保存了重要输出，那么原内容会被新输出替换。需要保留历史时，应考虑使用 \texttt{>>} 追加、换一个带日期或版本的文件名，或者先把旧文件归档。
-\end{warnbox}
-
-\subsection{管道}
-
-管道符号 \texttt{|} 的作用，是把前一条命令的输出直接作为后一条命令的输入。例如：
-
-\begin{examplebox}[一个最小管道示例]
-\begin{lstlisting}[style=pythonstyle]
-$ ls raw | rg ".fits"
-\end{lstlisting}
-\end{examplebox}
-
-这里的思路并不复杂：
-
-\begin{itemize}
-    \item 第一条命令先列出候选结果；
-    \item 第二条命令再做筛选。
-\end{itemize}
-
-这种“先生成，再过滤”的方式，是很多科研数据工作流的最小原型。
-
-\subsection{用 \texttt{tee} 同时看输出和保存记录}
-
-有些时候你既想在屏幕上看到程序输出，又想把它保存成日志。直接用 \texttt{>} 会让屏幕上不再显示正常输出；这时可以使用 \texttt{tee}。
-
-\begin{examplebox}[同时显示和保存]
-\begin{lstlisting}[style=pythonstyle]
-$ python analyze.py | tee logs/analyze_run.txt
-\end{lstlisting}
-\end{examplebox}
-
-\texttt{tee} 的名字来自管道里的 T 形分流：一份输出继续显示在终端，一份写入文件。对课程项目来说，这是一种很好的运行证据：以后你不仅有结果文件，还能看到当时程序报告了哪些输入、参数和摘要统计。
-
-\subsection{标准输入、标准输出与标准错误}
-
-理解管道，最终要回到三个最基础的“流”：
-
-\begin{itemize}
-    \item \textbf{标准输入}：程序从哪里读数据；
-    \item \textbf{标准输出}：程序把正常结果写到哪里；
-    \item \textbf{标准错误}：程序把报错信息写到哪里。
-\end{itemize}
-
-\begin{examplebox}[分开保存正常输出和错误信息]
-\begin{lstlisting}[style=pythonstyle]
-$ python analyze.py > output.txt 2> errors.txt
-\end{lstlisting}
-\end{examplebox}
-
-这类写法在批处理和远程服务器上尤其重要，因为你常常需要区分“程序真的没跑”和“程序跑了但出错了”。
-
-\subsection{退出状态}
-
-每条命令执行完以后，系统都会返回一个退出状态。最常见的约定是：
-
-\begin{itemize}
-    \item \texttt{0} 表示成功；
-    \item 非零值表示出现问题。
-\end{itemize}
-
-\begin{examplebox}[检查上一条命令是否成功]
-\begin{lstlisting}[style=pythonstyle]
-$ echo $?
-\end{lstlisting}
-\end{examplebox}
-
-对科研脚本来说，这个小习惯很关键，因为它能帮助你在自动化流程里及时发现失败步骤。
-
-\section{权限：为什么文件不是“都能看也都能改”}
-
-在 Linux 中，文件和目录都有权限。你在 \texttt{ls -l} 的输出开头看到的那一串字符，例如
-
-\begin{examplebox}[权限字符串示意]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 -rw-r--r--
 drwxr-xr-x
 \end{lstlisting}
-\end{examplebox}
 
-表示的是：
+第一位表示类型，\texttt{-} 通常是普通文件，\texttt{d} 是目录。后面的字符表示所有者、用户组和其他用户的读、写、执行权限。
 
-\begin{itemize}
-    \item 这是普通文件还是目录；
-    \item 所有者、同组用户、其他用户分别拥有哪些读、写、执行权限。
-\end{itemize}
-
-\begin{defbox}[执行权限]
-对脚本文件而言，执行权限表示这个文件可以被当作程序运行；对目录而言，执行权限更接近“能否进入该目录”。
-\end{defbox}
-
-教学阶段不必一开始记住所有权限编码，但必须理解：\textbf{权限问题通常不是“系统坏了”，而是访问边界的一部分。}
-
-\subsection{\texttt{chmod} 的最小例子}
-
-给脚本增加执行权限是最常见的场景之一：
+脚本要直接运行，通常需要执行权限：
 
 \begin{examplebox}[给脚本增加执行权限]
-\begin{lstlisting}[style=pythonstyle]
-$ chmod u+x run_pipeline.sh
+\begin{lstlisting}[style=terminal]
+$ ls -l scripts/run_pipeline.sh
+$ chmod u+x scripts/run_pipeline.sh
+$ ./scripts/run_pipeline.sh
 \end{lstlisting}
 \end{examplebox}
 
-这里的 \texttt{u} 表示 user，也就是文件所有者，\texttt{+x} 表示添加执行权限。
+这里的 \texttt{u+x} 表示给文件所有者增加执行权限。执行脚本前面的 \texttt{./} 表示运行当前目录下的这个脚本，而不是去 \texttt{PATH} 中寻找同名命令。
 
-\subsection{软链接：让一个文件出现在多个位置}
+\section{权限数字：\texttt{chmod 755} 为什么是 755}
 
-有时候你不想复制一份大文件，只想让它在另一个目录里“也能被找到”。这时可以用软链接。
+你也会看到下面这种写法：
 
-\begin{examplebox}[创建软链接]
-\begin{lstlisting}[style=pythonstyle]
-$ ln -s /data/raw/night1_target042.fits raw/night1_target042.fits
+\begin{lstlisting}[style=terminal]
+$ chmod 755 scripts/run_pipeline.sh
+\end{lstlisting}
+
+这里的三个数字分别对应所有者、用户组和其他用户。每个数字由读、写、执行三种权限相加得到：
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+权限 & 数值 & 含义 \\
+\midrule
+r & 4 & read，读取 \\
+w & 2 & write，写入或修改 \\
+x & 1 & execute，执行或进入目录 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+所以 \texttt{755} 表示：
+
+\[
+7=4+2+1,\qquad 5=4+1,\qquad 5=4+1.
+\]
+
+也就是所有者可读、可写、可执行；用户组和其他用户可读、可执行但不可写。入门阶段不需要记住所有组合，但要理解：权限不是装饰，它决定了谁能读取数据、谁能修改脚本、谁能运行入口。共享服务器上随意给写权限，可能会让别人意外修改你的项目；权限过紧，又可能让助教或脚本无法读取必要文件。
+
+\section{远程服务器：同一套习惯换一个环境}
+
+真实科研中，你很可能需要登录远程服务器或集群节点。最常见的入口是 \texttt{ssh}：
+
+\begin{examplebox}[远程登录与传输]
+\begin{lstlisting}[style=terminal]
+$ ssh student@example.edu
+$ scp local_file.txt student@example.edu:/home/student/project/
+$ scp student@example.edu:/home/student/project/results/summary.txt .
 \end{lstlisting}
 \end{examplebox}
 
-软链接的意义在于节省空间、统一入口，但它也要求你对“真实位置”和“引用位置”有清楚的边界感。
-
-\section{压缩与归档：为什么科研结果要阶段性打包}
-
-只要项目稍微复杂一点，你就会需要归档：
+远程环境的核心困难不是 \texttt{ssh} 命令本身，而是上下文切换。你需要确认：
 
 \begin{itemize}
-    \item 一夜观测结束后打包原始结果；
-    \item 某次分析完成后保存一份阶段性快照；
-    \item 将日志、图表和结果目录一起压缩后传给别人。
+    \item 现在是在本地终端还是远程服务器；
+    \item 当前目录在哪里；
+    \item 使用的是远程环境中的哪个 \texttt{python}；
+    \item 数据路径是本地路径还是服务器路径；
+    \item 传输方向是本地到远程，还是远程到本地。
 \end{itemize}
 
-最常见的工具之一是 \texttt{tar}：
+\begin{warnbox}[远程路径不要靠猜]
+\texttt{scp} 的两端路径都要写清楚。初学者常见错误是把本地路径和远程路径混在一起，或者把传输方向写反。传输前先用 \texttt{pwd} 和 \texttt{ls} 分别确认两端位置。
+\end{warnbox}
 
-\begin{examplebox}[打包结果目录]
-\begin{lstlisting}[style=pythonstyle]
-$ tar -czf results_snapshot.tar.gz results/
+\section{远程运行的最小安全流程}
+
+在远程服务器上运行脚本前，建议固定做一次小检查：
+
+\begin{examplebox}[远程运行前检查]
+\begin{lstlisting}[style=terminal]
+$ hostname
+$ pwd
+$ which python
+$ python --version
+$ git status --short
+$ ls data
 \end{lstlisting}
 \end{examplebox}
 
-这里的重点不是记住每个字母，而是理解“多个结果文件 $\rightarrow$ 一个可传输、可归档的包”这层工作流意义。
+这些命令分别回答：我在哪台机器、在哪个目录、用哪个 Python、代码是否有未提交改动、数据是否在预期位置。它们看起来琐碎，但能避免非常多的远程环境错误。尤其在集群、教学服务器或多 conda 环境中，\texttt{which python} 往往比你以为的重要。
 
-\section{远程服务器与科研环境}
+如果任务要长时间运行，应把命令、环境和日志位置写入记录，而不是只在聊天中说“我在服务器上跑了”。远程运行更需要证据，因为你离开终端后，很多上下文会消失。
 
-在天文和物理项目里，很多真正的数据和算力都不在你的个人电脑上，而在：
+\section{进程与长任务：运行不是瞬间完成的}
+
+许多科研任务不是一秒钟结束。模型训练、批量图像处理、光谱拟合和大型下载都可能运行很久。你需要知道任务是否还在运行、是否失败、输出在哪里。
+
+\begin{examplebox}[查看进程和运行时间]
+\begin{lstlisting}[style=terminal]
+$ ps
+$ top
+$ time ./scripts/run_pipeline.sh
+\end{lstlisting}
+\end{examplebox}
+
+对于长任务，最小运行记录应该包含：
 
 \begin{itemize}
-    \item 课题组服务器；
-    \item 共享集群；
-    \item 远程 GPU 节点；
-    \item 在线数据中心。
+    \item 启动时间；
+    \item 当前目录；
+    \item 运行命令；
+    \item 标准输出和错误日志位置；
+    \item 退出状态；
+    \item 关键输入文件和输出文件。
 \end{itemize}
 
-这意味着 Linux 训练的目标，不只是“本机会用终端”，而是要能在远程环境里保持清晰工作流。
-
-\subsection{\texttt{ssh}：进入远程环境}
-
-\texttt{ssh} 是最常见的远程登录方式：
-
-\begin{examplebox}[登录远程服务器]
-\begin{lstlisting}[style=pythonstyle]
-$ ssh username@server_address
+\begin{examplebox}[长任务的最小记录方式]
+\begin{lstlisting}[style=terminal]
+$ date > logs/pipeline_run.txt
+$ pwd >> logs/pipeline_run.txt
+$ ./scripts/run_pipeline.sh > logs/pipeline.out 2> logs/pipeline.err
+$ echo $? >> logs/pipeline_run.txt
 \end{lstlisting}
 \end{examplebox}
 
-一旦登录成功，你操作的就是远程服务器，而不是本地电脑。这个边界必须始终清楚。
+这不是繁文缛节。几天后当你发现结果异常，或者同学问你“这张图怎么生成的”，这些记录会节省大量时间。
 
-\subsection{\texttt{scp}：在本地与远程之间传输文件}
+\section{最小 shell 脚本：把稳定操作变成入口}
 
-当你需要上传脚本或下载结果时，最常见的最小命令是：
+当你发现自己反复运行同一串命令时，就应该考虑写脚本。脚本不是为了炫技，而是为了把手工步骤变成可检查、可复用、可复现的入口。
 
-\begin{examplebox}[传输文件]
-\begin{lstlisting}[style=pythonstyle]
-$ scp local_script.py username@server:~/project/scripts/
-$ scp username@server:~/project/results/plot.png .
-\end{lstlisting}
-\end{examplebox}
-
-第一条把本地脚本上传到远程，第二条把远程结果拉回当前目录。  
-这类操作的重要性并不亚于本地文件管理，因为很多真实数据和算力都在远程环境里。
-
-\begin{protip}[远程环境中的核心习惯]
-在远程服务器上工作时，每做一轮重要操作前都先确认三件事：
-\begin{itemize}
-    \item 当前目录是不是对的；
-    \item 路径是不是项目内相对路径；
-    \item 将要执行的是查看、复制、还是破坏性修改。
-\end{itemize}
-\end{protip}
-
-\section{进程、前台与后台：任务不总是立刻结束}
-
-很多科研任务不会在几秒内完成，例如批量数据清洗、远程下载、长时间脚本或参数扫描。因此你至少要理解：
-
-\begin{itemize}
-    \item 什么是前台运行；
-    \item 什么是后台运行；
-    \item 如何判断一个任务是否仍在执行。
-\end{itemize}
-
-\begin{examplebox}[把任务放到后台]
-\begin{lstlisting}[style=pythonstyle]
-$ python long_task.py &
-\end{lstlisting}
-\end{examplebox}
-
-结尾的 \texttt{\&} 表示把任务放到后台继续运行。  
-这在远程服务器和长时间任务中非常常见，因为你不能总是把终端一直占住。
-
-\subsection{\texttt{ps} 与 \texttt{top} 的直觉}
-
-\texttt{ps} 和 \texttt{top} 这类命令能帮助你查看当前有哪些进程正在运行，以及哪些程序占用了较多资源。入门时不需要背所有列名，但要知道：当程序“好像卡住了”，你应先确认它是否还活着，而不是立刻重复执行。
-
-\subsection{长任务的最小运行记录}
-
-长时间任务最怕的不是慢，而是慢完之后没有证据。至少应记录三类信息：
-
-\begin{itemize}
-    \item 运行了哪条命令；
-    \item 输出和错误信息保存在哪里；
-    \item 任务开始和结束的大致时间。
-\end{itemize}
-
-\begin{examplebox}[给长任务留下证据]
-\begin{lstlisting}[style=pythonstyle]
-$ time python reduce_night.py > logs/reduce.out 2> logs/reduce.err
-\end{lstlisting}
-\end{examplebox}
-
-\texttt{time} 会报告程序运行耗时，\texttt{logs/reduce.out} 保存正常输出，\texttt{logs/reduce.err} 保存错误信息。这个例子还不等于完整的集群作业系统，但已经具备了科研工作流最重要的意识：不要只相信“我按过回车”，而要留下“它如何运行、是否失败、用了多久”的记录。
-
-\section{最小 shell 脚本：把命令串变成流程入口}
-
-当你发现自己反复运行同一串命令时，就应该考虑写一个 shell 脚本。
-
-\begin{examplebox}[最小 shell 脚本示意]
-\begin{lstlisting}[style=pythonstyle]
-#!/bin/bash
+\begin{examplebox}[最小 shell 脚本]
+\begin{lstlisting}[style=terminal]
+#!/usr/bin/env bash
 set -euo pipefail
-mkdir -p results
-python clean_catalog.py
-python make_plot.py
+
+mkdir -p logs results
+date > logs/run_pipeline_record.txt
+pwd >> logs/run_pipeline_record.txt
+find raw -name "*.fits" | sort > logs/input_fits_files.txt
+echo "pipeline-ready" > results/status.txt
 \end{lstlisting}
 \end{examplebox}
 
-这类脚本不一定负责复杂科学计算，但非常适合作为工作流入口，把目录准备、脚本执行和结果生成按顺序固定下来。
+第一行称为 shebang，说明用哪个解释器运行脚本。\texttt{set -euo pipefail} 是一种常见安全设置：命令失败、使用未定义变量或管道中间失败时，让脚本更早暴露问题。入门阶段可以先把它当成“不要悄悄失败”的保护。
 
-这里的 \texttt{set -euo pipefail} 是一个常见的安全开关组合：
+一个适合科研项目的最小脚本，应该做到：
 
 \begin{itemize}
-    \item \texttt{-e}：某条命令失败时尽早停止脚本；
-    \item \texttt{-u}：使用未定义变量时报错；
-    \item \texttt{pipefail}：管道中间步骤失败时，不要只看最后一条命令是否成功。
+    \item 从项目根目录运行；
+    \item 明确创建输出目录；
+    \item 保存关键输入清单；
+    \item 把输出写入稳定位置；
+    \item 失败时不要悄悄继续。
 \end{itemize}
 
-入门阶段不必把它当成魔法咒语背下来，但要理解它的意图：科研脚本应该尽早暴露失败，而不是悄悄带着错误继续生成貌似正常的结果。
+\section{归档：阶段性冻结项目状态}
 
-\section{从命令到工作流：一个最小科研目录算法}
+当一个阶段完成时，最好把关键材料打包。归档不等于备份所有东西，而是把一组需要一起解释的文件冻结在一起。
 
-虽然这一章没有复杂公式，但它有非常重要的\textbf{流程算法}。一个最小的科研目录整理流程可以写成：
+\begin{examplebox}[创建和检查归档]
+\begin{lstlisting}[style=terminal]
+$ tar -czf results/night1_minimal_package.tar.gz scripts logs results/status.txt
+$ tar -tzf results/night1_minimal_package.tar.gz | head
+\end{lstlisting}
+\end{examplebox}
 
-\begin{enumerate}
-    \item 建立项目目录结构；
-    \item 确认 shell 环境和关键命令来自预期位置；
-    \item 把原始数据与处理结果分开；
-    \item 用明确命名约定组织文件；
-    \item 每次批量操作前先列出目标文件；
-    \item 用搜索、排序、计数和路径传递命令做一致性检查；
-    \item 用帮助系统、输出日志和退出状态确认每一步是否按预期完成；
-    \item 为后续脚本和 notebook 保留稳定相对路径；
-    \item 对远程传输、长任务和阶段性结果建立最小归档与脚本化习惯。
-\end{enumerate}
+\texttt{tar -czf} 创建压缩归档，\texttt{tar -tzf} 查看归档内容。归档后一定要检查里面有什么。很多人以为自己打包了结果，实际漏掉脚本或日志；也有人不小心把巨大原始数据一起打进包里。
 
-如果这些步骤做得好，后面的编程、机器学习和结果展示都会顺很多；如果这些步骤做得差，后面的复杂模型也救不了混乱的项目结构。
+在课程项目中，一个最小归档包通常包括脚本、运行记录、关键输出和 README。大型原始数据可以不进包，但必须说明来源和重新获取方式。
 
 \section{破坏性命令前的三步确认}
 
-Linux 命令行强大的另一面，是它很少主动替你判断“这个操作是不是危险”。尤其是 \texttt{rm}、\texttt{mv}、覆盖重定向和批量通配符，一旦目标选错，后果可能比图形界面里的误删更难恢复。
-
-因此，任何破坏性操作前都建议先做三步确认：
+Linux 命令行强大，也意味着它不会频繁打断你问“你确定吗”。因此，执行破坏性命令前必须形成固定流程。
 
 \begin{enumerate}
-    \item \textbf{确认当前位置}：先运行 \texttt{pwd}，确保自己在预期项目目录中；
-    \item \textbf{预览目标集合}：先用 \texttt{ls}、\texttt{find} 或 \texttt{rg} 列出将被影响的文件；
-    \item \textbf{先做小范围试运行}：能处理一个文件时，不要一开始就处理一千个文件。
+    \item \textbf{预览目标}：用 \texttt{ls}、\texttt{find} 或 \texttt{echo} 查看将要作用的文件；
+    \item \textbf{缩小范围}：优先指定目录和模式，不要在不确定位置使用宽泛通配符；
+    \item \textbf{保留证据}：重要操作前保存文件清单，必要时先归档。
 \end{enumerate}
 
-\begin{warnbox}[先列出，再删除]
-如果你准备运行类似 \texttt{rm *.fits} 的命令，请先运行 \texttt{ls *.fits} 看看通配符到底匹配了哪些文件。命令行里最常见的灾难，往往不是不会用命令，而是太相信自己已经选对了目标。
-\end{warnbox}
+\begin{examplebox}[删除前先预览]
+\begin{lstlisting}[style=terminal]
+$ find results -name "*.tmp" | sort
+$ find results -name "*.tmp" | wc -l
+$ find results -name "*.tmp" -delete
+\end{lstlisting}
+\end{examplebox}
 
-这个习惯看起来保守，但它是科研数据管理里非常实际的安全边界。原始数据、手工整理结果和长时间计算输出，都应该先被确认、归档或版本记录，再进入批量删除或移动步骤。
+第三条命令只有在前两条输出符合预期时才应该运行。对初学者来说，这种“多敲两条命令”的习惯比任何高级技巧都重要。
 
-\section{一个最小命令行运行记录模板}
+\section{从命令到科研工作流：最小算法}
 
-本章讲了很多命令，但真正需要进入科研记录的不是每一次 \texttt{ls}，而是那些会改变项目状态、生成结果、移动数据或影响后续复现的操作。一个最小命令行运行记录可以写成：
+把本章所有内容压缩成一条科研计算算法，可以写成：
 
-\begin{quote}
-在项目根目录运行准备脚本，脚本位于 \nolinkurl{scripts/prepare_demo_tree.sh}。输入来自 \nolinkurl{raw/}，输出写入 \nolinkurl{results/} 与 \nolinkurl{logs/}。运行前用 \texttt{pwd} 和 \texttt{find} 确认目录与文件集合；日志保存在 \nolinkurl{logs/prepare.log}；未修改原始数据。
-\end{quote}
+\begin{enumerate}
+    \item 创建清楚的项目目录；
+    \item 用 \texttt{pwd}、\texttt{ls}、\texttt{find} 确认位置和输入；
+    \item 用 \texttt{head}、\texttt{tail}、\texttt{wc}、\texttt{grep}/\texttt{rg} 做快速检查；
+    \item 用重定向和 \texttt{tee} 保存关键输出；
+    \item 把稳定步骤写进脚本；
+    \item 用日志记录长任务；
+    \item 阶段完成后打包关键材料；
+    \item 删除或覆盖前先预览目标。
+\end{enumerate}
 
-这段记录包含四类信息：当前位置、输入集合、执行入口和输出位置。它不追求复杂，却能回答未来最常见的复查问题：当时在哪个目录运行？处理了哪些文件？结果写到哪里？有没有可能覆盖或移动原始数据？到了最终项目包，这类记录会成为 Reproducibility card 和 Integrity card 的基础材料。
+这条算法比任何单条命令都重要。后续章节中的 Git、Python 脚本、数据 I/O、绘图、机器学习训练和 capstone 项目，都会依赖这条基础工作流。
 
-\section{配套 notebook 做了什么}
+\section{最小命令行运行记录模板}
 
-配套 notebook 不要求学生真的连接远程集群，也不依赖本机已有的大型数据目录。它会临时创建一个小型科研项目目录，并带你完成以下动作：
+本章训练结束时，建议学生提交一份很短的运行记录。它不需要漂亮，但应该能让别人知道你做过什么。
 
-\begin{itemize}
-    \item 建立 \texttt{raw/}、\texttt{intermediate/}、\texttt{logs/}、\texttt{scripts/} 和 \texttt{results/} 目录；
-    \item 练习 \texttt{pwd}、\texttt{ls}、相对路径和绝对路径；
-    \item 用 \texttt{find} 与 \texttt{rg} 搜索文件名和日志内容；
-    \item 检查目录大小、磁盘空间和脚本执行权限；
-    \item 把结果目录打包成一个最小归档。
-\end{itemize}
+\begin{examplebox}[运行记录模板]
+\begin{lstlisting}[style=terminal]
+Project: gaia_night1
+Date:
+Machine or environment:
+Working directory:
 
-它的目标不是把所有 Linux 命令都演示一遍，而是让你第一次体验“命令行如何把项目结构、搜索检查、权限和归档连成一条工作流”。
+Input check:
+- raw file count:
+- log file checked:
+- suspicious messages:
 
-\section{常见错误}
+Commands run:
+- mkdir -p ...
+- find raw -name "*.fits" | sort > logs/input_fits_files.txt
+- ./scripts/run_pipeline.sh > logs/pipeline.out 2> logs/pipeline.err
+
+Outputs:
+- results/status.txt
+- logs/input_fits_files.txt
+- logs/pipeline.out
+- logs/pipeline.err
+
+Known limits:
+- simulated files only / real FITS headers not checked
+- no scientific calibration yet
+\end{lstlisting}
+\end{examplebox}
+
+这份模板会在后续章节中逐步升级：Git 章会补上 commit hash，数据 I/O 章会补上字段契约，绘图章会补上图表说明，机器学习章会补上模型评估，最终进入 capstone evidence cards。
+
+\section{配套 notebook 如何训练}
+
+本章配套 notebook 不会假装在浏览器里复刻完整终端，而是在临时目录中创建一个小型项目，然后用 Python 调用安全的 shell 命令。它训练的是下面这条链：
+
+\begin{enumerate}
+    \item 创建微型项目目录；
+    \item 检查当前位置和目录内容；
+    \item 复制、移动和删除安全的模拟文件；
+    \item 搜索日志中的关键词；
+    \item 保存目录快照和文件清单；
+    \item 修改脚本权限并运行最小脚本；
+    \item 打包一个阶段性归档；
+    \item 生成一份 chapter snapshot。
+\end{enumerate}
+
+正文负责讲清楚“为什么这样做”和“这些命令在科研中对应什么判断”；notebook 负责让你动手练到熟。读者不应该把 notebook 输出当作唯一答案，而应该能解释每一步输出和项目目录状态之间的关系。
+
+\section{常见错误与诊断}
 
 \begin{warnbox}[Linux 入门中的典型问题]
 \begin{itemize}
-    \item 把下载目录、原始数据目录和结果目录混在一起；
-    \item 完全依赖绝对路径，导致换机器后所有脚本都失效；
-    \item 不确认 \texttt{python}、\texttt{pip} 或 \texttt{git} 实际来自哪个环境；
-    \item 把自己终端里的 alias 当成所有人都能运行的脚本依赖；
-    \item 文件名里有空格或特殊字符，却没有用引号保护；
-    \item 在不知道当前位置时执行 \texttt{rm} 或 \texttt{mv}；
-    \item 用普通空格分隔的 \texttt{xargs} 处理复杂文件名，导致路径被错误拆开；
-    \item 不理解权限、后台任务和远程路径的边界，结果把使用错误误判成系统故障；
-    \item 文件名没有规则，导致后续难以批量处理；
-    \item 只会“打开文件夹”，不会“搜索、统计和筛选文件”。
+    \item 只背命令，不确认当前目录，导致文件写到意外位置；
+    \item 把原始数据、脚本、结果和日志混在同一个目录；
+    \item 在真实数据目录中直接试 \texttt{rm}、批量 \texttt{mv} 或覆盖重定向；
+    \item 复制网页命令但不理解通配符、引号和重定向；
+    \item 不检查 \texttt{python}、\texttt{pip} 或 \texttt{git} 来自哪个环境；
+    \item 长任务没有保存标准输出、标准错误和退出状态；
+    \item 只保留最终结果，不保留输入清单和运行记录。
 \end{itemize}
 \end{warnbox}
 
+遇到问题时，不要急着重跑。先回到三件事：当前位置、目标文件、最近输出。大部分入门错误都可以通过 \texttt{pwd}、\texttt{ls -lh}、\texttt{history}、日志文件和退出状态定位。
+
 \section{AI 助手如何帮助你}
 
-在这一章，AI 助手适合帮助你：
+AI 助手可以帮助你解释命令、生成脚本草稿、阅读错误日志、整理运行记录和设计安全检查。但 AI 助手不应该替你跳过判断。尤其是包含删除、覆盖、权限修改、远程传输和批量处理的命令，必须先让它解释风险，再在临时目录中试运行。
 
-\begin{itemize}
-    \item 解释某条命令在做什么；
-    \item 帮你把一串重复命令整理成更稳定的小脚本；
-    \item 根据目录结构建议更清楚的项目组织方式；
-    \item 帮你分析某条批量命令可能会影响哪些文件；
-    \item 提醒你某个远程登录、权限或后台运行命令里最容易出错的部分。
-\end{itemize}
+比较好的提问方式是：
 
-但删除哪些文件、哪些目录属于原始数据、哪些结果必须保留，仍然需要你自己做判断。AI 能帮你理解命令，却不能替你承担破坏性操作的后果。
+\begin{lstlisting}[style=terminal]
+请解释这条命令每一部分的作用，并指出它会读哪些文件、
+写哪些文件、是否可能覆盖或删除内容：
+find results -name "*.tmp" -delete
+\end{lstlisting}
 
-\section{练习}
+更好的提问方式是要求 AI 给出预览版本：
+
+\begin{lstlisting}[style=terminal]
+我想删除 results/ 下的临时文件。请先给出只预览目标、
+不删除文件的命令，再给出真正删除命令，并解释风险。
+\end{lstlisting}
+
+这类用法符合本章原则：AI 可以加速理解和检查，但最终运行命令的人必须知道命令的作用范围和证据位置。
+
+\section{练习与交付}
 
 \begin{exercisebox}[基础练习]
-为一个假想的巡天项目设计最小目录结构，至少包含原始数据、脚本、中间结果和最终结果四类目录，并说明每一类目录的用途。
+在临时目录中创建 \texttt{gaia\_night1/} 项目结构，包括 \texttt{raw/}、\texttt{logs/}、\texttt{scripts/}、\texttt{results/} 和 \texttt{notes/}。运行 \texttt{pwd}、\texttt{find . -maxdepth 2 -type d}，并把目录结构保存到 \texttt{logs/tree\_snapshot.txt}。
 \end{exercisebox}
 
-\begin{exercisebox}[进阶练习]
-假设你在 \texttt{raw/} 目录里有数百个 \texttt{.fits} 文件和若干日志文件。写出一个最小命令行流程，完成“查看文件规模、搜索某个目标、把日志单独移走”的任务，并解释每一步为什么这样做。
+\begin{exercisebox}[过程练习]
+创建三个模拟 \texttt{.fits} 文件和一个 \texttt{night1.log} 文件。用 \texttt{find} 统计 FITS 文件数量，用 \texttt{grep} 或 \texttt{rg} 搜索一个目标名，把文件清单和搜索结果保存到 \texttt{logs/}。
 \end{exercisebox}
 
-\begin{exercisebox}[补充练习]
-任选一个目录，分别用 \texttt{du -sh} 和 \texttt{df -h} 检查它的占用情况和磁盘剩余空间，并说明这两个命令回答的问题有何不同。
+\begin{exercisebox}[诊断练习]
+故意在错误目录中运行一次只读命令，例如 \texttt{ls raw}。解释错误信息说明了什么，然后用 \texttt{pwd} 和 \texttt{ls} 找回正确位置。不要用删除命令制造错误。
 \end{exercisebox}
 
-\begin{exercisebox}[开放练习]
-为一个需要远程服务器参与的数据项目设计最小 Linux 工作流，至少包含：\texttt{ssh} 登录、\texttt{scp} 传输、后台运行、结果归档和一个 shell 脚本入口。
-\end{exercisebox}
-
-\begin{exercisebox}[概念练习]
-给出三条你在命令行中常见的命令，分别指出命令名、选项和参数是什么；再说明为什么“先查 \texttt{--help} 或 \texttt{man}”比靠猜更可靠。
+\begin{exercisebox}[交付练习]
+写一个 \texttt{scripts/run\_pipeline.sh}，至少完成创建输出目录、保存输入文件清单、写入一个结果状态文件。运行脚本时把标准输出和标准错误分别保存到 \texttt{logs/}。最后提交一份最小命令行运行记录。
 \end{exercisebox}
 
 \section{本章小结}
 
-Linux 在科研中的价值，不在于记住很多零散命令，而在于把项目结构、批量操作、搜索统计、权限、远程环境、进程管理和小脚本接成一套最小工作流。只要你真正理解“我在哪、这些文件是什么、我接下来会影响什么、任务是否还在运行”，命令行就会从看似陌生的文本界面，变成科研中最可靠的工作入口之一。
+Unix/Linux 入门不应该停留在“会敲几个命令”。对于天文与物理本科生来说，本章真正要建立的是科研计算底层习惯：清楚目录结构，知道路径含义，能区分只读检查和写操作，理解 shell 如何解释命令，能够搜索和统计文本输出，愿意保存日志和运行记录，并能把稳定步骤写成脚本。只要这套习惯建立起来，后面的 Git、Python、FITS、绘图、机器学习和 capstone 项目都会更稳。

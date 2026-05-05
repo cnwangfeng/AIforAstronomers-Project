@@ -1,5 +1,13 @@
 \chapter{模型选择与超参数}
 
+\section{本章导读：调参是受控比较，不是追逐最高分}
+
+模型选择看起来像是在寻找“最好的模型”，但更准确地说，它是在一组候选假设之间做受控比较。每一次选择模型复杂度、正则化强度、邻居数、树深度或聚类数量，本质上都在改变模型能够表达的结构，也在改变过拟合、欠拟合和外推风险。
+
+本章强调验证集和交叉验证，是为了防止学生把测试集变成反复调参的工具。测试集一旦参与选择，就不再是独立证据。网格搜索也不是魔法；它只是把候选模型系统排列出来，再用事先规定的评估规则比较。
+
+读这一章时，请把每一次超参数选择都写成记录：候选范围是什么，baseline 在哪里，验证分数是否稳定，最终模型为什么值得被保留，测试集何时才被打开。这样调参才是科研流程，而不是试运气。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,26 @@
     \item 用一个清楚的工作流完成候选模型比较、超参数选择、最终重训练与独立测试；
     \item 知道在数据量有限时，为什么交叉验证往往比单次验证切分更稳健。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是一个颜色--温度回归的模型选择记录。正文负责解释参数、超参数、欠拟合、过拟合、验证集、交叉验证和测试集冻结；训练材料则要求你系统比较若干候选模型，而不是只保留“最好看”的一次结果。
+
+\begin{examplebox}[最小模型选择项目结构]
+\begin{lstlisting}[style=terminal]
+model_selection_demo/
+  data/
+    stellar_teff_model_selection_demo.csv
+  notebooks/
+    ch22_model_selection_hyperparameters.ipynb
+  figures/
+    validation_curve.png
+  results/
+    model_selection_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+项目交付应包含：候选模型列表、超参数网格、验证策略、平均分与波动、最终选择理由、冻结测试集结果和搜索范围限制。它训练的是“为什么选择这个模型”，而不只是“哪个分数最高”。
 
 \section{参数和超参数不是一回事}
 
@@ -57,6 +85,18 @@
 \end{itemize}
 
 如果复杂度太低，模型连主要趋势都抓不住，会出现\textbf{欠拟合}；如果复杂度太高，模型会把噪声也当成规律，会出现\textbf{过拟合}。模型选择的任务，就是在这两者之间找到更合适的平衡，而不是机械追求更复杂的函数形式。
+
+\section{一张典型验证曲线应该怎样读}
+
+模型选择最常见的一类图，是横轴为复杂度、纵轴为误差的验证曲线。它通常会出现三种区域：
+
+\begin{itemize}
+    \item \textbf{低复杂度区域}：训练误差和验证误差都高，说明模型欠拟合；
+    \item \textbf{适中复杂度区域}：训练误差较低，验证误差也较低，说明模型抓住了主要结构；
+    \item \textbf{高复杂度区域}：训练误差继续下降，但验证误差回升，说明模型开始过拟合。
+\end{itemize}
+
+这张图的教学价值，是让学生看到“更复杂”并不是单调变好。真正要选的，不是训练误差最低的点，而是验证误差低且相对稳定的区域。
 
 \section{一个教学版颜色--温度回归例子}
 
@@ -116,6 +156,28 @@ degrees = [1, 2, 3, 5]
     \item 让我们看到“平均效果”和“波动幅度”。
 \end{itemize}
 
+\section{交叉验证的最小算法}
+
+把 $K$ 折交叉验证写成伪代码，就是：
+
+\begin{examplebox}[K 折交叉验证骨架]
+\begin{lstlisting}[style=pythonstyle]
+scores = []
+for fold in folds:
+    fold_train = all_rows_except(fold)
+    fold_valid = fold
+
+    model = train_with_hyperparameter(fold_train, lambda_value)
+    predictions = model.predict(fold_valid)
+    scores.append(metric(fold_valid, predictions))
+
+mean_score = mean(scores)
+score_spread = standard_deviation(scores)
+\end{lstlisting}
+\end{examplebox}
+
+这里有两个结果都要保留：平均分和波动幅度。平均分告诉你“通常表现怎样”，波动幅度告诉你“这个表现是否稳定”。若两个候选平均分差别很小，但其中一个波动明显更小，在科研项目里后者往往更值得信任。
+
 \section{训练误差下降，不代表模型更好}
 
 模型选择中最值得反复提醒的一点，是：\textbf{训练误差持续下降，不意味着泛化能力持续提高。}
@@ -149,6 +211,21 @@ degrees = [1, 2, 3, 5]
 \end{enumerate}
 
 这套流程看起来慢一点，但它是在保护最终结论的可信度。
+
+\section{最终重训练为什么不是偷看测试集}
+
+模型选择完成后，常见做法是把训练集和验证集合并，重新训练最终模型，然后只在测试集上评估一次。这个步骤容易让学生困惑：既然验证集已经参与选择，为什么还能合并进训练？
+
+原因在于，选择已经结束，超参数和模型族已经冻结。此时验证集不再用于继续挑模型，而是作为额外训练样本，帮助最终模型更充分地估计参数。真正不能做的是：看完测试集结果后，又返回去修改超参数、特征、阈值或预处理。
+
+因此，最终重训练的前提是：
+
+\begin{itemize}
+    \item 候选空间已经关闭；
+    \item 最终模型配置已经写入记录；
+    \item 测试集结果只报告一次；
+    \item 如果测试集表现不佳，只能诚实报告，而不能继续把它用于选择。
+\end{itemize}
 
 \section{一个最小模型选择记录模板}
 

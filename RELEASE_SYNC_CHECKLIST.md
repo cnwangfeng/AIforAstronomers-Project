@@ -9,9 +9,10 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 
 - Run `python scripts/validate_data_manifest.py`
 - Run `python scripts/check_release_inventory.py`
+- Run `python scripts/check_figure_table_refs.py`
+- Run `python scripts/check_formula_inventory.py`
 - Run `python scripts/check_publication_blockers.py`
 - Run `python scripts/smoke_test_notebooks.py`
-- Run `bash scripts/build_book_local.sh main`
 - Run `bash scripts/build_book_local.sh zh`
 - Run `python scripts/check_latex_log.py`
 - Or run `bash scripts/run_release_checks.sh full` for the full local sequence
@@ -23,6 +24,7 @@ is meant for the final repo-to-Overleaf sync and publication pass.
 ## 2. Package Sanity Check
 
 - Confirm `book/main_zh.tex` includes the intended chapter set
+- Confirm Overleaf is configured to compile `book/main_zh.tex`; the legacy `book/main.tex` entry has been removed
 - Confirm `book/FIGURE_TABLE_QA.md` reflects current figure/table counts
 - Confirm `book/EVIDENCE_CARD_QA.md` reflects current capstone evidence-card names
 - Confirm `book/FORMULA_QA.md` reflects current formula counts and explanation policy
@@ -89,10 +91,10 @@ If work needs to resume later, start here:
 
 Current recovery counts to confirm before sync:
 
-- Chinese PDF: about `509` pages
+- Chinese PDF: about `564` pages
 - Notebook smoke test: `59` notebooks
 - Data manifest: `52` datasets
-- Local validation: `build_book_local.sh main`, `build_book_local.sh zh`, notebook smoke, data manifest, `check_latex_log.py`, and `git diff --check` have passed; `run_release_checks.sh full` is the one-command equivalent for the final local pass
+- Local validation: `bash scripts/run_release_checks.sh full` has passed for the current text checkpoint, including `59` notebook smoke tests, Chinese LaTeX build, log scan, data manifest, release inventory, figure/table reference check, formula inventory check, publication blocker scan, Overleaf dry-run payload, and `git diff --check`
 
 ## 7. Remaining Publication Polish
 

@@ -5,6 +5,54 @@
 
 这一步不能跳过。模型只能看见你交给它的输入；如果输入的物理含义、误差来源、采样边界和选择效应没有被整理清楚，后面再复杂的算法也只能在混乱基础上给出更复杂的混乱。
 
+\section*{本部分的微型项目链}
+
+Part II 的六章现在可以连成一条从测量到建模样本的微型项目链：
+
+\begin{enumerate}
+    \item 误差与单位章交付一份 measurement record；
+    \item 星表与 HR 图章交付一份 HR diagram record；
+    \item FITS/WCS 章交付一份 photometry record；
+    \item 光谱章交付一份 spectrum record；
+    \item 时间序列章交付一份 period record；
+    \item 实验拟合章交付一份 model fit record。
+\end{enumerate}
+
+这些记录的名字不同，但结构高度相似：输入是什么、单位是什么、误差在哪里、算法如何从输入得到输出、图表或诊断支持什么判断、当前结论有什么边界。它们会自然汇入后续的 Data card、Evaluation card、Interpretation card 和 Reproducibility card。
+
+\section*{一个可以立刻执行的 Part II 综合任务}
+
+如果要检查自己是否真正掌握了 Part II，不需要先做很大的研究项目。你可以从本部分任意一种教学数据开始，完成一份小而完整的 evidence packet。这个任务的重点不是数据类型有多复杂，而是证据链是否闭合。
+
+\begin{examplebox}[Part II 最小 evidence packet 目录]
+\begin{lstlisting}[style=terminal]
+part2_evidence_packet/
+  data/
+    input_demo_file.csv
+  notebooks/
+    exploratory_check.ipynb
+  scripts/
+    reproduce_result.py
+  figures/
+    diagnostic_figure.png
+  results/
+    evidence_packet.md
+\end{lstlisting}
+\end{examplebox}
+
+建议按下面六步完成：
+
+\begin{enumerate}
+    \item \textbf{选择一种数据}：星表、图像 cutout、光谱、光变曲线或实验拟合数据任选其一；
+    \item \textbf{写下数据契约}：列出输入字段、单位、缺失值规则、坐标或采样含义；
+    \item \textbf{说明一个核心公式}：例如距离模数、净孔径信号、红移、相位折叠或 \(\chi^2\)，并写明变量单位；
+    \item \textbf{完成最小处理}：用 notebook 探索一次，再用脚本复现一个关键结果；
+    \item \textbf{生成诊断图表}：图上必须能看见数据、结果和至少一个质量或残差线索；
+    \item \textbf{写出结果边界}：说明当前结论依赖哪些筛选、近似、误差模型或采样条件。
+\end{enumerate}
+
+最终的 \texttt{evidence\_packet.md} 不需要很长，但至少应包含七行信息：数据来源、输入契约、核心公式、运行入口、主要结果、诊断图路径和限制说明。若这七行写不清楚，就说明处理流程还没有真正准备好进入 Part III 的机器学习阶段。
+
 \section*{一条通用的数据处理算法}
 
 你可以把 Part II 的共同工作流写成下面这条算法：

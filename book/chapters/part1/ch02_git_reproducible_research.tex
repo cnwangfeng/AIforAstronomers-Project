@@ -1,514 +1,658 @@
 \chapter{Git 与可复现科研}
 
-\section{学习目标}
+\section{本章导读：Git 不是备份工具，而是科研时间轴}
+
+很多学生第一次接触 Git 时，会把它理解成“保存代码版本的工具”。这个理解没有错，但太窄。对于科研项目来说，Git 更重要的作用是建立一条可追踪的时间轴：什么时候改了数据筛选条件，什么时候修正了图表脚本，什么时候生成了报告中的关键结果，哪个 commit 对应期末提交版本。
+
+如果没有版本控制，科研项目很容易变成一堆文件名：
+
+\begin{lstlisting}[style=terminal]
+analysis.py
+analysis_new.py
+analysis_final.py
+analysis_final_really.py
+figure3_old.png
+figure3_fixed.png
+report_latest.docx
+\end{lstlisting}
+
+这些文件名看似记录了历史，实际上几乎无法回答关键问题：为什么改，改了什么，哪一个版本生成了最终结果，错误从哪一步开始出现。Git 的价值就在于把“文件变化”变成可以检查、可以讨论、可以回到过去的项目历史。
+
+\begin{defbox}[版本控制]
+版本控制是一种系统记录文件变化的方法。它不仅保存历史，还帮助研究者回答“谁在什么时候、因为什么理由、对哪些文件做了什么修改”。
+\end{defbox}
+
+本章会把 Git 当作科研记录系统来讲，而不是命令清单。你会学习命令，但每条命令都要回到一个科研问题：这一步如何帮助结果可复查、协作可管理、错误可定位、发布可冻结。
+
+\section{学习目标与训练目标}
 
 学完本章后，你应该能够：
 
 \begin{itemize}
-    \item 解释为什么版本控制是科研工作的一部分，而不只是程序员习惯；
+    \item 解释为什么版本控制是科研工作的一部分，而不是程序员专用技能；
     \item 理解 working directory、staging area 和 repository 的分工；
-    \item 熟练使用 \texttt{git init}、\texttt{git status}、\texttt{git add}、\texttt{git commit}、\texttt{git log}、\texttt{git branch}、\texttt{git merge} 和 \texttt{git pull}/\texttt{push}；
-    \item 理解 merge conflict 的本质以及解决流程；
-    \item 知道为什么原始数据、大型二进制文件和自动生成结果通常不应直接提交到 Git 仓库。
+    \item 使用 \texttt{git status} 和 \texttt{git diff} 判断当前项目状态；
+    \item 使用 \texttt{git add} 和 \texttt{git commit} 创建主题清楚的提交；
+    \item 使用 \texttt{git log}、branch、merge、tag 和 remote 理解项目历史；
+    \item 知道如何处理最基本的 merge conflict；
+    \item 区分应该进 Git 的文本记录和不应该直接进 Git 的大型数据、自动生成结果；
+    \item 把最终结果、运行环境、数据来源和 commit hash 连接成最小 evidence record。
 \end{itemize}
 
-\section{为什么科研也需要版本控制}
+训练材料的目标是让你在临时目录中真正操作一个小型仓库：初始化、修改文件、查看 diff、提交、创建分支、模拟冲突、打 tag，并生成一份版本化结果记录。
 
-很多学生一开始会觉得，Git 只是软件工程课程的东西。但真实科研中，下面这些情景几乎每天都会出现：
+\section{一个贯穿本章的小型科研情景}
+
+假设你正在做一个很小的光度测量练习。项目目录中有：
+
+\begin{lstlisting}[style=terminal]
+mini_photometry/
+  README.md
+  scripts/
+    measure_flux.py
+  results/
+    flux_summary.csv
+  notes/
+    interpretation.md
+\end{lstlisting}
+
+一开始，脚本只是粗略计算目标亮度。后来你发现背景扣除公式写错了，又修改了结果表和解释说明。再后来，同学也修改了 \texttt{README.md}，你们需要合并。最后，期末报告要引用一个冻结版本。
+
+这个情景包含 Git 的所有核心问题：
 
 \begin{itemize}
-    \item 你昨天写的脚本今天跑不通了，想知道自己改了什么；
-    \item 小组项目中两个人同时修改了同一个 notebook 或同一个报告；
-    \item 老师问你“这个结果是哪个版本跑出来的”；
-    \item 半个月后你发现一个结果异常，想回到旧版本检查问题从哪一步开始出现。
+    \item 哪些修改还没有进入历史？
+    \item 这次提交到底应该包含哪些文件？
+    \item 背景扣除修正前后改了什么？
+    \item 哪个版本生成了最终 \texttt{flux\_summary.csv}？
+    \item 大型原始图像是否应该直接提交？
+    \item 如何把期末报告对应的版本冻结下来？
 \end{itemize}
 
-这些都不是“编程技术”附属问题，而是\textbf{科研可追踪性}问题。
+接下来所有命令都围绕这些问题展开。
 
-\begin{defbox}[版本控制]
-版本控制是对文件变化进行系统记录的方法。它的目标不仅是保存历史，更是让你知道“谁在什么时间、因为什么理由做了什么改动”。
-\end{defbox}
+\section{Git 的三层模型}
 
-换句话说，Git 的价值不是让你“更像程序员”，而是让你的研究过程更接近可复查、可协作、可复现的科学记录。
+Git 最容易让初学者困惑的地方，是文件修改不会自动进入历史。Git 把项目状态分成三个层次，见表~\ref{tab:ch02_git_layers}：
 
-\section{Git 的三层结构：不是魔法，而是状态机}
-
-Git 最容易让初学者困惑的地方，是它并不是“改了文件就立刻保存到历史中”。Git 的工作流通常要经过三个状态层：
-
-\begin{enumerate}
-    \item \textbf{Working Directory}：你当前正在修改的文件；
-    \item \textbf{Staging Area}：你决定准备放进下一次提交的内容；
-    \item \textbf{Repository}：真正被记录进历史的快照。
-\end{enumerate}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.25\textwidth}p{0.28\textwidth}p{0.35\textwidth}}
+\toprule
+层次 & 保存什么 & 科研含义 \\
+\midrule
+Working directory & 当前正在编辑的文件 & 实验台面，可能混有多个未完成想法 \\
+Staging area & 准备进入下一次提交的修改 & 本次要记录的主题，需要主动选择 \\
+Repository & 已提交的历史快照 & 项目时间轴，可复查、可回到过去 \\
+\bottomrule
+\end{tabular}
+\caption{Git 工作流中的三层项目状态及其科研含义。}
+\label{tab:ch02_git_layers}
+\end{table}
 
 \begin{examplebox}[最小 Git 工作流]
-\begin{lstlisting}[style=pythonstyle]
-修改文件
--> git add
--> git commit
+\begin{lstlisting}[style=terminal]
+edit files
+git status
+git diff
+git add selected_files
+git diff --staged
+git commit -m "Explain the change"
 \end{lstlisting}
 \end{examplebox}
 
-很多初学者会问：为什么还要多一个 staging area？因为科研工作里，你常常同时做了多件事，而一次提交应该尽量只表达一个明确主题。例如：
+staging area 的存在不是麻烦，而是帮助你把混乱的工作区整理成清楚的历史节点。科研中你常常同时做了多件事：改图表标题、修 bug、尝试新参数、写报告说明。它们不一定应该进入同一个 commit。一次好的提交应该尽量对应一个明确理由。
 
-\begin{itemize}
-    \item 修复一个 bug；
-    \item 修改一张图的标注；
-    \item 新增一个数据清洗步骤；
-    \item 只是临时打印调试信息。
-\end{itemize}
+\section{Commit、HEAD、branch 与 tag 的心智模型}
 
-这些变化未必应该混进同一个 commit。staging area 的存在，正是为了让你对“这次我要记录什么”做出选择。
+在开始记命令之前，先把 Git 的几个核心名字放到一张脑内地图里，会少走很多弯路。表~\ref{tab:ch02_commit_names} 先给出这些名字在科研项目中的角色。Git 仓库里的历史不是一串文件名，而是一串 commit。每个 commit 可以粗略理解为：
 
-\section{初始化、查看状态与第一次提交}
+\begin{center}
+一次项目快照 + 作者和时间 + 提交说明 + 指向上一个 commit 的线索。
+\end{center}
 
-\subsection{\texttt{git init} 与仓库初始化}
+因此，commit 不是“只保存改动的一句话”，而是一个可以被重新找到的历史节点。你在报告里写“本图由 commit \texttt{3a7c91e} 生成”，意思就是读者可以回到那一刻的项目状态，检查脚本、参数和说明是否一致。
 
-当你在一个项目目录里执行：
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.20\textwidth}p{0.30\textwidth}p{0.36\textwidth}}
+\toprule
+名字 & 可以怎样理解 & 科研工作中的作用 \\
+\midrule
+commit & 一个带说明的项目历史节点 & 说明一次结果或一次修正对应的代码状态 \\
+HEAD & 当前所在的历史位置 & 告诉你现在正在基于哪一版继续工作 \\
+branch & 会随着新提交移动的名字 & 让稳定主线和试验想法分开推进 \\
+tag & 固定贴在某个 commit 上的名字 & 冻结报告、作业或 release 对应版本 \\
+\bottomrule
+\end{tabular}
+\caption{Commit、HEAD、branch 与 tag 的最小心智模型。}
+\label{tab:ch02_commit_names}
+\end{table}
+
+一个常见误解是把 branch 和 tag 都理解成“版本”。它们确实都指向 commit，但行为不同：branch 会随着你继续提交而向前移动，tag 通常固定不动。主线 \texttt{main} 像一支还在继续写的实验记录本；\texttt{v0.1-analysis} 这样的 tag 像给某一页贴了书签，说明这一页可以被引用。
+
+这也解释了为什么最终结果不能只写“来自 main 分支”。\texttt{main} 明天可能已经前进了。更稳妥的记录是 commit hash 或 release tag。它们把结果固定到一个明确历史节点，而不是一个会移动的名字。
+
+\section{读懂 \texttt{git status} 后该做什么}
+
+\texttt{git status} 不只是告诉你“有文件改了”，还在提示下一步。可以把常见状态翻译成表~\ref{tab:ch02_status_decisions} 这样的决策表：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.28\textwidth}p{0.34\textwidth}p{0.26\textwidth}}
+\toprule
+状态提示 & 含义 & 推荐动作 \\
+\midrule
+\texttt{modified} & 已跟踪文件被修改，还未暂存 & 先看 \texttt{git diff} \\
+\texttt{untracked} & Git 还不知道这个新文件 & 判断是否应进入 Git \\
+\texttt{changes to be committed} & 已暂存，准备提交 & 看 \texttt{git diff --staged} \\
+\texttt{nothing to commit} & 工作区和暂存区干净 & 可以运行、拉取或切分支 \\
+\texttt{your branch is ahead} & 本地有远程没有的提交 & 检查后可以 push \\
+\bottomrule
+\end{tabular}
+\caption{\texttt{git status} 常见状态提示与推荐下一步动作。}
+\label{tab:ch02_status_decisions}
+\end{table}
+
+这张表训练的是 Git 的“状态机”意识。不要把 Git 命令当成咒语；每次先读状态，再决定是查看差异、暂存、提交、忽略，还是推送。
+
+\section{初始化仓库与第一次提交}
+
+在项目根目录中运行：
 
 \begin{examplebox}[初始化仓库]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ git init
+$ git status
 \end{lstlisting}
 \end{examplebox}
 
-Git 会创建一个隐藏的 \texttt{.git/} 目录，用来保存版本历史和元数据。此时你的项目还没有真正的历史记录，但已经具备了“从现在开始跟踪变化”的能力。
+\texttt{git init} 会创建隐藏目录 \texttt{.git/}，里面保存仓库元数据和历史。不要手动编辑 \texttt{.git/}，把它当作 Git 自己维护的数据库即可。
 
-\subsection{\texttt{git status}：最重要的诊断命令}
+第一次提交通常应该包含项目的最小说明、脚本入口和忽略规则：
 
-如果只允许学生在 Git 里记住一条命令，我通常会优先推荐 \texttt{git status}。因为它回答了最关键的问题：
+\begin{examplebox}[第一次提交]
+\begin{lstlisting}[style=terminal]
+$ git add README.md scripts/measure_flux.py .gitignore
+$ git status
+$ git commit -m "Create minimal photometry project"
+\end{lstlisting}
+\end{examplebox}
+
+注意这里没有使用 \texttt{git add .}。入门阶段更推荐显式列出文件，因为它迫使你确认本次提交到底包含什么。
+
+\section{\texttt{git status}：先看状态，不要靠猜}
+
+\texttt{git status} 是 Git 中最重要的诊断命令。它回答：
 
 \begin{itemize}
     \item 当前在哪个分支；
-    \item 哪些文件被修改了；
-    \item 哪些文件已经 staged；
-    \item 哪些文件还没被 Git 跟踪。
+    \item 哪些文件被修改；
+    \item 哪些修改已经 staged；
+    \item 哪些文件还没有被跟踪；
+    \item 是否与远程仓库有同步差异。
 \end{itemize}
 
 \begin{protip}[在 Git 里迷路时先看 status]
-当你不确定“我现在到底处于什么状态”时，不要猜，也不要乱试。先运行 \texttt{git status}。
+当你不确定当前状态时，不要猜，不要随便 pull、merge 或 restore。先运行 \texttt{git status}，读懂它再决定下一步。
 \end{protip}
 
-\subsection{\texttt{git add} 与 \texttt{git commit}}
+科研项目中，\texttt{status} 的意义类似实验记录中的“当前状态检查”。它不改变文件，只帮助你确认下一步是否安全。
 
-\begin{examplebox}[一次最小提交]
-\begin{lstlisting}[style=pythonstyle]
-$ git add scripts/flux_calibration.py
-$ git commit -m "Fix the background subtraction term"
-\end{lstlisting}
-\end{examplebox}
+\section{\texttt{git diff}：提交前的审稿}
 
-这一组命令做了两件事：
+\texttt{git diff} 显示工作区和上一次提交之间的差异。它回答的问题是：如果我现在提交，这些变化到底是什么？
 
-\begin{itemize}
-    \item \texttt{git add} 把修改放进 staging area；
-    \item \texttt{git commit} 把 staging area 里的内容保存成一个历史快照。
-\end{itemize}
-
-这里最重要的不是记住语法，而是理解 commit message 的科学角色。它不是“我改了些东西”的流水账，而应当尽量说明：
-
-\begin{itemize}
-    \item 改了什么；
-    \item 为什么要改；
-    \item 这次改动对应哪一个问题、错误或实验步骤。
-\end{itemize}
-
-\section{\texttt{diff}：提交前先看自己到底改了什么}
-
-在真正提交之前，最应该养成的习惯不是立刻 \texttt{git add .}，而是先比较当前文件和上一次提交之间的差异。
-
-\begin{examplebox}[查看尚未暂存的差异]
-\begin{lstlisting}[style=pythonstyle]
+\begin{examplebox}[查看差异]
+\begin{lstlisting}[style=terminal]
 $ git diff
-$ git diff scripts/flux_calibration.py
+$ git diff scripts/measure_flux.py
 \end{lstlisting}
 \end{examplebox}
 
-\texttt{git diff} 回答的是：“如果我现在提交，这些变化到底是什么？” 这一步在科研中非常关键，因为一次提交不只是保存文件，还会成为未来解释结果的证据。
-
-阅读 diff 时，至少要检查三件事：
+科研中阅读 diff 时，要特别关注：
 
 \begin{itemize}
-    \item 是否混入了临时调试输出，例如 \texttt{print()} 或临时路径；
-    \item 是否意外修改了与当前任务无关的文件；
-    \item 数值参数、筛选条件、随机种子和路径是否被改动。
+    \item 是否改了数据筛选条件；
+    \item 是否改了随机种子、阈值、单位转换或背景扣除公式；
+    \item 是否混入临时调试输出；
+    \item 是否意外修改了报告、图表或配置文件；
+    \item 是否包含绝对路径、私有路径或本地机器特有设置。
 \end{itemize}
 
-\begin{protip}[先看 diff，再提交]
-一个可靠的科研提交，通常应该经历 \texttt{status -> diff -> add -> status -> commit} 这条小循环，而不是直接把所有变化一次性塞进历史。
-\end{protip}
+已经 staged 的内容可以用：
 
-\subsection{暂存区中的差异}
-
-如果你已经执行了 \texttt{git add}，还可以查看将要进入下一次提交的内容：
-
-\begin{examplebox}[查看 staged diff]
-\begin{lstlisting}[style=pythonstyle]
+\begin{examplebox}[查看将要提交的差异]
+\begin{lstlisting}[style=terminal]
 $ git diff --staged
 \end{lstlisting}
 \end{examplebox}
 
-这相当于在提交前做最后一次审稿：这次 commit 是否真的只包含一个清楚主题？
+\texttt{git diff --staged} 相当于提交前的最后审稿。它帮助你确认下一次 commit 是否主题清楚、边界明确。
+
+\section{提交：把一次修改变成可解释的历史节点}
+
+\texttt{git add} 选择要进入下一次提交的修改，\texttt{git commit} 创建历史快照。
+
+\begin{examplebox}[一次主题清楚的提交]
+\begin{lstlisting}[style=terminal]
+$ git add scripts/measure_flux.py notes/interpretation.md
+$ git diff --staged
+$ git commit -m "Fix background subtraction in flux estimate"
+\end{lstlisting}
+\end{examplebox}
+
+一个科研 commit message 不应该只是 \texttt{update}、\texttt{fix} 或 \texttt{final}。表~\ref{tab:ch02_commit_messages} 给出了一组从弱信息到可复查信息的对照。它最好说明：
+
+\begin{itemize}
+    \item 改了什么；
+    \item 为什么改；
+    \item 这次改动对应哪个问题、检查或结果解释。
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.38\textwidth}p{0.44\textwidth}}
+\toprule
+较弱的提交信息 & 更好的提交信息 \\
+\midrule
+\texttt{update} & \texttt{Add input file count check} \\
+\texttt{fix bug} & \texttt{Fix background subtraction sign} \\
+\texttt{plot} & \texttt{Label flux residual plot axes} \\
+\texttt{final version} & \texttt{Freeze report figures for draft submission} \\
+\bottomrule
+\end{tabular}
+\caption{较弱提交信息与更可复查的科研提交信息对照。}
+\label{tab:ch02_commit_messages}
+\end{table}
+
+好的 commit message 是给未来的自己、同学和助教看的。几周后你不一定记得当时为什么改，但项目历史应该能提醒你。
+
+\section{一次提交应该有边界}
+
+假设你同时做了三件事：
+
+\begin{itemize}
+    \item 修正 \texttt{measure\_flux.py} 中背景扣除符号；
+    \item 改写 README 中的项目介绍；
+    \item 临时试验一个新的孔径半径，生成了测试图。
+\end{itemize}
+
+这三件事最好不要机械塞进同一个提交。更合理的做法是：
+
+\begin{enumerate}
+    \item 先提交背景扣除 bug fix，因为它改变结果含义；
+    \item 再提交 README 说明，因为它是文档更新；
+    \item 临时测试图若不能复现或只是探索输出，可以不提交，或先放进被忽略目录。
+\end{enumerate}
+
+提交边界的原则是：\textbf{一次提交应该能用一句话说明为什么存在。} 如果一句话里出现了“顺便”“还有”“以及很多东西”，通常说明这次提交太杂。
 
 \section{撤销与恢复：先分清要撤销哪一层}
 
-Git 的撤销最容易误用，因为“撤销”可能指很多不同事情：
+Git 中“撤销”不是一个动作，而是一组不同层次的操作。入门阶段先掌握两个安全边界：
 
-\begin{itemize}
-    \item 撤销工作区里还没暂存的修改；
-    \item 把已经 staged 的文件移出 staging area；
-    \item 修改最近一次提交；
-    \item 回到历史上的某个版本。
-\end{itemize}
-
-入门阶段先掌握最安全的两类恢复即可。
-
-\begin{examplebox}[取消暂存，但保留文件内容]
-\begin{lstlisting}[style=pythonstyle]
+\begin{examplebox}[取消暂存但保留文件内容]
+\begin{lstlisting}[style=terminal]
 $ git restore --staged README.md
 \end{lstlisting}
 \end{examplebox}
 
-这条命令只把 \texttt{README.md} 从 staging area 拿出来，工作区里的实际修改仍然保留。它适合处理“我不想把这个文件放进这次 commit，但内容还要留着”的情况。
+这条命令把 \texttt{README.md} 从 staging area 拿出来，但工作区中的实际修改还保留。它适合处理“这个文件不属于本次提交”的情况。
 
 \begin{examplebox}[丢弃工作区修改]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ git restore README.md
 \end{lstlisting}
 \end{examplebox}
 
-这条命令会把文件恢复到上一次提交的状态，工作区中的未提交修改会消失。因此使用前一定要先看 \texttt{git diff}。
+这条命令会把 \texttt{README.md} 恢复到上一次提交的状态，未提交修改会消失。使用前一定要先运行 \texttt{git diff}。
 
 \begin{warnbox}[恢复命令不是回收站]
-\texttt{git restore} 可以帮你撤销错误修改，但也可能直接丢掉尚未提交的工作。只要你不确定，先运行 \texttt{git status} 和 \texttt{git diff}，必要时把文件复制到临时位置再恢复。
+\texttt{git restore} 可以帮你撤销错误修改，也可能直接丢掉尚未提交的工作。只要不确定，先看 \texttt{git status} 和 \texttt{git diff}，必要时把当前文件复制到临时位置再恢复。
 \end{warnbox}
 
-\section{提交历史：科研中的时间轴}
+\section{查看历史：从文件列表回到项目故事}
 
-\texttt{git log} 让你查看历史。最常用的紧凑形式通常是：
+\texttt{git log} 显示提交历史。常用形式是：
 
 \begin{examplebox}[查看紧凑历史]
-\begin{lstlisting}[style=pythonstyle]
+\begin{lstlisting}[style=terminal]
 $ git log --oneline --graph --decorate
+$ git show --stat HEAD
 \end{lstlisting}
 \end{examplebox}
 
-这条命令对科研特别有价值，因为它可以让你快速回答：
+\texttt{git log} 让你看到项目如何变化，\texttt{git show --stat HEAD} 则显示最近一次提交改了哪些文件。科研中它们可以帮助你回答：
 
 \begin{itemize}
-    \item 这个结果是在什么版本之后出现的；
-    \item 某个修复是不是已经被合并；
-    \item 某次实验是不是发生在清理数据之前。
+    \item 某个异常结果是从哪次修改后出现的；
+    \item 某个图表脚本是否已经修正；
+    \item 报告中的结果对应哪个提交；
+    \item 期末提交版本是否已经被冻结。
 \end{itemize}
 
-如果你把 notebook、脚本、图表生成和报告都纳入规范提交历史，那么 Git 实际上就成了项目演化的时间轴。
+如果提交信息写得清楚，\texttt{git log} 就像项目日记；如果提交信息全是 \texttt{update}，历史就会变成噪声。
 
-\section{分支：在不破坏主线的前提下试错}
+\section{分支：把试验和稳定主线分开}
 
-科研工作并不是线性前进的。你经常需要试验一个新想法，例如：
+科研工作经常需要试错。例如你想尝试新的背景估计、新的特征工程、新的模型或新的图表风格。直接在主线修改当然可以，但如果实验失败，主线可能被打乱。分支让你在不破坏稳定版本的前提下试验。
 
-\begin{itemize}
-    \item 尝试新的特征工程方案；
-    \item 把回归模型换成随机森林；
-    \item 重写图表风格；
-    \item 试一个新数据清洗版本。
-\end{itemize}
-
-如果你直接在主线上改，很容易把当前能工作的版本打坏。分支的意义就是：\textbf{让你安全地试错。}
-
-\begin{examplebox}[创建并切换分支]
-\begin{lstlisting}[style=pythonstyle]
-$ git checkout -b feature/new-validation-plot
+\begin{examplebox}[创建试验分支]
+\begin{lstlisting}[style=terminal]
+$ git switch -c experiment/robust-background
+$ git status
 \end{lstlisting}
 \end{examplebox}
 
-当试验成功后，再合并回主线：
+试验完成后，可以回到主线并合并：
 
 \begin{examplebox}[合并分支]
-\begin{lstlisting}[style=pythonstyle]
-$ git checkout main
-$ git merge feature/new-validation-plot
+\begin{lstlisting}[style=terminal]
+$ git switch main
+$ git merge experiment/robust-background
 \end{lstlisting}
 \end{examplebox}
 
-这里的教学重点不是“分支很酷”，而是让学生形成一个科学习惯：\textbf{实验性改动应当与稳定主线分开。}
+分支不是为了复杂化项目，而是为了让“可工作的主线”和“正在试的想法”分开。对于本科项目，一个简单原则就够了：主线尽量保持能运行，实验性修改放到分支。
 
-\section{Tag 与 release：把一次分析冻结成可引用版本}
+\section{冲突：Git 需要人做语义判断}
 
-科研项目常常需要回答这样的问题：论文草稿里的图 3 到底来自哪一次代码和数据说明？期末报告提交时，学生到底交的是哪个版本？这时只靠“最新提交”是不够的，因为最新提交会继续变化。
+merge conflict 的本质是：Git 发现两个版本修改了同一个位置，它无法自动判断哪个版本才符合人的意图。这不是 Git 坏了，而是项目出现了需要人理解内容的地方。
 
-Git 的 tag 可以给某一个提交打上稳定标签：
+冲突文件中会出现由小于号、等号和大于号组成的边界标记。为了避免把教材示例误识别成真实冲突残留，这里用文字替代那些符号：
 
-\begin{examplebox}[给当前提交打标签]
-\begin{lstlisting}[style=pythonstyle]
-$ git tag -a v0.1-analysis -m "Freeze first reproducible analysis"
-$ git log --oneline --decorate -n 3
+\begin{lstlisting}[style=terminal]
+[current branch version begins]
+current version
+[incoming version begins]
+incoming version
+[incoming version ends]
 \end{lstlisting}
-\end{examplebox}
 
-在课程项目里，一个 release 通常至少应该包含：
-
-\begin{itemize}
-    \item 对应的 Git tag 或 commit hash；
-    \item 运行环境说明；
-    \item 数据来源与版本说明；
-    \item 关键图表和报告的生成入口；
-    \item 已知限制和未解决问题。
-\end{itemize}
-
-这样，别人看到结果时，不必猜“这是哪个阶段的结果”，而能直接回到对应版本。
-
-\section{远程仓库：从个人历史走向协作历史}
-
-本地 Git 可以记录你自己的变化，但科研项目往往是多人协作。远程仓库（例如 GitHub、GitLab）让团队共享一套版本历史。
-
-最小协作循环通常是：
+解决冲突的基本流程是：
 
 \begin{enumerate}
-    \item \texttt{git clone}：从远程下载项目；
-    \item 本地修改、\texttt{add}、\texttt{commit}；
-    \item \texttt{git push}：把提交上传；
-    \item \texttt{git pull}：把别人的新提交拉下来。
+    \item 运行 \texttt{git status} 找到冲突文件；
+    \item 打开文件，理解两边改动；
+    \item 手动编辑成正确内容，删除冲突标记；
+    \item 运行必要检查或测试；
+    \item \texttt{git add} 冲突文件；
+    \item 完成 merge commit。
 \end{enumerate}
 
-\begin{examplebox}[一个最小远程协作循环]
-\begin{lstlisting}[style=pythonstyle]
+\begin{warnbox}[不要机械选择一边]
+冲突解决不是简单保留上半段或下半段。尤其是报告、参数、数据筛选和解释文字发生冲突时，需要根据科研含义判断最终内容。
+\end{warnbox}
+
+\section{远程仓库：协作和备份不是同一件事}
+
+本地 Git 记录你自己的历史，远程仓库让多人共享同一条历史。常见平台包括 GitHub、GitLab 和学校内部 Git 服务。
+
+\begin{examplebox}[远程仓库基本命令]
+\begin{lstlisting}[style=terminal]
 $ git clone <repo_url>
 $ git pull origin main
 $ git push origin main
 \end{lstlisting}
 \end{examplebox}
 
-\section{冲突：不是灾难，而是信息}
-
-\textbf{merge conflict} 的本质是：Git 发现两个人都改了同一个位置，但它不知道该保留哪一个版本。
-
-这并不表示 Git 坏了，而是说明项目出现了\textbf{需要人做语义判断}的地方。
-
-\begin{warnbox}[冲突的本质]
-冲突并不意味着文件损坏，而意味着“自动规则已经不够，必须由人决定哪一个版本更合理”。
-\end{warnbox}
-
-标准处理流程是：
-
-\begin{enumerate}
-    \item 打开冲突文件；
-    \item 阅读两边版本的差异；
-    \item 手动改成你要的最终版本；
-    \item \texttt{git add} 标记冲突已解决；
-    \item \texttt{git commit} 完成合并。
-\end{enumerate}
-
-对于科研团队来说，冲突本身有时也是一个信号：也许你们需要更清楚地划分模块责任，或者减少多人同时修改同一个 notebook 的做法。
-
-\section{为什么原始数据通常不该进 Git}
-
-Git 非常适合文本文件，例如：
+\texttt{clone} 是下载一份仓库，\texttt{pull} 是拉取远程更新并整合到本地，\texttt{push} 是上传本地提交。协作项目中，push 前最好先确认：
 
 \begin{itemize}
-    \item \texttt{.py}
-    \item \texttt{.tex}
-    \item \texttt{.md}
-    \item 小型 \texttt{.csv}
+    \item 本地工作区是干净的；
+    \item 最近提交主题清楚；
+    \item 不包含私有 token、大型数据或无关临时文件；
+    \item 已经 pull 过远程最新变化；
+    \item 必要检查能通过。
 \end{itemize}
 
-但它通常不适合直接存：
+远程仓库也可以作为备份，但它首先是协作历史。不要把它当作网盘随便塞文件。
 
-\begin{itemize}
-    \item 大型 FITS 图像；
-    \item 原始巡天缓存；
-    \item 巨大的二进制模型文件；
-    \item 自动生成的大量图像和临时中间结果。
-\end{itemize}
+\section{Tag 与 release：冻结可引用版本}
 
-原因不只是“占空间”，更重要的是：
+科研报告、课程作业和公开发布都需要一个稳定版本。只说“用最新代码生成”是不够的，因为最新代码会继续变化。tag 可以给某个提交贴上稳定标签。
 
-\begin{itemize}
-    \item 二进制文件难以做差异比较；
-    \item 仓库会迅速膨胀；
-    \item 协作者 clone 项目时会变得很慢；
-    \item 历史中保留的大文件很难彻底清掉。
-\end{itemize}
-
-这正是 \texttt{.gitignore} 的价值所在。
-
-\begin{examplebox}[一个科研项目的最小 \texttt{.gitignore}]
-\begin{lstlisting}[style=pythonstyle]
-*.fits
-*.npy
-__pycache__/
-data_raw/
-results/tmp/
+\begin{examplebox}[创建分析版本标签]
+\begin{lstlisting}[style=terminal]
+$ git tag -a v0.1-analysis -m "Freeze first reproducible analysis"
+$ git log --oneline --decorate -n 3
 \end{lstlisting}
 \end{examplebox}
 
-\subsection{数据不进 Git，不等于数据不可追踪}
-
-大型原始数据通常不应进入 Git，但与数据相关的\textbf{说明文件}应该进入 Git。例如：
+release 是比 tag 更完整的发布单元。一个课程项目 release 至少应该包含：
 
 \begin{itemize}
-    \item \texttt{data/README.md}：数据来源、字段含义、单位、许可证；
-    \item \texttt{data/manifest.yml}：文件清单、样本量、校验信息；
-    \item 下载或生成脚本：说明如何重新获得数据；
-    \item 小型教学样本：如果体积很小且许可证清楚，可以随仓库保存。
+    \item Git tag 或 commit hash；
+    \item 环境说明；
+    \item 数据来源和版本说明；
+    \item 生成关键结果的脚本或 notebook 入口；
+    \item 最终图表和报告；
+    \item 已知限制和未解决问题。
 \end{itemize}
 
-这一边界非常重要：Git 不一定保存所有数据本体，但应该保存足够的信息，让别人知道数据从哪里来、怎样验证、怎样重新生成。
+这和本书后面的 capstone evidence cards 是同一思想：结果不是孤立文件，而是一组可复查证据。
 
-\begin{defbox}[数据版本边界]
-数据版本管理的核心不是“所有文件都进 Git”，而是把数据本体、数据说明、生成脚本和校验信息分清楚。大型原始数据可以放在仓库外，但它的来源和版本必须能被追溯。
-\end{defbox}
+\section{什么应该进 Git，什么不应该}
 
-\section{Notebook 与 Git：可读性和可复现性的拉扯}
+Git 擅长管理文本文件，例如源代码、脚本、LaTeX、Markdown、配置文件、小型 CSV 示例和 README。它不适合直接管理大型原始数据、频繁变化的二进制输出和自动生成的缓存。表~\ref{tab:ch02_git_include_exclude} 给出最小判断边界。
 
-notebook 对教学和探索非常友好，但它和 Git 的配合并不总是顺滑。原因是 notebook 文件本质上是 JSON，里面可能包含代码、Markdown、输出、图像和执行计数。一个小改动可能让 diff 变得很长。
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.30\textwidth}p{0.48\textwidth}}
+\toprule
+通常应该进入 Git & 通常不直接进入 Git \\
+\midrule
+脚本、notebook 源文件、README、环境文件、小型教学数据、数据清单、报告源文件 & 大型 FITS 原始数据、大型模型权重、自动生成图像、临时缓存、个人密钥、下载目录 \\
+\bottomrule
+\end{tabular}
+\caption{科研项目中通常应该进入 Git 与通常不直接进入 Git 的文件类型。}
+\label{tab:ch02_git_include_exclude}
+\end{table}
 
-在科研项目中，推荐形成以下习惯：
+\texttt{.gitignore} 用来告诉 Git 忽略哪些文件：
+
+\begin{examplebox}[一个最小科研项目 \texttt{.gitignore}]
+\begin{lstlisting}[style=terminal]
+__pycache__/
+.ipynb_checkpoints/
+data/raw/
+results/*.png
+results/*.fits
+logs/*.tmp
+.env
+\end{lstlisting}
+\end{examplebox}
+
+数据不进 Git，不等于数据不可追踪。大型数据本体可以放在仓库外，但数据来源、下载方式、校验信息、字段说明和生成脚本应该进入 Git。
+
+\begin{examplebox}[数据说明应该进入 Git]
+\begin{lstlisting}[style=terminal]
+data/
+  README.md
+  manifest.csv
+  checksums.txt
+scripts/
+  download_demo_data.py
+\end{lstlisting}
+\end{examplebox}
+
+这条边界非常重要：Git 不一定保存所有数据本体，但应该保存足够信息，让别人知道数据从哪里来、如何验证、如何重新生成。
+
+\section{大型数据如何留下版本线索}
+
+如果原始 FITS 文件太大，不适合进入 Git，仍然可以记录它的身份。最常见的低成本方法是保存文件大小、来源和校验和：
+
+\begin{examplebox}[生成校验线索]
+\begin{lstlisting}[style=terminal]
+$ shasum -a 256 data/raw/night1_target042.fits \
+    > data/checksums.txt
+$ ls -lh data/raw/night1_target042.fits \
+    >> data/manifest_snapshot.txt
+\end{lstlisting}
+\end{examplebox}
+
+校验和不是科学解释，但它能帮助你确认“这份文件是否还是同一份文件”。如果同名文件被重新下载、裁剪或覆盖，校验和通常会改变。对于课程项目，哪怕不使用完整数据版本系统，保存 manifest 和 checksum 也能显著提高复查能力。
+
+\section{Notebook 与 Git：友好界面和清晰 diff 的矛盾}
+
+Jupyter notebook 对探索和教学很友好，但它和 Git 的配合并不完美。notebook 文件本质上是 JSON，里面可能包含代码、Markdown、输出、图像和执行计数。一个很小的输出变化，也可能让 diff 变得很长。
+
+在科研项目中，notebook 使用至少应遵守三条底线：
 
 \begin{itemize}
-    \item 提交前从头运行 notebook，确认顺序执行不报错；
-    \item 对大型输出、临时图像和调试结果保持克制；
-    \item 重要逻辑尽量抽成脚本或函数，notebook 负责解释和展示；
-    \item 在 commit message 中说明 notebook 改动对应的是数据、方法还是叙述。
+    \item 从头到尾重新运行应该能得到一致结果；
+    \item 关键参数、随机种子和输入路径要显式写出；
+    \item 最终结果最好由脚本或清晰 notebook 入口生成，而不是依赖隐藏的交互状态。
 \end{itemize}
 
-\begin{warnbox}[不要把 notebook 当成黑箱结果容器]
-如果一个 notebook 只能在你当前内存状态下跑通，或者必须依赖隐藏的执行顺序，那么它还不是可靠的科研记录。Git 能记录文件变化，但不能自动保证 notebook 的科学可复现性。
-\end{warnbox}
-
-\section{从命令到流程：Git 在科研中的最小算法}
-
-Git 这一章真正想教的，不是一组零散命令，而是一条最小算法：
-
-\begin{enumerate}
-    \item 在项目开始时初始化仓库；
-    \item 每做完一个清楚的小步骤，先看 \texttt{status} 和 \texttt{diff}；
-    \item 用 staging area 选择这次真正要提交的文件；
-    \item 用 commit message 说明改动理由；
-    \item 实验性改动放进独立分支；
-    \item 在阶段性结果稳定时打 tag 或 release；
-    \item 与团队协作前先拉取更新，协作后及时推送；
-    \item 用 \texttt{.gitignore} 控制哪些文件该被历史记录、哪些不该；
-    \item 对数据和 notebook 保留足够的版本说明、运行入口和校验信息。
-\end{enumerate}
-
-这套流程的目标，是让你的项目不仅“今天能跑”，而且一段时间之后还能回溯、比较和复现。
-
-\section{一次好提交应该长什么样}
-
-Git 提交不是把工作目录“存一下”，而是在项目历史中留下一个可理解的节点。一个好的科研提交通常满足三条标准：
-
-\begin{enumerate}
-    \item \textbf{边界清楚}：这次提交只完成一个相对完整的任务；
-    \item \textbf{证据明确}：提交前已经看过 \texttt{status}、\texttt{diff} 和必要的运行结果；
-    \item \textbf{说明可读}：commit message 能让未来的自己知道为什么做了这次改动。
-\end{enumerate}
-
-例如，\texttt{update} 几乎没有信息；\texttt{Add HR diagram quality filter} 就清楚得多。更进一步，如果一次提交同时修改正文、notebook 和数据说明，提交信息最好能表达它们之间的关系，而不是只说“改了一些文件”。
-
-\begin{protip}[提交前的最小自查]
-在科研项目中，\texttt{git diff} 负责回答“我到底改了什么”，测试或 smoke test 负责回答“它是否还能运行”，commit message 负责回答“为什么这次改动值得保留”。三者缺一项，项目历史就会变得更难信任。
-\end{protip}
+如果一个 notebook 只能在你当前内存状态下跑通，或者必须依赖乱序执行，那么 Git 只能记录文件变化，不能保证科学可复现。
 
 \section{把结果和代码版本连起来}
 
-Git 对科研最有价值的地方，常常不是“可以回退”，而是能把一次结果和一个明确代码版本连起来。一个图表、一个模型分数或一份报告，如果不知道来自哪个 commit，就很难在之后复查。
+Git 对科研最有价值的地方，常常不是“可以回退”，而是能把一次结果和一个明确代码版本连起来。一个图表、模型分数或报告结论，如果不知道来自哪个 commit，就很难复查。
 
-因此，比较成熟的课程项目可以在结果记录里写下类似信息：
-
-\begin{quote}
-本次 HR 图由 commit \texttt{abc1234} 生成，数据版本见 \texttt{data/manifest.yml}，运行入口为 \texttt{notebooks/ch11\_gaia\_hr\_diagram.ipynb}。
-\end{quote}
-
-这句话的重点不是 commit hash 本身，而是它建立了三条线索：
-
-\begin{itemize}
-    \item 代码线索：哪一版脚本或 notebook 生成了结果；
-    \item 数据线索：使用了哪份数据和哪些筛选条件；
-    \item 入口线索：别人应该从哪里开始复跑。
-\end{itemize}
-
-\subsection{一个最小版本化结果记录模板}
-
-如果把上面的思想写成课程项目里的最小模板，可以保持很短：
-
-\begin{quote}
-结果文件 \nolinkurl{results/hr_diagram_quality_cut_v1.pdf} 由 commit \texttt{abc1234} 生成，运行入口为 \nolinkurl{notebooks/ch11_gaia_hr_diagram.ipynb}。数据版本见 \nolinkurl{data/manifest.yml}，筛选条件为 \texttt{parallax > 0} 且 \texttt{phot\_g\_mean\_mag} 非缺失；本次运行未修改原始数据。
-\end{quote}
-
-这条记录不要求学生写完整工程文档，却必须把结果文件、代码版本、数据版本、筛选条件和原始数据边界放在一起。到了最终项目包，它会同时进入 Reproducibility card、Data card 和 Integrity card：前者说明如何复跑，中者说明用了哪份数据，后者说明哪些输入没有被悄悄覆盖或改写。
-
-\begin{examplebox}[查看当前 commit]
-\begin{lstlisting}[style=pythonstyle]
+\begin{examplebox}[记录当前版本]
+\begin{lstlisting}[style=terminal]
 $ git rev-parse --short HEAD
 $ git log --oneline -5
 \end{lstlisting}
 \end{examplebox}
 
-后面写项目报告时，不要求学生把每个中间结果都写成复杂的工程文档；但对于最终图表、最终模型和最终报告，至少应能说清“它们来自哪一版代码”。这就是 Git 从“程序员工具”变成科研记录系统的关键一步。
-
-\section{配套 notebook 做了什么}
-
-配套 notebook 会在临时目录里创建一个小型 Git 仓库，因此不会污染你当前项目。它的路线是：
+对于最终图表和最终报告，至少应该记录：
 
 \begin{itemize}
-    \item 初始化仓库，创建 README 和小型数据文件；
-    \item 观察 \texttt{status}、\texttt{add}、\texttt{commit} 和 \texttt{diff} 之间的状态变化；
-    \item 练习暂存、取消暂存和恢复局部修改；
-    \item 创建一个实验分支，并把稳定结果打成教学 tag；
-    \item 写一条最小 release note，把代码版本、数据说明和入口文件连起来。
+    \item 生成结果的 commit hash；
+    \item 使用的数据版本或数据清单；
+    \item 运行入口，例如脚本或 notebook；
+    \item 关键参数和随机种子；
+    \item 输出文件路径；
+    \item 已知限制。
 \end{itemize}
 
-这份 notebook 的重点不是让你记住所有 Git 命令，而是把 Git 看成科研时间轴：每一次好提交都应该让未来的自己知道发生了什么、为什么发生、如何回到那一刻。
+\begin{examplebox}[最小版本化结果记录]
+\begin{lstlisting}[style=terminal]
+Result: results/flux_summary.csv
+Commit: 3a7c91e
+Data source: data/README.md, manifest row demo-night1
+Command: python scripts/measure_flux.py
+Environment: environment.yml
+Key parameters: aperture_radius=5, background_annulus=8:12
+Checks: row count = 20, no negative flux after background subtraction
+Limit: simulated teaching data, not calibrated science product
+\end{lstlisting}
+\end{examplebox}
 
-\section{常见错误}
+这份记录会在后续章节继续升级，最终成为 capstone reproducibility card 的一部分。
+
+\section{从日常提交到 release 的算法}
+
+Git 日常提交解决的是“每一步变化可追踪”，release 解决的是“某个阶段结果可引用”。把两者连起来，可以形成一条固定算法：
+
+\begin{enumerate}
+    \item 运行项目检查，例如脚本、notebook 或 LaTeX 编译；
+    \item 生成或更新关键结果；
+    \item 写 evidence record，记录数据、命令、环境和限制；
+    \item 用 \texttt{git status} 确认只包含应提交内容；
+    \item 用 \texttt{git diff} 和 \texttt{git diff --staged} 审查；
+    \item 创建主题清楚的 commit；
+    \item 对阶段性版本打 tag；
+    \item 在 release note 中说明这个版本能支持什么、不能支持什么。
+\end{enumerate}
+
+这条算法会在后面的书稿发布、notebook smoke test、数据 manifest 和 capstone package 中反复出现。Git 的最终目标不是让历史变复杂，而是让阶段性结果可以被可靠引用。
+
+\section{配套 notebook 如何训练}
+
+本章配套 notebook 会在临时目录中创建一个小型 Git 仓库，不会污染当前项目。训练路线是：
+
+\begin{enumerate}
+    \item 初始化仓库；
+    \item 创建 README、脚本和结果文件；
+    \item 使用 \texttt{status} 和 \texttt{diff} 观察修改；
+    \item 做第一次提交；
+    \item 修改脚本并提交修正；
+    \item 创建分支模拟试验；
+    \item 记录当前 commit hash；
+    \item 生成最小版本化结果记录。
+\end{enumerate}
+
+正文负责讲清楚 Git 为什么是科研时间轴；notebook 负责让你亲手经历“修改、检查、提交、复查”的循环。
+
+\section{常见错误与诊断}
 
 \begin{warnbox}[Git 入门中的典型问题]
 \begin{itemize}
-    \item 很久不提交，一次 commit 混入很多无关改动；
-    \item commit message 只有 \texttt{update}、\texttt{fix} 这种几乎没有信息的词；
-    \item 不看 \texttt{git diff}，直接用 \texttt{git add .} 把所有变化提交；
-    \item 把大数据或自动生成文件直接推到仓库；
-    \item 在主分支上同时做稳定修改和高风险试验；
-    \item 论文图表、期末报告或课程发布没有对应 tag 或 commit hash；
-    \item notebook 输出很大、执行顺序混乱，却仍然当作可复现证据；
-    \item 遇到冲突时直接删掉对方改动，而不是认真比对。
+    \item 不看 \texttt{git status}，不知道当前处于什么状态；
+    \item 不看 \texttt{git diff}，直接 \texttt{git add .}；
+    \item commit message 全是 \texttt{update}、\texttt{fix}、\texttt{final}；
+    \item 把大型原始数据、自动生成结果或私有密钥提交到仓库；
+    \item notebook 乱序执行，结果依赖隐藏状态；
+    \item 冲突时机械保留某一边，不理解科研含义；
+    \item 最终结果没有记录 commit hash、数据版本和运行入口。
 \end{itemize}
 \end{warnbox}
 
+诊断 Git 问题时，优先运行三条命令：
+
+\begin{lstlisting}[style=terminal]
+$ git status
+$ git diff
+$ git log --oneline --decorate -n 5
+\end{lstlisting}
+
+它们分别回答当前状态、当前变化和最近历史。大多数入门问题都能从这三条命令开始定位。
+
 \section{AI 助手如何帮助你}
 
-在这一章，AI 助手适合帮助你：
+AI 助手可以在几个具体环节提供帮助：
 
 \begin{itemize}
-    \item 解释某条 Git 命令在工作流中的意义；
-    \item 帮你写更清楚的 commit message；
-    \item 根据项目目录建议一份更合理的 \texttt{.gitignore}；
-    \item 帮你阅读 \texttt{git diff}，判断是否混入无关改动；
-    \item 帮你设计 tag、release note 和数据 manifest 的最小结构；
-    \item 帮你理解冲突文件中的标记结构。
+    \item 解释 \texttt{git status} 输出；
+    \item 总结 \texttt{git diff} 中真正改变的内容；
+    \item 建议更清楚的 commit message；
+    \item 设计适合科研项目的 \texttt{.gitignore}；
+    \item 整理 release checklist；
+    \item 帮助阅读冲突文件。
 \end{itemize}
 
-但哪些改动值得单独提交、哪些文件不该进入仓库、以及冲突最终应当保留哪一版，仍然必须由你自己判断。
+但它不能替你判断科研语义。尤其是参数、筛选条件、解释文字和结果文件发生变化时，最终判断必须回到项目问题本身。
 
-\section{练习}
+比较好的提问方式是：
+
+\begin{lstlisting}[style=terminal]
+请阅读下面的 git diff，帮我判断这次修改是否只包含一个主题。
+请指出是否混入临时路径、调试输出、数据筛选条件变化或
+不应该提交的大文件。
+\end{lstlisting}
+
+或者：
+
+\begin{lstlisting}[style=terminal]
+这是我的项目目录。请建议一份适合科研项目的 .gitignore，
+并解释哪些文件应该进入 Git，哪些文件只需要写入 data README。
+\end{lstlisting}
+
+注意，AI 给出的 Git 命令也需要你理解后再运行。尤其是 \texttt{reset}、\texttt{restore}、\texttt{clean}、force push 这类命令，可能丢失工作或改写协作历史，不能盲目复制。
+
+\section{练习与交付}
 
 \begin{exercisebox}[基础练习]
-为一个小型天文项目设计一份最小 Git 工作流，至少包含：初始化仓库、第一次提交、查看历史和一条 \texttt{.gitignore} 规则。
+在临时目录中创建一个小型仓库，包含 \texttt{README.md}、\texttt{scripts/measure\_flux.py} 和 \texttt{notes/interpretation.md}。运行 \texttt{git init}、\texttt{git status}，完成第一次提交。
 \end{exercisebox}
 
-\begin{exercisebox}[进阶练习]
-假设你和同学同时修改了同一个绘图脚本中的同一行。请写出 merge conflict 的最小处理步骤，并解释为什么冲突本质上是“需要人判断”的信号。
+\begin{exercisebox}[过程练习]
+修改脚本中的一个参数或说明文字。依次运行 \texttt{git status}、\texttt{git diff}、\texttt{git add}、\texttt{git diff --staged}、\texttt{git commit}。解释每一步输出回答了什么问题。
 \end{exercisebox}
 
-\begin{exercisebox}[补充练习]
-在一个教学仓库中修改 \texttt{README.md}，依次运行 \texttt{git status}、\texttt{git diff}、\texttt{git add}、\texttt{git diff --staged}。解释这四个输出分别回答了什么问题。
+\begin{exercisebox}[诊断练习]
+设计一份 \texttt{.gitignore}，让 \texttt{data/raw/}、\texttt{results/*.png}、\texttt{\_\_pycache\_\_/} 不进入 Git，同时保留 \texttt{data/README.md} 和 \texttt{scripts/}。解释为什么数据不进 Git 仍然需要数据说明进 Git。
 \end{exercisebox}
 
-\begin{exercisebox}[开放练习]
-为一次期末项目提交设计 release checklist，至少包含 Git tag、数据来源、环境说明、notebook 运行状态、最终图表入口和已知限制。
+\begin{exercisebox}[交付练习]
+生成一份最小版本化结果记录，至少包含结果文件、commit hash、数据来源、运行入口、关键参数、检查结果和已知限制。把这份记录保存为 \texttt{notes/evidence\_record.md} 并提交。
 \end{exercisebox}
 
 \section{本章小结}
 
-Git 的真正价值不在于命令本身，而在于它把科研项目变成一条可追踪的时间轴。只要你把 \texttt{status}、\texttt{diff}、提交、分支、tag、数据边界、notebook 运行状态和远程协作都放回“可复现科研”这个目标下理解，Git 就不再是额外负担，而是保证项目可靠性的基础设施。
+Git 的核心不是命令本身，而是把科研项目变成可追踪时间轴。一个可靠项目不只是“文件还在”，而是能说明每个关键结果来自哪一版代码、哪份数据、哪个运行入口和哪些参数。只要你养成 \texttt{status -> diff -> add -> diff --staged -> commit} 的循环，并用 \texttt{.gitignore}、tag、release 和 evidence record 管住数据边界与结果版本，Git 就会从额外负担变成科研可信度的基础设施。

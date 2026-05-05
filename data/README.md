@@ -36,4 +36,4 @@ data/
 
 - `data/manifest.yml` 是当前数据来源、字段、单位、使用章节和许可证边界的权威清单。
 - 最近一次 `python scripts/validate_data_manifest.py` 已通过，当前登记 `52` 个小型教学数据集。
-- 当前所有教学数据集仍使用项目级教育内容许可证占位说明；正式发布前必须先确认最终项目许可证。
+- 当前所有教学数据集的 license 字段已统一为 `Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)`；项目级发布路径见根目录 `PUBLICATION_DECISIONS.md`、`LICENSE` 和 `NOTICE.md`。

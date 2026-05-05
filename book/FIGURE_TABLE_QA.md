@@ -5,17 +5,17 @@
 ## 当前快照
 
 - 当前中文正文图环境：`10` 个，均位于 `book/chapters/part4` 和 `book/chapters/part5`。
-- 当前中文正文表环境：`33` 个，主要位于 `book/chapters/part5` 和 `book/chapters/part6`。
-- 当前 caption / label 数：`43` 个，与图表总数一致。
-- 当前 `\label{...}` 与正文引用入口已对齐：`43` 个唯一 label 均有对应的正文 `\ref{...}`，未发现引用到不存在 label 的情况。
-- 当前中文主线共有 `140` 个 display math block，未使用单独编号的 `equation` / `align` 环境；公式解释 QA 应以逐章正文承接和符号定义为主，而不是编号引用为主。
+- 当前中文正文表环境：`52` 个，主要位于 `book/chapters/part1`、`book/chapters/part3`、`book/chapters/part5` 和 `book/chapters/part6`。
+- 当前 caption / label 数：`62` 个，与图表总数一致。
+- 当前 `\label{...}` 与正文引用入口已对齐：`62` 个唯一 label 均有对应的正文 `\ref{...}`，未发现引用到不存在 label 的情况。
+- 当前图表引用检查已由 `scripts/check_figure_table_refs.py` 自动化，后续新增图表时不再依赖人工计数。
 - 当前 `book/chapters` 未使用外部 `\includegraphics` 图片；正文图主要由 TikZ、PGFPlots 或 LaTeX 内嵌教学数据生成。
-- 旧英文/兼容入口 `book/main.tex` 仍引用 `book/VersionControl/*.png`，但这些图片不属于当前中文主线。
+- 旧英文/兼容入口 `book/main.tex` 与 `book/VersionControl/*.png` 已删除；当前图表盘点只面向中文主线。
 
 ## 来源与边界
 
 - Part IV/V 的数据图和流程图均是教学版、仓库内生成或 LaTeX 内嵌示意图，不依赖外部论文图片。
-- 教学数据来源与许可证边界统一登记在 `data/manifest.yml`；当前仍需在正式发布前确认项目级教材、代码和教学数据许可证。
+- 教学数据来源与许可证边界统一登记在 `data/manifest.yml`；项目级教材、代码和教学数据许可证已按 CC BY-NC-SA 4.0 发布路径收口，详见根目录 `PUBLICATION_DECISIONS.md`、`LICENSE` 和 `NOTICE.md`。
 - Part VI 的表格是 notebook workflow 对照表，来源于仓库内小型 synthetic teaching datasets，不是外部数据摘录。
 
 ## 当前 QA 结论
@@ -23,7 +23,9 @@
 - 最近一次 `bash scripts/build_book_local.sh zh` 已通过，PDF 输出为 `/tmp/aifor_book_main_zh/main_zh.pdf`。
 - 最近一次日志扫描未发现 `Overfull`、未定义引用、`Missing $` 或 LaTeX 错误。
 - 已补强 `ch36` agentic workflow 流程图图注，明确 action log、manual review 和 route 边界。
+- 已补齐 Part I/III 新增教学表格的 caption、label 和正文 `\ref{...}` 入口，避免新增浮动表停留在孤立说明状态。
 - 已补齐 Part V/VI 所有表格的正文 `\ref{...}` 入口；图表 label 不再停留在孤立 caption 状态。
+- 已新增 `scripts/check_figure_table_refs.py`，并接入 `scripts/run_release_checks.sh quick/full`，用于自动检查浮动图表 caption、label、正文引用、重复 label 和不存在的引用。
 
 ## 后续发布前检查
 

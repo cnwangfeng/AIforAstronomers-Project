@@ -3,6 +3,59 @@
 
 Part III 已经给出了机器学习的基本方法，但方法章和真实案例之间还隔着一步：把“我会用模型”转化成“我能把模型嵌入一个科学问题”。这一步非常关键，因为真实案例很少按照教科书顺序出现。你拿到的往往是一份不完美的数据、一组含糊的标签、一个需要折中的评估指标，以及一个并不完全适合机器学习的问题。
 
+\section*{本部分的模型记录链}
+
+Part III 的方法章节现在对应一组连续的模型记录：
+
+\begin{enumerate}
+    \item ch16 先形成 problem statement；
+    \item ch17 形成 workflow record；
+    \item ch18 形成 regression record；
+    \item ch19 形成 classification record；
+    \item ch20 形成 evaluation record；
+    \item ch21 形成 preprocessing record；
+    \item ch22 形成 model selection record；
+    \item ch23 形成 unsupervised record；
+    \item ch24 形成 anomaly review record；
+    \item ch25 形成 trust statement。
+\end{enumerate}
+
+这些记录共同回答一个问题：模型结果从哪里来，为什么值得暂时相信，哪里必须降级为候选或限制说明。到了 Part IV，它们会成为每个案例项目的内部结构。
+
+\section*{一个可以立刻执行的 Part III 综合任务}
+
+如果要检查自己是否真正掌握了 Part III，不需要先训练复杂模型。更好的方式，是完成一份小型但完整的 model experiment packet。它可以使用本部分任意一个教学数据集，重点是把任务定义、切分、baseline、模型、评估、错误分析和边界说明连成闭环。
+
+\begin{examplebox}[Part III 最小 model experiment packet 目录]
+\begin{lstlisting}[style=terminal]
+part3_model_packet/
+  data/
+    input_demo_file.csv
+  notebooks/
+    exploratory_modeling.ipynb
+  scripts/
+    run_model_experiment.py
+  figures/
+    diagnostic_plot.png
+  results/
+    model_experiment_record.md
+\end{lstlisting}
+\end{examplebox}
+
+建议按下面七步完成：
+
+\begin{enumerate}
+    \item \textbf{选择任务}：回归、分类、无监督结构探索或异常候选筛选任选其一；
+    \item \textbf{定义样本、特征和目标}：说明每一行代表什么，特征从哪里来，标签或目标是否可靠；
+    \item \textbf{先做切分或角色划分}：监督任务要明确训练/验证/测试，无监督任务要明确探索集和复核样本；
+    \item \textbf{建立 baseline}：用一个简单、可解释、可复现的方法作为第一把尺子；
+    \item \textbf{训练或运行一个模型}：记录模型类型、关键参数、随机种子和运行入口；
+    \item \textbf{生成诊断证据}：至少包含一个指标表和一张残差、混淆矩阵、候选排序或结构图；
+    \item \textbf{写出错误与边界}：说明哪些样本失败、是否存在泄漏风险、是否能外推、哪些结论只能算候选。
+\end{enumerate}
+
+最终的 \texttt{model\_experiment\_record.md} 至少应回答七个问题：任务是什么，数据入口是什么，baseline 是什么，模型是什么，评估设计是什么，主要错误是什么，当前结果的可信边界是什么。若这七问答不清楚，即使模型分数很高，也还不能进入 Part IV 的案例项目。
+
 \section*{一个最小模型记录}
 
 进入案例项目之前，每次模型实验至少应留下下面几类记录：

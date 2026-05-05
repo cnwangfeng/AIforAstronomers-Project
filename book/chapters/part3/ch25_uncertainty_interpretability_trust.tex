@@ -1,5 +1,13 @@
 \chapter{不确定度、解释性与科学可信度}
 
+\section{本章导读：可信度不是模型最后贴上的标签}
+
+到这一章时，我们已经能定义任务、训练模型、评估分数、调参、做预处理、探索结构和筛选异常。但这些仍然不足以让模型输出自动变成科学结论。真正的问题是：这个预测在多大范围内可信，它依赖了哪些信息，遇到训练覆盖范围之外的样本会怎样失败。
+
+不确定度、解释性和可信度经常被当成“模型做完之后再补的解释”。本章要反过来讲：可信度应该从任务定义、数据切分、特征工程、评估设计和错误分析一路积累出来。bootstrap 区间、特征重要性、局部解释和覆盖范围检查，都只是这条链上的不同证据。
+
+读这一章时，请格外警惕两种误读：把解释性当成因果证明，把不确定度数字当成完整风险。可信的机器学习结果，必须同时说明它为什么可能对、在哪里可能错、错了之后应该如何降级使用。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,26 @@
     \item 知道 SHAP 更像一种归因框架，而不是“证明某特征真实决定了结果”的证据；
     \item 建立一个基本判断：机器学习输出只有在误差、覆盖范围和选择效应一起被检查后，才谈得上可信。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是一份光度红移模型可信度声明。正文负责解释预测不确定度、bootstrap、预测区间、特征重要性、局部解释、失效边界和选择效应；训练材料则要求你把一个模型结果从“预测值”升级成“可审查的可信度记录”。
+
+\begin{examplebox}[最小可信度项目结构]
+\begin{lstlisting}[style=terminal]
+photoz_trust_demo/
+  data/
+    photoz_trust_demo.csv
+  notebooks/
+    ch25_uncertainty_interpretability_trust.ipynb
+  figures/
+    trust_diagnostics.png
+  results/
+    trust_statement.txt
+\end{lstlisting}
+\end{examplebox}
+
+最终交付应包含：预测值、误差或区间估计、特征依赖、样本是否在训练覆盖范围内、主要失效模式、人工检查建议和不应过度解释的边界。这份声明会直接连接到 capstone 的 Interpretation card 与 Integrity card。
 
 \section{为什么“预测出来了”还远远不够}
 
@@ -56,6 +84,28 @@
 \end{itemize}
 
 这意味着：\textbf{任何单一不确定度估计，都只是在覆盖其中某一部分。}
+
+\section{四类不确定度应该分开记录}
+
+在机器学习报告里，最好不要只写“误差为多少”。更清楚的做法，是把不确定度拆成表~\ref{tab:ch25_uncertainty_sources} 中的几层：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.24\textwidth}p{0.30\textwidth}p{0.34\textwidth}}
+\toprule
+来源 & 常见估计方式 & 不能覆盖什么 \\
+\midrule
+观测噪声 & 误差传播、重复观测 & 模型形式错误 \\
+训练样本有限 & bootstrap、重复切分 & 分布外样本 \\
+模型选择波动 & 交叉验证、候选模型比较 & 标签定义偏差 \\
+系统与选择效应 & 子样本诊断、外部数据检查 & 很难由单一数字完全表达 \\
+\bottomrule
+\end{tabular}
+\caption{机器学习报告中应分开记录的四类不确定度来源。}
+\label{tab:ch25_uncertainty_sources}
+\end{table}
+
+这张表提醒我们：可信度声明不是把所有风险压进一个误差条，而是说明每种方法到底检查了哪一类风险。
 
 \section{Bootstrap：回答“如果训练集稍有变化，结果会怎样”}
 
@@ -153,6 +203,30 @@ for repeat in range(B):
 
 这一步的意义非常大，因为它告诉我们：\textbf{可信度不是只看模型输出本身，还要看样本是否仍在模型“见过的世界”里。}
 
+\section{覆盖范围检查的一种最小算法}
+
+覆盖范围检查可以从一个很朴素的距离思想开始。先用训练集定义标准化尺度，再计算待预测样本到训练集中最近邻的距离：
+
+\[
+d_{\min}(x)=\min_{x_j\in \mathcal{D}_{\mathrm{train}}}
+\left\|z(x)-z(x_j)\right\|,
+\]
+
+其中 $z(\cdot)$ 表示使用训练集均值和标准差得到的标准化特征。若 $d_{\min}$ 很大，说明这个样本在训练集中没有相近邻居，模型预测就应降级为高风险。
+
+\begin{examplebox}[覆盖范围检查骨架]
+\begin{lstlisting}[style=pythonstyle]
+scaler = fit_scaler(train_rows)
+train_z = transform(scaler, train_rows)
+target_z = transform(scaler, target_rows)
+
+nearest_distance = distance_to_nearest_training_row(target_z, train_z)
+coverage_flag = nearest_distance < coverage_threshold
+\end{lstlisting}
+\end{examplebox}
+
+这个方法并不完美，但它足够建立一个关键习惯：任何模型预测都应同时报告“这个样本离训练经验有多远”。离得越远，数值预测越应该被谨慎使用。
+
 \section{选择效应和观测条件也会伪装成“规律”}
 
 真实科学数据里，模型失败不仅来自分布外样本，还来自更隐蔽的选择效应。例如：
@@ -202,6 +276,35 @@ trust_statement = {
 如果一个模型在训练覆盖范围内表现稳定，但对边界外样本误差明显升高，那么可信度声明中就应明确写出这一点。科学可信度不是把模型包装得更强，而是把模型能承担的证据责任说清楚。
 
 在最终项目里，这段可信度声明会把 Model card、Evaluation card 和 Interpretation card 连接起来：模型怎样训练、误差怎样估计、解释能说到哪里、失效边界在哪里，都必须同时出现。少掉任意一项，可信度声明就会退化成一句空泛的“模型表现良好”。
+
+\section{从预测表到可信度表}
+
+一个可审查的模型输出表，不应只包含预测值。至少应包含：
+
+\begin{itemize}
+    \item 样本编号和输入数据版本；
+    \item 预测值或预测类别；
+    \item 误差、区间或重复实验波动；
+    \item 最近训练邻居距离或覆盖范围标记；
+    \item 主要解释特征或局部解释摘要；
+    \item 是否建议人工复核。
+\end{itemize}
+
+\begin{examplebox}[可信度表字段]
+\begin{lstlisting}[style=pythonstyle]
+prediction_audit_row = {
+    "object_id": object_id,
+    "prediction": predicted_photoz,
+    "bootstrap_interval": (low, high),
+    "nearest_train_distance": nearest_distance,
+    "coverage_flag": coverage_flag,
+    "top_explanation_features": top_features,
+    "review_recommendation": "manual_review_if_out_of_coverage",
+}
+\end{lstlisting}
+\end{examplebox}
+
+这类表格会显著改变模型结果的使用方式。读者不再只看到一个预测值，而是同时看到这个预测值来自哪里、波动多大、是否外推、模型依赖了哪些信息，以及是否需要人工降级处理。
 
 \begin{warnbox}[可信度评估中的常见误区]
 \begin{itemize}

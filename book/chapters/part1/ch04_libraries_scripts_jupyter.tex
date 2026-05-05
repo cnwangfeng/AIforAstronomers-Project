@@ -1,149 +1,223 @@
 \chapter{库、脚本与 Jupyter}
 
-\section{学习目标}
+\section{本章导读：从会写代码到会交付工作流}
+
+学完 Python 基础语法之后，很多学生会自然进入 Jupyter notebook：一格一格运行代码，马上看到表格、数字和图像。这是非常好的探索方式。但真实科研项目不能停留在“这一页 notebook 在我电脑上刚才跑通了”。别人需要知道你用了哪些库、在哪个环境里运行、随机过程是否固定、哪些单元是临时探索、哪些脚本能从头重跑、最终结果从哪里生成。
+
+本章讨论的不是更复杂的 Python 语法，而是科研编程中的一个分水岭：\textbf{代码能运行} 和 \textbf{工作流可复现} 是两件不同的事。前者只说明当前环境下某段代码没有立刻报错；后者要求你能解释输入、依赖、执行顺序、输出位置和验证记录。
+
+在 Part I 的主线中，本章承接前两章：
+
+\begin{itemize}
+    \item 第 1 章教你把文件、目录、脚本和日志组织在一个 Linux 工作流里；
+    \item 第 2 章教你把项目变化记录进 Git 时间轴；
+    \item 本章要把 Python 代码放进这两个框架中，形成可运行、可检查、可维护的科研小项目。
+\end{itemize}
+
+如果说第 1 章训练的是“在哪里运行”，第 2 章训练的是“如何记录变化”，那么本章训练的是“如何把探索性代码变成别人也能运行的项目入口”。
+
+\section{学习目标与训练目标}
 
 学完本章后，你应该能够：
 
 \begin{itemize}
-    \item 解释标准库、第三方库、模块、脚本和 notebook 在科研工作流中的不同角色；
-    \item 理解为什么“代码能跑”不等于“工作流可复现”；
-    \item 说清楚什么时候应当用 notebook 探索，什么时候应当把逻辑整理成脚本或模块；
-    \item 用环境记录、随机种子和清晰的依赖关系把分析流程组织得更可靠；
-    \item 把一段探索性代码逐步重构成更适合长期维护的科研小项目。
+    \item 区分标准库、第三方库、模块、脚本和 notebook 的不同角色；
+    \item 解释为什么 \texttt{import}、环境文件、随机种子和路径配置都是科研记录的一部分；
+    \item 判断一段代码适合留在 notebook、整理成 script，还是抽成 module；
+    \item 使用 \texttt{venv} 或等价工具建立项目隔离环境，并记录关键依赖；
+    \item 把探索性 notebook 中的稳定逻辑逐步整理成可重复运行的脚本；
+    \item 用 \texttt{main()}、配置对象、日志和错误处理构造最小脚本入口；
+    \item 写出一份最小脚本运行记录，说明输入、命令、环境、输出和限制。
 \end{itemize}
 
-进入本章前，建议你已经完成 Part 0 中关于 \texttt{Path}、\texttt{csv.DictReader}、\texttt{import}、函数、循环和对象方法调用的基础训练。本章不再重复这些最小语法，而是把它们放进更完整的可复现工作流里。
+配套训练的目标更具体：你要从一个小 notebook 式探索开始，把其中稳定部分整理成脚本，把复用函数放进 \texttt{src/} 或一个小模块，并交付一份运行记录。正文负责讲清楚为什么这样组织；notebook 负责让你亲手完成这次转换。
 
-\section{为什么这一章是科研编程的分水岭}
+\section{贯穿本章的微型项目}
 
-很多人第一次学 Python 时，关注点通常放在语法上：变量、循环、函数、列表、条件判断。这些当然重要，但它们只回答了“代码怎样写”这个问题。真正进入科研之后，更难的问题往往是：
+本章使用一个很小的光变曲线质量检查项目作为情境。假设你有一份教学用观测表，包含观测时间、亮度、误差和质量标记。你的任务不是做完整天体物理分析，而是完成一个最小科研代码工作流：
 
-\begin{itemize}
-    \item 这段代码依赖哪些库，别人能不能在自己的机器上运行；
-    \item 这一页 notebook 是临时探索，还是结果证据；
-    \item 三周之后、三个月之后，你还能不能知道哪一格是最终版本；
-    \item 同样的输入，为什么今天和下周跑出来的结果不一样；
-    \item 如果别人只拿到你的仓库，能否从零重建你的分析。
-\end{itemize}
+\begin{enumerate}
+    \item 读入表格；
+    \item 过滤明显坏点；
+    \item 计算基本统计量；
+    \item 保存清洗后结果；
+    \item 生成一份运行记录。
+\end{enumerate}
 
-这说明科研编程真正的难点，不只是语法，而是\textbf{工作流结构}。也正因为如此，本章不是“库命令速查表”，而是 Part I 中把代码放回科研环境的一次真正转折。
+一个适合本章训练的目录结构可以是：
 
-\section{库：为什么不应该重复造轮子}
-
-\subsection{标准库与第三方库}
-
-Python 自带的标准库提供了大量通用功能，例如：
-
-\begin{itemize}
-    \item \texttt{math}：基础数学函数；
-    \item \texttt{random}：随机数；
-    \item \texttt{csv}：CSV 文件读写；
-    \item \texttt{pathlib}：路径处理；
-    \item \texttt{statistics}：简单统计量；
-    \item \texttt{itertools}：迭代器工具。
-\end{itemize}
-
-这些库不需要额外安装，只要 Python 环境存在就可以直接使用。
-
-而科学计算更常依赖第三方库，例如：
-
-\begin{itemize}
-    \item \texttt{numpy}：向量化数组计算；
-    \item \texttt{matplotlib}：绘图；
-    \item \texttt{pandas}：表格数据处理；
-    \item \texttt{astropy}：天文单位、坐标、FITS 和时间系统；
-    \item \texttt{scikit-learn}：机器学习 pipeline；
-    \item \texttt{pytorch}：深度学习与自动求导。
-\end{itemize}
-
-\begin{defbox}[库的真正价值]
-调用库的意义，不只是“少写几行代码”，而是复用已经被大量用户测试、调试和积累过的实现，把精力留给真正的科学问题。
-\end{defbox}
-
-\subsection{导入并不是形式动作}
-
-在初学阶段，\texttt{import} 看起来像一个固定开头，但它其实是在显式声明你的分析依赖。下面这段代码虽然简单，却已经体现了科研编程里几个核心动作：
-
-\begin{examplebox}[使用标准库的最小示例]
-\begin{lstlisting}[style=pythonstyle]
-from importlib.util import find_spec
-import math
-import random
-import statistics
-
-random.seed(42)
-values = [x**2 + math.sin(3 * x) for x in range(5)]
-print(statistics.mean(values))
+\begin{examplebox}[最小 Python 科研项目结构]
+\begin{lstlisting}[style=terminal]
+lightcurve_check/
+  README.md
+  data/
+    lightcurve_demo.csv
+  notebooks/
+    explore_lightcurve.ipynb
+  scripts/
+    run_quality_check.py
+  src/
+    lightcurve_tools.py
+  results/
+  logs/
+  requirements.txt
 \end{lstlisting}
 \end{examplebox}
 
-这几行代码至少说明了四件事：
+这个结构背后的分工很重要，见表~\ref{tab:ch04_project_layout}：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.24\textwidth}p{0.30\textwidth}p{0.34\textwidth}}
+\toprule
+位置 & 保存什么 & 科研含义 \\
+\midrule
+\texttt{notebooks/} & 探索过程、说明和图文演示 & 帮助读者理解思路，不应依赖隐藏执行顺序 \\
+\texttt{scripts/} & 可从头运行的流程入口 & 负责生成结果、日志和可检查输出 \\
+\texttt{src/} & 可复用函数或模块 & 保存稳定逻辑，避免到处复制代码 \\
+\texttt{data/} & 小型教学数据或数据说明 & 明确输入来源和字段含义 \\
+\texttt{results/} & 派生结果 & 可以重新生成，需要连接到运行入口 \\
+\texttt{logs/} & 运行记录和错误输出 & 说明脚本是否成功、何时成功、如何成功 \\
+\bottomrule
+\end{tabular}
+\caption{小型科研 Python 项目中常见目录的分工。}
+\label{tab:ch04_project_layout}
+\end{table}
+
+一开始你可以在 notebook 中探索；但一旦某段逻辑需要反复运行、被同学复查或进入期末结果，就应该有清楚的脚本入口。
+
+\section{库：复用别人已经验证过的工具}
+
+Python 库的价值不只是“少写几行代码”。在科研中，库代表了经过大量用户使用、测试和修正的实现。你当然可以自己写求平均、读 CSV、画图和拟合函数，但这样做会把精力从科学问题转移到低层工具重造上。
+
+\begin{defbox}[库]
+库是一组已经组织好的函数、类和工具。标准库随 Python 一起安装，第三方库需要额外安装，科研项目通常同时依赖两者。
+\end{defbox}
+
+常见标准库包括：
 
 \begin{itemize}
-    \item 你依赖哪些模块；
-    \item 你的随机过程是否被固定；
-    \item 你的数据是如何构造的；
-    \item 你的输出是否来自一条明确、可复现的运算链。
+    \item \texttt{pathlib}：路径处理；
+    \item \texttt{csv}：简单 CSV 读写；
+    \item \texttt{math}：基础数学函数；
+    \item \texttt{statistics}：简单统计量；
+    \item \texttt{random}：随机数；
+    \item \texttt{logging}：日志；
+    \item \texttt{argparse}：命令行参数。
 \end{itemize}
 
-\section{从“能运行”到“可复现”：环境为什么会成为问题}
+常见第三方科学库包括：
 
-一段分析流程可以抽象写成：
+\begin{itemize}
+    \item \texttt{numpy}：数组和向量化计算；
+    \item \texttt{matplotlib}：绘图；
+    \item \texttt{pandas}：表格数据；
+    \item \texttt{astropy}：FITS、单位、坐标和时间；
+    \item \texttt{scikit-learn}：机器学习 workflow；
+    \item \texttt{torch}：深度学习和自动求导。
+\end{itemize}
+
+\begin{protip}[先问“有没有可信工具”，再问“我怎么重写”]
+本科科研训练当然需要理解算法，但不等于每个底层工具都要自己实现。更成熟的习惯是：先理解问题，再选择可信库，最后检查库函数的输入、输出和假设。
+\end{protip}
+
+\section{\texttt{import} 是依赖声明}
+
+很多初学者把 \texttt{import} 当成固定开头。其实它更像一份依赖声明：这段分析依赖哪些模块，运行环境中必须有什么，别人复现时需要安装什么。
+
+\begin{examplebox}[一个很小但完整的依赖片段]
+\begin{lstlisting}[style=pythonstyle]
+from pathlib import Path
+import csv
+import statistics
+
+DATA_PATH = Path("data/lightcurve_demo.csv")
+
+with DATA_PATH.open(newline="", encoding="utf-8") as handle:
+    rows = list(csv.DictReader(handle))
+
+magnitudes = [float(row["mag"]) for row in rows if row["quality"] == "good"]
+print(statistics.mean(magnitudes))
+\end{lstlisting}
+\end{examplebox}
+
+这段代码已经包含若干科研判断：
+
+\begin{itemize}
+    \item 输入路径是项目相对路径，不是个人电脑上的绝对路径；
+    \item 文件编码和 CSV 读取方式是显式的；
+    \item 质量筛选条件写在代码中，可以被审查；
+    \item 输出来自一条清楚的计算链。
+\end{itemize}
+
+如果一个 notebook 第一格只有大量导入，但没有说明为什么需要这些库，读者很难判断哪些依赖是真正必要的，哪些是早期试验留下的残留。
+
+\section{安装、导入与依赖文件不是一回事}
+
+初学者常把三句话混在一起：安装了库、导入了库、记录了依赖。它们相关，但不是同一件事，区别见表~\ref{tab:ch04_install_import_dependency}。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.20\textwidth}p{0.32\textwidth}p{0.36\textwidth}}
+\toprule
+动作 & 发生在哪里 & 它说明什么 \\
+\midrule
+安装 & 当前 Python 环境 & 这个环境里有某个包，但不代表项目记录了它 \\
+导入 & 当前脚本或 notebook & 这段代码运行时需要某个模块 \\
+记录依赖 & \texttt{requirements.txt} 或环境文件 & 别人有线索重建运行环境 \\
+\bottomrule
+\end{tabular}
+\caption{安装、导入与依赖记录在科研 Python 项目中的区别。}
+\label{tab:ch04_install_import_dependency}
+\end{table}
+
+例如你在终端中运行：
+
+\begin{lstlisting}[style=terminal]
+$ python -m pip install astropy
+\end{lstlisting}
+
+这只是改变了当前环境。只有当代码中出现 \texttt{from astropy.io import fits} 时，项目才真正使用了 \texttt{astropy}；只有当 \texttt{requirements.txt}、\texttt{environment.yml} 或 README 记录了这个依赖时，别人才能知道复现时需要安装它。
+
+一个实用原则是：\textbf{能导入不等于可复现，能运行不等于已记录}。每次你为项目安装新库，都应该问：它是否真的被代码使用？如果使用了，是否写进依赖记录？如果只是一次临时探索，是否应该从最终依赖列表中清理掉？
+
+\section{环境：同一段代码为什么会跑出不同结果}
+
+一段科研分析可以抽象成：
 
 \[
-\mathrm{output} = f(\mathrm{input};\,\theta,\,E,\,s),
+\mathrm{output}=f(\mathrm{input}, \mathrm{code}, \mathrm{parameters}, \mathrm{environment}, \mathrm{random\ state}).
 \]
 
-其中 $\theta$ 表示代码逻辑和参数，$E$ 表示运行环境（库版本、解释器、操作系统、路径结构），$s$ 表示随机种子或随机状态。
+学生常常只盯着 \texttt{code}，但环境和随机状态同样可能改变结果。例如库版本不同、路径不同、默认数值精度不同、随机数没有固定，都会让“同一段代码”不再真的相同。
 
-初学者通常只盯着 $\theta$，即“代码逻辑有没有写对”；但在真实科研里，$E$ 和 $s$ 同样会改变结果。
+\begin{examplebox}[检查关键环境信息]
+\begin{lstlisting}[style=terminal]
+$ python --version
+$ python -m pip freeze | head
+$ which python
+\end{lstlisting}
+\end{examplebox}
 
-\subsection{为什么环境会改变结果}
-
-环境差异最常见的来源包括：
-
-\begin{itemize}
-    \item 某个库根本没装；
-    \item 版本不同导致接口改变；
-    \item 本地路径写死；
-    \item 随机数没有固定；
-    \item notebook 执行顺序与文本顺序不一致。
-\end{itemize}
+在 Python 中也可以检查模块是否存在：
 
 \begin{examplebox}[检查模块可用性]
 \begin{lstlisting}[style=pythonstyle]
-optional_modules = ["numpy", "matplotlib", "astropy", "pandas"]
-availability = {}
+from importlib.util import find_spec
 
-for module_name in optional_modules:
-    availability[module_name] = find_spec(module_name) is not None
-
-availability
+for name in ["numpy", "matplotlib", "astropy", "pandas"]:
+    print(name, find_spec(name) is not None)
 \end{lstlisting}
 \end{examplebox}
 
-这类检查看似朴素，却经常比“改一百行代码”更能快速定位问题。
+这类检查不“高级”，但很有效。许多项目无法复现，不是因为科学思想错了，而是因为环境从来没有被记录。
 
-\begin{protip}[环境文件不是可选项]
-只要一个项目准备被别人运行，就应该尽量提供环境说明，例如 \texttt{requirements.txt}、\texttt{environment.yml}，或者至少在 notebook 第一格写清 Python 版本和关键依赖。
-\end{protip}
+\section{虚拟环境：给项目一个可控边界}
 
-\section{虚拟环境：把依赖关进项目内部}
+虚拟环境的作用是隔离项目依赖。它不能解决所有复现问题，但可以避免不同项目互相污染。
 
-当一个项目开始依赖多个第三方库时，最容易出问题的不是代码本身，而是环境互相污染。今天在系统 Python 里装了一个包，明天另一个项目又升级了同一个包，结果两个项目的行为都变得不可预测。虚拟环境的作用，就是把项目依赖隔离到一个更可控的空间里。
-
-\subsection{为什么要隔离环境}
-
-虚拟环境至少解决三类问题：
-
-\begin{itemize}
-    \item 不同项目需要不同版本的库；
-    \item 同一个库在不同机器上安装位置不同；
-    \item 你需要清楚知道“当前这次运行到底用的是哪套解释器和依赖”。
-\end{itemize}
-
-\begin{examplebox}[创建并使用虚拟环境]
-\begin{lstlisting}[style=pythonstyle]
+\begin{examplebox}[使用 \texttt{venv} 的最小流程]
+\begin{lstlisting}[style=terminal]
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ python -m pip install numpy matplotlib pandas
@@ -151,137 +225,175 @@ $ python -m pip freeze > requirements.txt
 \end{lstlisting}
 \end{examplebox}
 
-这里最值得强调的是 \texttt{python -m pip}，而不是单独的 \texttt{pip}。前者会明确使用当前解释器对应的包管理入口，能减少“装到别的 Python 里去了”的混乱。
+这里推荐使用 \texttt{python -m pip}，而不是单独使用 \texttt{pip}。前者明确表示“用当前这个 Python 解释器对应的 pip 安装包”，能减少装错环境的问题。
 
-\subsection{环境记录应当留什么}
-
-一个最小但有效的环境记录，通常至少应包含：
+一个最小环境记录至少应该包含：
 
 \begin{itemize}
     \item Python 版本；
     \item 关键库版本；
-    \item 激活环境的方法；
-    \item 一份可重建环境的依赖清单。
+    \item 环境创建或激活方法；
+    \item 可重建环境的依赖清单；
+    \item 如果使用 conda、uv、poetry 或容器，应说明对应文件和命令。
 \end{itemize}
 
-\begin{protip}[先记录，再扩展]
-如果你暂时还没有复杂的环境管理方案，先做到 \texttt{python --version}、\texttt{python -m pip freeze} 和一份清楚的 \texttt{README}，已经比什么都不写强得多。
-\end{protip}
+\begin{warnbox}[不要把“我电脑能跑”当成环境说明]
+如果别人不知道你用了哪个 Python、哪些库版本、从哪个目录运行脚本、输入数据放在哪里，那么“我电脑能跑”没有科研复现意义。
+\end{warnbox}
 
-\section{notebook 与脚本：不是二选一，而是分工问题}
+\section{随机种子：固定的是过程，不是真理}
 
-这是本章最重要的边界之一。很多学生会问：到底应该用 notebook 还是脚本？更准确的问题其实是：\textbf{当前这段工作属于探索、演示，还是流程执行。}
+许多模拟、抽样、机器学习切分和模型训练都包含随机性。固定随机种子可以让教学示例和调试过程更稳定。
 
-\subsection{notebook 更适合什么}
-
-notebook 更适合：
-
-\begin{itemize}
-    \item 探索性分析；
-    \item 课堂演示；
-    \item 图文交织的教学说明；
-    \item 快速可视化和中间结果检查；
-    \item 把“思路”显式写在代码旁边。
-\end{itemize}
-
-它的优点在于思维流清楚、交互强、反馈快；但代价是执行顺序容易混乱，长期维护成本较高。
-
-\subsection{脚本更适合什么}
-
-脚本更适合：
-
-\begin{itemize}
-    \item 批量处理；
-    \item 反复执行的固定流程；
-    \item 自动化下载、清洗、整理和绘图；
-    \item 和 Git、测试、任务调度工具配合；
-    \item 后续准备被别人复用的逻辑。
-\end{itemize}
-
-\begin{examplebox}[一个最小脚本雏形]
+\begin{examplebox}[固定随机种子]
 \begin{lstlisting}[style=pythonstyle]
-script_lines = [
-    "import math",
-    "for x in range(5):",
-    "    print(x, x**2 + math.sin(3*x))",
-]
+import random
 
-print("\n".join(script_lines))
+random.seed(42)
+sample = random.sample(range(100), 5)
+print(sample)
 \end{lstlisting}
 \end{examplebox}
 
-这段代码本身很简单，但它背后代表了一种工作流转变：从“我现在在交互式环境里试一试”，转向“我希望这段逻辑被明确地、按顺序地重跑”。
+但固定随机种子并不表示结论自动可靠。它只保证在相同环境下随机过程可重复。真正的科学结论还需要检查结果是否对不同随机种子、不同数据划分或不同参数选择足够稳定。这个思想会在机器学习部分反复出现。
 
-\subsection{再往前一步：module 是可复用的逻辑单元}
+\section{Notebook、script 与 module 的三层分工}
 
-当脚本开始变长、notebook 开始反复复制同一段代码时，就该考虑把稳定逻辑抽成模块。可以把三者理解成不同层级的工作对象：
+本章最重要的概念，是把 notebook、script 和 module 分成三层。它们不是互相替代，而是服务于不同阶段，见表~\ref{tab:ch04_notebook_script_module}。
 
-\begin{itemize}
-    \item \textbf{notebook} 负责思考和讲解；
-    \item \textbf{script} 负责按顺序执行；
-    \item \textbf{module} 负责复用稳定的函数、类和小工具。
-\end{itemize}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.18\textwidth}p{0.28\textwidth}p{0.40\textwidth}}
+\toprule
+对象 & 最适合做什么 & 不适合承担什么 \\
+\midrule
+notebook & 探索、讲解、可视化、课堂演示 & 长期自动化、隐藏状态下生成最终结果 \\
+script & 顺序执行、批处理、生成结果、保存日志 & 写大量解释性长文、反复复制函数 \\
+module & 保存稳定函数、类和工具，被脚本或 notebook 调用 & 直接承担项目叙事或交互探索 \\
+\bottomrule
+\end{tabular}
+\caption{Notebook、script 与 module 在科研代码中的分工边界。}
+\label{tab:ch04_notebook_script_module}
+\end{table}
 
-这种分工很重要，因为它避免了一种常见混乱：把所有内容都塞进 notebook，最后既不适合阅读，也不适合长期维护。更成熟的做法是让 notebook 变成“讲故事的入口”，让脚本变成“能跑的入口”，让模块变成“可调用的核心逻辑”。
+可以用一句话记住：
 
-在课程项目里，不必一开始就写复杂包结构，但至少要知道自己现在写的是哪一层。否则，一段本来应该是模块的逻辑，可能会被学生误写成一个只能在 notebook 里勉强工作的临时代码块。
+\begin{center}
+notebook 负责解释和探索，script 负责运行和交付，module 负责复用和维护。
+\end{center}
 
-\section{从探索性 notebook 到稳定脚本：一个最小算法}
+如果所有内容都堆在 notebook 中，初期看起来方便，后期往往难以检查。反过来，如果一开始就把还不稳定的想法写成复杂模块，也会降低探索效率。正确做法是随着项目成熟逐步迁移。
 
-很多教材停留在“notebook 和脚本各有优缺点”这类描述上，但真正有用的是给学生一个可执行算法。你可以把一次重构流程写成：
+\section{代码成熟度：从草稿到项目入口}
+
+同一段代码在不同阶段有不同位置。可以把成熟过程看成四级：
 
 \begin{enumerate}
-    \item 在 notebook 中完成探索；
-    \item 标记哪些单元是关键结果，哪些只是临时试验；
-    \item 把重复出现的代码抽成函数；
-    \item 把固定输入/输出路径写成更清楚的变量或配置；
-    \item 把顺序明确的部分移到脚本中；
-    \item 在 notebook 中保留“解释”和“展示”，在脚本中保留“执行”。
+    \item \textbf{草稿单元}：在 notebook 中快速试验，允许临时变量和打印；
+    \item \textbf{命名函数}：把重复逻辑改成有输入和输出的函数；
+    \item \textbf{模块函数}：把稳定函数放入 \texttt{src/}，供脚本和 notebook 调用；
+    \item \textbf{脚本入口}：把完整流程组织成可从命令行运行的脚本。
 \end{enumerate}
 
-这实际上就是科研编程里最常见的演化路径：\textbf{先探索，再抽象，再固化。}
+不是所有草稿都要升级，也不是所有函数都要变成复杂模块。判断标准很简单：如果某段逻辑会被重复使用、被同学复查、或生成报告结果，它就不应该只停留在临时 notebook 单元里。
 
-\section{为什么 notebook 容易产生“假可复现”}
+\section{Notebook 为什么容易制造“假可复现”}
 
-notebook 最大的危险，不是它不好用，而是它太好用，以至于学生容易误以为“我刚刚跑通了”就等于“这个流程以后也能稳定复现”。实际上，notebook 常见的问题包括：
-
-\begin{itemize}
-    \item 单元执行顺序和显示顺序不一致；
-    \item 中间变量被旧单元残留状态污染；
-    \item 某些结果只存在于当前内存，不存在于代码逻辑中；
-    \item 代码看上去完整，但从头重跑会失败。
-\end{itemize}
-
-因此，一个 notebook 真正可复现，至少要满足：
+notebook 的最大优势是交互；最大风险也来自交互。常见问题包括：
 
 \begin{itemize}
-    \item 从第一格到最后一格顺序执行；
-    \item 路径不依赖个人电脑绝对路径；
-    \item 随机过程固定种子；
-    \item 关键依赖可被说明；
-    \item 图表和结论不是靠手动修补生成的。
+    \item 单元格不是从上到下运行；
+    \item 变量来自已经删除或修改过的旧单元；
+    \item 输出图像保存在文件里，但生成代码已经变了；
+    \item 中间结果依赖内存状态；
+    \item notebook 中混入大量临时测试代码。
 \end{itemize}
 
-\section{模块化思维：从零散单元到可复用结构}
+一个 notebook 如果要成为可信材料，至少应该满足：
 
-科研初学者很容易把每一段任务都写成一大块顺序代码，但只要任务稍微复杂一点，这种写法就会迅速失控。模块化思维并不要求你一开始就做大型工程，而是要求你至少逐步学会：
+\begin{enumerate}
+    \item kernel 重启后从头运行不报错；
+    \item 关键输入路径和参数在开头集中声明；
+    \item 临时探索和最终结果有清楚标记；
+    \item 输出文件由明确单元或脚本生成；
+    \item 结尾有简短结果解释和限制说明。
+\end{enumerate}
+
+\begin{protip}[清空内核重跑是 notebook 的最低测试]
+在提交 notebook 前，至少做一次 restart kernel and run all。它能暴露许多隐藏状态问题。
+\end{protip}
+
+\section{从探索性 notebook 到稳定脚本}
+
+把 notebook 整理成脚本，不是简单复制粘贴。更好的流程是：
+
+\begin{enumerate}
+    \item 在 notebook 中完成探索，保留问题、图和解释；
+    \item 标记哪些代码是最终流程，哪些只是临时试验；
+    \item 把重复代码抽成函数；
+    \item 把输入路径、输出路径和参数集中到开头；
+    \item 把顺序稳定的执行步骤移动到脚本；
+    \item 把可复用函数放进模块；
+    \item 让 notebook 调用脚本输出或模块函数，而不是复制全部逻辑。
+\end{enumerate}
+
+\begin{examplebox}[探索代码到函数]
+\begin{lstlisting}[style=pythonstyle]
+def select_good_rows(rows):
+    return [row for row in rows if row["quality"] == "good"]
+
+def mean_magnitude(rows):
+    values = [float(row["mag"]) for row in rows]
+    return sum(values) / len(values)
+\end{lstlisting}
+\end{examplebox}
+
+函数的好处不是“更像工程代码”，而是让每一步有名字、有输入、有输出，便于测试和复用。后续脚本可以调用这些函数，notebook 也可以调用这些函数来展示结果。
+
+\section{函数边界：输入、输出和副作用}
+
+整理 notebook 时，最容易犯的错误是把函数写成“偷偷依赖外部变量”。例如一个函数直接读取全局变量 \texttt{rows}，或者在函数内部悄悄写文件，却不在名字和文档里说明。更好的函数边界应回答三件事：
 
 \begin{itemize}
-    \item 哪些逻辑值得封装成函数；
-    \item 哪些路径和参数应该集中管理；
-    \item 哪些代码是“数据读取”，哪些是“数据处理”，哪些是“输出展示”。
+    \item 输入是什么；
+    \item 输出是什么；
+    \item 是否有副作用，例如写文件、画图、修改全局状态。
 \end{itemize}
 
-这种划分看似抽象，其实会直接决定你后面是否容易调试、迁移和扩展。
+\begin{examplebox}[边界清楚的函数]
+\begin{lstlisting}[style=pythonstyle]
+def select_good_rows(rows, quality_flag="good"):
+    """Return rows whose quality field matches quality_flag."""
+    return [row for row in rows if row["quality"] == quality_flag]
+
+
+def write_summary(output_path, summary_lines):
+    """Write summary lines to output_path."""
+    output_path.parent.mkdir(exist_ok=True)
+    output_path.write_text(
+        "\n".join(summary_lines) + "\n",
+        encoding="utf-8",
+    )
+\end{lstlisting}
+\end{examplebox}
+
+第一个函数没有副作用，只返回筛选结果；第二个函数的名字明确说明会写文件。这样的边界让脚本更容易测试，也让 notebook 更容易解释。
 
 \section{脚本入口：为什么 \texttt{main()} 很重要}
 
-当脚本开始变长时，把主体逻辑包在 \texttt{main()} 里会更清楚。这样一来，脚本既可以被直接运行，也可以被其他模块导入。
+一个脚本如果所有代码都写在顶层，导入时也会自动执行，不利于测试和复用。常见做法是把主要流程放进 \texttt{main()}：
 
 \begin{examplebox}[最小脚本入口]
 \begin{lstlisting}[style=pythonstyle]
+from pathlib import Path
+
+
 def main():
-    print("pipeline ready")
+    project_root = Path(".")
+    data_path = project_root / "data" / "lightcurve_demo.csv"
+    output_path = project_root / "results" / "summary.txt"
+    output_path.parent.mkdir(exist_ok=True)
+    output_path.write_text(f"input={data_path}\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
@@ -289,153 +401,265 @@ if __name__ == "__main__":
 \end{lstlisting}
 \end{examplebox}
 
-这个结构看起来像编程习惯，但本质上是一种科研工作流习惯：\textbf{把可执行入口和可复用逻辑分开。}
-
-\subsection{为什么不把所有东西都写成顶层代码}
-
-如果脚本一导入就立刻开始读文件、画图或写结果，那么它就很难被测试、复用和组合。相反，把逻辑放进函数里有几个好处：
+这段结构有三个好处：
 
 \begin{itemize}
-    \item 更容易做单元测试；
-    \item 更容易从 notebook 调用；
-    \item 更容易把参数显式传入；
-    \item 更容易复现“同样输入对应同样输出”。
+    \item 脚本可以直接运行；
+    \item 其中函数可以被其他代码导入；
+    \item 执行入口清楚，便于日志记录和错误定位。
 \end{itemize}
 
-\section{参数与配置：不要把所有东西都写死}
+\section{命令行参数：让脚本不再靠手改代码}
 
-科研代码最常见的坏习惯之一，就是把路径、阈值、随机种子和输出目录都直接写死在脚本里。这样一旦切换项目、目录或数据版本，整段代码就要重新改。
+如果每次换输入文件都要打开脚本手动改路径，脚本就还不是真正的稳定入口。Python 标准库中的 \texttt{argparse} 可以让脚本从命令行接收参数：
+
+\begin{examplebox}[最小参数入口]
+\begin{lstlisting}[style=pythonstyle]
+import argparse
+from pathlib import Path
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--quality", default="good")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    args.output.parent.mkdir(exist_ok=True)
+    args.output.write_text(
+        f"data={args.data}\nquality={args.quality}\n",
+        encoding="utf-8",
+    )
+\end{lstlisting}
+\end{examplebox}
+
+这样运行时就可以写：
+
+\begin{lstlisting}[style=terminal]
+$ python scripts/run_quality_check.py \
+    --data data/lightcurve_demo.csv \
+    --output results/summary.txt \
+    --quality good
+\end{lstlisting}
+
+参数化脚本的好处是：运行命令本身就记录了输入、输出和关键选择。后续 Git 记录、日志和 README 都可以引用同一条命令。
+
+\section{路径与配置：不要把个人机器写进代码}
+
+科研项目中常见坏习惯是把个人电脑上的绝对路径写死：
+
+\begin{lstlisting}[style=terminal]
+/Users/student/Desktop/final_data/lightcurve.csv
+\end{lstlisting}
+
+这会让代码离开你的电脑就失效。更稳妥的方式是使用项目相对路径，并把关键路径集中管理：
 
 \begin{examplebox}[最小配置对象]
 \begin{lstlisting}[style=pythonstyle]
-config = {
-    "input_path": "data/raw/catalog.csv",
-    "output_path": "results/catalog_summary.csv",
-    "seed": 42,
-    "threshold": 0.5,
-}
+from dataclasses import dataclass
+from pathlib import Path
+
+
+@dataclass
+class Config:
+    data_path: Path = Path("data/lightcurve_demo.csv")
+    result_path: Path = Path("results/summary.txt")
+    log_path: Path = Path("logs/run_quality_check.log")
+    quality_flag: str = "good"
 \end{lstlisting}
 \end{examplebox}
 
-\begin{itemize}
-    \item 路径和阈值应该集中管理；
-    \item 固定参数应当在开头声明；
-    \item 如果项目变复杂，再考虑配置文件或命令行参数。
-\end{itemize}
+这里的配置对象很小，但它表达了一个重要思想：项目参数应该集中、显式、可审查，而不是散落在各个单元格和函数内部。
 
-\subsection{命令行参数的直觉}
+\section{日志与错误：让脚本说明自己做了什么}
 
-当脚本开始需要适配不同输入时，就可以把参数从代码中分离出来。入门阶段不必立刻掌握完整参数解析框架，但至少要理解：\textbf{脚本不应该依赖“你刚好记得改了哪一行”}。
-
-\section{日志与错误：让脚本说清楚自己做了什么}
-
-一个能跑的脚本不一定是一个好脚本。科研脚本还应该尽量告诉你：
-
-\begin{itemize}
-    \item 它处理了哪个输入；
-    \item 它写到了哪个输出；
-    \item 中间步骤是否成功；
-    \item 出错时应该去哪里看原因。
-\end{itemize}
+脚本不是黑箱。一次可靠运行至少应留下运行时间、输入路径、输出路径和关键检查结果。最小做法可以是写一个文本日志：
 
 \begin{examplebox}[最小日志写法]
 \begin{lstlisting}[style=pythonstyle]
-print(f"Reading {config['input_path']}")
-print(f"Writing {config['output_path']}")
+from datetime import datetime
+from pathlib import Path
+
+log_lines = [
+    f"started={datetime.now().isoformat()}",
+    "input=data/lightcurve_demo.csv",
+    "output=results/summary.txt",
+    "quality_flag=good",
+]
+
+Path("logs").mkdir(exist_ok=True)
+Path("logs/run_quality_check.log").write_text(
+    "\n".join(log_lines) + "\n",
+    encoding="utf-8",
+)
 \end{lstlisting}
 \end{examplebox}
 
-对教学项目来说，哪怕只是这样的简单打印，也比沉默地失败更有帮助。更进一步时，可以把日志和错误分开记录，方便后续诊断。
+正式项目可以使用 \texttt{logging} 模块，但入门阶段先做到“运行后有记录”更重要。没有日志的脚本，一旦结果异常，只能靠记忆排查。
 
-\begin{warnbox}[脚本不是黑箱]
-如果脚本执行过程中没有任何记录，你事后很难知道它是没跑、跑了一半，还是跑完但结果不对。科研脚本应当尽量留下可追踪的最小痕迹。
-\end{warnbox}
+\section{最小测试：先测函数，再测脚本}
+
+本科项目不需要一开始就建立复杂测试框架，但至少应该能手动测试关键函数。比如：
+
+\begin{examplebox}[最小函数测试]
+\begin{lstlisting}[style=pythonstyle]
+rows = [
+    {"mag": "12.1", "quality": "good"},
+    {"mag": "99.0", "quality": "bad"},
+]
+
+selected = select_good_rows(rows)
+assert len(selected) == 1
+assert selected[0]["mag"] == "12.1"
+\end{lstlisting}
+\end{examplebox}
+
+\texttt{assert} 的意思是：如果条件不成立，就立刻报错。它不是为了证明程序永远正确，而是为了捕捉最基本的误改。对脚本则至少应做一次从头运行：
+
+\begin{lstlisting}[style=terminal]
+$ python scripts/run_quality_check.py
+$ echo $?
+$ ls -lh results logs
+\end{lstlisting}
+
+函数测试检查局部逻辑，脚本运行检查完整入口。两者结合，才能把 notebook 中的探索变成更可靠的科研代码。
 
 \section{一个最小可复现脚本应交付什么}
 
-当你把 notebook 中的探索逻辑整理成脚本后，不应该只交付一个 \texttt{.py} 文件。对课程项目来说，一个最小可复现脚本交付件至少应包含：
+本章的交付不应该只是“提交一个 notebook”。更合理的最小交付包括：
 
 \begin{itemize}
-    \item 一个清楚入口，例如 \texttt{main()} 或一条明确运行命令；
-    \item 输入路径、输出路径、随机种子和关键阈值；
-    \item 运行前需要的依赖说明；
-    \item 运行后会生成哪些文件；
-    \item 最小日志或屏幕输出，说明脚本实际处理了什么。
+    \item \texttt{README.md}：说明如何运行；
+    \item \texttt{requirements.txt} 或环境说明；
+    \item \texttt{notebooks/explore\_lightcurve.ipynb}：解释探索过程；
+    \item \texttt{scripts/run\_quality\_check.py}：稳定运行入口；
+    \item \texttt{src/lightcurve\_tools.py}：可复用函数；
+    \item \texttt{logs/run\_quality\_check.log}：运行记录；
+    \item \texttt{results/summary.txt}：派生结果；
+    \item Git commit hash：说明这一套材料对应哪个版本。
 \end{itemize}
 
-这组要求并不复杂，但它能把“我这里能跑”推进到“别人知道怎么跑，也知道跑出了什么”。后面进入机器学习章节时，这个标准会变得更重要，因为训练/验证划分、随机种子、模型参数和输出指标都必须被稳定记录。
+这套交付物正好连接前两章：Linux 负责目录、脚本和日志，Git 负责版本和历史，本章负责 Python 工作流结构。
 
-\section{一个最小脚本运行记录模板}
+\section{最小脚本运行记录模板}
 
-脚本交付件还需要配一条运行记录。否则，读者只能看到代码，却不知道这段代码最近一次是否真的跑过、用了什么输入、生成了什么输出。一个教学项目里的最小写法可以是：
+\begin{examplebox}[脚本运行记录]
+\begin{lstlisting}[style=terminal]
+Project: lightcurve_check
+Script: scripts/run_quality_check.py
+Command: python scripts/run_quality_check.py
+Commit:
+Python version:
+Environment file: requirements.txt
 
-\begin{quote}
-运行入口位于 \nolinkurl{scripts/make_orbit_summary.py}，配置文件为 \nolinkurl{configs/demo.yml}。输入数据为 \nolinkurl{data/small/planetary_orbits_demo.csv}；随机种子为 \texttt{20260504}；输出为 \nolinkurl{results/orbit_summary.csv} 和 \nolinkurl{results/orbit_period_vs_axis.png}；运行日志显示共处理 8 行，无缺失关键字段。
-\end{quote}
+Input:
+- data/lightcurve_demo.csv
+- required fields: time, mag, mag_err, quality
 
-这条记录把 notebook、script、data 和 result 连成一条线。后续如果模型分数、图表或报告结论发生变化，就可以回到这条线索检查：是输入数据变了，配置变了，脚本变了，还是运行环境变了？这也是 Part I 进入最终 Reproducibility card 的核心方式。
+Parameters:
+- quality_flag = good
 
-\section{配套 notebook 做了什么}
+Outputs:
+- results/summary.txt
+- logs/run_quality_check.log
 
-配套 notebook 主要承担两个任务。第一，它用标准库示例说明 \texttt{import}、随机种子、均值计算和模块可用性检查并不是形式动作，而是可复现运行环境的一部分。第二，它在临时目录中生成一个小脚本和一个最小入口脚本，让你看到 notebook 探索如何逐步变成可重复运行的脚本。
+Checks:
+- row count before filter:
+- row count after filter:
+- missing magnitude values:
 
-notebook 中会特别强调：
+Limits:
+- teaching demo data only
+- no physical calibration yet
+\end{lstlisting}
+\end{examplebox}
 
+这份记录会在后续数据 I/O、绘图和机器学习章节继续扩展。它是最终 capstone reproducibility card 的早期版本。
+
+\section{配套 notebook 如何训练}
+
+本章配套 notebook 会引导你完成一次小迁移：
+
+\begin{enumerate}
+    \item 在 notebook 中读取和检查一份小型表格；
+    \item 识别哪些代码是探索，哪些代码应当稳定下来；
+    \item 把重复逻辑整理成函数；
+    \item 生成一个脚本草稿；
+    \item 记录 Python 版本和关键依赖；
+    \item 运行脚本并检查输出；
+    \item 写出一份最小脚本运行记录。
+\end{enumerate}
+
+这份 notebook 的重点不是展示更多 Python 技巧，而是训练一种迁移能力：从“我在 notebook 里试出来了”走向“别人可以按照 README 和脚本重新运行”。
+
+\section{常见错误与诊断}
+
+\begin{warnbox}[科研编程工作流中的典型问题]
 \begin{itemize}
-    \item Python 版本和关键依赖应该出现在运行记录里；
-    \item 随机过程必须固定种子；
-    \item 脚本应当有清楚输入、输出和日志；
-    \item notebook 负责解释，脚本负责执行，module 负责复用。
-\end{itemize}
-
-如果你只在 notebook 里看见输出，而不知道输出如何从头生成，那么它还不算稳定科研记录。本章 notebook 的目的，就是帮你跨过这个边界。
-
-\section{常见错误}
-
-\begin{warnbox}[工作流层面的典型问题]
-\begin{itemize}
-    \item 只在自己电脑上跑通过一次，就以为代码已经完成；
-    \item 不记录依赖版本，导致换电脑或隔周后无法复现；
-    \item notebook 单元顺序反复改动，最后自己也不知道真正流程；
-    \item 把探索阶段代码直接当成长久脚本使用；
-    \item 路径、随机种子和参数全部散落在不同单元里；
-    \item 脚本没有清楚入口，一导入就开始执行；
-    \item 脚本没有日志或输出提示，失败后无法判断停在哪一步。
+    \item 所有代码都堆在 notebook 中，无法从头重跑；
+    \item notebook 单元乱序执行，结果依赖隐藏状态；
+    \item 没有环境文件，别人不知道安装哪些依赖；
+    \item 写死个人电脑绝对路径；
+    \item 随机过程没有固定，也没有说明稳定性检查；
+    \item 脚本没有 \texttt{main()}，导入时自动执行；
+    \item 重要结果没有日志、运行命令和 commit hash；
+    \item 重复复制代码，而不是抽成函数或模块。
 \end{itemize}
 \end{warnbox}
 
+诊断这类问题时，可以按顺序问：
+
+\begin{enumerate}
+    \item 换一台机器能否安装环境？
+    \item 从项目根目录能否运行脚本？
+    \item 清空 notebook 内核后能否从头运行？
+    \item 输出文件是否来自明确命令？
+    \item 结果是否连接到 Git 版本？
+\end{enumerate}
+
 \section{AI 助手如何帮助你}
 
-在这一章，AI 助手适合帮助你：
+AI 助手很适合参与本章的工作流整理。它可以帮助你：
 
 \begin{itemize}
-    \item 解释某个库在科研工作流中的角色；
-    \item 帮你把 notebook 中重复代码整理成函数或脚本；
-    \item 帮你检查依赖、路径和随机种子相关的可复现风险；
-    \item 给出“这段逻辑更适合 notebook 还是脚本”的结构建议；
-    \item 帮你把脚本改写成带 \texttt{main()}、配置和最小日志的稳定入口。
+    \item 阅读 notebook，指出哪些单元是临时探索；
+    \item 把重复代码提炼成函数；
+    \item 生成脚本骨架；
+    \item 建议配置对象和日志字段；
+    \item 检查 README 中是否缺少运行步骤；
+    \item 帮你解释环境报错。
 \end{itemize}
 
-但最终哪一段代码是探索、哪一段是证据、哪一段应进入正式流程，仍然需要你自己判断。AI 可以帮你组织结构，却不能替你定义工作流边界。
+但 AI 助手不能替你确认科学语义。例如质量筛选条件、异常值处理、单位解释和最终结论，仍然需要你根据数据和科学问题判断。一个好的提示词不是“帮我整理代码”，而是：
 
-\section{练习}
+\begin{lstlisting}[style=terminal]
+请把这段 notebook 代码按 notebook / script / module 三层分工整理。
+保留探索说明，提取可复用函数，给出脚本入口，并指出哪些参数
+必须写入运行记录。
+\end{lstlisting}
+
+\section{练习与交付}
 
 \begin{exercisebox}[基础练习]
-检查你的环境中是否已经安装 \texttt{numpy}、\texttt{matplotlib} 和 \texttt{astropy}。除了记录“有没有安装”，还请写一句说明：如果缺少其中一个，你的科研工作流会受什么影响。
+创建一个 \texttt{lightcurve\_check/} 项目目录，包含 \texttt{data/}、\texttt{notebooks/}、\texttt{scripts/}、\texttt{src/}、\texttt{results/} 和 \texttt{logs/}。写一份 README，说明每个目录的作用。
 \end{exercisebox}
 
-\begin{exercisebox}[进阶练习]
-从一个你已有的 notebook 中找出三段重复逻辑，尝试判断其中哪一段最值得先抽成脚本或函数，并说明原因。
+\begin{exercisebox}[过程练习]
+在 notebook 中读取一份小型 CSV，完成质量筛选和均值计算。然后把筛选和统计逻辑抽成两个函数，放入 \texttt{src/lightcurve\_tools.py}。
 \end{exercisebox}
 
-\begin{exercisebox}[开放练习]
-为一个你自己的小型科研项目设计最小目录结构和工作流分工：哪些内容放 notebook，哪些内容放脚本，哪些信息必须作为环境说明保存下来。
+\begin{exercisebox}[脚本练习]
+写一个 \texttt{scripts/run\_quality\_check.py}，从项目相对路径读取数据，调用模块函数，保存 \texttt{results/summary.txt} 和 \texttt{logs/run\_quality\_check.log}。
 \end{exercisebox}
 
-\begin{exercisebox}[补充练习]
-把一个只有顶层代码的脚本改写成包含 \texttt{main()}、配置字典和两条日志输出的版本，并说明这样做如何提升可复现性。
+\begin{exercisebox}[交付练习]
+记录 Python 版本、关键依赖、运行命令、输入字段、输出文件和已知限制。把这份记录保存为 \texttt{logs/script\_run\_record.txt}，并在 Git 中提交。
 \end{exercisebox}
 
 \section{本章小结}
 
-科研编程真正的分水岭，不在于会不会写几行 Python，而在于能否把库、环境、notebook、脚本和依赖关系组织成一套长期可复现的工作流。只要你开始用这种方式看待代码，后面面对更复杂的数据分析和机器学习任务时，就会少掉很多“明明会写代码却推进不动”的隐性阻力。
+本章的核心不是让你在 notebook、script 和 module 之间选择一个“最好”的工具，而是学会分工。notebook 适合探索和解释，script 适合稳定运行和交付，module 适合保存可复用逻辑。只要你能记录环境、固定必要随机性、避免个人路径、提供脚本入口、保存日志，并把结果连接到 Git 版本，你的 Python 代码就开始从“会跑”走向“可以被复查的科研工作流”。

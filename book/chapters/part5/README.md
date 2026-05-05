@@ -3,8 +3,8 @@
 This directory stores the Chinese textbook chapters for Part V: Deep Learning
 and Modern AI.
 
-These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
-remains a separate stable entry point.
+These chapters are included by `book/main_zh.tex`, the only active textbook
+entry point.
 
 Current chapter files:
 
@@ -24,4 +24,6 @@ Current status:
 
 - Part V has a guide chapter and synthesis chapter, emphasizing baseline-first deep learning, verified use of modern AI tools, and a minimum trusted delivery package before capstone work.
 - Current chapters cover neural networks, CNNs, one-dimensional convolutions, autoencoders, Transformer/attention concepts, LLM-assisted programming, agentic workflows, literature/report workflows, and AI ethics.
+- The latest continuation pass adds chapter-opening guide sections to ch30--ch38, so each deep-learning or modern-AI chapter now starts from why the tool is useful, what new risk it introduces, and what verification boundary must be preserved.
+- The synthesis chapter now includes an immediately assignable Part V trusted delivery package task, connecting tool-use rationale, input boundary, run/interaction record, validation evidence, failure handoff, and disclosure.
 - Possible later refinements include deeper transfer-learning or real-data deep-learning case studies after the current text is reviewed.

@@ -3,8 +3,8 @@
 This directory stores the Chinese textbook chapters for Part VI: Capstone
 Projects.
 
-These chapters are included by `book/main_zh.tex`. The English `book/main.tex`
-remains a separate stable entry point.
+These chapters are included by `book/main_zh.tex`, the only active textbook
+entry point.
 
 Current chapter files:
 
@@ -37,3 +37,4 @@ Current status:
 
 - Part VI has a guide chapter, synthesis chapter, and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
 - The operational tail is complete enough for review; current refinements add common gate/route language so later chapters read as one course-asset workflow rather than separate checklists.
+- The latest continuation pass adds chapter-opening guide sections to ch39--ch59, so each capstone, course-operation, maintenance, contingency, and collaboration chapter now starts from the delivery risk it is meant to control before presenting the case workflow.

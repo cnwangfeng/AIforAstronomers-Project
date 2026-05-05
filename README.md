@@ -20,12 +20,13 @@
 
 ## 当前状态
 
-截至 2026-05-04，本项目已经进入发布前 QA 和同步收束阶段：
+截至 2026-05-05，本项目已经进入发布前 QA 和同步收束阶段：
 
-- 中文主书稿 `book/main_zh.tex` 可本地编译，最近验证 PDF 约 `509` 页。
+- 中文主书稿 `book/main_zh.tex` 可本地编译，最近验证 PDF 约 `564` 页。
 - 配套 notebook smoke test 最近通过 `59` 个 notebooks。
 - `data/manifest.yml` 最近验证通过 `52` 个小型教学数据集。
 - `Part I` 到 `Part VI` 已形成连续教材主线，`Part VI` 保持 capstone/课程包收束定位，不再新增运维章节。
+- 最近一次 `bash scripts/run_release_checks.sh full` 已通过，包含 `59` 个 notebook smoke test、数据 manifest、发布清单、图表/表格引用检查、publication blocker、中文构建、LaTeX 日志、`git diff --check` 和 Overleaf dry-run payload 检查。
 - 图表、公式、capstone evidence cards、来源/许可证状态分别由 `book/*_QA.md` 台账维护；这些 QA 台账保留在完整项目仓库，默认不进入 Overleaf 同步 payload。
 - 正式公开发布所需的 `LICENSE`、`NOTICE.md`、`CITATION.cff` 和项目级 AI-use statement 已补齐；`python scripts/check_publication_blockers.py --strict` 目前通过。
 
@@ -109,6 +110,8 @@ python scripts/smoke_test_notebooks.py
 ```bash
 python scripts/validate_data_manifest.py
 python scripts/check_release_inventory.py
+python scripts/check_figure_table_refs.py
+python scripts/check_formula_inventory.py
 python scripts/check_publication_blockers.py
 ```
 
@@ -117,13 +120,11 @@ python scripts/check_publication_blockers.py
 8. 在同步书稿前，可先做本地 LaTeX 编译检查：
 
 ```bash
-bash scripts/build_book_local.sh main
 bash scripts/build_book_local.sh zh
 ```
 
 默认输出目录：
 
-- `main.tex` -> `/tmp/aifor_book_main/main.pdf`
 - `main_zh.tex` -> `/tmp/aifor_book_main_zh/main_zh.pdf`
 
 9. 中文入口编译完成后，扫描最近的中文 LaTeX 日志：
@@ -139,7 +140,7 @@ bash scripts/run_release_checks.sh quick
 bash scripts/run_release_checks.sh full
 ```
 
-其中 `quick` 运行轻量清单、最近中文日志扫描、空白差异检查和 Overleaf dry-run payload 检查；`full` 会额外重跑 notebook smoke test 和中英文书稿构建。
+其中 `quick` 运行轻量清单、图表/表格引用检查、公式清单检查、最近中文日志扫描、空白差异检查和 Overleaf dry-run payload 检查；`full` 会额外重跑 notebook smoke test 和中文书稿构建。
 
 11. 在准备正式同步或发布前，建议先对照：
 

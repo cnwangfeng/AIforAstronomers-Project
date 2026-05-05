@@ -9,17 +9,17 @@
 - 当前所有教学数据集的 license 字段统一为：`Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)`.
 - 当前仓库已包含顶层 `LICENSE`、`NOTICE.md`、`CITATION.cff` 和 `AI_USE_STATEMENT.md` 文件。
 - `book/references.bib` 已有 `4` 个基础参考条目：Acquaviva、Ivezic et al.、astroML、Python for Astronomers。
-- 当前中文主线 `book/main_zh.tex` 已接入 bibliography 入口，并使用 `\nocite{...}` 输出参考文献；后续若需要逐章精确归因，再补正文 `\cite{...}`。
+- 当前中文主线 `book/main_zh.tex` 已接入 bibliography 入口，并使用 `\nocite{...}` 输出参考文献；当前版本没有把外部教材段落作为逐章改写来源，若未来需要逐章精确归因，再补正文 `\cite{...}`。
 - 当前中文主线未使用外部图片 `\includegraphics`；正文图表主要由 TikZ、PGFPlots 或 LaTeX 内嵌教学数据生成。
 - `scripts/check_publication_blockers.py` 已建立，用于把上述来源、许可证、引用和 AI-use 状态转成可运行报告；默认信息模式不阻塞技术 QA，`--strict` 现已可作为最终发布 gate。
 
 ## 当前 QA 结论
 
 - 教学数据结构、路径和字段登记已进入可验证状态；数据许可证已经统一并写回 `data/manifest.yml`。
-- Python for Astronomers、astroML 和相关教材目前主要作为项目路线图与参考书目条目存在；中文正文没有直接复制外部教材段落的显式迹象，但后续若扩写仍应保持人工抽查。
+- Python for Astronomers、astroML 和相关教材目前主要作为项目路线图与参考书目条目存在；中文正文没有直接复制外部教材段落的显式迹象。当前发布路径按项目级 bibliography、NOTICE 和 AI-use statement 收口。
 - AI-use statement 主线已经进入第 38 章和 Part VI delivery / rubric / project workflow；项目级发布声明现已补齐。
 - 许可证、引用、归属和 AI-use 文件已闭环，当前不再是发布前阻塞项。
-- 最近一次 `python scripts/check_publication_blockers.py` 信息模式报告 `5` 个开放项：顶层 license、notice/attribution、citation、项目级 AI-use statement 和 `52` 个 data license 占位。
+- 最近一次 `python scripts/check_publication_blockers.py` 信息模式报告 `0` 个开放项；`python scripts/check_publication_blockers.py --strict` 可作为最终发布 gate。
 
 ## 发布前状态
 

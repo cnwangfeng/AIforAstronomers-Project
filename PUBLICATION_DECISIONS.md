@@ -43,7 +43,7 @@
 
 ## 4. 项目级 AI-use Statement
 
-章节内已经训练学生写 AI-use statement，但课程包本身仍需要项目级说明。
+章节内已经训练学生写 AI-use statement；课程包本身的项目级说明也已经补齐。
 
 当前状态：
 

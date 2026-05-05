@@ -5,9 +5,10 @@
 ## 当前快照
 
 - 当前中文主线包含 `68` 个 `\include{...}` 文件。
-- 当前中文主线共有 `140` 个 display math block。
+- 当前中文主线共有 `159` 个 display math block。
 - 当前中文主线未使用单独编号的 `equation` / `align` 环境；公式主要作为教材推导和计算说明出现，而不是作为编号定理或编号公式引用。
 - 公式最密集的章节集中在 Part II/III：测量不确定度、HR 图、FITS/WCS、光谱、时间序列、实验拟合、回归、分类和模型评估。
+- 已新增 `scripts/check_formula_inventory.py`，并接入 `scripts/run_release_checks.sh quick/full`，用于自动检查 display math 数量、`\[`/`\]` 平衡和编号公式环境漂移。
 
 ## 发布前公式检查标准
 

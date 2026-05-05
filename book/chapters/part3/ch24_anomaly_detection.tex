@@ -1,5 +1,13 @@
 \chapter{异常检测与新奇发现}
 
+\section{本章导读：异常分数只是候选排序，不是发现宣言}
+
+异常检测在天文学里格外吸引人，因为“异常”很容易让人联想到新天体、新现象或新物理。但真实项目中，高异常分数更常见的来源可能是坏点、缺失值、边界样本、预处理失败、仪器差异或训练集覆盖不足。把异常分数直接当作发现，是这一类任务最大的陷阱。
+
+本章把异常检测讲成候选排序和复核流程，而不是最终判决。距离方法、LOF、Isolation Forest 和 autoencoder 各自有不同假设，因此它们排序不同很正常。真正重要的是：候选为什么被排到前面，它是否在数据质量上可疑，是否需要人工复核，是否能被独立证据支持。
+
+读这一章时，请把每个异常候选放进三层结论里：坏数据、边界样本、值得后续检查的科学候选。只有经过这种分层，异常检测才不会变成“模型说它怪，所以它重要”。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,26 @@
     \item 认识到异常分数更适合做候选排序，而不是自动宣布“新发现”；
     \item 建立人工复核、数据质量排查和后续观测验证的完整意识。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是对一组教学光谱特征做异常候选排序。正文负责解释异常检测和监督分类的差别、邻域方法、LOF、Isolation Forest、autoencoder 直觉和人工复核；训练材料则要求你把异常点写成候选清单，而不是最终发现声明。
+
+\begin{examplebox}[最小异常检测项目结构]
+\begin{lstlisting}[style=terminal]
+spectral_anomaly_demo/
+  data/
+    spectral_anomaly_demo.csv
+  notebooks/
+    ch24_anomaly_detection.ipynb
+  figures/
+    anomaly_candidate_map.png
+  results/
+    anomaly_review_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+项目交付应包含：异常定义、特征来源、分数方法、阈值或污染率、候选排序、人工复核字段、坏数据排除和“为什么它只是候选”的边界说明。
 
 \section{异常点不一定是新物理，也可能是坏数据}
 
@@ -86,6 +114,29 @@ anomaly_score = mean(distance to k nearest neighbors)
 
 但它也有明显局限：如果数据本来就有多个正常群体，单纯看距离可能会把“小众但正常”的局部簇也误判成异常。
 
+\section{距离分数为什么必须先标准化}
+
+本章的光谱特征量纲并不相同：等效宽度、连续谱比值和信噪比的数值范围完全不同。如果直接计算欧氏距离，距离最大的维度会主导异常分数。一个高信噪比差异很大的普通样本，可能会被排在真正光谱异常之前。
+
+因此，最小距离型异常流程应写成：
+
+\begin{enumerate}
+    \item 先审查特征是否有物理意义；
+    \item 用训练或参考主体样本估计标准化尺度；
+    \item 在标准化空间中计算邻居距离；
+    \item 把高分样本排序，而不是直接判定为新发现。
+\end{enumerate}
+
+\begin{examplebox}[标准化后的距离分数骨架]
+\begin{lstlisting}[style=pythonstyle]
+scaled_features = standardize(reference_features, all_features)
+neighbors = find_k_nearest_neighbors(scaled_features, k=5)
+score = mean_neighbor_distance(neighbors)
+\end{lstlisting}
+\end{examplebox}
+
+这里的 \texttt{reference\_features} 很重要。若你把明显异常点也用于定义标准化尺度，异常本身就会反过来改变“正常”的坐标尺。
+
 \section{LOF：判断你所在区域是不是太稀疏}
 
 \textbf{Local Outlier Factor（LOF）} 的思路，是把一个点的局部密度和邻居的局部密度做比较。如果你周围明显比邻居周围更稀疏，那么你的 LOF 分数就会上升。
@@ -113,6 +164,19 @@ anomaly_score = mean(distance to k nearest neighbors)
 \end{itemize}
 
 在教学 notebook 里，我们用一个简化版的随机切分深度来模拟这一思想。你会看到：处理伪影往往最容易被隔离，而两个物理异常候选也会得到较高分数，但三者的排序并不完全一样。
+
+\section{不同异常方法为什么会给出不同排序}
+
+同一批候选在不同算法下排序不同，并不一定说明算法“谁对谁错”，更可能说明它们定义的异常不同：
+
+\begin{itemize}
+    \item 距离方法强调离邻居远；
+    \item LOF 强调局部密度比邻居稀疏；
+    \item Isolation Forest 强调容易被随机切分隔离；
+    \item autoencoder 强调难以被正常样本表示重构。
+\end{itemize}
+
+因此，异常检测报告应记录“触发异常的理由”。如果一个样本只在某一种方法里高分，而其他方法都不支持，它仍然值得看，但结论应更谨慎。如果多个定义都把它排在前列，它通常更值得优先人工复核。
 
 \section{Autoencoder：重构不好的点值得多看一眼}
 
@@ -187,6 +251,19 @@ candidate_review = {
 这样记录的好处是，它把“算法觉得奇怪”和“科学上值得相信”隔开了。前者可以自动化，后者必须经过证据、质量和后续验证共同支撑。
 
 这份复核表是异常检测进入 capstone 的关键接口：异常分数进入 Evaluation card，质量排查和交叉检查进入 Data / Integrity cards，最后的复核结论进入 Interpretation card。没有这层记录，异常检测很容易把“算法觉得奇怪”误写成“科学上新奇”。
+
+\section{候选复核的分层结论}
+
+人工复核后，最好不要只写“是异常”或“不是异常”。更有用的是把候选分成几层：
+
+\begin{itemize}
+    \item \textbf{数据伪影}：异常来自坏像元、低信噪比、背景扣除或拼接问题；
+    \item \textbf{边界普通样本}：对象真实但只是当前样本中少见，不需要新物理解释；
+    \item \textbf{物理候选}：有多个特征支持不寻常解释，但仍需外部验证；
+    \item \textbf{待补信息}：当前证据不足，需要更多波段、历元或人工检查。
+\end{itemize}
+
+这种分层比二元标签更接近科研实际。异常检测的主要价值，是把注意力排序；确认和命名仍然依赖证据链。
 
 \section{一个容易被忽略的问题：你到底在找什么异常}
 

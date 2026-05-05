@@ -1,5 +1,13 @@
 \chapter{无监督学习与降维}
 
+\section{本章导读：没有标签时，算法只能提出结构候选}
+
+无监督学习很有诱惑力，因为它似乎能让数据自己“说话”。但数据不会自己解释自己。PCA、聚类、密度方法和降维可视化能够提出结构候选，却不能自动证明这些结构对应真实物理类别、演化路径或新天体族群。
+
+本章把无监督学习放在探索性分析的位置上：它适合发现可疑结构、压缩高维特征、给后续监督任务提供线索，也适合帮助我们看见预处理尺度和样本选择造成的形状。但它的输出必须回到原始特征、数据质量和物理背景中检查。
+
+读这一章时，请避免给聚类结果过早命名。一个 cluster 首先只是算法在特征空间里看到的一片区域；它是否有物理意义，还需要图表、样本复核、领域知识和后续实验共同支持。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,26 @@
     \item 理解 t-SNE 与 UMAP 更适合做可视化探索，而不是直接当作科学结论；
     \item 知道无监督学习在 HR 图结构分析、光谱分群和异常候选初筛中的价值与边界。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是在 HR 图特征上探索无监督结构。正文负责解释 PCA、\(k\)-means、DBSCAN、Gaussian mixture、t-SNE/UMAP 以及“算法结构不等于自然类别”；训练材料则要求你把无标签探索写成候选结构记录。
+
+\begin{examplebox}[最小无监督项目结构]
+\begin{lstlisting}[style=terminal]
+unsupervised_hr_demo/
+  data/
+    stellar_hr_unsupervised_demo.csv
+  notebooks/
+    ch23_unsupervised_learning.ipynb
+  figures/
+    unsupervised_structure_map.png
+  results/
+    unsupervised_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+最终交付应包含：标准化方式、降维结果、聚类候选、参数敏感性、与 HR 图物理结构的对应关系，以及不能把算法分组直接命名为自然类别的限制说明。
 
 \section{没有标签时，我们还能问什么}
 
@@ -76,6 +104,29 @@ that explain the largest variance
 \end{lstlisting}
 \end{examplebox}
 
+\section{PCA 的最小计算流程}
+
+实际使用 PCA 时，可以把流程拆成四步：
+
+\begin{enumerate}
+    \item 对每个特征做中心化或标准化；
+    \item 计算特征之间的协方差矩阵；
+    \item 求协方差矩阵的特征向量和特征值；
+    \item 按特征值从大到小选择主成分，并把样本投影到这些方向上。
+\end{enumerate}
+
+\begin{examplebox}[PCA 流程骨架]
+\begin{lstlisting}[style=pythonstyle]
+scaled_features = standardize(features)
+covariance = compute_covariance_matrix(scaled_features)
+eigenvalues, eigenvectors = eigendecompose(covariance)
+components = choose_largest_eigenvectors(eigenvalues, eigenvectors)
+projected = project(scaled_features, components)
+\end{lstlisting}
+\end{examplebox}
+
+这段骨架的教学重点不是让你手写所有线性代数函数，而是让你明白 PCA 不是“自动降维按钮”。它先定义尺度，再寻找方差方向，最后保留一部分方向。任何一步改变，都会改变最终二维图或后续聚类结果。
+
 \section{PCA 在 HR 图里意味着什么}
 
 在教学版 HR 图中，颜色和绝对星等并不是独立变化的。主序星、巨星和白矮星在二维平面里形成有方向性的结构。因此，PCA 能帮助我们：
@@ -123,6 +174,24 @@ that explain the largest variance
     \item 对细长结构、不同密度结构和孤立异常点不够自然。
 \end{itemize}
 
+\section{\texorpdfstring{$k$-means}{k-means} 的一次迭代长什么样}
+
+为了让算法不只停留在语言描述上，可以把一次 $k$-means 迭代写成：
+
+\begin{examplebox}[\texorpdfstring{$k$-means}{k-means} 迭代骨架]
+\begin{lstlisting}[style=pythonstyle]
+centers = initialize_centers(rows, k)
+for step in range(max_steps):
+    assignments = assign_each_row_to_nearest_center(rows, centers)
+    new_centers = recompute_centers(rows, assignments)
+    if new_centers == centers:
+        break
+    centers = new_centers
+\end{lstlisting}
+\end{examplebox}
+
+这段伪代码揭示了两个常被忽略的事实。第一，初始化会影响结果；第二，算法总会给每个样本一个簇标签，即使某个样本其实更像离群点。后者正是为什么异常候选或稀疏边界样本不宜直接交给 $k$-means 做最终判断。
+
 \section{DBSCAN：按密度而不是按中心来找结构}
 
 \textbf{DBSCAN} 的思路和 $k$-means 很不一样。它不问“最近中心是谁”，而是问“附近是否有足够多的邻居”。因此它有两个非常有用的特点：
@@ -141,6 +210,19 @@ that explain the largest variance
 \end{itemize}
 
 在本章 HR 图教学数据里，DBSCAN 能比较自然地把主序星、红巨星和白矮星分开，并把那个人工放进去的异常亮蓝目标标记成噪声候选。这正好说明：\textbf{密度型聚类更愿意承认“这点不属于主体结构”。}
+
+\section{DBSCAN 参数不是装饰}
+
+DBSCAN 最重要的两个参数通常是邻域半径 \texttt{eps} 和最小邻居数 \texttt{min\_samples}。它们决定了什么叫“足够密集”：
+
+\begin{itemize}
+    \item \texttt{eps} 太小，许多正常点也会被标成噪声；
+    \item \texttt{eps} 太大，不同结构可能被连成一团；
+    \item \texttt{min\_samples} 太小，随机波动也可能形成簇；
+    \item \texttt{min\_samples} 太大，小而真实的群体可能被忽略。
+\end{itemize}
+
+因此，无监督学习报告不能只写“用了 DBSCAN”。至少要记录参数、标准化方式、簇数量、噪声点数量，以及这些结果对参数变化是否敏感。
 
 \section{Gaussian mixture：允许软归属}
 
@@ -216,6 +298,21 @@ unsupervised_report = {
 这种写法看起来谨慎，但并不削弱无监督学习的价值。相反，它让无监督结果真正成为可继续推进的科学假设：算法负责暴露结构，研究者负责验证结构是否有物理意义。
 
 在 capstone 语境里，无监督报告通常不会直接变成最终物理结论，而是进入 Interpretation card 和后续人工复核队列。它的价值是提出“值得进一步检查的结构”，而不是替研究者完成类别命名。
+
+\section{无监督探索的安全顺序}
+
+一个稳妥的无监督探索流程可以固定为：
+
+\begin{enumerate}
+    \item 先写明输入特征和质量筛选；
+    \item 对尺度敏感方法先做标准化；
+    \item 用 PCA 或二维图理解主要结构，但不急着命名；
+    \item 对比至少两类聚类或离群方法；
+    \item 检查参数敏感性；
+    \item 把算法结构与物理解释分开写入报告。
+\end{enumerate}
+
+这条顺序的目的，是把“看见一张漂亮图”降级为“形成一个可复查的候选结构”。无监督学习的强项是提出问题；真正的科学命名需要额外证据。
 
 \section{一个最常见的风险：把算法结构误当成自然分类}
 

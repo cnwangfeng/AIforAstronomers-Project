@@ -1,6 +1,6 @@
 # Course Package Release Notes
 
-Version date: `2026-05-04`
+Version date: `2026-05-05`
 
 This note summarizes the current release-ready state of the teaching package in
 `AIforAstronomers-Project/`.
@@ -11,7 +11,7 @@ This note summarizes the current release-ready state of the teaching package in
 - English subtitle: `Practical AI for Astronomy and Physics`
 - Main Chinese entry: `book/main_zh.tex`
 - Current Chinese PDF output: `/tmp/aifor_book_main_zh/main_zh.pdf`
-- Current verified Chinese page count: about `509` pages
+- Current verified Chinese page count: about `564` pages
 - Notebook smoke-test status: `59` notebooks passed
 - Data manifest status: `52` datasets validated
 - `Part VI` status: `ch39` to `ch59` completed as a continuous capstone package
@@ -52,9 +52,10 @@ Run from repo root:
 ```bash
 python scripts/validate_data_manifest.py
 python scripts/check_release_inventory.py
+python scripts/check_figure_table_refs.py
+python scripts/check_formula_inventory.py
 python scripts/check_publication_blockers.py
 python scripts/smoke_test_notebooks.py
-bash scripts/build_book_local.sh main
 bash scripts/build_book_local.sh zh
 python scripts/check_latex_log.py
 git diff --check
@@ -70,13 +71,14 @@ Most recent verified state:
 
 - `validate_data_manifest.py`: passed
 - `check_release_inventory.py`: passed
+- `check_figure_table_refs.py`: passed (`10` figures, `52` tables, `62` captions/labels, no orphan labels or undefined refs)
+- `check_formula_inventory.py`: passed (`68` includes, `159` display math blocks, no numbered formula environments)
 - `check_publication_blockers.py`: passed in informational mode and strict mode; reports `0` blockers
 - `smoke_test_notebooks.py`: passed (`59` notebooks)
-- `build_book_local.sh main`: passed, output `/tmp/aifor_book_main/main.pdf`
-- `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`509` pages)
+- `build_book_local.sh zh`: passed, output `/tmp/aifor_book_main_zh/main_zh.pdf` (`564` pages)
 - `check_latex_log.py`: passed for `/tmp/aifor_book_main_zh/main_zh.log`
-- `run_release_checks.sh quick`: passed, including Overleaf dry-run payload guard
-- `run_release_checks.sh full`: passed, including publication blocker report, notebook smoke test, both LaTeX builds, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
+- `run_release_checks.sh quick`: passed for the current text checkpoint, including data manifest, release inventory, figure/table reference check, formula inventory check, publication blocker report, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
+- `run_release_checks.sh full`: passed for the current text checkpoint, including `59` notebook smoke tests, figure/table reference check, formula inventory check, Chinese LaTeX build, Chinese log scan, `git diff --check`, and Overleaf dry-run payload guard
 - `git diff --check`: passed
 - LaTeX error scan: no `Overfull`, undefined references, `Missing $`, or fatal errors detected in `/tmp/aifor_book_main_zh/main_zh.log`
 - Release metadata: `LICENSE`, `NOTICE.md`, `CITATION.cff`, and `AI_USE_STATEMENT.md` now exist and are wired into the publication blocker gate

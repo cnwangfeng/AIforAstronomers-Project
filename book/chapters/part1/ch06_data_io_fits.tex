@@ -1,145 +1,222 @@
 \chapter{文件 I/O、FITS 与科学数据入口}
 
-\section{学习目标}
+\section{本章导读：读入文件之前，先读懂数据}
+
+很多初学者会把数据读取看成一行代码：CSV 用 \texttt{read\_csv}，FITS 用 \texttt{fits.open}，文本用 \texttt{open}。这种理解会让学生很快写出能运行的示例，却很难支撑真实科研。因为程序能打开文件，只说明字节被读进了内存；它并不说明字段含义正确、单位正确、缺失值处理正确、header 可信、数据来源可追踪。
+
+本章的核心观点是：\textbf{I/O 是科学数据工作流的第一道质量控制}。从文件到科学结论，中间至少经过下面几层：
+
+\begin{center}
+文件路径 $\rightarrow$ 文件格式 $\rightarrow$ 字段/数组 $\rightarrow$ 类型转换 $\rightarrow$ 单位解释 $\rightarrow$ 数据质量 $\rightarrow$ 科学使用边界
+\end{center}
+
+如果前面某一层没有被检查，后面的图表、统计量和模型都可能建立在错误输入上。后续 Part II 会讲星表、图像、光谱、时间序列和实验数据；本章先建立最底层习惯：读文件时不仅要问“能不能读”，还要问“读出来的东西是否能被解释”。
+
+\section{学习目标与训练目标}
 
 学完本章后，你应该能够：
 
 \begin{itemize}
-    \item 理解文件 I/O 在科研中的角色，不把“读文件”看成纯粹技术细节；
-    \item 区分文本、CSV、FITS 等常见科学数据格式的适用场景；
-    \item 理解 header、metadata、data array 这类概念在 FITS 中的意义；
-    \item 说清楚为什么数据读取流程必须同时检查路径、字段、单位和缺测情况；
-    \item 建立从“文件存在”到“数据可用”的最小检查流程。
+    \item 区分文本、CSV、FITS 等常见科学数据格式的基本用途；
+    \item 使用 Python 内置文件接口和 \texttt{csv.DictReader} 读取小型文本和表格；
+    \item 解释字段契约、header 契约、metadata、provenance 和 data array 的含义；
+    \item 对读入数据做路径、字段、类型、单位、缺失值和样本数检查；
+    \item 理解 FITS 为什么适合天文图像和表格；
+    \item 写出一份最小数据读入检查记录，说明数据从哪里来、如何读入、哪些值进入后续分析。
 \end{itemize}
 
-进入本章前，建议你已经完成 Part 0 的基础训练，至少能看懂 \texttt{Path}、\texttt{csv.DictReader}、简单循环、字典字段和小函数中的类型转换。本章会直接用这些能力来建立文件 I/O 的第一道质量控制。
+训练目标是完成一个小型数据入口任务：读入一份星表 CSV 和一个教学版 FITS 图像，做字段/header 检查、缺失值检查、最小统计和背景修正示例，最后交付一份 data intake record。
 
-\section{为什么数据读取不是一行代码那么简单}
+\section{贯穿本章的微型项目}
 
-初学数据分析时，学生最常见的错觉之一是：只要文件能被程序打开，数据处理就已经开始了。实际上，真实科研里“打开文件”之后还远远没有结束。你往往还需要确认：
+本章使用一个小型“星表 + 图像”项目作为情境。它不追求真实巡天复杂度，而是训练学生把数据入口做稳。
 
-\begin{itemize}
-    \item 路径是不是对的；
-    \item 文件格式是否和你想象的一样；
-    \item 字段名和单位是否正确；
-    \item header 里的元数据是否可信；
-    \item 缺测值、坏像元或异常行是否已经标记；
-    \item 后续 notebook 和脚本是否会在相同路径结构下稳定运行。
-\end{itemize}
-
-所以，本章真正要训练的，不是“背会 \texttt{open()} 怎么写”，而是理解：\textbf{I/O 是数据工作流的第一道质量控制。}
-
-\section{文本、CSV 与结构化表格}
-
-从抽象上看，科学文件至少可以分成两类：
-
-\begin{itemize}
-    \item \textbf{面向人阅读}：例如日志、说明、纯文本配置；
-    \item \textbf{面向程序读取}：例如 CSV、FITS、二进制数组、表格序列。
-\end{itemize}
-
-CSV 在教学里尤其常见，因为它透明、简单、可直接用文本编辑器查看。但它也有限制：
-
-\begin{itemize}
-    \item 通常不自带严格单位系统；
-    \item 元数据表达能力弱；
-    \item 对缺失值和复杂结构的表达比较脆弱。
-\end{itemize}
-
-\begin{defbox}[I/O 的最小目标]
-一个科研数据文件真正“可用”，不只是能被读取，还意味着你能清楚回答：字段是什么、单位是什么、缺失值怎样表示、这些值从哪里来。
-\end{defbox}
-
-\section{Python 内置文件接口：最小文本 I/O}
-
-Python 自带的文件接口很适合处理日志、说明文件和小型文本输出。
-
-\begin{examplebox}[最小写文件示例]
-\begin{lstlisting}[style=pythonstyle]
-with open("notes.txt", "w", encoding="utf-8") as handle:
-    handle.write("target_id, comment\n")
-    handle.write("T042, suspicious background level\n")
+\begin{examplebox}[最小数据入口项目]
+\begin{lstlisting}[style=terminal]
+data_intake_demo/
+  data/
+    stars_demo.csv
+    target_cutout.fits
+    README.md
+  notebooks/
+    inspect_data_inputs.ipynb
+  scripts/
+    check_data_inputs.py
+  results/
+    data_intake_record.txt
 \end{lstlisting}
 \end{examplebox}
 
-这里最值得注意的并不是 \texttt{write()} 本身，而是：
+\texttt{stars\_demo.csv} 可以包含目标编号、坐标、星等和质量标记；\texttt{target\_cutout.fits} 可以是一张小型教学图像。你要做的不是复杂分析，而是回答：
 
 \begin{itemize}
-    \item 使用 \texttt{with} 可以在代码块结束后自动关闭文件；
-    \item 文本文件适合记录过程说明、日志和轻量导出；
-    \item 一旦数据结构开始复杂，就应尽快转到更明确的表格格式。
+    \item 文件是否在预期路径；
+    \item 表格字段是否完整；
+    \item 数值字段是否能转换成数值；
+    \item 缺失值和质量标记如何处理；
+    \item FITS header 是否包含必要元数据；
+    \item 图像数组尺寸和数值范围是否合理；
+    \item 这一步检查结果如何写入记录。
 \end{itemize}
 
-\section{CSV：教学中最常用的结构化入口}
+\section{科学文件不只是字节容器}
 
-在本项目里，很多教学数据都放在 \texttt{data/small/} 下的 CSV 文件中。原因不是 CSV 最先进，而是它最适合教学：
+任何文件首先都是磁盘上的字节序列。程序需要知道如何解释这些字节：是文本、逗号分隔表格、压缩文件、图像，还是 FITS。科研数据格式的意义就在于给这些字节附加结构；常见格式与入门检查见表~\ref{tab:ch06_file_formats}。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.18\textwidth}p{0.32\textwidth}p{0.36\textwidth}}
+\toprule
+格式 & 适合什么 & 入门时必须检查什么 \\
+\midrule
+文本日志 & 运行记录、错误信息、说明 & 编码、行数、关键词、时间戳 \\
+CSV & 小型表格、教学数据、结果摘要 & 字段名、分隔符、缺失值、单位说明 \\
+FITS & 天文图像、表格和 header 元数据 & HDU、header、数组形状、单位、WCS 线索 \\
+二进制数组 & 大型数值数组或中间缓存 & 形状、dtype、生成程序、版本 \\
+\bottomrule
+\end{tabular}
+\caption{常见科研文件格式及入门阶段必须检查的结构线索。}
+\label{tab:ch06_file_formats}
+\end{table}
+
+初学阶段最重要的不是掌握所有格式，而是形成共同检查习惯：先确认格式，再解释结构，最后才把数值用于科学判断。
+
+\section{文本 I/O：最小但不能随意}
+
+Python 的内置文件接口适合处理日志、说明文件和小型文本输出。
+
+\begin{examplebox}[写入一个说明文件]
+\begin{lstlisting}[style=pythonstyle]
+from pathlib import Path
+
+note_path = Path("results/readme_note.txt")
+note_path.parent.mkdir(exist_ok=True)
+note_path.write_text(
+    "target_id: T042\ncomment: suspicious background level\n",
+    encoding="utf-8",
+)
+\end{lstlisting}
+\end{examplebox}
+
+这里有三个入门习惯：
 
 \begin{itemize}
-    \item 人可以直接打开查看；
-    \item 程序读取门槛低；
-    \item 很适合说明字段、单位和样本行；
-    \item 对“先看懂数据，再上模型”这个训练目标很友好。
+    \item 使用 \texttt{Path} 表达路径；
+    \item 显式创建输出目录；
+    \item 写文本时说明编码。
 \end{itemize}
+
+读取文本也应先抽样：
+
+\begin{examplebox}[读取文本前几行]
+\begin{lstlisting}[style=pythonstyle]
+log_path = Path("logs/run.log")
+if log_path.exists():
+    lines = log_path.read_text(encoding="utf-8").splitlines()
+    print(lines[:5])
+\end{lstlisting}
+\end{examplebox}
+
+文本文件常常承担“解释”和“证据”角色。它们看似不如 FITS 或数组高级，但在复现工作流中非常重要。
+
+\section{CSV：透明但脆弱的教学入口}
+
+CSV 是教学中最常用的数据格式之一，因为它透明、容易查看、容易生成。但 CSV 也很脆弱：它通常不强制单位，不强制字段类型，不强制缺失值规则，也不天然保存复杂元数据。
 
 \begin{examplebox}[读取一个最小 CSV]
 \begin{lstlisting}[style=pythonstyle]
 import csv
 from pathlib import Path
 
-data_path = Path("../../data/small/planetary_orbits_demo.csv")
+data_path = Path("data/stars_demo.csv")
 with data_path.open(newline="", encoding="utf-8") as handle:
     rows = list(csv.DictReader(handle))
+
+print(len(rows))
+print(rows[0].keys())
 \end{lstlisting}
 \end{examplebox}
 
-读入之后，第一步不应该立刻画图或训练模型，而应该先做最小检查：
+读入后不应立刻画图或建模。第一步应该是数据入口检查：
 
 \begin{enumerate}
-    \item 有多少行；
-    \item 字段名是什么；
-    \item 每个关键字段是不是都能转成数值；
-    \item 是否存在缺失值或非法值。
+    \item 行数是否接近预期；
+    \item 字段是否完整；
+    \item 关键字段是否有单位说明；
+    \item 数值字段能否转换；
+    \item 缺失值如何表示；
+    \item 质量标记是否需要筛选。
 \end{enumerate}
 
-\section{字段契约：读入之后先验证结构}
+\section{字段契约：表格必须说清自己的结构}
 
-一个 CSV 文件看起来像普通文本，但在科研工作流里，它其实隐含了一份“字段契约”：哪些列必须存在，哪些列必须是数值，哪些列可以为空，哪些列代表单位或标签。只要这份契约不清楚，后面的代码就会把很多数据问题推迟到更难调试的阶段才暴露出来。
+一个表格能被读入，不代表它被正确理解。科研表格至少需要一份字段契约。
 
 \begin{defbox}[字段契约]
-字段契约是对数据表结构的最小约定，包括必需字段、字段含义、单位、允许的缺失值表示和类型转换规则。
+字段契约是对表格结构的最小约定，包括必需字段、字段含义、单位、类型转换规则、允许的缺失值表示和质量标记含义。
 \end{defbox}
 
-例如，行星轨道教学数据至少应包含三列：
+例如一份星表教学数据可以按表~\ref{tab:ch06_field_contract_basic} 规定：
 
-\begin{itemize}
-    \item \texttt{planet}：对象名称；
-    \item \texttt{semi\_major\_axis\_au}：半长轴，单位 au；
-    \item \texttt{orbital\_period\_years}：轨道周期，单位 year。
-\end{itemize}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.24\textwidth}p{0.22\textwidth}p{0.36\textwidth}}
+\toprule
+字段 & 单位或类型 & 含义 \\
+\midrule
+\texttt{source\_id} & string & 目标编号 \\
+\texttt{ra\_deg} & degree & 赤经 \\
+\texttt{dec\_deg} & degree & 赤纬 \\
+\texttt{mag} & mag & 观测星等 \\
+\texttt{mag\_err} & mag & 星等不确定度 \\
+\texttt{quality} & string & 教学质量标记 \\
+\bottomrule
+\end{tabular}
+\caption{星表教学数据的最小字段契约示例。}
+\label{tab:ch06_field_contract_basic}
+\end{table}
 
-可以用一个很小的函数先检查字段是否完整：
+还可以把同一份契约写成“含义加检查”的形式，见表~\ref{tab:ch06_field_contract_checks}：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.20\textwidth}p{0.24\textwidth}p{0.18\textwidth}p{0.26\textwidth}}
+\toprule
+字段 & 含义 & 单位 & 最小检查 \\
+\midrule
+\texttt{source\_id} & 对象编号 & 无 & 是否唯一、是否缺失 \\
+\texttt{ra\_deg} & 赤经 & degree & 是否在 \([0,360)\) \\
+\texttt{dec\_deg} & 赤纬 & degree & 是否在 \([-90,90]\) \\
+\texttt{mag} & 星等 & mag & 是否可转为数值 \\
+\texttt{quality} & 质量标记 & 无 & 是否属于允许集合 \\
+\bottomrule
+\end{tabular}
+\caption{字段契约中字段含义、单位和最小检查的对应关系。}
+\label{tab:ch06_field_contract_checks}
+\end{table}
+
+这张表比“数据有这些列”更进一步：它说明每一列怎样被解释、应该怎样检查、什么情况下不能进入后续分析。字段契约写不清时，后面的模型和图表都会缺少地基。
+
+字段检查可以很小：
 
 \begin{examplebox}[检查必需字段]
 \begin{lstlisting}[style=pythonstyle]
-required_fields = {
-    "planet",
-    "semi_major_axis_au",
-    "orbital_period_years",
-}
+required = {"source_id", "ra_deg", "dec_deg", "mag", "mag_err", "quality"}
+available = set(rows[0].keys()) if rows else set()
+missing = required - available
 
-missing = required_fields - set(rows[0].keys())
 if missing:
-    raise ValueError(f"Missing fields: {sorted(missing)}")
+    raise ValueError(f"Missing required fields: {sorted(missing)}")
 \end{lstlisting}
 \end{examplebox}
 
-这个检查看起来简单，却能防止一种很常见的问题：文件名对了，路径也对了，但字段名和你以为的不一样。等到后面画图或建模时才发现字段错了，调试成本会高得多。
+这一步越早做越好。字段名错误如果拖到绘图或模型训练阶段才暴露，通常更难定位。
 
-\section{缺失值、非法值与类型转换}
+\section{类型转换：字符串还不是科学量}
 
-CSV 中所有内容读进来时通常都是字符串。也就是说，\texttt{"3.14"} 看起来像数字，但还不是数字；\texttt{""}、\texttt{"NA"}、\texttt{"nan"} 这类值看起来像“没有数据”，但程序未必自动知道该怎么处理。
+CSV 读入后，每个值通常都是字符串。字符串 \texttt{"15.3"} 看起来像数值，但还不能直接参与数值计算；字符串 \texttt{""}、\texttt{"NA"}、\texttt{"nan"} 也不一定会自动变成你想要的缺失值。
 
-\begin{examplebox}[一个最小数值解析函数]
+\begin{examplebox}[最小数值解析函数]
 \begin{lstlisting}[style=pythonstyle]
 def parse_float(value, field_name):
     text = value.strip()
@@ -148,260 +225,402 @@ def parse_float(value, field_name):
     try:
         return float(text)
     except ValueError as exc:
-        message = f"{field_name} is not numeric: {value!r}"
-        raise ValueError(message) from exc
+        raise ValueError(f"{field_name} is not numeric: {value!r}") from exc
 \end{lstlisting}
 \end{examplebox}
 
-有了这类函数之后，你就可以把“字符串是否能变成物理量”这一步显式放进工作流，而不是让错误在后面悄悄扩散。
+有了这类函数，数据入口就从“读到了字符串”推进到“知道哪些值可以作为数值使用”。
 
-\subsection{缺失值不是一种错误，而是一种状态}
-
-缺失值不一定表示数据坏了。它可能来自：
-
-\begin{itemize}
-    \item 该对象没有被某个波段观测；
-    \item 某次测量质量太差，被上游流程标记为空；
-    \item 两个星表交叉匹配后，有些字段没有对应值；
-    \item 教学数据故意留空，用来训练检查流程。
-\end{itemize}
-
-真正的问题不是“数据里有缺失值”，而是“你是否知道缺失值会如何影响后续分析”。例如，缺少视差的恒星不能直接计算距离；缺少误差的测量也不应该和带误差的测量混在一起做加权拟合。
-
-\begin{warnbox}[不要让缺失值自动变成零]
-把缺失值随手填成 $0$ 是非常危险的习惯。零是一个有物理含义的数值，而缺失值表示“未知”或“不适用”。二者不能混为一谈。
+\begin{warnbox}[不要把缺失值自动填成零]
+零是一个有物理含义的数值，缺失值表示未知、不适用或未观测。把缺失值随手填成 0，可能会制造虚假的亮源、零误差或不存在的物理边界。
 \end{warnbox}
 
-\section{从“文件被打开”到“数据可以分析”的最小算法}
+\section{单位：数值必须连接到物理含义}
 
-这一步非常关键。一个最小数据读取算法可以写成：
+科学数据中的数字只有和单位、坐标系、时间系统或仪器定义连接起来，才有物理含义。数值 \texttt{1.0} 可能是 1 degree、1 radian、1 arcsec、1 count、1 Jy，也可能只是归一化单位。
+
+入门阶段至少要养成两条习惯：
+
+\begin{itemize}
+    \item 字段名中尽量包含单位线索，例如 \texttt{ra\_deg}、\texttt{flux\_jy}；
+    \item 在数据 README 或 intake record 中写明单位，不要只靠代码变量名。
+\end{itemize}
+
+单位检查不一定要很复杂。很多错误可以通过数量级发现：
+
+\begin{examplebox}[最小范围检查]
+\begin{lstlisting}[style=pythonstyle]
+ra_values = [parse_float(row["ra_deg"], "ra_deg") for row in rows]
+bad_ra = [value for value in ra_values if value is not None and not (0 <= value < 360)]
+
+if bad_ra:
+    raise ValueError(f"RA outside [0, 360): {bad_ra[:3]}")
+\end{lstlisting}
+\end{examplebox}
+
+\section{缺失值与质量标记：数据状态也是数据}
+
+缺失值不一定表示错误。它可能来自未观测、低信噪比、上游筛选、交叉匹配失败或教学数据故意设置。质量标记也是数据的一部分，它说明某些行是否适合进入后续分析。
+
+\begin{examplebox}[按质量标记筛选]
+\begin{lstlisting}[style=pythonstyle]
+clean_rows = []
+for row in rows:
+    mag = parse_float(row["mag"], "mag")
+    mag_err = parse_float(row["mag_err"], "mag_err")
+    if row["quality"] == "good" and mag is not None and mag_err is not None:
+        clean_rows.append({**row, "mag": mag, "mag_err": mag_err})
+
+print(len(rows), len(clean_rows))
+\end{lstlisting}
+\end{examplebox}
+
+筛选不是纯技术动作，而是科学假设。你必须记录：哪些行被排除，为什么排除，排除后样本是否仍然代表原问题。
+
+\section{原始数据与清洗数据：不要覆盖入口证据}
+
+数据清洗的目标不是把原始数据“修成正确”，而是从原始数据中生成一份有明确规则的可分析数据。这个区别很重要。原始数据承担证据角色，清洗数据承担分析入口角色；两者应该能互相追溯，但不应该互相覆盖。
+
+一个安全的最小流程是：
 
 \begin{enumerate}
-    \item 定位文件路径；
-    \item 读入原始内容；
-    \item 检查字段名与样本数；
-    \item 根据字段契约做类型转换；
-    \item 检查单位、缺失值和非法值；
-    \item 决定哪些行和字段进入后续分析；
-    \item 记录这一步的路径、版本和假设。
+    \item 原始文件放在 \texttt{data/raw/} 或课程指定位置，默认只读；
+    \item 清洗脚本读取原始文件，按照字段契约和质量规则筛选；
+    \item 清洗结果写入 \texttt{data/processed/} 或 \texttt{results/}；
+    \item 同时写出排除记录，说明哪些行因为什么原因没有进入分析；
+    \item 在 data intake record 中写明原始输入、清洗输出和脚本入口。
 \end{enumerate}
 
-这和后面的机器学习数据预处理是同一条逻辑：先定义可用数据，再讨论模型。
+如果你直接在原始 CSV 中删除坏行，短期看文件更干净，长期却丢失了判断依据。别人无法知道坏行原来是什么、为什么被删、是否删错。更可靠的做法是让清洗规则存在于脚本和记录中，让原始数据保持可追溯。
+
+\begin{warnbox}[清洗数据不是静默改文件]
+任何会改变样本集合的操作都应留下记录。尤其是删除缺失值、剔除异常值、按质量标记筛选、单位转换和重命名字段，都应该能在脚本或 data intake record 中找到理由。
+\end{warnbox}
+
+\section{从文件到可分析数据的最小算法}
+
+把 CSV 数据入口压缩成算法，可以写成：
+
+\begin{enumerate}
+    \item 确认路径存在；
+    \item 读取文件并检查行数；
+    \item 检查必需字段；
+    \item 根据字段契约做类型转换；
+    \item 检查单位和数值范围；
+    \item 处理缺失值和质量标记；
+    \item 保存清洗后样本数、排除理由和清洗输出路径；
+    \item 写入 data intake record，并保留原始输入的追溯线索。
+\end{enumerate}
+
+这条算法会在后续章节不断重复。无论是星表、FITS 图像、光谱、时间序列还是机器学习特征表，入口检查永远不应该省略。
+
+\section{逐行验证：不要让坏行悄悄混进去}
+
+字段存在不代表每一行都可用。更可靠的做法是把验证拆到每一行：
+
+\begin{examplebox}[逐行验证骨架]
+\begin{lstlisting}[style=pythonstyle]
+def validate_row(row):
+    problems = []
+
+    try:
+        ra = float(row["ra_deg"])
+        dec = float(row["dec_deg"])
+    except ValueError:
+        problems.append("coordinate_not_numeric")
+        return problems
+
+    if not (0.0 <= ra < 360.0):
+        problems.append("ra_out_of_range")
+    if not (-90.0 <= dec <= 90.0):
+        problems.append("dec_out_of_range")
+    if row["quality"] not in {"good", "suspect", "bad"}:
+        problems.append("unknown_quality_flag")
+
+    return problems
+\end{lstlisting}
+\end{examplebox}
+
+逐行验证的目的不是让代码变长，而是让排除规则可解释。正式记录中不应只写“清洗后剩余 83 行”，还应说明哪些行因为什么原因被排除。
 
 \section{Provenance：数据从哪里来}
 
-科研数据分析中还有一个常被初学者忽略的问题：即使数据已经能读入、字段也都正确，你仍然要知道它从哪里来、经过哪些处理、当前版本是什么。这个信息通常称为 provenance，也就是数据来源和处理历史。
+即使字段和数值都正确，你仍然要知道数据从哪里来。这个信息称为 provenance。
 
 \begin{defbox}[Provenance]
-Provenance 指数据的来源、版本、处理步骤和关键假设。它回答的是：这份数据为什么可信，别人如何追溯它的生成过程。
+Provenance 指数据来源、版本、生成脚本、处理步骤和关键假设。它回答“这份数据为什么可信，别人如何追溯它”。
 \end{defbox}
 
-在一个最小教学项目里，你至少可以记录：
+一个最小 provenance 记录可以包含：
 
-\begin{itemize}
-    \item 原始文件路径或下载来源；
-    \item 数据生成日期或版本号；
-    \item 字段单位和关键筛选条件；
-    \item 负责生成或整理这份数据的脚本。
-\end{itemize}
-
-\begin{examplebox}[最小 provenance 记录]
+\begin{examplebox}[最小 provenance 字典]
 \begin{lstlisting}[style=pythonstyle]
-data_provenance = {
+provenance = {
     "source_file": str(data_path),
     "format": "csv",
-    "required_fields": sorted(required_fields),
-    "unit_notes": {
-        "semi_major_axis_au": "au",
-        "orbital_period_years": "yr",
-    },
+    "required_fields": sorted(required),
+    "row_count": len(rows),
+    "clean_row_count": len(clean_rows),
+    "quality_rule": "quality == good and mag/mag_err present",
 }
 \end{lstlisting}
 \end{examplebox}
 
-这段记录本身不做科学计算，但它让后续 notebook、脚本和报告更容易回答“我到底用了哪份数据”这个问题。
+在课程项目中，provenance 不一定需要复杂数据库。先做到 README、manifest、脚本名、commit hash 和检查记录，就已经能显著提高可复查性。
 
-\section{字段契约与 header 契约：同一个思想的两种形式}
+\section{FITS：天文学为什么需要专门格式}
 
-CSV 和 FITS 看起来很不一样：前者像普通表格文本，后者像天文专用数据容器。但从工作流角度看，它们遵循同一个原则：\textbf{先理解数据契约，再解释数值。}
-
-对于 CSV，契约通常藏在字段名、单位说明和缺失值规则里；对于 FITS，契约更多藏在 header 关键字、HDU 结构和仪器元数据里。无论格式如何，读入后都应该先问：
-
-\begin{enumerate}
-    \item 这份文件声称自己包含什么；
-    \item 哪些字段、header 或数组维度是后续分析必需的；
-    \item 单位、坐标、曝光时间或处理状态是否足以支持当前解释；
-    \item 如果某个关键说明缺失，后续结果应如何降级或标记。
-\end{enumerate}
-
-\begin{protip}[不要让文件格式替你思考]
-FITS 比 CSV 更强大，但它不会自动保证科学解释正确。格式只是容器；真正让数据可信的是契约、校验和 provenance。
-\end{protip}
-
-\section{FITS：为什么天文特别依赖它}
-
-FITS（Flexible Image Transport System）是天文学里最常见的数据格式之一。它之所以重要，不只是因为“很多图像都存成 FITS”，而是因为它通常把\textbf{数据本体}和\textbf{元数据描述}放在一起。
-
-一个最基本的 FITS 文件常包含两部分：
-
-\begin{itemize}
-    \item \textbf{header}：记录观测参数、目标信息、曝光时间、坐标、仪器信息等；
-    \item \textbf{data}：真正的图像数组或表格内容。
-\end{itemize}
+FITS 是天文学长期使用的数据格式。它常用于保存图像、表格和元数据。一个 FITS 文件通常由一个或多个 HDU 组成；每个 HDU 可以包含 header 和 data。
 
 \begin{defbox}[FITS Header]
-FITS header 是一组键值对元数据，用来说明图像或表格的观测背景、坐标、仪器参数和处理信息。它是天文数据可解释性的关键入口之一。
+FITS header 是一组关键字和值，记录观测时间、仪器、曝光时间、单位、坐标线索、数据维度等元数据。它告诉你 data array 应该如何被解释。
 \end{defbox}
+
+FITS 的重要性在于它把数组和元数据放在同一个文件结构中。对于天文图像，仅有像素矩阵是不够的；你还需要知道这些像素来自哪个目标、什么曝光、什么单位、怎样映射到天空坐标。
+
+\section{HDU：一个 FITS 文件里可能不止一份数据}
+
+HDU 是 Header/Data Unit 的缩写。一个 FITS 文件可以包含多个 HDU，例如表~\ref{tab:ch06_fits_hdu_checks} 中的几类：
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.18\textwidth}p{0.30\textwidth}p{0.36\textwidth}}
+\toprule
+HDU & 可能内容 & 需要检查什么 \\
+\midrule
+Primary HDU & 主图像或空数据加主 header & 图像形状、曝光时间、目标名 \\
+Image extension & 误差图、掩膜图、权重图 & 是否与主图像同形状 \\
+Table extension & 源表、检测结果、质量表 & 字段名、单位、行数 \\
+\bottomrule
+\end{tabular}
+\caption{FITS 文件中常见 HDU 类型及读取时的检查重点。}
+\label{tab:ch06_fits_hdu_checks}
+\end{table}
+
+因此，\texttt{hdul[0].data} 并不总是你真正需要的科学数据。读取 FITS 时先运行 \texttt{hdul.info()}，就是为了确认文件内部结构，而不是盲目取第一个数组。
 
 \section{最小 FITS 读取流程}
 
-在现代天文 Python 生态中，最常见的接口来自 \texttt{astropy.io.fits}。
+使用 \texttt{astropy.io.fits} 可以读取 FITS：
 
-\begin{examplebox}[一个最小 FITS 读取流程]
+\begin{examplebox}[读取 FITS 的最小流程]
 \begin{lstlisting}[style=pythonstyle]
 from astropy.io import fits
+from pathlib import Path
 
-with fits.open(path) as hdul:
+fits_path = Path("data/target_cutout.fits")
+with fits.open(fits_path) as hdul:
+    hdul.info()
     header = hdul[0].header
     image = hdul[0].data
+
+print(image.shape)
+print(header.get("EXPTIME"))
 \end{lstlisting}
 \end{examplebox}
 
-请注意，这里最重要的不是 \texttt{hdul[0]} 的下标本身，而是理解两件事：
+入门阶段至少检查：
 
 \begin{itemize}
-    \item 你拿到的图像数组并不是“纯像素”，它必须和 header 一起解释；
-    \item 同一个 FITS 文件中可能包含多个 HDU（Header Data Unit），真正需要的数据未必总在第一个位置。
+    \item 有多少个 HDU；
+    \item 图像数组形状是什么；
+    \item 数组中是否存在 NaN；
+    \item header 中是否有曝光时间、目标名、单位或坐标线索；
+    \item 数据值范围是否明显异常。
 \end{itemize}
 
-\section{header 里到底值得看什么}
+\section{Header 契约：FITS 也需要入口检查}
 
-在教学情景里，header 最常见、也最值得优先看的内容包括：
+CSV 有字段契约，FITS 有 header 契约。它们本质上是同一个思想：数据本体必须和解释它的说明一起检查。
 
-\begin{itemize}
-    \item 目标坐标或目标标识；
-    \item 曝光时间；
-    \item 观测日期；
-    \item 滤光片或波段信息；
-    \item 像元尺度、WCS 或仪器设置。
-\end{itemize}
-
-\begin{examplebox}[从 header 中提取关键信息]
+\begin{examplebox}[检查关键 header]
 \begin{lstlisting}[style=pythonstyle]
-ra = header.get("RA")
-dec = header.get("DEC")
-exptime = header.get("EXPTIME")
+required_cards = ["NAXIS", "NAXIS1", "NAXIS2"]
+missing_cards = [card for card in required_cards if card not in header]
+
+if missing_cards:
+    raise ValueError(f"Missing FITS header cards: {missing_cards}")
 \end{lstlisting}
 \end{examplebox}
 
-教学上要强调一点：\textbf{header 不是注释，它本身就是数据的一部分。}如果你后面要解释图像、做测光、做坐标匹配，header 往往和图像值本身同样重要。
+不同数据产品需要检查的 header 不同。教学图像可以只检查数组维度；真实天文图像还可能需要检查 \texttt{EXPTIME}、\texttt{FILTER}、\texttt{BUNIT}、WCS 关键字和数据质量扩展。
 
-\section{图像数组：从矩阵到物理量}
+\section{WCS：像素坐标到天空坐标的桥}
 
-对于图像型 FITS，\texttt{data} 往往是二维数组。数学上，你可以把它理解为一个像素矩阵：
+天文图像中的一个像素位置，例如 \((x,y)=(120,80)\)，本身只是数组索引。科学解释往往还需要知道这个像素对应天空上的哪个方向。WCS（World Coordinate System）就是描述像素坐标和天空坐标之间关系的元数据系统。
+
+入门阶段不需要推导完整 WCS 变换，但要知道最小检查包括：
+
+\begin{itemize}
+    \item header 中是否存在 \texttt{CTYPE}、\texttt{CRVAL}、\texttt{CRPIX}、\texttt{CD} 或 \texttt{CDELT} 等线索；
+    \item 图像是否已经被裁剪或重采样；
+    \item 画图时坐标轴是像素坐标还是天空坐标；
+    \item 后续测光或匹配是否需要真正的天球坐标。
+\end{itemize}
+
+如果没有 WCS，图像仍然可以用于教学数组练习，但不能随意声称某个像素对应某个天球位置。这就是数据入口检查和科学解释边界之间的关系。
+
+\section{图像数组：矩阵不是自动等于图像}
+
+FITS 图像读入后通常是二维数组。数组中的每个元素可能表示 count、count rate、flux、背景修正后的值或归一化强度。你不能只看形状，还要理解数值含义。
+
+\begin{examplebox}[最小数组检查]
+\begin{lstlisting}[style=pythonstyle]
+import math
+
+height, width = image.shape
+flat_values = [float(value) for row in image for value in row]
+finite_values = [value for value in flat_values if math.isfinite(value)]
+
+print(height, width)
+print(min(finite_values), max(finite_values))
+\end{lstlisting}
+\end{examplebox}
+
+真实项目中通常会使用 NumPy 更高效地完成这些检查。本章示例保留朴素写法，是为了让学生看清“数组检查到底在检查什么”。
+
+\section{背景修正光度的最小公式}
+
+为了说明“读入图像后仍然需要解释数值”，考虑一个最小孔径测光思想。假设孔径内有 \(N_{\rm ap}\) 个像素，像素值为 \(I_i\)，背景环带估计出的每像素背景为 \(b\)，则净信号可以写成：
 
 \[
-I_{ij}, \quad i = 1, 2, \dots, N_x,\quad j = 1, 2, \dots, N_y
+S_{\rm net} = \sum_{i \in \mathrm{aperture}} I_i - N_{\rm ap} b.
 \]
 
-这里的 $I_{ij}$ 表示第 $(i,j)$ 个像素上的记录值。这个值可能对应：
+这个公式很简单，但它说明数据入口和科学解释之间的连接：
 
 \begin{itemize}
-    \item 原始计数；
-    \item 已经平场和偏置校正后的强度；
-    \item 某种单位下的流量密度；
-    \item 处理过程中的中间产品。
+    \item 图像数组中的像素值是什么单位；
+    \item 哪些像素进入孔径；
+    \item 背景 \(b\) 如何估计；
+    \item 是否存在坏像元或饱和像元；
+    \item 结果是否应该除以曝光时间。
 \end{itemize}
 
-这也说明为什么“图像能显示出来”不等于“图像已经可解释”。你必须知道这些像素值在物理上意味着什么。
+因此，FITS 读取不是图像分析的结束，而只是图像分析的入口。
 
-\section{一个最小的背景修正光度公式}
+\section{曝光时间与单位：同一个 count 不一定同义}
 
-虽然本章不深入展开完整测光流程，但可以先建立一个最小公式直觉。若一个源的总孔径计数记为 $S_{\mathrm{ap}}$，背景平均值记为 $B$，孔径包含像素数为 $N_{\mathrm{pix}}$，那么一个最小背景修正总计数可写成：
+两个图像中同样的像素值 \texttt{1000}，如果曝光时间不同，物理含义就可能不同。一个最小的 count rate 可以写成：
 
 \[
-S_{\mathrm{net}} = S_{\mathrm{ap}} - N_{\mathrm{pix}} B
+R = \frac{C}{t_{\rm exp}},
 \]
 
-这个公式虽然简单，却体现了本章的重要精神：\textbf{数据读取之后的第一层理解，必须把数组值重新解释回物理量。}
+其中 \(C\) 是计数，\(t_{\rm exp}\) 是曝光时间。若 header 中没有可靠的 \texttt{EXPTIME}，你就不能轻易比较不同图像的亮度。若 \texttt{BUNIT} 表示数据已经是 count rate，再除一次曝光时间反而会出错。
 
-\section{把读入结果写成一条检查记录}
+这说明 header 不是附属说明，而是公式的一部分。你使用什么公式，取决于数据值已经表达了什么单位。
 
-读入数据后，真正成熟的做法不是立刻开始画图，而是先写下一条简短的检查记录。它至少应该回答：
+\section{把入口检查写成记录}
 
-\begin{itemize}
-    \item 文件从哪里来；
-    \item 读取后有多少行或多少像素；
-    \item 哪些关键字段已经通过验证；
-    \item 哪些字段缺失、可疑或需要进一步确认；
-    \item 后续分析入口是什么。
-\end{itemize}
+本章最重要的交付物不是一段漂亮代码，而是一份数据读入检查记录。
 
-你可以把它理解为 I/O 阶段的“实验记录卡”。例如：
+\begin{examplebox}[最小数据读入检查记录]
+\begin{lstlisting}[style=terminal]
+Dataset: data_intake_demo
+CSV file: data/stars_demo.csv
+FITS file: data/target_cutout.fits
+Reader notebook: notebooks/inspect_data_inputs.ipynb
+Reader script: scripts/check_data_inputs.py
+Commit:
 
-\begin{quote}
-\texttt{planetary\_orbits\_demo.csv} 已读入，8 行，关键字段完整，单位与数据契约一致，后续可以进入 Kepler 关系检查。
-\end{quote}
+CSV checks:
+- row count:
+- required fields:
+- missing fields:
+- clean row count:
+- unit notes:
 
-如果需要更接近模板化的写法，可以进一步展开为：
+FITS checks:
+- HDU count:
+- image shape:
+- required header cards:
+- finite pixel fraction:
+- value range:
 
-\begin{quote}
-数据入口为 \nolinkurl{data/small/planetary_orbits_demo.csv}，读取脚本或 notebook 为 \nolinkurl{notebooks/ch06_data_io_fits.ipynb}。读入后共有 8 行、3 个必需字段，字段 \texttt{semi\_major\_axis\_au} 与 \texttt{orbital\_period\_years} 已完成数值转换，未发现关键字段缺失；单位按数据说明解释为 au 与 year；后续分析只使用通过字段契约检查的行。
-\end{quote}
+Decisions:
+- rows used:
+- rows excluded:
+- reason for exclusion:
 
-这种写法看似朴素，却能显著降低“我好像读进来了，但后来不知道用了哪份数据”的风险。随着数据变复杂，这条检查记录也会越来越像正式 provenance 的起点。到了最终项目包，它会进入 Data card 和 Reproducibility card：前者记录数据入口、字段契约和单位解释，后者记录读取入口和可复跑路径。
+Limits:
+- teaching data only
+- WCS not fully validated
+\end{lstlisting}
+\end{examplebox}
 
-\section{配套 notebook 做了什么}
+这份记录会进入后续 evidence cards 中的 Data 和 Reproducibility 部分。它让别人知道你不是“随手读了一个文件”，而是做了入口质量控制。
 
-配套 notebook 的教学路线是刻意克制的：
+\section{配套 notebook 如何训练}
 
-\begin{itemize}
-    \item 先用一个极小 CSV 文件练习路径、字段、行数和单位检查；
-    \item 再说明 FITS 文件里 header 与 data 的最小结构；
-    \item 最后把“读取文件”与“后续物理解释或可视化任务”接起来。
-\end{itemize}
+本章配套 notebook 会把正文内容落到一个可运行流程中：
 
-这样做的目的，是让学生知道：I/O 不是后面章节的前奏，而是后面所有章节的入口。
+\begin{enumerate}
+    \item 创建或读取小型 CSV；
+    \item 检查字段契约；
+    \item 做类型转换和缺失值统计；
+    \item 按质量标记筛选；
+    \item 读取教学 FITS 文件；
+    \item 检查 header 和数组形状；
+    \item 计算最小数组统计量；
+    \item 生成 data intake record。
+\end{enumerate}
 
-\section{常见错误}
+训练重点不是让你记住某个库函数，而是让你建立数据入口习惯。以后遇到新数据集，你应该先问“契约是什么”，再问“怎么分析”。
+
+\section{常见错误与诊断}
 
 \begin{warnbox}[数据 I/O 中的典型问题]
 \begin{itemize}
-    \item 文件路径写死在个人电脑绝对路径里；
-    \item 读入 CSV 后不检查字段名、单位和缺失值；
-    \item 只取 FITS 图像数组，不看 header；
-    \item 看到二维数组就立刻画图，却不知道像素值代表什么；
-    \item 把文件“能打开”误当成数据“已经可分析”。
+    \item 文件路径正确，但字段名和预期不一致；
+    \item 读入后立刻画图或建模，没有检查行数、字段和缺失值；
+    \item 把字符串当作数值使用；
+    \item 把缺失值填成 0；
+    \item 不记录单位，导致度、弧度、角秒或像素混用；
+    \item 只看 FITS 数组，不看 header；
+    \item 数据来源、生成脚本和版本没有记录；
+    \item 清洗掉多少样本没有写入报告。
 \end{itemize}
 \end{warnbox}
 
+诊断数据入口问题时，先不要改模型。先回到路径、字段、类型、单位、缺失值和来源这六件事。很多模型异常，其实是数据入口阶段埋下的问题。
+
 \section{AI 助手如何帮助你}
 
-在这一章，AI 助手适合帮助你：
+AI 助手可以帮助你设计字段契约、阅读 header、生成检查代码、整理 data README 和总结异常值。但它不能替你确认数据的科学含义。尤其是单位、质量标记、坏像元和筛选条件，必须回到数据文档和科学问题。
 
-\begin{itemize}
-    \item 解释不同文件格式各自适合什么任务；
-    \item 帮你把读入数据后的检查步骤整理成小函数；
-    \item 帮你理解 header 里的典型字段含义；
-    \item 提醒你路径、单位和缺失值这些最容易忽略的问题。
-\end{itemize}
+一个好的提示词是：
 
-但哪些字段才是后续物理解释真正依赖的关键信息、某个 FITS header 是否可信、以及某个数据文件是否已经足够干净进入后续分析，仍然要靠你自己判断。
+\begin{lstlisting}[style=terminal]
+请根据这份 CSV 的字段名和前 5 行样本，帮我设计一个字段契约。
+请指出必需字段、可能的单位、缺失值风险和最小检查代码。
+\end{lstlisting}
 
-\section{练习}
+对于 FITS，可以这样问：
+
+\begin{lstlisting}[style=terminal]
+请根据下面的 FITS header 关键词，判断哪些信息足够解释图像数组，
+哪些信息仍然缺失。请不要替我假设单位或坐标系统。
+\end{lstlisting}
+
+\section{练习与交付}
 
 \begin{exercisebox}[基础练习]
-读取一个小型 CSV 数据表，列出字段名、样本数和两个你认为最关键的字段，并说明为什么它们关键。
+读取一份小型 CSV，打印行数和字段名。写出字段契约，至少包含字段含义、单位和是否允许缺失。
 \end{exercisebox}
 
-\begin{exercisebox}[进阶练习]
-找一个教学用 FITS 文件，分别查看 header 和 data。写一段简短说明，解释为什么只看图像矩阵本身还不够。
+\begin{exercisebox}[类型练习]
+为两个数值字段写类型转换函数，统计无法转换或缺失的行数。解释为什么这些行是否应该进入后续分析。
 \end{exercisebox}
 
-\begin{exercisebox}[开放练习]
-设计一个“数据读入后的最小检查清单”，至少包含：路径、字段、单位、缺失值、元数据和后续分析入口。
+\begin{exercisebox}[FITS 练习]
+读取一个教学 FITS 文件，列出 HDU 信息、图像形状、关键 header 卡片和像素值范围。说明这张图像还能不能直接用于物理解释。
+\end{exercisebox}
+
+\begin{exercisebox}[交付练习]
+写一份 \texttt{results/data\_intake\_record.txt}，记录 CSV 和 FITS 的路径、字段/header 检查、缺失值、筛选决策、输出文件和已知限制。
 \end{exercisebox}
 
 \section{本章小结}
 
-文件 I/O 看起来像最基础的技术操作，但它实际上是科学数据工作流的第一道入口和第一道质量控制。只有当你同时看路径、结构、单位、header 和数据本体时，后面的图表、模型和科学解释才有稳固基础。
+数据读取不是把文件塞进程序，而是建立数据和科学解释之间的第一座桥。一个可靠的数据入口流程必须检查路径、格式、字段、类型、单位、缺失值、header、数组形状和来源记录。只要这一步做扎实，后续绘图、统计、机器学习和 capstone 项目才有可信输入。忽略 I/O 质量控制，后面的模型越复杂，错误越难发现。

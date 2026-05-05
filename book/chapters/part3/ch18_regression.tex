@@ -1,5 +1,13 @@
 \chapter{回归}
 
+\section{本章导读：连续量预测必须带着残差一起读}
+
+回归任务看起来很自然：给定一组输入特征，预测一个连续物理量，例如红移、温度、时间常数或质量。但科学中的回归绝不只是“预测一个数”。真正重要的是预测误差如何分布，残差是否有系统结构，模型是否在某些物理区域明显失效，以及预测值是否被误当成精确测量。
+
+本章从最小线性回归讲起，不是因为线性模型最强，而是因为它最适合暴露回归问题的基本结构：输入、目标、参数、损失、残差、训练误差、测试误差和外推风险。复杂模型可以晚一点再来；如果简单模型的残差都没有读懂，复杂模型只会把问题藏得更深。
+
+读这一章时，请把每个回归结果都看成三件东西的组合：一个预测值、一组残差诊断和一段适用边界说明。只有三者同时存在，回归结果才有资格进入科学解释。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,30 @@
     \item 说明为什么多项式特征可以提升表达能力，同时也可能带来过拟合与外推风险；
     \item 把一个教学版光度红移问题走通为“切分 $\rightarrow$ baseline $\rightarrow$ 训练 $\rightarrow$ 残差分析 $\rightarrow$ 物理解读”的完整流程。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是一个教学版光度红移回归实验。正文负责解释回归目标、最小二乘、平均绝对误差、均方根误差、残差和过拟合。
+
+训练材料则要求你把一组测光颜色输入转化成连续红移预测，并写出模型能用在哪里、不能用在哪里。
+
+\begin{examplebox}[最小回归项目结构]
+\begin{lstlisting}[style=terminal]
+photoz_regression_demo/
+  data/
+    photometric_redshift_demo.csv
+  notebooks/
+    ch18_regression_workflow.ipynb
+  scripts/
+    run_photoz_regression.py
+  figures/
+    regression_residuals.png
+  results/
+    regression_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+项目交付应包含：训练/测试切分、baseline、拟合参数或模型配置、MAE/RMSE、残差图、离群样本说明和物理适用范围。后续案例中的光度红移任务会直接复用这套记录格式。
 
 \section{为什么回归在科学里无处不在}
 
@@ -79,7 +111,7 @@ y = \beta_0 + \beta_1 x + \epsilon,
     \item 后续任何更复杂的方法，都有了一个清楚的 baseline 参照。
 \end{itemize}
 
-\subsection{最小二乘思想}
+\paragraph{最小二乘思想}
 
 若模型是
 
@@ -113,6 +145,26 @@ def fit_line(xs, ys):
 \end{examplebox}
 
 这段代码虽然很短，却把回归中的核心对象都展示出来了：输入特征、目标值、均值中心化、斜率和截距。
+
+\paragraph{为什么斜率公式长这样}
+
+上面的代码并不是凭空出现的。若把残差平方和
+
+\[
+S(\beta_0,\beta_1)=\sum_i (y_i-\beta_0-\beta_1 x_i)^2
+\]
+
+分别对 $\beta_0$ 和 $\beta_1$ 求偏导，并令偏导为零，就会得到最小二乘的一组正规方程。整理后可写成：
+
+\[
+\beta_1 =
+\frac{\sum_i (x_i-\bar{x})(y_i-\bar{y})}
+{\sum_i (x_i-\bar{x})^2},
+\qquad
+\beta_0 = \bar{y}-\beta_1\bar{x}.
+\]
+
+这个结果有一个很好记的直觉：斜率近似是“$x$ 和 $y$ 一起变化的程度”除以“$x$ 自己变化的程度”。分子类似协方差，分母类似方差。如果 $x$ 几乎不变化，分母很小，斜率就会变得不稳定；这也是为什么样本覆盖范围会影响回归可靠性。
 
 \section{训练误差和测试误差为什么都要看}
 
@@ -177,6 +229,35 @@ r_i = y_i - \hat{y}_i.
 \end{itemize}
 
 在科学任务里，这些问题通常比单一指标更接近真正的建模判断。
+
+\section{一组极小预测的手算评估}
+
+假设测试集中有三个样本，真实红移和预测红移分别为：
+
+\[
+y=(0.10,0.30,0.60), \qquad
+\hat{y}=(0.12,0.24,0.75).
+\]
+
+残差按 $r_i=y_i-\hat{y}_i$ 记，则
+
+\[
+r=(-0.02,0.06,-0.15).
+\]
+
+于是
+
+\[
+\mathrm{MAE}=\frac{0.02+0.06+0.15}{3}\approx 0.077,
+\]
+
+\[
+\mathrm{RMSE}=
+\sqrt{\frac{0.02^2+0.06^2+0.15^2}{3}}
+\approx 0.094.
+\]
+
+这个小例子展示了为什么 RMSE 会比 MAE 更容易被大误差拉高。第三个样本的残差绝对值只有 $0.15$，但平方后对 RMSE 的贡献明显放大。读回归报告时，如果 RMSE 明显高于 MAE，通常应回到残差图和离群样本列表中检查。
 
 \section{为什么要引入多项式特征}
 
@@ -251,6 +332,36 @@ r_i = y_i - \hat{y}_i.
 这段报告把回归结果拆成了五个必要部分：数据入口、baseline、指标、残差诊断和外推边界。对科学回归来说，最后两项尤其重要，因为一个平均误差很小的模型仍然可能在关键物理区域系统失效。
 
 到了 Part VI，这段回归记录会自然拆进几张 capstone evidence cards：数据入口进入 Data card，baseline 与模型设置进入 Baseline / Model cards，残差图和外推风险进入 Evaluation 与 Interpretation cards。也就是说，本章的报告模板不是课后格式要求，而是最终项目证据链的雏形。
+
+\section{回归实验记录应如何落盘}
+
+为了避免“图在 notebook 里看过，但后来找不到依据”，每次回归实验都应把关键对象保存成文件或明确写进记录：
+
+\begin{itemize}
+    \item 训练/测试切分方式；
+    \item baseline 模型和正式模型的配置；
+    \item MAE、RMSE 和主要残差统计；
+    \item 残差图文件路径；
+    \item 最大残差样本的编号和简短解释；
+    \item 训练样本覆盖范围与外推风险。
+\end{itemize}
+
+\begin{examplebox}[回归记录的最小字段]
+\begin{lstlisting}[style=pythonstyle]
+regression_record = {
+    "target": "specz",
+    "features": ["g_r"],
+    "baseline": "one-dimensional linear regression",
+    "mae": mae,
+    "rmse": rmse,
+    "residual_plot": "figures/regression_residuals.png",
+    "largest_residual_ids": largest_residual_ids,
+    "extrapolation_warning": "do not apply beyond training color range",
+}
+\end{lstlisting}
+\end{examplebox}
+
+这样的记录会让回归结果从“我跑出了一个分数”变成“别人能复查我的误差、离群点和适用范围”。
 
 \begin{warnbox}[回归中的常见误区]
 \begin{itemize}

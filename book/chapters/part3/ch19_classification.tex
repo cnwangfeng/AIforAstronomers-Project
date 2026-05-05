@@ -1,5 +1,13 @@
 \chapter{分类}
 
+\section{本章导读：类别边界既是算法结果，也是科学假设}
+
+分类任务常常显得比回归更直接：给一个样本，输出一个类别。可是在天文和物理项目里，类别很少是天然刻在数据里的真理。恒星类型、星系形态、光谱类别、异常候选等级，往往都来自观测限制、人工标注、目录规则或历史分类体系。
+
+因此，分类模型学到的不只是一个决策边界，也可能学到标签定义、样本偏差和特征选择中的假设。本章会从规则 baseline、kNN、逻辑回归和决策树这些相对透明的方法开始，让你先看清分类器怎样把特征空间切开，再讨论准确率、混淆矩阵和按类别指标为什么不可省略。
+
+读这一章时，请始终追问：模型错分的是哪些样本，错误是否集中在边界对象、稀有类别或低质量数据上。科学分类的价值，往往不只在“分对了多少”，也在“哪些地方分不清，以及为什么分不清”。
+
 \section{学习目标}
 
 学完本章后，你应该能够：
@@ -11,6 +19,28 @@
     \item 理解 kNN、逻辑回归和决策树这几类经典分类器各自如何组织决策边界；
     \item 说明为什么混淆矩阵和按类别指标，往往比单一准确率更接近科学问题本身。
 \end{itemize}
+
+\section{训练目标与贯穿微型项目}
+
+本章的微型项目是一个教学版天体分类实验。正文负责解释分类边界、标签代理、kNN、逻辑回归、决策树和混淆矩阵；训练材料则要求你比较规则 baseline 和数据驱动分类器，并把错误结构写清楚。
+
+\begin{examplebox}[最小分类项目结构]
+\begin{lstlisting}[style=terminal]
+object_classification_demo/
+  data/
+    object_classification_demo.csv
+  notebooks/
+    ch19_classification_workflow.ipynb
+  scripts/
+    run_object_classifier.py
+  figures/
+    classification_confusion_matrix.png
+  results/
+    classification_record.txt
+\end{lstlisting}
+\end{examplebox}
+
+最终交付应包含：标签定义、特征选择、baseline 规则、模型设置、按类别指标、混淆矩阵、错误样本复核和标签边界说明。分类结果只有带着这些上下文，才有资格被当作科学候选筛选。
 
 \section{为什么科学问题里经常需要分类}
 
@@ -51,6 +81,24 @@
 \begin{defbox}[分类的核心]
 分类任务的关键，不是给每个对象硬塞一个标签，而是在特征空间里建立一条或一组边界，说明为什么这些对象应当被分开。
 \end{defbox}
+
+\section{从打分到标签：\texorpdfstring{\(\arg\max\)}{argmax} 到底做了什么}
+
+很多分类器在内部并不是直接输出文字标签，而是先给每一类一个分数。例如某个样本得到：
+
+\[
+s_{\mathrm{star}}=0.20,\qquad
+s_{\mathrm{galaxy}}=0.65,\qquad
+s_{\mathrm{quasar}}=0.15.
+\]
+
+如果使用最大分数规则，则预测为
+
+\[
+\hat{y}=\arg\max_k s_k(x)=\texttt{galaxy}.
+\]
+
+这一步看似简单，却有两个重要提醒。第一，分数最大不代表模型“绝对确定”，只代表在当前类别集合中它相对更倾向这一类。第二，如果分数彼此很接近，例如 $0.34,0.33,0.33$，硬标签会掩盖边界不确定性。科学分类报告里，边界样本往往比高置信样本更值得看。
 
 \section{标签并不总是“真相本身”}
 
@@ -125,6 +173,19 @@ def classify_rule(row):
 
 若训练集为 $\{(x_i, y_i)\}$，距离函数记为 $d(x, x_i)$，则 kNN 的直觉可以理解为：先找出最小化距离的邻居集合，再对邻居标签做投票。
 
+\begin{examplebox}[kNN 的最小投票例子]
+\begin{lstlisting}[style=pythonstyle]
+neighbors = [
+    ("star", 0.08),
+    ("galaxy", 0.12),
+    ("star", 0.16),
+]
+prediction = "star"
+\end{lstlisting}
+\end{examplebox}
+
+这里的第二个值是距离，三个最近邻里有两个是 \texttt{star}，所以预测为 \texttt{star}。如果把 $k$ 从 $3$ 改成 $5$，结果可能改变；如果某一维特征尺度特别大，最近邻也可能完全被那一维支配。因此 kNN 是理解分类边界的好入口，但它也立刻把“距离定义”和“特征尺度”的问题暴露出来。
+
 \section{距离函数为什么也带着假设}
 
 在 kNN 中，我们常用欧氏距离：
@@ -170,6 +231,10 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{itemize}
 
 它的局限也很明确：如果真实边界高度非线性，逻辑回归就可能显得过于刚性。
+
+\paragraph{线性边界的几何直觉}
+
+当 $z=\beta_0+\beta^\top x=0$ 时，sigmoid 输出为 $0.5$。这条等式在二维特征空间里是一条直线，在更高维空间里是一个超平面。因此，逻辑回归的分类边界首先是一条线性边界。它的优点是清楚、稳定、容易解释；缺点是如果真实边界弯曲得很厉害，就需要引入非线性特征或换用更灵活的模型。
 
 \section{决策树：用规则切空间}
 
@@ -219,6 +284,20 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{itemize}
 
 因此，混淆矩阵不是附属图表，而是分类结果解释的核心对象。
+
+\section{按类别指标：把科学关切放回类别上}
+
+在多分类任务中，每一类都可以临时被看成“正类”，其余类别看成“负类”，从而计算该类的 precision 和 recall。这样做的意义在于：科学任务通常不会对每一类同等关心。
+
+例如，对类星体候选筛选来说：
+
+\begin{itemize}
+    \item \texttt{quasar} 的 recall 太低，意味着很多候选被漏掉；
+    \item \texttt{quasar} 的 precision 太低，意味着后续复核资源会被误报消耗；
+    \item \texttt{star} 和 \texttt{galaxy} 之间的少量混淆，科学代价可能反而较低。
+\end{itemize}
+
+所以分类评估的最低要求不是“总体准确率有多少”，而是“每个关键类别的错误结构是否可接受”。这也是为什么后面模型评估章节会进一步展开 precision、recall、阈值和科学代价函数。
 
 \section{分类结果为什么必须回到样本分布解释}
 

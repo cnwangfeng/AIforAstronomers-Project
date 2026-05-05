@@ -34,6 +34,46 @@ Part IV 的四个案例展示了一个共同事实：很多天文与物理问题
 
 如果一个案例只剩下最终分数，却没有这些交付物，那么它仍然只是一次模型调用，而不是一个可复查的小型科学项目。
 
+\section*{一个可以立刻执行的 Part IV 综合任务}
+
+为了确认自己已经能把方法章装配成案例项目，可以任选 Part IV 的一个案例，完成一份最小 case package。这个任务不要求换成更大的真实数据，也不要求使用更复杂模型；它要求你把问题、数据、baseline、模型、诊断图、错误样本和有限结论放进同一个目录中。
+
+\begin{examplebox}[Part IV 最小 case package 目录]
+\begin{lstlisting}[style=terminal]
+part4_case_package/
+  data/
+    case_input_demo.csv
+  notebooks/
+    case_workflow.ipynb
+  scripts/
+    reproduce_case_result.py
+  figures/
+    main_diagnostic.png
+    error_examples.png
+  results/
+    case_report.md
+\end{lstlisting}
+\end{examplebox}
+
+建议按下面六步完成：
+
+\begin{enumerate}
+    \item \textbf{写清案例问题}：说明它是分类、回归、结构探索还是候选筛选，以及对应的科学目标；
+    \item \textbf{复用数据契约}：列出关键字段、单位、质量筛选、标签来源或图像/光谱处理条件；
+    \item \textbf{保留 baseline}：先报告一个简单可解释方法，再说明后续模型是否真正改进；
+    \item \textbf{生成诊断图}：至少有一张能支撑科学解释的主图，以及一张错误或残差诊断图；
+    \item \textbf{复查失败样本}：列出若干错分、残差大或边界样本，并解释可能原因；
+    \item \textbf{写有限结论}：说明当前教学数据支持什么，不支持什么，若升级到真实数据还要补哪些证据。
+\end{enumerate}
+
+最终的 \texttt{case\_report.md} 应该能被同学或助教独立阅读，并回答三个问题：这个案例为什么值得做，模型结果为什么暂时可信，以及哪些边界必须在进入 Part V 或 capstone 前保留下来。
+
+\section*{四个案例如何合成一套能力}
+
+这四个案例的价值不在于题目彼此独立，而在于它们共同训练了端到端项目的四种装配能力。Gaia HR 图案例让你从物理图像开始定义任务；光度红移案例让你把连续预测和残差诊断连起来；光谱分类案例让你处理高维序列化特征；星系形态案例则把图像、标签不确定性和现代 AI 入口连到一起。
+
+如果把它们压缩成一句话，Part IV 训练的是：先用最小可信 pipeline 形成案例包，再判断复杂模型是否真的必要。这个顺序会直接决定 Part V 的深度学习是否扎实。
+
 \section*{从案例项目包到 Capstone 卡片}
 
 Part IV 的案例交付物可以直接迁移到 Part VI 的 case template。问题定义对应 Project card，数据契约表对应 Data card，baseline 结果对应 Baseline card，诊断图和错误案例对应 Evaluation card 与 Interpretation card，notebook 复跑说明对应 Reproducibility card，有限结论和公开边界则进入 Integrity card。

@@ -70,6 +70,40 @@ part5_delivery = {
 
 这份交付包的作用，是把“复杂工具很强”转换成“复杂工具可以被课程项目安全使用”。如果这一包材料写不出来，就说明当前工具还没有准备好进入最终项目结论。
 
+\section*{一个可以立刻执行的 Part V 综合任务}
+
+任选一个深度学习或现代 AI 工具场景，完成一份最小 trusted delivery package。它可以是一个小型神经网络、一个 CNN baseline、一维卷积光谱模型、自编码器异常候选、LLM 辅助编程记录、agent 工具调用记录，或 AI 辅助文献整理记录。重点不是工具多强，而是使用理由、验证证据和人工责任是否闭合。
+
+\begin{examplebox}[Part V 最小 trusted delivery package 目录]
+\begin{lstlisting}[style=terminal]
+part5_trusted_delivery/
+  inputs/
+    allowed_materials_note.md
+  notebooks/
+    tool_workflow.ipynb
+  scripts/
+    reproduce_or_verify.py
+  figures/
+    validation_or_error_cases.png
+  results/
+    trusted_delivery_record.md
+    ai_usage_log.md
+\end{lstlisting}
+\end{examplebox}
+
+建议按下面六步完成：
+
+\begin{enumerate}
+    \item \textbf{说明使用理由}：复杂模型或 AI 工具解决了哪个 baseline 或人工流程的具体不足；
+    \item \textbf{写清输入边界}：哪些数据、代码、文献或报告内容可以输入工具，哪些不能；
+    \item \textbf{保留运行或交互记录}：记录模型设置、随机种子、提示词、工具调用或主要修改；
+    \item \textbf{生成验证证据}：包括测试结果、诊断图、错误样本、引用核对或人工复查记录；
+    \item \textbf{写出失败与接管}：列出 AI 输出被拒绝、模型失效或人工接管的具体位置；
+    \item \textbf{形成披露说明}：说明最终报告中如何描述模型限制或 AI 使用。
+\end{enumerate}
+
+最终的 \texttt{trusted\_delivery\_record.md} 至少要回答：为什么使用这个工具，它处理了什么输入，输出如何被验证，哪些结果不能信，哪些部分由学生本人承担责任。若这份记录写不出来，就不要把工具输出放进 capstone 结论。
+
 \section*{可信交付包怎样进入 Part VI}
 
 Part VI 不会要求学生另外写一套孤立的 AI 附录。更好的做法，是把 Part V 的可信交付包嵌入 capstone case template：

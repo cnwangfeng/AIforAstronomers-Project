@@ -210,6 +210,23 @@ gaia_hr_report = {
 
 在 Part IV case package 中，这份报告应拆成同一个 Model Experiment Packet：HR 图坐标、视差质量和类别来源进入 Dataset Contract；聚类、最近中心分类、混淆矩阵和边界样本复查进入 Model Experiment Record、Evaluation artifact 与 Error analysis artifact；消光、双星、变星、选择效应和简化标签则进入 Trust Statement。进入 Part VI 时，学生可以直接扩展这套证据，而不是重新发明项目结构。
 
+本章配套 notebook 的最后一步会导出一份最小样板包：
+
+\begin{examplebox}[Ch26 最小 case package]
+\begin{lstlisting}[style=terminal]
+results/ch26_gaia_hr_case/
+  dataset_contract_gaia_hr.md
+  model_experiment_record_gaia_hr.md
+  trust_statement_gaia_hr.md
+  confusion_matrix.csv
+  boundary_examples.csv
+  figures/
+    hr_diagram_boundary_examples.png
+\end{lstlisting}
+\end{examplebox}
+
+这份清单的作用，是让 Gaia HR 图案例成为“物理结构先于模型”的可仿写样板：先固定数据质量和 HR 图坐标，再记录聚类、分类、边界样本和不能外推的科学限制。
+
 \begin{warnbox}[这个案例中的常见误区]
 \begin{itemize}
     \item 没有先做视差质量筛选，就直接画 HR 图；

@@ -241,6 +241,23 @@ spectral_report = {
 
 进入 Part IV case package 时，光谱输入契约和预处理记录应进入 Dataset Contract 与 Model Experiment Record；PCA 和最近中心分类器应作为 Part III Algorithm Card 的 sidebar links；PCA 平面、混淆矩阵和错分光谱复查进入 Evaluation artifact 与 Error analysis artifact；CNN 升级理由和当前教学数据边界则进入 Trust Statement。
 
+本章配套 notebook 的最后一步会导出一份最小样板包：
+
+\begin{examplebox}[Ch28 最小 case package]
+\begin{lstlisting}[style=terminal]
+results/ch28_spectral_case/
+  dataset_contract_spectral.md
+  model_experiment_record_spectral.md
+  trust_statement_spectral.md
+  confusion_matrix.csv
+  misclassified_spectra.csv
+  figures/
+    pca_and_review_spectra.png
+\end{lstlisting}
+\end{examplebox}
+
+这份清单的作用，是让光谱分类案例成为“预处理证据 + PCA 结构审查 + 分类 baseline + 错分光谱复查”的可仿写样板。后续是否引入 1D CNN，必须以这份 baseline 和错误分析为参照。
+
 \begin{warnbox}[光谱分类中的常见误区]
 \begin{itemize}
     \item 没有统一归一化方式，就直接比较不同光谱；

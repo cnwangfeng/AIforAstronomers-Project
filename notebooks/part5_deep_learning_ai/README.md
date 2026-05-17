@@ -5,6 +5,12 @@ textbook. They continue the repo style of using tiny teaching datasets and
 pure-Python baselines first, with optional framework comparisons when the
 environment has extra libraries installed.
 
+Notebook outputs should align with the frozen Part III/IV interface. Deep-model
+notebooks should be able to feed a Model Experiment Record, evaluation artifact,
+error/review artifact, and Trust Statement. LLM, agent, reading, writing, and
+ethics notebooks should be able to feed an Evidence Record, AI Usage Log,
+verification artifact, and disclosure note.
+
 Current notebook set:
 
 - `ch30_neural_network_basics.ipynb`

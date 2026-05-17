@@ -26,4 +26,5 @@ Current status:
 - Current chapters cover neural networks, CNNs, one-dimensional convolutions, autoencoders, Transformer/attention concepts, LLM-assisted programming, agentic workflows, literature/report workflows, and AI ethics.
 - The latest continuation pass adds chapter-opening guide sections to ch30--ch38, so each deep-learning or modern-AI chapter now starts from why the tool is useful, what new risk it introduces, and what verification boundary must be preserved.
 - The synthesis chapter now includes an immediately assignable Part V trusted delivery package task, connecting tool-use rationale, input boundary, run/interaction record, validation evidence, failure handoff, and disclosure.
+- Part V is aligned to the frozen Part III/IV interface: deep models use Dataset Contract, Model Experiment Record, evaluation/error artifacts, and Trust Statement; AI-assisted workflows use Evidence Record plus a lightweight AI Usage Log and disclosure note.
 - Possible later refinements include deeper transfer-learning or real-data deep-learning case studies after the current text is reviewed.

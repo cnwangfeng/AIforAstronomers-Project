@@ -11,6 +11,12 @@ error/review artifact, and Trust Statement. LLM, agent, reading, writing, and
 ethics notebooks should be able to feed an Evidence Record, AI Usage Log,
 verification artifact, and disclosure note.
 
+Current sample delivery exports:
+
+- Ch31 exports `results/ch31_cnn_delivery/` as a deep-model package with Dataset Contract, Model Experiment Record, routing/review artifacts, and Trust Statement.
+- Ch35 exports `results/ch35_llm_programming_delivery/` as an AI-assisted programming package with Evidence Record, AI Usage Log, regression checks, validation figure, and disclosure note.
+- Ch36 exports `results/ch36_agentic_workflow_delivery/` as an agentic workflow package with Evidence Record, AI Usage Log, action log, manual-review queue, routing figure, and disclosure note.
+
 Current notebook set:
 
 - `ch30_neural_network_basics.ipynb`

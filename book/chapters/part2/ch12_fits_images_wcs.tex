@@ -1,5 +1,11 @@
 \chapter{天文图像、FITS 与 WCS}
 
+\section{本章阅读方式}
+
+所有学生快读图像数据共同框架；图像、星系或目标检测方向学生精做。目标不是完整图像处理，而是理解像素如何在 header、WCS、背景、单位和预处理后变成可建模输入。
+
+最低交付是一个 Evidence Record 和图像检查结果或 photometry/cutout 结果。本章进入 Part III 的作用，是记录 cutout 大小、背景处理、归一化、mask、像素尺度和标签来源，避免图像数组脱离科学语境。
+
 \section{本章导读：像素为什么还不是天文测量}
 
 图像是很多学生最容易产生直觉的数据类型：把二维数组画出来，好像就已经“看见了天体”。但在科研分析里，像素图只是起点。你真正想报告的通常不是某个像素值，而是源的位置、亮度、背景修正后的净信号，或者它与另一份星表、光谱和模型之间的对应关系。
@@ -38,7 +44,7 @@ image_cutout_demo/
   figures/
     cutout_aperture.png
   results/
-    photometry_record.txt
+    image_evidence_record.txt
 \end{lstlisting}
 \end{examplebox}
 
@@ -345,6 +351,27 @@ dec_deg = crval2 + (y_pix - crpix2) * cdelt2
 
 这个模板的价值在于把一个看似简单的数值拆回它的来源。孔径测光不是“把中心几个像素相加”，而是一次带有几何选择、背景估计和元数据假设的测量。后面如果你把测光结果作为机器学习特征，这些假设也应当随特征一起被记录。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立测光记录模板，而是使用统一 Evidence Record，并补充图像、WCS 和 cutout 字段：
+
+\begin{examplebox}[Ch12 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch12 Fields:
+- FITS file:
+- HDU/header checked:
+- image shape:
+- pixel scale / WCS:
+- background method:
+- aperture or cutout setting:
+- normalization:
+- mask / bad pixels:
+- possible ML input shape:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须说明背景、归一化、cutout 或 aperture 设置中的至少一项；不能只给 imshow 图。
+
 \section{配套 notebook 做了什么}
 
 配套 notebook 采用的是一条非常典型、也非常教材化的图像分析主线：
@@ -399,6 +426,17 @@ dec_deg = crval2 + (y_pix - crpix2) * cdelt2
 \begin{exercisebox}[开放练习]
 为一个真实图像项目写一页“图像分析前检查清单”，至少包含：header、像元尺度、背景估计、孔径定义、坐标系统和输出量含义。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item FITS header/data 和图像形状是否检查？
+    \item 坐标、像素尺度或 WCS 风险是否说明？
+    \item 背景、cutout、aperture 或归一化是否记录？
+    \item 图像进入 ML 前会丢失什么信息是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record 和图像检查结果或 photometry/cutout 结果。
 
 \section{本章小结}
 

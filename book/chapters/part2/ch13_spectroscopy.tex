@@ -1,5 +1,11 @@
 \chapter{光谱数据、谱线与红移}
 
+\section{本章阅读方式}
+
+所有学生快读光谱共同框架；光谱方向学生精做。目标是理解一维数组背后的波长、流量、校准、连续谱、谱线和红移假设，并记录其进入机器学习前的预处理历史。
+
+最低交付是一个 Evidence Record 和光谱图或红移/谱线记录。本章进入 Part III 的作用，是记录波长网格、归一化、重采样、mask、S/N 和标签来源，避免模型只看到数组而失去物理坐标。
+
 \section{本章导读：沿着波长轴读出物理线索}
 
 如果图像主要回答“天体在哪里、形态怎样”，光谱更进一步追问“它由什么组成、处在什么物理状态、相对我们如何运动”。一条光谱看起来只是波长和流量两列数，但波长轴上的峰、谷、宽度和位移，往往直接连接到原子跃迁、温度、速度、红移和仪器分辨率。
@@ -38,7 +44,7 @@ spectrum_redshift_demo/
   figures/
     spectrum_redshift_demo.png
   results/
-    spectrum_record.txt
+    spectrum_evidence_record.txt
 \end{lstlisting}
 \end{examplebox}
 
@@ -383,6 +389,27 @@ for sample_rows in spectra.values():
 
 如果报告等效宽度，也应同时说明积分窗口、连续谱估计、符号约定和 \(\Delta\lambda\) 的处理方式。这样读者才能判断这个特征是否可以和其他对象比较，或者是否适合作为后续分类、聚类和异常检测的输入。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立光谱记录模板，而是使用统一 Evidence Record，并补充光谱轴、谱线和红移字段：
+
+\begin{examplebox}[Ch13 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch13 Fields:
+- spectrum file:
+- wavelength unit/grid:
+- flux unit:
+- calibration status:
+- continuum treatment:
+- line candidates:
+- redshift estimate:
+- S/N or quality flag:
+- resampling/normalization:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须说明红移或谱线判断的质量依据；不能只标出一个峰。
+
 \section{配套 notebook 做了什么}
 
 本章 notebook 走的是一条典型而克制的路线：
@@ -436,6 +463,17 @@ for sample_rows in spectra.values():
 \begin{exercisebox}[开放练习]
 为你自己的一个未来光谱项目写一份“最小光谱处理清单”，至少包含：波长单位、归一化方式、候选谱线、红移估计方法和采样一致性检查。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 波长和流量单位是否清楚？
+    \item 连续谱、归一化或重采样是否记录？
+    \item 谱线/红移判断是否有质量依据？
+    \item 光谱进入 ML 前的预处理风险是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record 和光谱图或红移/谱线记录。
 
 \section{本章小结}
 

@@ -1,5 +1,11 @@
 \chapter{库、脚本与 Jupyter}
 
+\section{本章阅读方式}
+
+本章需要精读并动手。目标不是多写 Python，而是把探索代码整理成可重跑入口：别人知道用哪个环境、运行哪个脚本、输入在哪里、输出到哪里、随机种子和参数是什么。
+
+最低交付是一个 Evidence Record、一段能从命令行运行的脚本和一份运行日志。本章进入 Part III 的作用，是为机器学习实验提供可复查的环境、入口、参数、随机种子和输出目录。
+
 \section{本章导读：从会写代码到会交付工作流}
 
 学完 Python 基础语法之后，很多学生会自然进入 Jupyter notebook：一格一格运行代码，马上看到表格、数字和图像。这是非常好的探索方式。但真实科研项目不能停留在“这一页 notebook 在我电脑上刚才跑通了”。别人需要知道你用了哪些库、在哪个环境里运行、随机过程是否固定、哪些单元是临时探索、哪些脚本能从头重跑、最终结果从哪里生成。
@@ -578,7 +584,22 @@ Limits:
 \end{lstlisting}
 \end{examplebox}
 
-这份记录会在后续数据 I/O、绘图和机器学习章节继续扩展。它是最终 capstone reproducibility card 的早期版本。
+这份记录应收束为统一的 Evidence Record，而不是另起一个独立模板。本章只在母模板后补充少量脚本工作流字段：
+
+\begin{examplebox}[Ch04 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch04 Fields:
+- notebook:
+- script entry:
+- command to run:
+- python version:
+- key package versions:
+- random seed:
+- output directory:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：记录中必须包含一个能从命令行运行的脚本入口，而不仅是 notebook。这份记录会在后续数据 I/O、绘图和机器学习章节继续扩展。它是最终 capstone reproducibility card 的早期版本。
 
 \section{配套 notebook 如何训练}
 
@@ -659,6 +680,17 @@ AI 助手很适合参与本章的工作流整理。它可以帮助你：
 \begin{exercisebox}[交付练习]
 记录 Python 版本、关键依赖、运行命令、输入字段、输出文件和已知限制。把这份记录保存为 \texttt{logs/script\_run\_record.txt}，并在 Git 中提交。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item notebook 和 script 的分工是否清楚？
+    \item 脚本能否从命令行重跑？
+    \item 环境、参数、随机种子是否记录？
+    \item 输出目录是否固定且可定位？
+\end{enumerate}
+
+最低交付：Evidence Record、可运行脚本和运行日志。
 
 \section{本章小结}
 

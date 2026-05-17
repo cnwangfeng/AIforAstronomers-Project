@@ -1,5 +1,11 @@
 \chapter{科学数据、误差与单位}
 
+\section{本章阅读方式}
+
+本章必须精读。后续所有数据处理和机器学习任务都依赖本章：一个数字只有同时带有单位、误差、来源、适用条件和限制，才是科学数据。
+
+最低交付是一个 Evidence Record 和一个测量/派生量检查。本章进入 Part III 的作用，是提醒你不要把裸数字直接交给模型；特征、标签和评估量都必须保留单位、误差或质量边界。
+
 \section{本章导读：一个数字什么时候才算科学结果}
 
 从这一章开始，我们离开“怎样让程序跑起来”，进入“怎样让数据变成证据”。这里最先要拆开的误解是：科学数据并不是表格里的一个裸数字。一个数字只有同时带着单位、测量条件、不确定度、近似公式和适用范围，才可能成为可以被复查的科学结果。
@@ -405,6 +411,26 @@ distance_if_mas = 1000.0 / 10.0
 
 从这一章开始，后面的图像测光、光谱红移、周期搜索和模型拟合都应尽量采用类似的报告习惯。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立测量记录模板，而是使用统一 Evidence Record，并在最后补充以下字段：
+
+\begin{examplebox}[Ch10 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch10 Fields:
+- measured quantity:
+- unit:
+- uncertainty:
+- derived quantity:
+- formula used:
+- error propagation:
+- order-of-magnitude check:
+- systematic risk:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须包含单位检查和至少一种误差或数量级检查。
+
 \section{配套 notebook 做了什么}
 
 本章 notebook 采用一条很克制但非常典型的教学路线：
@@ -456,6 +482,17 @@ distance_if_mas = 1000.0 / 10.0
 \begin{exercisebox}[开放练习]
 设计一个你自己的“数据结果最小表达模板”，至少包含：数值、单位、不确定度、测量来源和一个数量级自检说明。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 原始测量值、单位和误差是否清楚？
+    \item 派生量公式和适用条件是否写明？
+    \item 单位或数量级是否检查？
+    \item 系统误差或公式反演风险是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record 和一个测量/派生量检查。
 
 \section{本章小结}
 

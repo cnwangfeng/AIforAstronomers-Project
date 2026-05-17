@@ -1,5 +1,11 @@
 \chapter{Git 与可复现科研}
 
+\section{本章阅读方式}
+
+本章快读 Git 概念，重点学会把一次科研结果冻结到可定位版本。评分重点不是 commit 数量，而是别人能否知道哪个版本生成了哪个图、表或 record。
+
+最低交付是一个 Evidence Record，以及 \texttt{git log}、\texttt{git status} 或 tag 记录。本章进入 Part III 的作用，是让机器学习实验、数据处理结果和报告图表都能追踪到具体代码版本。
+
 \section{本章导读：Git 不是备份工具，而是科研时间轴}
 
 很多学生第一次接触 Git 时，会把它理解成“保存代码版本的工具”。这个理解没有错，但太窄。对于科研项目来说，Git 更重要的作用是建立一条可追踪的时间轴：什么时候改了数据筛选条件，什么时候修正了图表脚本，什么时候生成了报告中的关键结果，哪个 commit 对应期末提交版本。
@@ -543,7 +549,21 @@ Limit: simulated teaching data, not calibrated science product
 \end{lstlisting}
 \end{examplebox}
 
-这份记录会在后续章节继续升级，最终成为 capstone reproducibility card 的一部分。
+这份记录使用统一 Evidence Record 母模板，本章只补充以下版本字段：
+
+\begin{examplebox}[Ch02 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch02 Fields:
+- repository root:
+- relevant commit:
+- tag/checkpoint:
+- tracked files:
+- ignored files:
+- output linked to commit:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须能指出哪个 commit 或 tag 生成了哪个输出文件。这份记录会在后续章节继续升级，最终成为 capstone reproducibility card 的一部分。
 
 \section{从日常提交到 release 的算法}
 
@@ -652,6 +672,17 @@ AI 助手可以在几个具体环节提供帮助：
 \begin{exercisebox}[交付练习]
 生成一份最小版本化结果记录，至少包含结果文件、commit hash、数据来源、运行入口、关键参数、检查结果和已知限制。把这份记录保存为 \texttt{notes/evidence\_record.md} 并提交。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 仓库当前状态是否干净？
+    \item 关键代码和 record 是否已 commit？
+    \item 是否有可评分 tag 或 commit？
+    \item 输出文件能否追踪到版本？
+\end{enumerate}
+
+最低交付：Evidence Record 和 \texttt{git log/status/tag} 记录。
 
 \section{本章小结}
 

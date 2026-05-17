@@ -1,5 +1,11 @@
 \chapter{Unix/Linux 与科研计算环境}
 
+\section{本章阅读方式}
+
+本章快读命令说明，重点完成一次可复查的命令行操作记录。你不需要成为 Linux 专家，但必须能定位项目路径、预览写操作、保存日志、运行最小脚本，并说明输入和输出文件在哪里。
+
+最低交付是一个 Evidence Record，加上一份命令日志或最小脚本。本章进入 Part III 的作用，是保证后续数据处理、训练脚本和模型输出都有清楚路径、日志和运行入口。
+
 \section{本章导读：从会敲命令到会组织科研工作}
 
 许多学生第一次学习 Linux 时，会把它理解成一张命令表：\texttt{ls} 是看文件，\texttt{cd} 是换目录，\texttt{cp} 是复制，\texttt{rm} 是删除。这样学当然能应付几道练习题，但一旦进入真实科研环境，问题马上会变得更复杂：服务器上有几千个文件，数据分散在多个目录，脚本要运行很久，输出需要保存，错误日志需要检查，别人还要知道你到底做了哪些操作。
@@ -798,9 +804,9 @@ $ find results -name "*.tmp" -delete
 
 这条算法比任何单条命令都重要。后续章节中的 Git、Python 脚本、数据 I/O、绘图、机器学习训练和 capstone 项目，都会依赖这条基础工作流。
 
-\section{最小命令行运行记录模板}
+\section{最小命令行 Evidence Record}
 
-本章训练结束时，建议学生提交一份很短的运行记录。它不需要漂亮，但应该能让别人知道你做过什么。
+本章训练结束时，建议学生提交一份很短的 Evidence Record。它不需要漂亮，但应该能让别人知道你做过什么。
 
 \begin{examplebox}[运行记录模板]
 \begin{lstlisting}[style=terminal]
@@ -831,7 +837,21 @@ Known limits:
 \end{lstlisting}
 \end{examplebox}
 
-这份模板会在后续章节中逐步升级：Git 章会补上 commit hash，数据 I/O 章会补上字段契约，绘图章会补上图表说明，机器学习章会补上模型评估，最终进入 capstone evidence cards。
+这份记录使用统一 Evidence Record 母模板，本章只补充以下命令行字段：
+
+\begin{examplebox}[Ch01 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch01 Fields:
+- project root:
+- key read-only checks:
+- preview before write:
+- log file:
+- script or command entry:
+- python path/version check:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须包含一次写操作前的 preview，或明确说明本章操作全部为只读。这份模板会在后续章节中逐步升级：Git 章会补上 commit hash，数据 I/O 章会补上字段契约，绘图章会补上图表说明，机器学习章会补上模型评估，最终进入 capstone evidence cards。
 
 \section{配套 notebook 如何训练}
 
@@ -904,6 +924,17 @@ find results -name "*.tmp" -delete
 \begin{exercisebox}[交付练习]
 写一个 \texttt{scripts/run\_pipeline.sh}，至少完成创建输出目录、保存输入文件清单、写入一个结果状态文件。运行脚本时把标准输出和标准错误分别保存到 \texttt{logs/}。最后提交一份最小命令行运行记录。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 我能否从项目根目录定位输入和输出？
+    \item 我是否在写操作前做了 preview？
+    \item 我是否保存了关键命令或日志？
+    \item 我是否能运行一个最小脚本并检查 Python 路径/版本？
+\end{enumerate}
+
+最低交付：Evidence Record 和命令日志或最小脚本。
 
 \section{本章小结}
 

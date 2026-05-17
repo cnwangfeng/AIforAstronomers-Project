@@ -1,5 +1,11 @@
 \chapter{物理实验、模型拟合与模拟数据}
 
+\section{本章阅读方式}
+
+所有学生快读模型拟合共同框架；物理实验和模拟方向学生精做。目标不是找到最低误差曲线，而是说明模型、参数、残差、不确定度和解释边界，并理解它如何成为机器学习 baseline。
+
+最低交付是一个 Evidence Record、拟合结果和残差/不确定度检查。本章进入 Part III 的作用，是把物理模型变成可解释 baseline，并让参数、残差和误差指标成为后续模型评估的参照。
+
 \section{本章导读：拟合曲线不是终点，解释参数才是目标}
 
 前面几章主要从不同数据类型出发学习观测记录如何变成测量结果。本章再向前走一步：当我们已经有一个候选机制模型时，数据分析就不只是描述曲线形状，而是要用数据约束模型参数，并判断这些参数是否有合理的单位、数量级和物理解释。
@@ -38,7 +44,7 @@ physics_fit_demo/
   figures/
     decay_fit_residuals.png
   results/
-    model_fit_record.txt
+    model_fit_evidence_record.txt
 \end{lstlisting}
 \end{examplebox}
 
@@ -399,6 +405,27 @@ tau_mean = sum(tau_samples) / len(tau_samples)
 
 例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。到了最终项目包，原始实验字段和误差模型进入 Data card，拟合流程和随机扰动方法进入 Reproducibility card，残差与 baseline 比较进入 Evaluation card，物理解释和模型假设则进入 Interpretation card。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立模型拟合记录模板，而是使用统一 Evidence Record，并补充模型、参数和残差字段：
+
+\begin{examplebox}[Ch15 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch15 Fields:
+- model formula:
+- parameter meanings:
+- parameter units:
+- fitting method:
+- residual plot:
+- error metric / chi-square:
+- uncertainty estimate:
+- baseline comparison:
+- physical interpretation limit:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须包含残差或误差诊断；不能只给拟合曲线。
+
 \section{为什么还要和数据驱动近似比较}
 
 如果你只追求插值效果，那么一个二次多项式或更灵活的回归器也可能在局部拟合得不错。但物理模型与数据驱动模型的差别在于：
@@ -492,6 +519,17 @@ tau_mean = sum(tau_samples) / len(tau_samples)
 \begin{exercisebox}[开放练习]
 为一个你熟悉的物理实验写出“模型拟合前检查清单”，至少包含：变量单位、候选机制模型、误差来源、残差检查和不确定度估计方法。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 模型公式、参数和单位是否清楚？
+    \item 拟合方法和误差指标是否说明？
+    \item 是否查看残差或不确定度？
+    \item 物理模型和 ML baseline 的关系是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record、拟合结果和残差/不确定度检查。
 
 \section{本章小结}
 

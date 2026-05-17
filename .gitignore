@@ -13,6 +13,7 @@ venv/
 
 # Jupyter / generated notebooks
 *.nbconvert.ipynb
+notebooks/**/results/
 
 # Data caches and large local artifacts
 data/external/*
@@ -54,4 +55,3 @@ data/external/*
 # Generated figures can be rebuilt unless copied into book/.
 figures/generated/*
 !figures/generated/.gitkeep
-

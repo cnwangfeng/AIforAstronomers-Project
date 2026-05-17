@@ -1,5 +1,11 @@
 \chapter{时间序列、采样与周期信号}
 
+\section{本章阅读方式}
+
+所有学生快读时间序列共同框架；时域方向学生精做。目标是理解时间、采样、噪声和窗口函数如何影响周期判断，以及这些信息如何进入机器学习特征或质量记录。
+
+最低交付是一个 Evidence Record 和 period search/phase-folding 结果。本章进入 Part III 的作用，是保留 cadence、duration、missing pattern、period feature、amplitude feature、label source 和 alias 风险。
+
 \section{本章导读：周期不是最高峰，而是一个需要检验的假设}
 
 时间序列的困难在于，数据值和观测时刻同样重要。两组亮度值即使完全相同，只要时间戳不同，就可能对应完全不同的物理解释。对天文学来说，这一点尤其关键，因为观测经常被昼夜、天气、季节、轨道和巡天策略切割成不均匀的窗口。
@@ -38,7 +44,7 @@ period_search_demo/
   figures/
     phase_folded_lightcurve.png
   results/
-    period_record.txt
+    period_evidence_record.txt
 \end{lstlisting}
 \end{examplebox}
 
@@ -368,6 +374,28 @@ f = \frac{1}{P},
 
 这段报告有四个关键部件：第一，说明搜索范围，而不是把算法当作全宇宙搜索；第二，说明比较标准，例如残差、\(\chi^2\) 或周期图功率；第三，说明折叠图是否支持候选；第四，主动保留采样窗口和混叠风险。到了最终项目包，这些内容会分别进入 Data card、Evaluation card、Interpretation card 和 Reproducibility card。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立周期记录模板，而是使用统一 Evidence Record，并补充时间序列和候选周期字段：
+
+\begin{examplebox}[Ch14 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch14 Fields:
+- time series file:
+- time unit/system:
+- cadence:
+- duration:
+- missing pattern:
+- period search range:
+- best period:
+- second-best period:
+- phase-folded plot:
+- alias risk:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：不能只报告 best period；必须说明 second-best period 或 alias 风险。
+
 \section{配套 notebook 做了什么}
 
 配套 notebook 走的是一条完整而克制的教学主线：
@@ -427,6 +455,17 @@ y(t) = C + a\sin\omega t + b\cos\omega t
 \begin{exercisebox}[开放练习]
 假设你要处理一条真实 TESS 或地基变星光变曲线。请写一个“周期恢复前检查清单”，至少包含：时间单位、缺测情况、典型误差、候选周期范围、混叠检查和相位折叠验证。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 时间戳、时间跨度和采样是否说明？
+    \item 周期搜索范围是否合理？
+    \item 是否报告 best period 之外的候选或 alias 风险？
+    \item 时间序列进入 ML 前的缺失/采样风险是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record 和 period search/phase-folding 结果。
 
 \section{本章小结}
 

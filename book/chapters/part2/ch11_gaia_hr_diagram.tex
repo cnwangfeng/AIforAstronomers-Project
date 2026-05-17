@@ -1,5 +1,11 @@
 \chapter{表格数据、星表与 HR 图}
 
+\section{本章阅读方式}
+
+本章必须精读并完成样板项目。目标是从星表字段出发，经过单位、筛选、派生量和图表解释，形成一个可进入机器学习的数据样本说明。
+
+最低交付是一个 Evidence Record、一张 HR 图和一个 Data Card 草稿。本章进入 Part III 的作用，是示范如何把原始星表列转成可解释特征，并记录质量筛选、选择效应和物理解释边界。
+
 \section{本章导读：从星表行列到恒星物理图像}
 
 本章表面上是在画一张 HR 图，真正训练的却是另一件事：怎样把一张星表中的列，变成有物理含义的派生量，再把这些派生量组织成一幅可以解释恒星结构的图。星表分析不是“把 CSV 读进来再散点图一下”，而是要先判断每一列代表什么观测量、单位是什么、质量是否足够，以及哪些列可以通过公式组合成新的物理量。
@@ -346,6 +352,27 @@ ax.invert_yaxis()
 
 这段话包含四个层次：第一，说明哪些对象进入了图；第二，说明纵轴不是原始观测列，而是由公式派生出的物理量；第三，把图上的结构翻译成恒星物理语言；第四，主动声明当前结论的适用边界。对后面的机器学习任务来说，这种写法也能帮助你区分“原始字段”“派生特征”和“人工解释标签”。
 
+\section{本章 Evidence Record 附加字段}
+
+本章不另建独立 HR 图记录模板，而是使用统一 Evidence Record，并在最后补充少量星表和 HR 图字段：
+
+\begin{examplebox}[Ch11 Evidence Record 附加字段]
+\begin{lstlisting}[style=terminal]
+Ch11 Fields:
+- catalog/table path:
+- source columns:
+- units:
+- quality cuts:
+- derived quantities:
+- HR diagram file:
+- structures identified:
+- selection effects:
+- possible ML features:
+\end{lstlisting}
+\end{examplebox}
+
+本章的特殊通过条件是：必须说明筛选条件和选择效应；不能只给 HR 图。
+
 \section{样本筛选与选择效应：为什么“画出来”还不够}
 
 在真实数据里，HR 图的形状还会受到选择效应影响。例如：
@@ -418,6 +445,17 @@ M = m - 10 + 5\log_{10} p(\mathrm{mas})
 \begin{exercisebox}[开放练习]
 假设你手里有一个更真实的 Gaia 子样本。请写一个“画 HR 图前的最小检查清单”，至少包含：视差质量、字段单位、缺失值、派生量公式和选择效应提醒。
 \end{exercisebox}
+
+\section{Exit Gate}
+
+\begin{enumerate}
+    \item 星表字段、单位和质量筛选是否清楚？
+    \item 派生量公式是否可复查？
+    \item HR 图解释是否区分 claim 和 limit？
+    \item 可进入 ML 的特征和风险是否说明？
+\end{enumerate}
+
+最低交付：Evidence Record、HR 图和 Data Card 草稿。
 
 \section{本章小结}
 

@@ -129,34 +129,34 @@ else:
 \end{lstlisting}
 \end{examplebox}
 
-\section{Case template 应该长什么样}
+\section{Capstone Evidence Package 应该长什么样}
 
-如果要把这个 rubric 直接发给学生，推荐把项目包组织成下面的 case template：
+如果要把这个 rubric 直接发给学生，推荐把项目包组织成下面的 Capstone Evidence Package。它不是八张新的独立 record，而是把前五部分已经固定的 Evidence Record、Data Card、Dataset Contract、Model Experiment Record、Trust Statement 和 AI Usage Log 放到同一个提交包里：
 
 \begin{enumerate}
-    \item \textbf{Project card}：一句科学问题、一句话说明为什么这个问题可以用当前数据回答；
-    \item \textbf{Data card}：数据来源、许可证、字段、清洗规则、train / validation / test 划分；
-    \item \textbf{Baseline card}：至少一个非深度学习或简单模型 baseline；
-    \item \textbf{Model card}：模型选择、输入输出、训练设置、失败样本；
-    \item \textbf{Evaluation card}：指标、验证集、测试集、选择效应和过拟合检查；
-    \item \textbf{Interpretation card}：关键图表、主要 claim、局限性和不确定度；
-    \item \textbf{Reproducibility card}：notebook 复跑说明、环境、随机种子、Git 记录；
-    \item \textbf{Integrity card}：AI-use statement、引用核查、human signoff 和公开边界。
+    \item \textbf{Project summary}：一句科学问题、一句话说明为什么这个问题可以用当前数据回答；
+    \item \textbf{Data Card / Dataset Contract}：数据来源、许可证、字段、清洗规则、train / validation / test 划分；
+    \item \textbf{Baseline evidence}：至少一个非深度学习或简单模型 baseline，以及它的输出和限制；
+    \item \textbf{Model Experiment Record}：模型选择、输入输出、训练设置、失败样本；
+    \item \textbf{Evaluation and error artifacts}：指标、验证集、测试集、选择效应、过拟合检查和错误案例；
+    \item \textbf{Trust Statement}：关键图表、主要 claim、局限性、不确定度和不支持的解释；
+    \item \textbf{Reproducibility evidence}：notebook 复跑说明、环境、随机种子、Git 记录；
+    \item \textbf{Integrity and disclosure evidence}：AI Usage Log、AI-use statement、引用核查、human signoff 和公开边界。
 \end{enumerate}
 
-这八张卡片的作用，是让 Capstone 从“做了很多事情”变成“每个 claim 都知道证据在哪里”。
+这组材料的作用，是让 Capstone 从“做了很多事情”变成“每个 claim 都知道证据在哪里”。
 
-\section{把八张卡片接回评分维度}
+\section{把 Evidence Package 接回评分维度}
 
-为了避免 rubric 看起来像另一张独立表格，建议在学生材料中明确写出 case template 和评分维度的对应关系：
+为了避免 rubric 看起来像另一张独立表格，建议在学生材料中明确写出 Evidence Package 和评分维度的对应关系：
 
 \begin{itemize}
-    \item Project card 对应科学问题清晰度；
-    \item Data card 和 Reproducibility card 共同对应数据处理与可复现性；
-    \item Baseline card、Model card 和 Evaluation card 共同对应模型建立与评估；
-    \item Interpretation card 对应结果解释、局限性和不确定度；
-    \item Reproducibility card 同时支撑代码质量、Git 记录和 notebook 复跑；
-    \item Integrity card 不直接加分，而是 AI 使用披露、引用核查、公开边界和 human signoff 的评分前 gate。
+    \item Project summary 对应科学问题清晰度；
+    \item Data Card、Dataset Contract 和 reproducibility evidence 共同对应数据处理与可复现性；
+    \item Baseline evidence、Model Experiment Record 和 evaluation artifacts 共同对应模型建立与评估；
+    \item Trust Statement 对应结果解释、局限性和不确定度；
+    \item Reproducibility evidence 同时支撑代码质量、Git 记录和 notebook 复跑；
+    \item Integrity and disclosure evidence 不直接加分，而是 AI 使用披露、引用核查、公开边界和 human signoff 的评分前 gate。
 \end{itemize}
 
 这样写的目的，是防止学生把“准备材料”和“争取分数”理解成两件事。真正稳定的 rubric 应该让学生从第一周就知道：每多补一张证据卡，都是在补最终评分所需要的证据，而不是在期末临时迎合格式。
@@ -181,7 +181,7 @@ else:
 在这个案例里，AI 助手最适合帮助你：
 
 \begin{itemize}
-    \item 把一个松散项目整理成八张 case-template card；
+    \item 把一个松散项目整理成 Capstone Evidence Package；
     \item 按 rubric 找出缺失证据、低分维度和评分前阻塞项；
     \item 把教师反馈改写成下一周可以执行的 revision checklist；
     \item 检查 AI-use statement 是否具体、诚实、可复核；
@@ -201,7 +201,7 @@ else:
 \end{exercisebox}
 
 \begin{exercisebox}[开放练习]
-把你自己的 Capstone 项目整理成八张 case-template card。然后用本章 rubric 给自己做一次预评分，列出三条最重要的修订动作。
+把你自己的 Capstone 项目整理成 Capstone Evidence Package。然后用本章 rubric 给自己做一次预评分，列出三条最重要的修订动作。
 \end{exercisebox}
 
 \section{本章小结}

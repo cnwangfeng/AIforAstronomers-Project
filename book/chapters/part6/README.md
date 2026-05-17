@@ -38,3 +38,4 @@ Current status:
 - Part VI has a guide chapter, synthesis chapter, and final book-closure chapter, framing capstone as a trustworthy research deliverable rather than a loose final report.
 - The operational tail is complete enough for review; current refinements add common gate/route language so later chapters read as one course-asset workflow rather than separate checklists.
 - The latest continuation pass adds chapter-opening guide sections to ch39--ch59, so each capstone, course-operation, maintenance, contingency, and collaboration chapter now starts from the delivery risk it is meant to control before presenting the case workflow.
+- The capstone submission language is aligned to the shared interface from Parts I--V: Capstone Evidence Package, Data Card / Dataset Contract, Evidence Records, Model Experiment Record, evaluation/error artifacts, Trust Statement, AI Usage Log, and disclosure/signoff evidence.

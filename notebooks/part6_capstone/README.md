@@ -32,5 +32,7 @@ Current status:
 - Part VI notebook set is complete and aligned with the textbook's shared
   gate/route language for capstone workflow, scoring, release, handoff, and
   maintenance.
+- Ch39--Ch42 now use Capstone Evidence Package language rather than a separate
+  family of project/model/evaluation/integrity cards.
 - Future notebook work should focus on terminology cleanup, runtime checks, and
   small explanatory improvements rather than adding new Part VI notebooks.

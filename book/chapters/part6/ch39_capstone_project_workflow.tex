@@ -38,7 +38,7 @@
     \item notebook 里有很多单元格，但不知道哪一格是最终证据；
     \item 模型分数看起来不错，但没有 baseline、没有 diagnostics；
     \item 报告已经开始写了，但引用和 caveat 还没有整理；
-    \item AI 确实帮了很多忙，但最终没有留下可检查的 usage log。
+    \item AI 确实帮了很多忙，但最终没有留下可检查的 AI Usage Log。
 \end{itemize}
 
 所以，本章的核心立场是：\textbf{Capstone 不是一个“更大模型”的章节，而是一个把整本书前面内容接成可信交付的章节。}
@@ -139,7 +139,7 @@ top_projects = sorted(
     \item \textbf{第 38 章：AI 使用、版权、许可与声明边界}。也就是共享边界和 AI 使用说明都要写清楚：哪些材料可以共享、哪些步骤用了 AI、哪些结论仍由人签字。
 \end{itemize}
 
-如果项目使用了第 30--34 章的深度模型，或者第 35--38 章的 LLM / agent 工具，那么 Part V 收束章里的“可信交付包”也应该成为 project board 的一部分。深度模型至少要留下 model-card 式记录：任务、baseline、训练验证、输入预处理、主要错误和失效边界；LLM 或 agent workflow 至少要留下 usage-log 式记录：使用场景、材料边界、人工核查、失败接管和公开声明。
+如果项目使用了第 30--34 章的深度模型，或者第 35--38 章的 LLM / agent 工具，那么 Part V 收束章里的“可信交付包”也应该成为 project board 的一部分。深度模型至少要留下 Model Experiment Record、evaluation artifact、error / review artifact 和 Trust Statement；LLM 或 agent workflow 至少要留下 Evidence Record、AI Usage Log、verification artifact 和 disclosure note。
 
 因此，本章 notebook 的最小 routing 逻辑不是“哪个题目更火”，而更接近下面这种结构：
 

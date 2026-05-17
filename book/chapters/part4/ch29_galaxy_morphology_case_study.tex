@@ -356,6 +356,23 @@ morphology_report = {
 
 这份形态报告也应自然进入 Part IV Model Experiment Packet：质量标记、投票阈值、形态标签和传统特征进入 Dataset Contract；传统特征 baseline、split、分类诊断和 CNN 升级理由进入 Model Experiment Record；混淆矩阵、边界对象和人工复核队列进入 Evaluation artifact 与 Error analysis artifact；标签噪声、投影效应、低质量图像和深度模型适用条件进入 Trust Statement。
 
+本章配套 notebook 的最后一步会导出一份最小样板包：
+
+\begin{examplebox}[Ch29 最小 case package]
+\begin{lstlisting}[style=terminal]
+results/ch29_morphology_case/
+  dataset_contract_morphology.md
+  model_experiment_record_morphology.md
+  trust_statement_morphology.md
+  confusion_matrix.csv
+  review_queue.csv
+  figures/
+    feature_space_diagnostic.png
+\end{lstlisting}
+\end{examplebox}
+
+这份清单的作用，是让星系形态案例成为图像分类进入深度学习前的可仿写样板：CNN 可以作为升级路径，但必须站在 Dataset Contract、传统特征 baseline、review queue 和 Trust Statement 之上。
+
 \begin{warnbox}[星系形态分类中的常见误区]
 \begin{itemize}
     \item 没有处理尺度和居中问题，就直接喂图像给模型；

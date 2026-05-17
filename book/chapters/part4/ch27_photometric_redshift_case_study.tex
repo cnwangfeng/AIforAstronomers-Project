@@ -258,6 +258,24 @@ photoz_report = {
 
 在 Part IV case package 中，这份报告应直接进入 Model Experiment Packet：测光字段、参考红移和对象类型进入 Dataset Contract；单色 baseline、多特征线性模型、split 和指标进入 Model Experiment Record；残差表和对象类型误差摘要进入 Evaluation artifact 与 Error analysis artifact；训练覆盖不足、少见类型失效和真实巡天外推风险进入 Trust Statement。
 
+本章配套 notebook 的最后一步会导出一份最小样板包：
+
+\begin{examplebox}[Ch27 最小 case package]
+\begin{lstlisting}[style=terminal]
+results/ch27_photoz_case/
+  dataset_contract_photoz.md
+  model_experiment_record_photoz.md
+  trust_statement_photoz.md
+  worst_residual_examples.csv
+  residual_by_type.csv
+  figures/
+    residual_vs_specz.png
+    residual_by_type.png
+\end{lstlisting}
+\end{examplebox}
+
+这份清单的作用，是让光度红移案例成为表格回归项目的可仿写样板：先定义数据入口，再记录 baseline 与多特征模型，最后用残差图、最坏样本和 Trust Statement 收束可信边界。
+
 \begin{warnbox}[光度红移案例中的常见误区]
 \begin{itemize}
     \item 只看整体 MAE，不检查最大残差来自哪些对象；

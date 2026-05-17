@@ -4,6 +4,14 @@
 
 > 原则：Algorithm Card 不是行政表格，而是算法理解层。它应短小，但必须说清模型形式、目标/规则、假设、诊断和科学边界。
 
+使用三种粒度：
+
+- Full card：Part III 中第一次正式讲解核心算法时使用。
+- Short card：同一算法思想的后续变体或快速提醒。
+- Sidebar card：Part IV 案例章中只需回指 Part III 算法逻辑时使用。
+
+不要为了案例章继续扩字段。若案例需要更多细节，把它写进 Model Experiment Record 的 chapter-specific fields、诊断图或错误分析 artifact。
+
 ---
 
 ## Algorithm

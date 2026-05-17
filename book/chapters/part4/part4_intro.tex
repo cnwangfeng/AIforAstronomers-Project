@@ -21,7 +21,18 @@ Part IV 是全书从方法训练走向完整案例的第一轮装配。前面我
 
 \section*{本部分要形成的案例包}
 
-延续前三部分的记录方式，Part IV 的每个案例都应该形成一个小型 case package，而不只是一个能运行的 notebook。这个 package 至少包含：问题定义、数据契约、baseline、模型实验、诊断图、错误样本复核、有限结论和复跑入口。
+延续前三部分的记录方式，Part IV 的每个案例都应该形成一个小型 case package，而不只是一个能运行的 notebook。V3 之后，这个 package 应直接复用 Part III 的冻结接口：
+
+\begin{enumerate}
+    \item \textbf{Dataset Contract}：说明案例数据如何进入模型；
+    \item \textbf{Model Experiment Record}：说明 baseline、模型选择、split、训练、评估和复查；
+    \item \textbf{Algorithm Card sidebar links}：指出本案例依赖 Part III 的哪些算法卡片；
+    \item \textbf{Evaluation artifact}：保留指标表、诊断图、混淆矩阵、残差图或候选表；
+    \item \textbf{Error analysis artifact}：保留错分、残差大、边界或低质量样本复查；
+    \item \textbf{Trust Statement}：说明结果在哪些样本、条件和物理区域内可信。
+\end{enumerate}
+
+也就是说，Part IV 不是重新发明案例记录模板，而是把 Part III 的 Model Experiment Packet 放进具体天文与物理问题中。
 
 四个案例的侧重点不同：
 
@@ -44,7 +55,8 @@ Part IV 是全书从方法训练走向完整案例的第一轮装配。前面我
     \item 模型要预测的目标是什么，它是否等同于真实物理类别；
     \item baseline 结果说明了什么；
     \item 复杂模型带来了什么改进，又带来了什么解释负担；
-    \item 最终报告中哪些图表是证据，哪些只是辅助展示。
+    \item 最终报告中哪些图表是证据，哪些只是辅助展示；
+    \item Trust Statement 是否清楚说明了支持结论和不支持结论。
 \end{enumerate}
 
 \begin{protip}[案例不是炫技，而是装配]

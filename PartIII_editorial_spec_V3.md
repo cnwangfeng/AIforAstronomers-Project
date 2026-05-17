@@ -2,6 +2,8 @@
 
 Status: authoritative spec for Part III revision.
 
+Freeze target: Part III V3 Freeze is an interface freeze, not a content freeze. After freeze, template names, field meanings, Exit Gate logic, and Part III-to-IV handoff language should remain stable unless Part IV pressure testing exposes a real interface failure.
+
 This file is the execution spec for future edits to Part III chapters, notebooks, templates, and grading requirements. It supersedes older language that described separate per-chapter record families such as problem statement, workflow record, regression record, classification record, evaluation record, preprocessing record, model selection record, unsupervised record, and anomaly review record.
 
 ---
@@ -101,6 +103,30 @@ Every core algorithm introduced in Ch18-Ch24 should have a compact card covering
 - scientific boundary.
 
 Prefer short cards embedded near the first serious use of the algorithm. Do not turn them into long theory appendices.
+
+Use three card depths:
+
+- Full card: first serious introduction of a core algorithm in Part III.
+- Short card: later reminders or variants that reuse an already introduced idea.
+- Sidebar card: Part IV case chapters that only need to point back to the Part III algorithm logic.
+
+Do not add fields to Algorithm Card during Part IV drafting unless a real case cannot express the algorithm assumption, objective/rule, diagnostic, failure mode, or scientific boundary.
+
+---
+
+## Part III V3 Freeze Criteria
+
+Part III can be treated as frozen for Part IV drafting when all of the following are true:
+
+1. Dataset Contract, Model Experiment Record, Trust Statement, and Algorithm Card are the stable interface names.
+2. `templates/part3_chapter_specific_fields.md` and `templates/part3_exit_gates.md` match the chapter language in Ch16-Ch25.
+3. Ch16-Ch20 consistently use the supervised-learning spine: task definition, split discipline, baseline, algorithm understanding, evaluation, error analysis.
+4. Ch21, Ch22, and Ch25 consistently cover train-only preprocessing, search range / model complexity, and trust boundaries.
+5. Ch23 and Ch24 consistently label exploratory outputs as candidates, not physical conclusions.
+6. Notebooks do not create a separate regression/classification/evaluation/preprocessing/model-selection record family.
+7. Part III synthesis hands off to Part IV as a Model Experiment Packet, not as disconnected chapter artifacts.
+
+Freeze does not mean wording cannot be polished. It means Part IV authors can now rely on the interface without guessing which template or term to use.
 
 ---
 

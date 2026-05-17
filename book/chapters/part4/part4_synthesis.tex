@@ -24,12 +24,12 @@ Part IV 的四个案例展示了一个共同事实：很多天文与物理问题
 读完 Part IV 后，不应只记住“四个 notebook 都跑通了”。更重要的是，你应该能为任意一个案例交出一份最小项目包：
 
 \begin{itemize}
-    \item 一段清楚的问题定义，说明预测、分类或探索的科学目标；
-    \item 一张数据契约表，列出关键字段、单位、误差或质量标记；
-    \item 一个 baseline 结果，作为后续复杂模型的参照；
-    \item 至少一张诊断图，例如 HR 图、残差图、PCA 平面、混淆矩阵或错分样本图；
-    \item 一段错误案例分析，说明失败样本是否集中在某类对象、某个物理区域或某种数据质量条件下；
-    \item 一段有限结论，明确哪些结果可以支持，哪些只是教学数据上的初步现象。
+    \item 一个 \textbf{Dataset Contract}，列出关键字段、单位、误差、质量标记、标签来源和选择效应；
+    \item 一个 \textbf{Model Experiment Record}，说明科学问题、ML 任务、baseline、模型选择、split、评估和复现入口；
+    \item 一个或多个 \textbf{Algorithm Card sidebar links}，说明本案例复用了 Part III 的哪些算法逻辑；
+    \item 至少一个 \textbf{Evaluation artifact}，例如 HR 图、残差图、PCA 平面、混淆矩阵或错分样本图；
+    \item 一个 \textbf{Error analysis artifact}，说明失败样本是否集中在某类对象、某个物理区域或某种数据质量条件下；
+    \item 一个短的 \textbf{Trust Statement}，明确哪些结果可以支持，哪些只是教学数据上的初步现象。
 \end{itemize}
 
 如果一个案例只剩下最终分数，却没有这些交付物，那么它仍然只是一次模型调用，而不是一个可复查的小型科学项目。
@@ -51,7 +51,9 @@ part4_case_package/
     main_diagnostic.png
     error_examples.png
   results/
-    case_report.md
+    dataset_contract.md
+    model_experiment_record.md
+    trust_statement.md
 \end{lstlisting}
 \end{examplebox}
 
@@ -59,14 +61,14 @@ part4_case_package/
 
 \begin{enumerate}
     \item \textbf{写清案例问题}：说明它是分类、回归、结构探索还是候选筛选，以及对应的科学目标；
-    \item \textbf{复用数据契约}：列出关键字段、单位、质量筛选、标签来源或图像/光谱处理条件；
+    \item \textbf{完成 Dataset Contract}：列出关键字段、单位、质量筛选、标签来源或图像/光谱处理条件；
     \item \textbf{保留 baseline}：先报告一个简单可解释方法，再说明后续模型是否真正改进；
     \item \textbf{生成诊断图}：至少有一张能支撑科学解释的主图，以及一张错误或残差诊断图；
     \item \textbf{复查失败样本}：列出若干错分、残差大或边界样本，并解释可能原因；
-    \item \textbf{写有限结论}：说明当前教学数据支持什么，不支持什么，若升级到真实数据还要补哪些证据。
+    \item \textbf{写 Trust Statement}：说明当前教学数据支持什么，不支持什么，若升级到真实数据还要补哪些证据。
 \end{enumerate}
 
-最终的 \texttt{case\_report.md} 应该能被同学或助教独立阅读，并回答三个问题：这个案例为什么值得做，模型结果为什么暂时可信，以及哪些边界必须在进入 Part V 或 capstone 前保留下来。
+最终的 \texttt{model\_experiment\_record.md} 和 \texttt{trust\_statement.md} 应该能被同学或助教独立阅读，并回答三个问题：这个案例为什么值得做，模型结果为什么暂时可信，以及哪些边界必须在进入 Part V 或 capstone 前保留下来。
 
 \section*{四个案例如何合成一套能力}
 
@@ -74,11 +76,11 @@ part4_case_package/
 
 如果把它们压缩成一句话，Part IV 训练的是：先用最小可信 pipeline 形成案例包，再判断复杂模型是否真的必要。这个顺序会直接决定 Part V 的深度学习是否扎实。
 
-\section*{从案例项目包到 Capstone 卡片}
+\section*{从案例项目包到 Capstone}
 
-Part IV 的案例交付物可以直接迁移到 Part VI 的 case template。问题定义对应 Project card，数据契约表对应 Data card，baseline 结果对应 Baseline card，诊断图和错误案例对应 Evaluation card 与 Interpretation card，notebook 复跑说明对应 Reproducibility card，有限结论和公开边界则进入 Integrity card。
+Part IV 的案例交付物可以直接迁移到 Part VI 的最终项目结构中。Dataset Contract 保留数据入口，Model Experiment Record 保留 baseline、模型选择和评估过程，Evaluation artifact 与 Error analysis artifact 保留图表和失败样本，Trust Statement 保留有限结论和公开边界。
 
-这意味着每个案例 notebook 都不只是一次练习。它应该训练学生把数据、模型、图表和文字解释放到同一个证据链中。等进入 capstone 时，学生要做的不是重新发明项目结构，而是把这些已经练过的证据卡扩展到自己的题目。
+这意味着每个案例 notebook 都不只是一次练习。它应该训练学生把数据、模型、图表和文字解释放到同一个证据链中。等进入 capstone 时，学生要做的不是重新发明项目结构，而是把这些已经练过的 Model Experiment Packet 扩展到自己的题目。
 
 \section*{进入 Part V 前的基线意识}
 

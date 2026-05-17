@@ -256,7 +256,7 @@ photoz_report = {
 
 如果多特征模型平均误差下降，但最大残差仍然来自少见类型，那么报告中应同时写出“整体改进”和“局部失效”。这不是削弱结果，而是在把模型放回科学使用场景里。
 
-在 capstone 包里，这份报告会让 Baseline card、Model card 和 Evaluation card 相互对齐：baseline 提供最低参照，多特征模型说明改进来源，残差诊断和覆盖警告说明哪些对象仍然不能被自动信任。
+在 Part IV case package 中，这份报告应直接进入 Model Experiment Packet：测光字段、参考红移和对象类型进入 Dataset Contract；单色 baseline、多特征线性模型、split 和指标进入 Model Experiment Record；残差表和对象类型误差摘要进入 Evaluation artifact 与 Error analysis artifact；训练覆盖不足、少见类型失效和真实巡天外推风险进入 Trust Statement。
 
 \begin{warnbox}[光度红移案例中的常见误区]
 \begin{itemize}

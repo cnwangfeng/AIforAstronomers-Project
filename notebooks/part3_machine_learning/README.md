@@ -4,6 +4,13 @@ These notebooks start the machine-learning workflow of the textbook. The first
 notebooks deliberately use tiny teaching datasets and pure-Python baselines so
 they can run even in a minimal environment.
 
+Part III V3 uses one modeling evidence hierarchy:
+
+- `Dataset Contract -> Model Experiment Record -> Trust Statement`
+- Algorithm understanding is documented with compact `Algorithm Card`s.
+- Chapter-specific notebook outputs should extend the common record instead of
+  creating separate regression/classification/evaluation record families.
+
 Current notebook plan in progress:
 
 - `ch16_ai_ml_scientific_inference.ipynb`

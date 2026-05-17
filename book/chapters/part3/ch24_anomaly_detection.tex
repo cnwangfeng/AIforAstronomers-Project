@@ -22,7 +22,7 @@
 
 \section{训练目标与贯穿微型项目}
 
-本章的微型项目是对一组教学光谱特征做异常候选排序。正文负责解释异常检测和监督分类的差别、邻域方法、LOF、Isolation Forest、autoencoder 直觉和人工复核；训练材料则要求你把异常点写成候选清单，而不是最终发现声明。
+本章的微型项目是对一组教学光谱特征做异常候选排序。正文负责解释异常检测和监督分类的差别、邻域方法、LOF、Isolation Forest、autoencoder 直觉和人工复核；训练材料则要求你把异常点写进 Model Experiment Record 和复核清单，而不是最终发现声明。
 
 \begin{examplebox}[最小异常检测项目结构]
 \begin{lstlisting}[style=terminal]
@@ -34,7 +34,8 @@ spectral_anomaly_demo/
   figures/
     anomaly_candidate_map.png
   results/
-    anomaly_review_record.txt
+    model_experiment_record.md
+    anomaly_review_triage.csv
 \end{lstlisting}
 \end{examplebox}
 
@@ -113,6 +114,19 @@ anomaly_score = mean(distance to k nearest neighbors)
 \end{itemize}
 
 但它也有明显局限：如果数据本来就有多个正常群体，单纯看距离可能会把“小众但正常”的局部簇也误判成异常。
+
+\section{本章算法卡片的最小问题}
+
+异常检测算法的差异，首先来自它们对“异常”的定义不同。因此每个 Algorithm Card 至少要回答：它认为怎样的点异常？
+
+\begin{itemize}
+    \item \textbf{Distance-based anomaly}：认为离最近邻或局部邻居很远的点更异常；要检查标准化和多正常群体风险；
+    \item \textbf{LOF}：认为局部密度显著低于邻居区域的点更异常；要检查邻居数和局部密度尺度；
+    \item \textbf{Isolation Forest}：认为容易被随机切分单独隔离的点更异常；要检查随机性、污染率和高维特征含义；
+    \item \textbf{Autoencoder reconstruction error}：认为难以被正常样本表示重构的点更异常；要检查模型容量、训练集污染和重构误差解释边界。
+\end{itemize}
+
+这些卡片不需要把算法推导成完整数学教材，但必须让学生知道：异常分数不是统一真理，而是某一种异常定义下的候选排序。
 
 \section{距离分数为什么必须先标准化}
 
@@ -250,9 +264,9 @@ candidate_review = {
 
 这样记录的好处是，它把“算法觉得奇怪”和“科学上值得相信”隔开了。前者可以自动化，后者必须经过证据、质量和后续验证共同支撑。
 
-这份复核表是异常检测进入 capstone 的关键接口：异常分数进入 Evaluation card，质量排查和交叉检查进入 Data / Integrity cards，最后的复核结论进入 Interpretation card。没有这层记录，异常检测很容易把“算法觉得奇怪”误写成“科学上新奇”。
+这份复核表是异常检测进入 Part III Model Experiment Packet 的关键接口：异常分数进入 evaluation artifact，质量排查和交叉检查进入 error analysis artifact，最后的复核结论进入 Trust Statement。没有这层记录，异常检测很容易把“算法觉得奇怪”误写成“科学上新奇”。
 
-\section{候选复核的分层结论}
+\section{Anomaly Review Triage：候选复核的分层结论}
 
 人工复核后，最好不要只写“是异常”或“不是异常”。更有用的是把候选分成几层：
 
@@ -264,6 +278,14 @@ candidate_review = {
 \end{itemize}
 
 这种分层比二元标签更接近科研实际。异常检测的主要价值，是把注意力排序；确认和命名仍然依赖证据链。
+
+本章的 Pass 要求是：不能只给 anomaly score；必须给人工复核字段和候选分层。最低限度也要回答三问：
+
+\begin{enumerate}
+    \item Bad data / artifact?
+    \item Boundary but ordinary sample?
+    \item Scientifically interesting candidate?
+\end{enumerate}
 
 \section{一个容易被忽略的问题：你到底在找什么异常}
 

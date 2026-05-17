@@ -3,24 +3,20 @@
 
 Part III 已经给出了机器学习的基本方法，但方法章和真实案例之间还隔着一步：把“我会用模型”转化成“我能把模型嵌入一个科学问题”。这一步非常关键，因为真实案例很少按照教科书顺序出现。你拿到的往往是一份不完美的数据、一组含糊的标签、一个需要折中的评估指标，以及一个并不完全适合机器学习的问题。
 
-\section*{本部分的模型记录链}
+\section*{Part III Model Experiment Packet}
 
-Part III 的方法章节现在对应一组连续的模型记录：
+Part III 的方法章节不再对应一组独立 record 模板。所有模型实验统一收束为一个 \textbf{Model Experiment Packet}。它至少包含：
 
 \begin{enumerate}
-    \item ch16 先形成 problem statement；
-    \item ch17 形成 workflow record；
-    \item ch18 形成 regression record；
-    \item ch19 形成 classification record；
-    \item ch20 形成 evaluation record；
-    \item ch21 形成 preprocessing record；
-    \item ch22 形成 model selection record；
-    \item ch23 形成 unsupervised record；
-    \item ch24 形成 anomaly review record；
-    \item ch25 形成 trust statement。
+    \item \textbf{Dataset Contract}：说明数据如何安全进入模型；
+    \item \textbf{Model Experiment Record}：说明实验如何执行、评估和复查；
+    \item \textbf{Algorithm Card(s)}：说明模型为什么这样工作，它相信了什么、优化了什么、会在哪里失败；
+    \item \textbf{Evaluation artifact}：说明模型表现如何，例如指标表、阈值扫描、残差图或混淆矩阵；
+    \item \textbf{Error analysis artifact}：说明模型如何失败，例如错误样本表、外推样本、候选复核清单或质量问题摘要；
+    \item \textbf{Trust Statement}：说明结果在什么范围内可信，什么范围内必须降级为候选或限制说明。
 \end{enumerate}
 
-这些记录共同回答一个问题：模型结果从哪里来，为什么值得暂时相信，哪里必须降级为候选或限制说明。到了 Part IV，它们会成为每个案例项目的内部结构。
+这些对象共同回答一个问题：模型结果从哪里来，为什么值得暂时相信，哪里必须降级为候选或限制说明。到了 Part IV，它们会成为每个案例项目的内部结构。
 
 \section*{一个可以立刻执行的 Part III 综合任务}
 
@@ -56,9 +52,9 @@ part3_model_packet/
 
 最终的 \texttt{model\_experiment\_record.md} 至少应回答七个问题：任务是什么，数据入口是什么，baseline 是什么，模型是什么，评估设计是什么，主要错误是什么，当前结果的可信边界是什么。若这七问答不清楚，即使模型分数很高，也还不能进入 Part IV 的案例项目。
 
-\section*{一个最小模型记录}
+\section*{一个最小 Model Experiment Record}
 
-进入案例项目之前，每次模型实验至少应留下下面几类记录：
+进入案例项目之前，每次模型实验至少应在同一个 Model Experiment Record 中留下下面几类信息：
 
 \begin{itemize}
     \item \textbf{任务定义}：回归、分类、排序、聚类还是异常候选筛选；
@@ -70,7 +66,7 @@ part3_model_packet/
     \item \textbf{解释边界}：结果能支持什么，不能支持什么。
 \end{itemize}
 
-这份记录不是行政负担，而是后续写报告、展示、答疑和复现实验的核心材料。
+这份记录不是行政负担，而是后续写报告、展示、答疑和复现实验的核心材料。回归、分类、评估、预处理、模型选择、无监督和异常检测都只是在这个母记录上增加 chapter-specific fields，而不是另起一套模板。
 
 \section*{模型结果报告的五个固定问题}
 
@@ -86,19 +82,19 @@ part3_model_packet/
 
 如果这五问答不出来，模型分数越高越危险，因为它可能只是把数据泄漏、选择效应或标签噪声包装成了“好结果”。如果这五问能答出来，即使模型很简单，它也已经是一个可以讨论、可以复查、可以进入案例项目的科学工作流。
 
-\section*{这些记录怎样进入 Capstone}
+\section*{Model Experiment Packet 怎样进入 Capstone}
 
-Part III 的每份模型记录，到了 Part VI 会直接变成 capstone case template 里的几张卡片：
+Part III 的 Model Experiment Packet 到了 Part VI 会拆入 capstone case template 的不同证据区：
 
 \begin{itemize}
-    \item 任务定义会进入 Project card；
-    \item 数据入口、筛选条件和预处理会进入 Data card 与 Reproducibility card；
-    \item baseline、模型参数和训练设置会进入 Baseline card 与 Model card；
-    \item 评估设计、错误分析和边界说明会进入 Evaluation card 与 Interpretation card；
-    \item 数据泄漏检查、随机种子、版本记录和人工复核会进入 Integrity card。
+    \item 任务定义会进入项目范围说明；
+    \item 数据入口、筛选条件和预处理会进入数据与复现证据；
+    \item baseline、模型参数和训练设置会进入模型实验证据；
+    \item 评估设计、错误分析和边界说明会进入评估与解释证据；
+    \item 数据泄漏检查、随机种子、版本记录和人工复核会进入完整性检查证据。
 \end{itemize}
 
-因此，从这一部分开始，推荐把每一次实验都当作“未来 capstone 包的一张证据卡”来保存。不要等到期末才回忆模型怎么训练、数据怎么划分、为什么选择这个指标；那时很多关键判断已经很难复原。
+因此，从这一部分开始，推荐把每一次实验都当作未来 capstone 包的一段证据来保存。不要等到期末才回忆模型怎么训练、数据怎么划分、为什么选择这个指标；那时很多关键判断已经很难复原。
 
 \section*{从分数到样本}
 

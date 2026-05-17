@@ -22,7 +22,7 @@
 
 \section{训练目标与贯穿微型项目}
 
-本章的微型项目是一个颜色--温度回归的模型选择记录。正文负责解释参数、超参数、欠拟合、过拟合、验证集、交叉验证和测试集冻结；训练材料则要求你系统比较若干候选模型，而不是只保留“最好看”的一次结果。
+本章的微型项目是一个颜色--温度回归的模型选择实验。正文负责解释参数、超参数、欠拟合、过拟合、验证集、交叉验证和测试集冻结；训练材料则要求你把候选空间、验证设计和最终选择写进 Model Experiment Record，而不是只保留“最好看”的一次结果。
 
 \begin{examplebox}[最小模型选择项目结构]
 \begin{lstlisting}[style=terminal]
@@ -34,7 +34,7 @@ model_selection_demo/
   figures/
     validation_curve.png
   results/
-    model_selection_record.txt
+    model_experiment_record.md
 \end{lstlisting}
 \end{examplebox}
 
@@ -85,6 +85,20 @@ model_selection_demo/
 \end{itemize}
 
 如果复杂度太低，模型连主要趋势都抓不住，会出现\textbf{欠拟合}；如果复杂度太高，模型会把噪声也当成规律，会出现\textbf{过拟合}。模型选择的任务，就是在这两者之间找到更合适的平衡，而不是机械追求更复杂的函数形式。
+
+\section{选择模型复杂度，就是选择允许模型相信什么结构}
+
+模型选择不只是技术比较，也是在选择模型允许相信的数据结构。不同模型族和超参数背后，都带着不同的归纳偏好：
+
+\begin{itemize}
+    \item 线性模型相信主要关系可以被简单趋势近似；
+    \item 多项式模型允许弯曲结构，但阶数越高，外推风险越大；
+    \item $k$ 近邻相信特征空间中的局部相似性有科学意义；
+    \item 决策树相信局部阈值规则足以描述边界；
+    \item 随机森林通过集成降低方差，但单个判定路径的解释性会下降。
+\end{itemize}
+
+因此，验证分数不是唯一问题。你还要能说明：为什么这类复杂度适合当前科学问题，它允许模型利用什么结构，又可能在哪些物理区域失败。
 
 \section{一张典型验证曲线应该怎样读}
 
@@ -227,7 +241,7 @@ score_spread = standard_deviation(scores)
     \item 如果测试集表现不佳，只能诚实报告，而不能继续把它用于选择。
 \end{itemize}
 
-\section{一个最小模型选择记录模板}
+\section{一个最小模型选择记录}
 
 模型选择最怕的不是“没有找到最高分”，而是后来连自己都说不清楚为什么选择了这一版模型。为了让选择过程可复查，实验记录中至少应保留：
 
@@ -241,7 +255,7 @@ score_spread = standard_deviation(scores)
 
 \begin{examplebox}[模型选择记录的最小骨架]
 \begin{lstlisting}[style=pythonstyle]
-selection_record = {
+model_experiment_record["ch22_fields"] = {
     "candidate_degrees": [1, 2, 3, 5],
     "selection_metric": "validation_rmse",
     "validation_design": "5-fold cross-validation on training split",
@@ -252,9 +266,9 @@ selection_record = {
 \end{lstlisting}
 \end{examplebox}
 
-如果某个模型只是比次优方案好一点点，而交叉验证波动又很大，那么报告时就不应把它写成“明显胜出”。这类细节恰恰体现科研训练与排行榜训练的差别：我们不只是挑最高分，还要说明选择是否稳定、是否值得相信。
+如果某个模型只是比次优方案好一点点，而交叉验证波动又很大，那么报告时就不应把它写成“明显胜出”。这类细节恰恰体现科研训练与排行榜训练的差别：我们不只是挑最高分，还要说明选择是否稳定、是否值得相信。本章的 Pass 要求是：必须记录搜索范围，而不只记录最佳参数；没有候选范围，就无法判断“最佳”是否只是一次幸运搜索。
 
-这份选择记录后面会进入 Model card 与 Evaluation card。它让读者看见模型不是“凭感觉挑出来的”，而是在固定候选空间、固定验证设计和一次性最终测试的约束下被选中的。
+这份选择记录应进入 Model Experiment Record 的 model、training procedure 和 evaluation sections。它让读者看见模型不是“凭感觉挑出来的”，而是在固定候选空间、固定验证设计和一次性最终测试的约束下被选中的。
 
 \section{网格搜索不是魔法，只是系统地比较候选}
 

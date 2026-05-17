@@ -36,7 +36,7 @@ object_classification_demo/
   figures/
     classification_confusion_matrix.png
   results/
-    classification_record.txt
+    model_experiment_record.md
 \end{lstlisting}
 \end{examplebox}
 
@@ -159,6 +159,30 @@ def classify_rule(row):
 
 如果复杂模型只比这个 baseline 稍微好一点，那么问题也许根本还不值得进入更高复杂度。
 
+\section{分类器如何制造边界}
+
+同一个二维特征空间里，不同分类器制造边界的方式不同：
+
+\begin{itemize}
+    \item \textbf{Rule baseline}：研究者手写阈值，边界来自人工规则；
+    \item \textbf{kNN}：新样本由局部邻居投票决定，边界随训练样本分布弯曲；
+    \item \textbf{Logistic regression}：先形成线性分数，再用 sigmoid 或 softmax 转成类别倾向，边界通常近似线性；
+    \item \textbf{Decision tree}：用一系列轴对齐阈值切分空间，形成分段边界。
+\end{itemize}
+
+这些边界都不是自然界直接给出的类别。分类模型学到的是当前标签体系下的边界，不是自然类别本身。
+
+\begin{examplebox}[Algorithm Card: Rule Baseline]
+\begin{itemize}
+    \item \textbf{任务类型}：分类 baseline；
+    \item \textbf{决策规则}：使用人工阈值直接输出类别；
+    \item \textbf{用户固定}：阈值、特征和规则顺序；
+    \item \textbf{诊断}：复杂模型是否真正超过这个规则；
+    \item \textbf{失败模式}：边界过硬、难以表达模糊类别、规则来自偏见样本；
+    \item \textbf{科学边界}：能表达已有物理直觉，不能证明类别是自然分箱。
+\end{itemize}
+\end{examplebox}
+
 \section{kNN 的直觉：边界由样本组织出来}
 
 \textbf{k 最近邻（kNN）} 是本科教学中特别适合入门的一类分类器。它的思想非常直接：
@@ -185,6 +209,17 @@ prediction = "star"
 \end{examplebox}
 
 这里的第二个值是距离，三个最近邻里有两个是 \texttt{star}，所以预测为 \texttt{star}。如果把 $k$ 从 $3$ 改成 $5$，结果可能改变；如果某一维特征尺度特别大，最近邻也可能完全被那一维支配。因此 kNN 是理解分类边界的好入口，但它也立刻把“距离定义”和“特征尺度”的问题暴露出来。
+
+\begin{examplebox}[Algorithm Card: kNN]
+\begin{itemize}
+    \item \textbf{任务类型}：分类或回归；
+    \item \textbf{决策规则}：找最近的 \(k\) 个训练样本并投票；
+    \item \textbf{用户固定}：\(k\)、距离度量、特征缩放；
+    \item \textbf{诊断}：检查特征尺度、近邻样本和边界样本；
+    \item \textbf{失败模式}：尺度敏感、小样本不稳、训练覆盖不足；
+    \item \textbf{科学边界}：能利用局部相似性，不说明相似性就是物理因果。
+\end{itemize}
+\end{examplebox}
 
 \section{距离函数为什么也带着假设}
 
@@ -232,6 +267,18 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 
 它的局限也很明确：如果真实边界高度非线性，逻辑回归就可能显得过于刚性。
 
+\begin{examplebox}[Algorithm Card: Logistic Regression]
+\begin{itemize}
+    \item \textbf{任务类型}：分类；
+    \item \textbf{模型形式}：线性分数加 sigmoid 或 softmax；
+    \item \textbf{优化目标}：通常最小化交叉熵；
+    \item \textbf{用户固定}：输入特征、正则化和阈值策略；
+    \item \textbf{诊断}：混淆矩阵、概率校准、边界样本；
+    \item \textbf{失败模式}：真实边界非线性、标签噪声、类别不平衡；
+    \item \textbf{科学边界}：能给出可解释线性边界，不证明特征具有因果作用。
+\end{itemize}
+\end{examplebox}
+
 \paragraph{线性边界的几何直觉}
 
 当 $z=\beta_0+\beta^\top x=0$ 时，sigmoid 输出为 $0.5$。这条等式在二维特征空间里是一条直线，在更高维空间里是一个超平面。因此，逻辑回归的分类边界首先是一条线性边界。它的优点是清楚、稳定、容易解释；缺点是如果真实边界弯曲得很厉害，就需要引入非线性特征或换用更灵活的模型。
@@ -247,6 +294,18 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{itemize}
 
 与逻辑回归相比，树模型更容易表达非线性边界与分段规则；但它也更容易在小样本上过度拟合。因此，分类器的选择往往是偏差、方差和可解释性之间的折中，而不是“谁更高级”。
+
+\begin{examplebox}[Algorithm Card: Decision Tree]
+\begin{itemize}
+    \item \textbf{任务类型}：分类或回归；
+    \item \textbf{决策规则}：逐步选择特征阈值，把样本切到叶节点；
+    \item \textbf{训练目标}：降低叶节点 impurity，例如 Gini 或 entropy；
+    \item \textbf{用户固定}：最大深度、最小叶节点样本数、切分准则；
+    \item \textbf{诊断}：树深度、叶节点样本数、训练/测试差异；
+    \item \textbf{失败模式}：小样本过拟合、轴对齐边界过碎、对训练扰动敏感；
+    \item \textbf{科学边界}：能形成可读规则，但规则未必是物理机制。
+\end{itemize}
+\end{examplebox}
 
 \section{为什么准确率不够}
 
@@ -322,7 +381,7 @@ P(y=1 \mid x) \approx \sigma(z) = \frac{1}{1 + e^{-z}}.
 
 这段报告的核心是把“模型给了标签”改写成“模型在某个标签体系和样本覆盖范围内给出了可诊断的预测”。分类结果越要进入科学筛选，越不能省略错分类型和错误代价。
 
-进入 capstone 时，这类分类记录会分别支撑 Baseline card、Evaluation card 和 Interpretation card：baseline 说明模型是否真的改进，混淆矩阵说明错误结构，错分样本复查则说明哪些标签边界仍需要人工判断。
+进入 capstone 时，这类分类证据会进入模型实验、评估和解释证据区：baseline 说明模型是否真的改进，混淆矩阵说明错误结构，错分样本复查则说明哪些标签边界仍需要人工判断。
 
 \begin{warnbox}[分类中的常见误区]
 \begin{itemize}

@@ -38,11 +38,11 @@ photoz_regression_demo/
   figures/
     regression_residuals.png
   results/
-    regression_record.txt
+    model_experiment_record.md
 \end{lstlisting}
 \end{examplebox}
 
-项目交付应包含：训练/测试切分、baseline、拟合参数或模型配置、MAE/RMSE、残差图、离群样本说明和物理适用范围。后续案例中的光度红移任务会直接复用这套记录格式。
+项目交付应包含：训练/测试切分、baseline、拟合参数或模型配置、Algorithm Card、MAE/RMSE、残差图、离群样本说明和物理适用范围。后续案例中的光度红移任务会直接复用这套 Model Experiment Record 结构。
 
 \section{为什么回归在科学里无处不在}
 
@@ -146,6 +146,29 @@ def fit_line(xs, ys):
 
 这段代码虽然很短，却把回归中的核心对象都展示出来了：输入特征、目标值、均值中心化、斜率和截距。
 
+\begin{examplebox}[Algorithm Card: Linear Regression]
+\begin{itemize}
+    \item \textbf{任务类型}：回归；
+    \item \textbf{模型形式}：\(\hat{y}=\beta_0+\beta_1 x\)，多特征时为 \(\hat{y}=\beta_0+\beta^\top x\)；
+    \item \textbf{优化目标}：最小化残差平方和；
+    \item \textbf{用户固定}：输入特征、训练样本、是否加入非线性派生特征；
+    \item \textbf{诊断}：残差图、训练/测试误差差异、外推范围；
+    \item \textbf{失败模式}：非线性结构、离群点、异方差、训练覆盖不足；
+    \item \textbf{科学边界}：可以支持局部经验预测，不能自动证明物理机制。
+\end{itemize}
+\end{examplebox}
+
+\begin{examplebox}[Algorithm Card: Mean Baseline]
+\begin{itemize}
+    \item \textbf{任务类型}：回归 baseline；
+    \item \textbf{决策规则}：所有样本都预测训练集目标均值；
+    \item \textbf{优化直觉}：在平方误差下，均值是最小化常数预测误差的选择；
+    \item \textbf{诊断}：正式模型是否明显优于这个常数预测；
+    \item \textbf{失败模式}：若复杂模型只略好于均值，特征可能没有提供有效信息；
+    \item \textbf{科学边界}：只提供最低比较尺子，不提供物理解释。
+\end{itemize}
+\end{examplebox}
+
 \paragraph{为什么斜率公式长这样}
 
 上面的代码并不是凭空出现的。若把残差平方和
@@ -230,6 +253,19 @@ r_i = y_i - \hat{y}_i.
 
 在科学任务里，这些问题通常比单一指标更接近真正的建模判断。
 
+\section{残差图的四种典型形态}
+
+读残差图时，可以先找四种常见形态：
+
+\begin{enumerate}
+    \item \textbf{随机散布}：残差没有明显结构，说明模型大致覆盖了主趋势；
+    \item \textbf{弯曲结构}：残差随特征或目标值系统弯曲，说明模型形式不足；
+    \item \textbf{逐渐变宽}：残差随目标值、亮度或信噪比变宽，提示异方差或质量依赖误差；
+    \item \textbf{局部系统偏差}：某个颜色、红移、星等或物理区域集中偏离，提示训练覆盖不足或特征遗漏。
+\end{enumerate}
+
+因此，Ch18 的最低合格结果不能只报告 MAE 或 RMSE。必须同时给出残差诊断，并说明至少一种系统误差、离群点或外推风险。
+
 \section{一组极小预测的手算评估}
 
 假设测试集中有三个样本，真实红移和预测红移分别为：
@@ -274,6 +310,18 @@ r=(-0.02,0.06,-0.15).
 \]
 
 多项式特征的价值在于：它让一个原本只能画直线的模型，开始有能力表达曲率。
+
+\begin{examplebox}[Algorithm Card: Polynomial Regression]
+\begin{itemize}
+    \item \textbf{任务类型}：回归；
+    \item \textbf{模型形式}：把输入扩展为 \(1,x,x^2,\dots\)，再做线性回归；
+    \item \textbf{优化目标}：仍然是最小化残差平方和；
+    \item \textbf{用户固定}：多项式阶数和输入特征；
+    \item \textbf{诊断}：验证误差是否改善，边界处曲线是否异常摆动；
+    \item \textbf{失败模式}：过拟合、边界外快速失真、把噪声拟合成曲率；
+    \item \textbf{科学边界}：能表达经验弯曲趋势，但多项式项本身通常不是物理机制。
+\end{itemize}
+\end{examplebox}
 
 \section{表达能力提高，为什么风险也会增加}
 
@@ -331,9 +379,9 @@ r=(-0.02,0.06,-0.15).
 
 这段报告把回归结果拆成了五个必要部分：数据入口、baseline、指标、残差诊断和外推边界。对科学回归来说，最后两项尤其重要，因为一个平均误差很小的模型仍然可能在关键物理区域系统失效。
 
-到了 Part VI，这段回归记录会自然拆进几张 capstone evidence cards：数据入口进入 Data card，baseline 与模型设置进入 Baseline / Model cards，残差图和外推风险进入 Evaluation 与 Interpretation cards。也就是说，本章的报告模板不是课后格式要求，而是最终项目证据链的雏形。
+到了 Part VI，这段回归证据会自然拆进 capstone 的数据、模型实验、评估和解释证据区。也就是说，本章的报告模板不是课后格式要求，而是最终项目证据链的雏形。
 
-\section{回归实验记录应如何落盘}
+\section{回归实验如何进入 Model Experiment Record}
 
 为了避免“图在 notebook 里看过，但后来找不到依据”，每次回归实验都应把关键对象保存成文件或明确写进记录：
 
@@ -346,12 +394,13 @@ r=(-0.02,0.06,-0.15).
     \item 训练样本覆盖范围与外推风险。
 \end{itemize}
 
-\begin{examplebox}[回归记录的最小字段]
+\begin{examplebox}[回归 chapter-specific fields]
 \begin{lstlisting}[style=pythonstyle]
-regression_record = {
+model_experiment_record["ch18_fields"] = {
     "target": "specz",
     "features": ["g_r"],
     "baseline": "one-dimensional linear regression",
+    "algorithm_card": "linear_regression",
     "mae": mae,
     "rmse": rmse,
     "residual_plot": "figures/regression_residuals.png",

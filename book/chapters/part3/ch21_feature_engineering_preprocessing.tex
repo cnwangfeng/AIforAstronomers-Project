@@ -22,7 +22,7 @@
 
 \section{训练目标与贯穿微型项目}
 
-本章的微型项目是一份预处理审计。正文负责解释缺失值、标准化、类别编码、领域特征、特征删除和数据泄漏；训练材料则要求你把预处理步骤写成一份可以复查的 pipeline 记录。
+本章的微型项目是一份预处理审计。正文负责解释缺失值、标准化、类别编码、领域特征、特征删除和数据泄漏；训练材料则要求你把预处理步骤写进 Model Experiment Record，并额外生成一份轻量 Feature Ledger。
 
 \begin{examplebox}[最小预处理项目结构]
 \begin{lstlisting}[style=terminal]
@@ -34,11 +34,12 @@ preprocessing_audit_demo/
   scripts/
     audit_preprocessing_pipeline.py
   results/
-    preprocessing_record.txt
+    model_experiment_record.md
+    feature_ledger.csv
 \end{lstlisting}
 \end{examplebox}
 
-最终交付应包含：每个字段的处理方式、缺失值策略、标准化参数来自哪里、哪些步骤只能在训练集上拟合、哪些特征可能泄漏答案，以及预处理后样本是否仍代表原科学问题。
+最终交付应包含：每个字段的处理方式、缺失值策略、标准化参数来自哪里、哪些步骤只能在训练集上拟合、哪些特征可能泄漏答案，以及预处理后样本是否仍代表原科学问题。任何进入模型的 feature，都必须能追踪到 Data Card、Evidence Record 和 Dataset Contract。
 
 \section{为什么预处理会直接改变模型结果}
 
@@ -285,7 +286,28 @@ preprocessing_audit = {
 
 这个审计表的价值，不只是防止自己忘记做过什么；更重要的是让别人能判断：模型得到的改进究竟来自更合理的物理表示，还是来自不小心把测试信息、仪器痕迹或数据管线偏差喂给了模型。
 
-在最终项目里，预处理审计表主要进入 Data card、Reproducibility card 和 Integrity card。它回答的是三个朴素问题：模型到底看见了哪些列，这些转换能不能复跑，以及有没有把不该看的测试信息或伪特征带进去。
+在最终项目里，预处理审计表应进入 Model Experiment Record 的 preprocessing 与 leakage-check sections。它回答的是三个朴素问题：模型到底看见了哪些列，这些转换能不能复跑，以及有没有把不该看的测试信息或伪特征带进去。
+
+\section{Feature Ledger：每个特征都要能追溯}
+
+预处理审计记录的是流程，Feature Ledger 记录的是进入模型的每一列。它不需要变成厚重表格，但至少要让读者看见：这个特征来自哪里、单位是什么、是否由训练集拟合得到、是否可能泄漏标签或选择效应。表~\ref{tab:ch21_feature_ledger} 给出了最小字段。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{p{0.15\textwidth}p{0.13\textwidth}p{0.17\textwidth}p{0.10\textwidth}p{0.14\textwidth}p{0.13\textwidth}p{0.12\textwidth}}
+\toprule
+feature & raw/derived & source field & unit & fit on train only? & leakage risk & keep/drop reason \\
+\midrule
+\texttt{u\_g} & raw & catalog color & mag & yes & low & color signal \\
+\texttt{color\_sum} & derived & \texttt{u\_g,g\_r,r\_i} & mag & yes & medium & compact color trend \\
+\texttt{detector\_x} & raw & detector metadata & pixel & no & high & drop: instrument trace \\
+\bottomrule
+\end{tabular}
+\caption{Feature Ledger 的最小字段。实际项目中可以写成 \texttt{feature\_ledger.csv}。}
+\label{tab:ch21_feature_ledger}
+\end{table}
+
+这份表的硬要求是：标准化、缺失值填补、PCA、特征选择和任何需要学习参数的转换，都只能在训练集上 \texttt{fit}；验证集、测试集和未来数据只能调用已经固定的 \texttt{transform}。如果某一列无法说明来源、单位、训练集拟合状态和泄漏风险，它就不应直接进入模型。
 
 \section{最需要警惕的不是技术错误，而是数据泄漏}
 

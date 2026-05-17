@@ -22,7 +22,7 @@
 
 \section{训练目标与贯穿微型项目}
 
-本章的微型项目是一份光度红移模型可信度声明。正文负责解释预测不确定度、bootstrap、预测区间、特征重要性、局部解释、失效边界和选择效应；训练材料则要求你把一个模型结果从“预测值”升级成“可审查的可信度记录”。
+本章的微型项目是一份光度红移模型 Trust Statement。正文负责解释预测不确定度、bootstrap、预测区间、特征重要性、局部解释、失效边界和选择效应；训练材料则要求你把一个模型结果从“预测值”升级成“可审查的可信度声明”。
 
 \begin{examplebox}[最小可信度项目结构]
 \begin{lstlisting}[style=terminal]
@@ -34,11 +34,11 @@ photoz_trust_demo/
   figures/
     trust_diagnostics.png
   results/
-    trust_statement.txt
+    trust_statement.md
 \end{lstlisting}
 \end{examplebox}
 
-最终交付应包含：预测值、误差或区间估计、特征依赖、样本是否在训练覆盖范围内、主要失效模式、人工检查建议和不应过度解释的边界。这份声明会直接连接到 capstone 的 Interpretation card 与 Integrity card。
+最终交付应包含：预测值、误差或区间估计、特征依赖、样本是否在训练覆盖范围内、主要失效模式、人工检查建议和不应过度解释的边界。这份声明会直接进入 Part III Model Experiment Packet，并在 Part IV 以后继续复用。
 
 \section{为什么“预测出来了”还远远不够}
 
@@ -249,7 +249,7 @@ coverage_flag = nearest_distance < coverage_threshold
 
 只有三者一起过关，模型输出才有资格进入科学解释。
 
-\section{一个最小可信度声明模板}
+\section{Trust Statement：一个最小可信度声明模板}
 
 当模型结果要进入论文草稿、项目报告或课程展示时，最好附上一段简短但明确的可信度声明。它的目的不是显得保守，而是告诉读者：你知道这个模型在哪些地方可靠、哪些地方不能过度解释。
 
@@ -264,18 +264,24 @@ coverage_flag = nearest_distance < coverage_threshold
 \begin{examplebox}[可信度声明的最小骨架]
 \begin{lstlisting}[style=pythonstyle]
 trust_statement = {
-    "test_error": test_error_summary,
+    "model_output": predicted_photoz,
+    "main_metric_or_diagnostic": test_error_summary,
+    "distribution_status": "in_distribution / out_of_distribution / unclear",
+    "main_uncertainty_source": "finite training sample",
     "uncertainty_method": "bootstrap over training rows",
+    "main_feature_dependence": top_features,
     "interpretability_scope": "model behavior, not causal proof",
-    "training_coverage": coverage_summary,
-    "known_failure_modes": ["out_of_distribution", "selection_effects"],
+    "known_failure_boundary": coverage_summary,
+    "human_review_needed": review_flag,
+    "supported_claim": supported_claim,
+    "unsupported_claim": unsupported_claim,
 }
 \end{lstlisting}
 \end{examplebox}
 
-如果一个模型在训练覆盖范围内表现稳定，但对边界外样本误差明显升高，那么可信度声明中就应明确写出这一点。科学可信度不是把模型包装得更强，而是把模型能承担的证据责任说清楚。
+如果一个模型在训练覆盖范围内表现稳定，但对边界外样本误差明显升高，那么 Trust Statement 中就应明确写出这一点。科学可信度不是把模型包装得更强，而是把模型能承担的证据责任说清楚。
 
-在最终项目里，这段可信度声明会把 Model card、Evaluation card 和 Interpretation card 连接起来：模型怎样训练、误差怎样估计、解释能说到哪里、失效边界在哪里，都必须同时出现。少掉任意一项，可信度声明就会退化成一句空泛的“模型表现良好”。
+在最终项目里，这段 Trust Statement 会把 Dataset Contract、Model Experiment Record、evaluation artifact 和 error analysis artifact 连接起来：模型怎样训练、误差怎样估计、解释能说到哪里、失效边界在哪里，都必须同时出现。少掉 uncertainty、interpretability 或 failure boundary 中任意一项，可信度声明就会退化成一句空泛的“模型表现良好”。
 
 \section{从预测表到可信度表}
 

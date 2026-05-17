@@ -25,7 +25,7 @@ Current status:
 
 - Part III has a guide chapter and synthesis chapter, framing machine learning as scientific inference rather than model invocation.
 - The chapter sequence covers task definition, baseline workflow, regression, classification, evaluation, preprocessing, model selection, unsupervised learning, anomaly detection, uncertainty, interpretability, and trust.
-- The 2026-05-05 pass adds explicit model-record micro-projects across ch16--ch25, from problem statement and workflow record through regression/classification/evaluation/preprocessing/model-selection/unsupervised/anomaly/trust records.
+- The Part III V3 pass aligns the record system with the Part I/II mother-template principle: model work now flows through Dataset Contract, Model Experiment Record, Algorithm Card(s), evaluation/error-analysis artifacts, and Trust Statement rather than separate per-chapter record families.
 - The latest polish pass adds a model-result reporting frame and concrete minimum report, audit, review, and trust-statement templates from regression/classification through evaluation, preprocessing, model selection, unsupervised learning, anomaly detection, and trust.
 - The current textbook-depth pass adds worked mini-calculations and algorithm skeletons across Part III: loss/metric hand calculations, centroid classifier code, least-squares slope source, threshold scans, train-only preprocessing, cross-validation loops, PCA/k-means/DBSCAN workflows, anomaly triage, and coverage-distance trust checks.
 - The latest continuation pass adds chapter-opening guide sections to `ch16`--`ch25`, so each method chapter now starts from the scientific role, workflow risk, and interpretation boundary before listing learning goals.

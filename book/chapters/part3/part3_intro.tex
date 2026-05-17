@@ -24,7 +24,17 @@ Part III 的章节顺序是一条从问题定义到可信解释的链条：
 
 Part III 的正文负责让你\textbf{看懂}机器学习方法在科学推断中的位置：模型在优化什么、baseline 为什么必要、评估为什么容易自欺、错误样本怎样回到科学问题、解释性和不确定度为什么不能事后才补。它不是模型名录，而是一套判断模型结果是否可信的语言。
 
-配套训练材料则负责让你\textbf{练会}模型记录。每章都会产生一种小型 record：问题定义、workflow、regression、classification、evaluation、preprocessing、model selection、unsupervised、anomaly review 或 trust statement。后续案例章节不应重新发明这些记录，而应把它们组合成完整项目包。
+配套训练材料则负责让你\textbf{练会}模型记录。V3 之后，本部分不再为每章生成独立的 record 家族。所有模型实验统一进入 \textbf{Model Experiment Record}；各章只补充少量 chapter-specific fields。算法理解通过 \textbf{Algorithm Card} 组织，可信度边界通过 \textbf{Trust Statement} 收束。后续案例章节不应重新发明记录模板，而应把这些统一对象组合成完整项目包。
+
+这三个对象的关系是：
+
+\begin{itemize}
+    \item \textbf{Dataset Contract} 说明数据集如何安全进入模型；
+    \item \textbf{Model Experiment Record} 说明这次模型实验如何执行、评估和复查；
+    \item \textbf{Trust Statement} 说明模型结果在什么范围内可信、什么范围内不能信。
+\end{itemize}
+
+Algorithm Card 不是新的行政表格，而是算法理解层。它要求你用很短的篇幅说清：模型形式是什么，优化目标或决策规则是什么，关键假设是什么，最小手算或手写实现揭示了什么，模型会在哪里失败，以及结果能支持什么科学解释。
 
 \section*{贯穿 Part III 的三道防线}
 

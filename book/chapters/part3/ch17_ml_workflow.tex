@@ -34,8 +34,8 @@ minimal_ml_workflow_demo/
   scripts/
     run_minimal_workflow.py
   results/
-    split_record.txt
-    model_record.txt
+    model_experiment_record.md
+    confusion_matrix.csv
 \end{lstlisting}
 \end{examplebox}
 
@@ -98,7 +98,7 @@ model_predictions = predict_all(model, test_rows)
 
 evaluation = evaluate_predictions(test_rows, model_predictions)
 errors = collect_error_cases(test_rows, model_predictions)
-write_model_record(evaluation, errors)
+write_model_experiment_record(evaluation, errors)
 \end{lstlisting}
 \end{examplebox}
 
@@ -140,6 +140,21 @@ write_model_record(evaluation, errors)
 \end{itemize}
 
 本章的教学数据极小，因此 notebook 只演示训练集和测试集；验证集及更系统的模型选择，会放到后面章节展开。
+
+\section{测试集冻结规则}
+
+测试集不是“最重要所以最常看”的数据，而是“必须最后才打开”的独立证据。为了保持它的证据价值，测试集不参与：
+
+\begin{itemize}
+    \item 特征选择；
+    \item 标准化参数估计；
+    \item 缺失值填补规则学习；
+    \item 超参数选择；
+    \item 阈值选择；
+    \item 模型选择。
+\end{itemize}
+
+如果测试集结果导致你修改特征、预处理、阈值、超参数或模型族，那么这次测试集已经变成验证集。此时不能再把它当成最终独立测试证据。
 
 \section{为什么“切分方式”本身就是评估设计}
 
@@ -324,9 +339,9 @@ def predict_centroid(row, centroids):
 
 这些工作看上去不像“模型创新”，却是把一个课堂示例变成科研工作流的关键。
 
-\section{从模型输出到实验记录}
+\section{从模型输出到 Model Experiment Record}
 
-本章最终希望你形成一份 \texttt{model\_record.txt}。它不需要很长，但至少应该包含：
+本章最终希望你形成一份 \texttt{model\_experiment\_record.md}。它不需要很长，但至少应该包含：
 
 \begin{enumerate}
     \item \textbf{任务定义}：样本、特征、标签和目标；
@@ -336,11 +351,14 @@ def predict_centroid(row, centroids):
     \item \textbf{解释边界}：哪些结论只适用于教学数据，不能直接外推。
 \end{enumerate}
 
-\begin{examplebox}[模型记录的最小字段]
+\begin{examplebox}[Model Experiment Record 的最小字段]
 \begin{lstlisting}[style=pythonstyle]
-model_record = {
+model_experiment_record = {
     "task": "stellar class prediction",
-    "split": "one held-out example per class",
+    "split_unit": "star",
+    "split_seed": "fixed teaching split",
+    "stratification": "one held-out example per class",
+    "test_set_opened_when": "after baseline and model were fixed",
     "features": ["bp_rp", "absolute_g_mag"],
     "baseline_accuracy": baseline_accuracy,
     "model_accuracy": model_accuracy,
@@ -350,7 +368,7 @@ model_record = {
 \end{lstlisting}
 \end{examplebox}
 
-这类记录会在后续章节不断变厚：回归会加入残差，分类会加入按类别指标，模型选择会加入验证曲线，可信度章节会加入覆盖范围。这里先把骨架立起来。
+这类记录会在后续章节不断变厚：回归会加入残差，分类会加入按类别指标，模型选择会加入验证曲线，可信度章节会加入覆盖范围。它们都是同一个 Model Experiment Record 的 chapter-specific fields，而不是新的独立模板。
 
 \begin{warnbox}[机器学习流程中的典型问题]
 \begin{itemize}

@@ -22,7 +22,7 @@
 
 \section{训练目标与贯穿微型项目}
 
-本章的微型项目不是训练一个复杂模型，而是把一个恒星分类问题写成清楚的机器学习问题陈述。正文负责解释 AI、统计模型、机器学习和科学推断之间的边界；训练材料则要求你把样本、特征、标签、baseline 和解释目标写成一份可复查的问题定义。
+本章的微型项目不是训练一个复杂模型，而是把一个恒星分类问题写成清楚的机器学习任务入口。正文负责解释 AI、统计模型、机器学习和科学推断之间的边界；训练材料则要求你把样本、特征、标签、baseline、Dataset Contract 和解释目标写进 Model Experiment Record 的任务部分。
 
 \begin{examplebox}[最小机器学习问题定义项目]
 \begin{lstlisting}[style=terminal]
@@ -32,12 +32,12 @@ ml_inference_demo/
   notebooks/
     ch16_ai_ml_scientific_inference.ipynb
   results/
-    problem_statement.txt
-    baseline_assumptions.txt
+    model_experiment_record.md
+    dataset_contract_draft.md
 \end{lstlisting}
 \end{examplebox}
 
-完成本章训练后，你应该能交付：样本单位说明、特征和标签来源、规则 baseline、机器学习模型可能提供的增益，以及当前任务不能支持的机制解释。这份记录会成为后续所有模型实验的第一页。
+完成本章训练后，你应该能交付：样本单位说明、特征和标签来源、规则 baseline、机器学习模型可能提供的增益，以及当前任务不能支持的机制解释。这些内容会成为后续所有 Model Experiment Record 的任务入口。
 
 \section{为什么在 Part II 之后进入机器学习}
 
@@ -176,6 +176,22 @@ ml_inference_demo/
 
 这张表的意义，是把“机器学习问题”从一句口号压成可复查的对象。只要其中一行说不清，后面的模型训练就很容易变成表面上能跑、实质上无法解释的练习。
 
+\section{从 Dataset Contract 到模型实验}
+
+Part II 的 Dataset Contract 回答的是：这个数据集如何安全进入模型。进入 Part III 后，还需要再回答三件不同但经常被混淆的事：
+
+\begin{itemize}
+    \item \textbf{Scientific question}：科学上真正关心的问题是什么；
+    \item \textbf{ML task}：形式上是分类、回归、聚类、异常检测还是表示学习；
+    \item \textbf{Optimization target}：模型实际优化什么损失函数或使用什么决策规则。
+\end{itemize}
+
+例如，“理解恒星演化阶段”是科学问题；“用颜色和绝对星等预测教学标签”是分类任务；“最小化错分损失或交叉熵”才是优化目标。三者相关，但不能互相替代。
+
+\begin{warnbox}[没有 Dataset Contract，不进入模型实验]
+如果样本单位、特征来源、标签规则、质量标记、选择效应和 split 风险还说不清楚，就不应该直接训练模型。此时最多只能做探索性演示，不能把输出写成可复查的模型实验结果。
+\end{warnbox}
+
 \section{损失函数的一步手算}
 
 为了让经验风险不显得抽象，我们看一个极小二分类例子。假设真实标签为
@@ -284,18 +300,21 @@ y_i \in \{\texttt{main\_sequence}, \texttt{giant}, \texttt{white\_dwarf}\}.
     \item 二者都依赖特征定义，也都离不开科学判断。
 \end{itemize}
 
-\section{一份最小问题定义记录}
+\section{Model Experiment Record 的任务入口}
 
-从本章开始，每次进入模型实验前，都应该先写一份问题定义记录。它可以非常短，但必须先于模型代码出现。
+从本章开始，每次进入模型实验前，都应该先写清 Model Experiment Record 的任务入口。它可以非常短，但必须先于模型代码出现。
 
-\begin{examplebox}[问题定义记录模板]
+\begin{examplebox}[任务入口的最小字段]
 \begin{lstlisting}[style=pythonstyle]
-problem_statement = {
+model_experiment_task = {
     "scientific_question": "classify broad stellar populations",
+    "ml_task": "classification",
+    "optimization_target": "minimize classification error",
     "sample_unit": "one star",
     "features": ["bp_rp", "absolute_g_mag"],
     "target": "stellar_class",
     "label_source": "teaching labels based on HR diagram regions",
+    "dataset_contract": "results/dataset_contract_draft.md",
     "baseline": "hand-written HR diagram rule",
     "not_supported_claims": [
         "detailed stellar evolutionary stage",
@@ -305,7 +324,7 @@ problem_statement = {
 \end{lstlisting}
 \end{examplebox}
 
-这份记录看起来朴素，却能防止很多后续错误。它会提醒你：教学标签并不等于自然界的最终类别，baseline 并不是可省略的形式，模型能支持的是当前任务下的预测，而不是完整物理机制解释。
+这份任务入口看起来朴素，却能防止很多后续错误。它会提醒你：教学标签并不等于自然界的最终类别，baseline 并不是可省略的形式，模型能支持的是当前任务下的预测，而不是完整物理机制解释。
 
 \section{为什么评估设计在下一章还要单独展开}
 

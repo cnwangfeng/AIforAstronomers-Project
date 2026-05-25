@@ -48,7 +48,7 @@ physics_fit_demo/
 \end{lstlisting}
 \end{examplebox}
 
-项目交付应包含：变量单位、候选模型、参数搜索范围、最佳参数、残差诊断、Monte Carlo 不确定度、baseline 比较和模型假设限制。这个结构会为 Part III 的模型评估和 后续项目 的 后续项目结果报告打底。
+项目交付应包含：变量单位、候选模型、参数搜索范围、最佳参数、残差诊断、Monte Carlo 不确定度、baseline 比较和模型假设限制。这个结构会为 Part III 的模型评估和后续项目报告打底。
 
 \section{为什么物理数据分析不能只停留在“相关性”}
 
@@ -403,7 +403,7 @@ tau_mean = sum(tau_samples) / len(tau_samples)
     \item 与简单 baseline 或经验模型的比较。
 \end{itemize}
 
-例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。到了最终项目包，原始实验字段和误差模型进入 Data card，拟合流程和随机扰动方法进入 Reproducibility card，残差与 baseline 比较进入 Evaluation card，物理解释和模型假设则进入 Interpretation card。
+例如，教学报告可以写成：“在原始电压空间中，用指数衰减模型拟合得到 $\tau \approx 2.15\,\mathrm{s}$；Monte Carlo 重采样给出的 $\tau$ 标准差约为若干百分之一秒；残差未显示强系统趋势，但该结论仍依赖当前误差条和理想 RC 模型假设。”这种写法比孤立参数更可信，因为它把数值、误差、诊断和适用边界放在了一起。到了后续项目证据包，原始实验字段和误差模型进入 Data Card，拟合流程和随机扰动方法进入 Evidence Record，残差与 baseline 比较进入 Model Experiment Record，物理解释和模型假设则进入 Trust Statement。
 
 \section{本章 Evidence Record 附加字段}
 

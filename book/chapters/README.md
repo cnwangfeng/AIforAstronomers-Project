@@ -11,12 +11,13 @@ Current organization:
 - `part3/`: machine-learning workflow and scientific inference.
 - `part4/`: astronomy and physics case studies.
 - `part5/`: deep learning and modern AI.
-- `part6/`: capstone project, course package, and handoff materials.
+- `part6/`: historical capstone / teaching-support material, no longer included
+  by the main textbook entry point.
 
-The current Part I--VI synthesis layer uses a shared capstone evidence-card
-frame: Project, Data, Baseline, Model, Evaluation, Interpretation,
-Reproducibility, and Integrity. New revisions should preserve that handoff
-instead of creating isolated reporting templates.
+The current Part I--V synthesis layer uses a shared evidence-chain frame:
+Evidence Record, Data Card, Dataset Contract, Model Experiment Record, Trust
+Statement, and AI Usage Log. New revisions should preserve that handoff instead
+of creating isolated reporting templates.
 
 All active textbook writing now happens inside this tree. The legacy top-level
 chapter files under `book/` and the old `main.tex` compatibility entry have

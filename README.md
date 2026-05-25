@@ -14,7 +14,7 @@
 当前教学结构采用：
 
 - `Part 0`：Python 先修模块，只补进入本书所必需的基础语法和代码阅读能力；
-- `Part I` 到 `Part VI`：教材正文主线，聚焦科研工作流、数据处理、机器学习和案例。
+- `Part I` 到 `Part V`：教材正文主线，聚焦科研工作流、数据处理、机器学习、天文/物理案例、深度学习和现代 AI。
 
 也就是说，通用 Python 入门不再占用正文主线篇幅；正文默认读者已经完成 `Part 0`，或者具备同等基础。
 
@@ -22,12 +22,12 @@
 
 截至 2026-05-05，本项目已经进入发布前 QA 和同步收束阶段：
 
-- 中文主书稿 `book/main_zh.tex` 可本地编译，最近验证 PDF 约 `564` 页。
+- 中文主书稿 `book/main_zh.tex` 可本地编译。
 - 配套 notebook smoke test 最近通过 `59` 个 notebooks。
 - `data/manifest.yml` 最近验证通过 `52` 个小型教学数据集。
-- `Part I` 到 `Part VI` 已形成连续教材主线，`Part VI` 保持 capstone/课程包收束定位，不再新增运维章节。
+- `Part I` 到 `Part V` 已形成连续教材主线；原 Part VI/capstone 材料保留为历史与教学辅助材料，不再进入主书稿入口。
 - 最近一次 `bash scripts/run_release_checks.sh full` 已通过，包含 `59` 个 notebook smoke test、数据 manifest、发布清单、图表/表格引用检查、publication blocker、中文构建、LaTeX 日志、`git diff --check` 和 Overleaf dry-run payload 检查。
-- 图表、公式、capstone evidence cards、来源/许可证状态分别由 `book/*_QA.md` 台账维护；这些 QA 台账保留在完整项目仓库，默认不进入 Overleaf 同步 payload。
+- 图表、公式、项目证据卡、来源/许可证状态分别由 `book/*_QA.md` 台账维护；这些 QA 台账保留在完整项目仓库，默认不进入 Overleaf 同步 payload。
 - 正式公开发布所需的 `LICENSE`、`NOTICE.md`、`CITATION.cff` 和项目级 AI-use statement 已补齐；`python scripts/check_publication_blockers.py --strict` 目前通过。
 
 ## 仓库分工

@@ -6,17 +6,18 @@ pure-Python baselines first, with optional framework comparisons when the
 environment has extra libraries installed.
 
 Notebook outputs should align with the frozen Part III/IV interface. Deep-model
-notebooks should be able to feed a Model Experiment Record, evaluation artifact,
-error/review artifact, and Trust Statement. LLM, agent, reading, writing, and
-ethics notebooks should be able to feed an Evidence Record, AI Usage Log,
-verification artifact, and disclosure note.
+notebooks should be able to feed a Deep Learning Model Card, Model Experiment
+Record, evaluation artifact, error/review artifact, and Trust Statement. LLM,
+agent, reading, writing, and ethics notebooks should be able to feed an Evidence
+Record, AI Usage Log, verification artifact, and disclosure note.
 
 Current sample delivery exports:
 
-- Ch31 exports `results/ch31_cnn_delivery/` as a deep-model package with Dataset Contract, Model Experiment Record, routing/review artifacts, and Trust Statement.
-- Ch32 exports `results/ch32_spectral_conv_delivery/` as a 1D spectral CNN package with Dataset Contract, Model Experiment Record, route artifacts, and Trust Statement.
-- Ch33 exports `results/ch33_autoencoder_delivery/` as an autoencoder anomaly-review package with Model Experiment Record, reconstruction/retrieval artifacts, and Trust Statement.
-- Ch34 exports `results/ch34_attention_delivery/` as an attention / masked-patch package with Model Experiment Record, route artifacts, and Trust Statement.
+- Ch30 exports `results/ch30_neural_network_basics_delivery/` as a foundation package with Deep Learning Model Card, Model Experiment Record, hidden-activation probes, test predictions, and Trust Statement.
+- Ch31 exports `results/ch31_cnn_delivery/` as a deep-model package with Dataset Contract, Deep Learning Model Card, Model Experiment Record, routing/review artifacts, and Trust Statement.
+- Ch32 exports `results/ch32_spectral_conv_delivery/` as a 1D spectral CNN package with Dataset Contract, Deep Learning Model Card, Model Experiment Record, route artifacts, and Trust Statement.
+- Ch33 exports `results/ch33_autoencoder_delivery/` as an autoencoder anomaly-review package with Dataset Contract, Deep Learning Model Card, Model Experiment Record, reconstruction/retrieval artifacts, and Trust Statement.
+- Ch34 exports `results/ch34_attention_delivery/` as an attention / masked-patch package with Dataset Contract, Deep Learning Model Card, Model Experiment Record, route artifacts, and Trust Statement.
 - Ch35 exports `results/ch35_llm_programming_delivery/` as an AI-assisted programming package with Evidence Record, AI Usage Log, regression checks, validation figure, and disclosure note.
 - Ch36 exports `results/ch36_agentic_workflow_delivery/` as an agentic workflow package with Evidence Record, AI Usage Log, action log, manual-review queue, routing figure, and disclosure note.
 - Ch37 exports `results/ch37_literature_delivery/` as an AI-assisted literature package with Evidence Record, AI Usage Log, claim ledger artifacts, and disclosure note.
@@ -37,4 +38,4 @@ Current notebook set:
 Later this directory will grow into:
 
 - transfer-learning and real-image CNN notebooks
-- deeper workflow-integrated model notebooks that can feed the Part VI capstone templates
+- deeper workflow-integrated model notebooks that can feed later project evidence packages

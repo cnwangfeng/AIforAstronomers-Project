@@ -12,7 +12,6 @@ notebooks/
   part3_machine_learning/
   part4_cases/
   part5_deep_learning_ai/
-  part6_capstone/
 ```
 
 说明：
@@ -43,6 +42,6 @@ notebooks/
 - `part3_machine_learning/` 已对应 AI/ML 科学推断、最小 workflow、回归、分类、评估、预处理、模型选择、无监督、异常检测和可信度。
 - `part4_cases/` 已对应 Gaia HR 图、光度红移估计、光谱分类和星系形态分类案例。
 - `part5_deep_learning_ai/` 已对应神经网络、CNN、一维卷积、自编码器、Transformer/注意力、LLM 辅助编程、agentic workflow、文献阅读/报告写作和 AI 伦理。
-- `part6_capstone/` 已对应 capstone workflow、选题、报告展示、rubric、试教、课程运行、发布维护、交接和长期维护。
+- `part6_capstone/` 保留为历史与教学辅助材料，不再作为主书稿的正式配套 notebook 主线。
 
-最近一次完整 smoke test 已通过 `59` 个 notebook。后续 notebook 工作的重点不再是补空目录，而是和正文一起做细读：统一术语、控制运行时间、补图表解释、补失败案例和维护每章数据契约。
+后续 notebook 工作的重点不再是补空目录，而是和正文一起做细读：统一术语、控制运行时间、补图表解释、补失败案例和维护每章数据契约。

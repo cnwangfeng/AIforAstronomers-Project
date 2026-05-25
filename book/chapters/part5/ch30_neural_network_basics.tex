@@ -32,6 +32,80 @@
 
 但在真正进入卷积网络之前，学生首先需要理解一个更底层的问题：\textbf{神经网络为什么能表示比直线或浅层规则更复杂的映射？}
 
+\section{深度学习到底是什么}
+
+在这本书里，深度学习不是“用了很多层的机器学习”这么简单。更准确地说，深度学习是一类\textbf{用多层可训练变换自动学习表示的模型}。它和 Part III 中的线性回归、逻辑回归、决策树仍然属于同一条机器学习主线：给定输入、定义目标、训练参数、检查泛化。但深度学习的特殊之处在于，模型不只学习最后的预测规则，还会在中间层学习新的表示。
+
+可以把一个深度学习系统拆成六个基本部件：
+
+\begin{enumerate}
+    \item \textbf{输入表示}：表格特征、图像像素、光谱 flux window、时间序列片段或 token 序列；
+    \item \textbf{层}：把上一层表示变成下一层表示的可训练或固定变换；
+    \item \textbf{参数}：权重和偏置，是训练过程中真正被更新的量；
+    \item \textbf{激活函数}：把线性组合变成非线性表示，使多层网络不再退化成一个大线性模型；
+    \item \textbf{损失函数}：告诉模型“当前输出错在哪里”的可计算目标；
+    \item \textbf{优化器}：根据梯度逐步更新参数，使训练损失下降。
+\end{enumerate}
+
+这些词听起来像工程术语，但它们对应的是非常具体的科学建模问题：输入表示决定模型能看见什么；网络结构决定模型偏向怎样组合信息；损失函数决定模型实际在优化什么；验证集决定模型是否只是记住了训练样本。
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.24\textwidth}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\raggedright\arraybackslash}p{0.30\textwidth}}
+\toprule
+概念 & 最小含义 & 科研中要追问的问题 \\
+\midrule
+tensor / array & 模型实际读取的数值容器 & 形状、单位和归一化是否正确？ \\
+layer & 一次表示变换 & 这一层在组合哪些信息？ \\
+weight / bias & 可训练参数 & 参数数量是否相对数据规模过大？ \\
+activation & 非线性门控 & 梯度是否容易消失或饱和？ \\
+loss & 训练目标 & 它是否等同于科学目标？通常并不等同。 \\
+optimizer & 更新规则 & 学习率、epoch 和 early stopping 是否记录？ \\
+validation & 独立选择依据 & 是否被用于调参而污染了测试集？ \\
+\bottomrule
+\end{tabular}
+\caption{深度学习入门时必须先稳定下来的核心概念。}
+\label{tab:ch30_deep_learning_core_terms}
+\end{table}
+
+\section{深度学习和普通机器学习有什么不同}
+
+Part III 中的许多模型要求我们先手工定义特征。例如光度红移案例里，输入可能是颜色、星等和若干派生量；星系形态案例里，输入可能是集中度、轴比、非对称度和投票比例。深度学习常常把这一步往模型内部推进：模型直接从更原始的数组中学习中间表示。
+
+这种能力很强，但代价也很清楚：
+
+\begin{itemize}
+    \item 模型通常需要更多训练样本；
+    \item 参数更多，过拟合风险更高；
+    \item 中间表示不一定能直接翻译成物理量；
+    \item 数据预处理、切分和质量标记会更深地影响结果。
+\end{itemize}
+
+因此，深度学习并不是 baseline 的替代品。它更像是在 baseline 已经暴露出表达能力不足之后，才值得引入的更强函数族。
+
+\section{一层网络在数学上做了什么}
+
+最小神经网络的每一层通常都包含两步。第一步是线性变换：
+
+\[
+z = Wx + b.
+\]
+
+这里 \(x\) 是输入向量，\(W\) 是权重矩阵，\(b\) 是偏置，\(z\) 是激活前的中间量。第二步是非线性激活：
+
+\[
+h = \phi(z).
+\]
+
+\(\phi\) 可以是 \(\tanh\)、sigmoid、ReLU 或其他函数。没有这一步，多层线性变换仍然可以合并成一个线性变换：
+
+\[
+W_2(W_1x + b_1) + b_2 = (W_2W_1)x + (W_2b_1 + b_2).
+\]
+
+这就是为什么激活函数不是装饰，而是深度学习表达能力的关键来源。网络的“深”并不自动有意义；真正有意义的是多层线性组合与非线性变换交替出现，让模型能够表示弯曲边界、局部模式和复杂映射。
+
 \section{一个教学版非线性响应数据集}
 
 配套 notebook 使用 \nolinkurl{neural_network_regression_demo.csv}。它是一个小型教学数据集，用一个单输入、单输出的非线性响应关系演示神经网络基础。数据表包括：
@@ -135,6 +209,17 @@ y_pred = sum(w2_i * h_i for i in hidden_units) + b2
 
 这里最关键的并不是“层数”这个词本身，而是 \texttt{tanh} 这样的\textbf{非线性激活函数}。如果没有非线性，多个线性层叠起来本质上仍然只是一个更大的线性变换，表达能力并不会真正提升。
 
+\begin{examplebox}[Deep Learning Model Card：单隐层全连接网络]
+\begin{itemize}
+    \item 输入结构：标准化后的一维或多维表格特征。
+    \item 模型结构：线性层 $\rightarrow$ 非线性激活 $\rightarrow$ 线性输出层。
+    \item 训练目标：最小化预测值与目标值之间的损失，例如 MSE。
+    \item 学到什么：输入特征的非线性组合，而不是新的物理定律。
+    \item 主要失败模式：小样本过拟合、外推失效、标准化泄漏、把训练误差下降误当成泛化。
+    \item 科学边界：可以支持“在当前覆盖范围内预测更准”，不能单独支持“模型发现了真实因果机制”。
+\end{itemize}
+\end{examplebox}
+
 \section{损失函数与反向传播的直觉}
 
 这一章不追求推导所有矩阵公式，但学生必须理解训练在做什么。对当前回归例子来说，我们希望网络输出尽量接近真实目标值，因此 notebook 使用的是均方误差风格的损失。
@@ -154,6 +239,65 @@ loss = 0.5 * (y_pred - y_true) ** 2
 \end{itemize}
 
 换句话说，训练不是神秘黑箱，而是“误差如何流经网络结构”的系统计算。
+
+\section{一次训练循环由哪些步骤组成}
+
+多数深度学习框架会把训练循环包装起来，但初学者必须知道里面发生了什么。一个最小训练循环包含四步：
+
+\begin{enumerate}
+    \item \textbf{forward}：把输入送进网络，得到预测或重构；
+    \item \textbf{loss}：比较输出和目标，得到一个标量损失；
+    \item \textbf{backward}：计算损失对每个参数的梯度；
+    \item \textbf{update}：用优化器根据梯度更新参数。
+\end{enumerate}
+
+用伪代码写，就是：
+
+\begin{examplebox}[最小训练循环]
+\begin{lstlisting}[style=pythonstyle]
+for epoch in range(num_epochs):
+    y_pred = model(x_train)          # forward
+    loss = mse(y_pred, y_train)      # loss
+    gradients = backward(loss)       # backward
+    optimizer.step(parameters, gradients)  # update
+\end{lstlisting}
+\end{examplebox}
+
+真实训练还会加入 mini-batch、学习率、权重衰减、early stopping 等机制。它们的共同目的不是让流程变复杂，而是让训练在有限数据和有限计算下更稳定。
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.35\textwidth}>{\raggedright\arraybackslash}p{0.31\textwidth}}
+\toprule
+训练术语 & 含义 & 常见风险 \\
+\midrule
+epoch & 完整扫过训练集一次 & epoch 太多可能过拟合 \\
+batch & 一次更新使用的一小组样本 & batch 太小噪声大，太大可能泛化变差 \\
+learning rate & 每次参数更新的步长 & 太大震荡，太小训练很慢 \\
+optimizer & 把梯度转成参数更新的规则 & 不同优化器会改变收敛行为 \\
+early stopping & 验证集不再改善时停止训练 & 必须基于验证集，不能基于测试集 \\
+\bottomrule
+\end{tabular}
+\caption{理解深度学习训练循环时最常见的几个术语。}
+\label{tab:ch30_training_loop_terms}
+\end{table}
+
+\section{训练误差、验证误差和过拟合}
+
+深度模型的参数很多，因此它们非常容易把训练集记住。训练损失下降本身并不说明模型学到了可迁移的规律。你至少应该同时观察三件事：
+
+\begin{itemize}
+    \item 训练误差是否下降；
+    \item 验证误差是否同步下降；
+    \item 测试集是否只在模型冻结后打开。
+\end{itemize}
+
+如果训练误差持续下降，而验证误差开始上升，这通常说明模型正在过拟合。此时更深、更宽或训练更久，未必会让科学结果更可信。更合理的动作可能是减少模型复杂度、增加正则化、检查数据泄漏、重新审查样本划分，或回到更简单的 baseline。
+
+\begin{warnbox}[深度学习中的证据纪律]
+神经网络训练结果必须记录训练/验证/测试划分、随机种子、输入标准化方式、模型结构、损失函数、优化器、训练轮数、主要诊断图和失败样本。没有这些信息，一个“分数很高”的模型仍然不可复查。
+\end{warnbox}
 
 \section{配套 notebook 做了什么}
 

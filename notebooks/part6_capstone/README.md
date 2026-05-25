@@ -1,7 +1,9 @@
-# Part VI Notebook Index
+# Historical Capstone Notebook Index
 
-These notebooks turn the textbook's capstone guidance into small, reproducible
-project boards, checklists, and delivery workflows.
+These notebooks are retained as historical and teaching auxiliary material.
+They are no longer part of the main textbook companion notebook line, which now
+runs through Part I--V. They remain useful as optional project boards,
+checklists, and delivery workflows.
 
 Current notebook set:
 
@@ -29,10 +31,10 @@ Current notebook set:
 
 Current status:
 
-- Part VI notebook set is complete and aligned with the textbook's shared
-  gate/route language for capstone workflow, scoring, release, handoff, and
-  maintenance.
+- The historical capstone notebook set is complete and aligned with the shared
+  gate/route language for optional project workflow, scoring, release, handoff,
+  and maintenance.
 - Ch39--Ch42 now use Capstone Evidence Package language rather than a separate
   family of project/model/evaluation/integrity cards.
 - Future notebook work should focus on terminology cleanup, runtime checks, and
-  small explanatory improvements rather than adding new Part VI notebooks.
+  small explanatory improvements rather than adding new capstone notebooks.

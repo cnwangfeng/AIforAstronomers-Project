@@ -128,6 +128,64 @@ anomaly_score = mean(distance to k nearest neighbors)
 
 这些卡片不需要把算法推导成完整数学教材，但必须让学生知道：异常分数不是统一真理，而是某一种异常定义下的候选排序。
 
+\begin{examplebox}[Algorithm Card: Distance-based Anomaly]
+\begin{itemize}
+    \item \textbf{任务类型}：异常候选排序；
+    \item \textbf{决策规则}：离最近邻或局部邻居越远，异常分数越高；
+    \item \textbf{用户固定}：距离度量、邻居数 \(k\)、标准化方式和参考样本；
+    \item \textbf{诊断}：最近邻是谁、触发距离的主要特征、是否存在多个正常群体；
+    \item \textbf{失败模式}：尺度主导距离，小众但正常的群体被误判为异常；
+    \item \textbf{科学边界}：能排序“远离主体”的点，不能说明远离原因一定是新物理。
+\end{itemize}
+\end{examplebox}
+
+\begin{examplebox}[Algorithm Card: Local Outlier Factor]
+\begin{itemize}
+    \item \textbf{任务类型}：局部异常检测；
+    \item \textbf{决策规则}：若一个点的局部密度显著低于其邻居区域，异常分数升高；
+    \item \textbf{用户固定}：邻居数、距离度量、标准化方式；
+    \item \textbf{诊断}：局部邻居、局部密度对比、边界样本是否集中；
+    \item \textbf{失败模式}：邻居数选择不当会把正常稀疏区或边界区误报；
+    \item \textbf{科学边界}：能发现局部孤立样本，不能自动区分物理稀有与数据质量问题。
+\end{itemize}
+\end{examplebox}
+
+\begin{examplebox}[Algorithm Card: Isolation Forest]
+\begin{itemize}
+    \item \textbf{任务类型}：异常候选排序；
+    \item \textbf{决策规则}：越容易被随机特征切分单独隔离的样本，越像异常；
+    \item \textbf{用户固定}：树数量、子样本大小、污染率或候选比例、随机种子；
+    \item \textbf{诊断}：高分样本触发哪些特征、不同随机种子下排序是否稳定；
+    \item \textbf{失败模式}：高维无意义特征会制造隔离假象，污染率设置会影响候选数量；
+    \item \textbf{科学边界}：适合大样本快速排序，不提供异常原因的物理解释。
+\end{itemize}
+\end{examplebox}
+
+\begin{examplebox}[Algorithm Card: Autoencoder Reconstruction Error]
+\begin{itemize}
+    \item \textbf{任务类型}：表示学习式异常检测；
+    \item \textbf{模型形式}：编码器把输入压缩到低维表示，解码器再重构输入；
+    \item \textbf{优化目标}：最小化训练样本的重构误差；
+    \item \textbf{用户固定}：网络容量、瓶颈维度、训练集定义、重构误差阈值；
+    \item \textbf{诊断}：误差集中在哪些波段或特征，训练集是否被异常污染；
+    \item \textbf{失败模式}：模型太强会记住异常，模型太弱会把正常复杂结构也重构不好；
+    \item \textbf{科学边界}：重构差只说明模型表示不了该样本，不等于已经发现新物理。
+\end{itemize}
+\end{examplebox}
+
+\section{四种异常分数其实在问四个不同问题}
+
+异常检测最容易被误解成“哪种算法更会发现异常”。更准确地说，不同算法在问不同问题：
+
+\begin{itemize}
+    \item \textbf{距离方法}：这个点离最近的正常邻居远不远？
+    \item \textbf{LOF}：这个点所在位置是否比邻居所在区域更稀疏？
+    \item \textbf{Isolation Forest}：随机切空间时，这个点是否很快被单独分出来？
+    \item \textbf{Autoencoder}：用正常样本学到的低维表示，能否重构这个点？
+\end{itemize}
+
+因此，同一个样本在四种方法里排名不同，并不是坏事。它提醒你：这个样本到底是“远”、是“局部孤立”、是“容易被切出来”，还是“难以重构”。异常报告如果能写出触发原因，就比只给一个总分更接近科学复核。
+
 \section{距离分数为什么必须先标准化}
 
 本章的光谱特征量纲并不相同：等效宽度、连续谱比值和信噪比的数值范围完全不同。如果直接计算欧氏距离，距离最大的维度会主导异常分数。一个高信噪比差异很大的普通样本，可能会被排在真正光谱异常之前。
@@ -165,6 +223,19 @@ score = mean_neighbor_distance(neighbors)
 
 这类方法强调的不是“离整体中心有多远”，而是“和你最近的人相比，你是不是过于孤立”。
 
+\paragraph{LOF 的最小直觉}
+
+可以把 LOF 想成一个密度比值：
+
+\[
+\mathrm{LOF}(x)
+\approx
+\frac{\text{邻居附近的典型密度}}
+{\text{\(x\) 附近的局部密度}}.
+\]
+
+如果这个比值接近 \(1\)，说明 \(x\) 和邻居处在差不多的密度环境；如果明显大于 \(1\)，说明 \(x\) 比周围邻居更孤立。这个直觉也解释了为什么邻居数很关键：邻居数太小，LOF 容易受单个点影响；邻居数太大，局部异常又会被全局结构平均掉。
+
 \section{Isolation Forest：看一个点有多容易被单独切出来}
 
 \textbf{Isolation Forest} 背后的直觉很漂亮：如果一个样本真的很孤立，那么用随机切分特征空间时，它往往会比较快被单独隔离出来。
@@ -178,6 +249,10 @@ score = mean_neighbor_distance(neighbors)
 \end{itemize}
 
 在教学 notebook 里，我们用一个简化版的随机切分深度来模拟这一思想。你会看到：处理伪影往往最容易被隔离，而两个物理异常候选也会得到较高分数，但三者的排序并不完全一样。
+
+\paragraph{路径长度的直觉}
+
+Isolation Forest 中，每棵树都会随机选择特征和切分值，把样本逐步分开。一个普通样本通常混在密集区域里，需要多次切分才会被单独隔离；一个孤立样本往往几次切分后就独自落到叶节点。平均路径长度越短，异常分数越高。这个机制让它适合大样本快速排序，但也意味着：如果某些无意义特征让样本显得孤立，它同样会被排到前面。
 
 \section{不同异常方法为什么会给出不同排序}
 

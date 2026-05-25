@@ -127,6 +127,17 @@ context = sum(weight_i * v_i for i in tokens)
 
 也就是说，注意力不是在对整段序列做统一平均，而是在问：\textbf{对于当前这个查询，哪几个 token 应该获得更高权重？}
 
+\begin{examplebox}[Deep Learning Model Card：Transformer / Attention]
+\begin{itemize}
+    \item 输入结构：token、patch、光谱窗口或时间片段组成的序列。
+    \item 模型结构：embedding、位置编码、多头注意力、前馈层、残差连接和任务头。
+    \item 训练目标：分类、回归、masked prediction、next-token prediction 或其他自监督目标。
+    \item 学到什么：不同位置之间的上下文关系和可迁移表示。
+    \item 主要失败模式：token 化丢失科学信息、预训练数据偏差、注意力权重被过度解释、迁移任务分布不匹配。
+    \item 科学边界：可以提供强表示或候选预测，不能把注意力图直接当成物理因果图。
+\end{itemize}
+\end{examplebox}
+
 \section{为什么位置编码很重要}
 
 如果只有 token 身份、没有位置编码，那么本章数据里的三类样本仍然是不可分的：因为它们包含同样的 token 集合。模型需要知道的不只是“出现了 \texttt{ha\_emission}”，而是“\texttt{ha\_emission} 出现在了 \texttt{center\_mark} 后面还是后更远的位置”。

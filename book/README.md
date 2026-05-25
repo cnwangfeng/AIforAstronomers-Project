@@ -45,10 +45,10 @@ book/
 旧的扁平章节文件已经删除；中文主书稿统一使用 `chapters/part*/` 结构。当前已经完成：
 
 - `references.bib` 初始建立
-- `main_zh.tex` 的 Part I--VI 主线接入
+- `main_zh.tex` 的 Part I--V 主线接入
 - Part 0 Python 先修模块从正文主线中独立
 - `FIGURE_TABLE_QA.md` 已建立，用于记录中文主线图表、表格、来源和发布前 QA 状态
-- `EVIDENCE_CARD_QA.md` 已建立，用于记录八张 capstone evidence cards 的 canonical 名称、桥接状态和发布前 QA 状态
+- `EVIDENCE_CARD_QA.md` 已建立，用于记录八张项目证据卡的 canonical 名称、桥接状态和发布前 QA 状态
 - `FORMULA_QA.md` 已建立，用于记录中文主线公式数量、解释标准和发布前公式 QA 状态
 - `SOURCE_LICENSE_QA.md` 已建立，用于记录 bibliography、数据来源、许可证、外部材料边界和 AI-use 发布前 QA 状态
 - `scripts/check_figure_table_refs.py` 和 `scripts/check_formula_inventory.py` 已接入聚合发布检查，避免图表、表格和公式台账继续靠人工计数维护
@@ -58,7 +58,7 @@ book/
 后续清理顺序建议：
 
 1. 持续更新 `FIGURE_TABLE_QA.md`，统一图表目录和图表来源说明。
-2. 持续更新 `EVIDENCE_CARD_QA.md`，避免八张证据卡在新增章节中漂移。
+2. 持续更新 `EVIDENCE_CARD_QA.md`，避免八张项目证据卡在新增章节中漂移。
 3. 持续更新 `FORMULA_QA.md`，确保新增公式有变量、单位、计算角色和适用边界；新增或删除 display math 后运行 `python scripts/check_formula_inventory.py`。
 4. 持续更新 `SOURCE_LICENSE_QA.md`，把许可证、引用和 AI-use 决策从正文润色中分离出来。
 5. 按路线图继续细读正文、统一术语、补交叉引用和图表说明。

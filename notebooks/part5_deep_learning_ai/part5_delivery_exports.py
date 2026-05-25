@@ -10,6 +10,222 @@ def _write_text(path: Path, content: str) -> None:
     path.write_text(content.strip() + "\n", encoding="utf-8")
 
 
+def export_ch30_neural_network_basics_delivery(ns: dict) -> None:
+    results_dir = Path("results/ch30_neural_network_basics_delivery")
+    figures_dir = results_dir / "figures"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    linear_rmse = ns["linear_rmse"]
+    network_rmse = ns["network_rmse"]
+    linear_mae = ns["linear_mae"]
+    network_mae = ns["network_mae"]
+    training_snapshots = ns["training_snapshots"]
+    hidden_size = ns["hidden_size"]
+    data_name = ns["DATA_PATH"].name
+
+    with (results_dir / "test_predictions.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "sample_id",
+                "true_y",
+                "linear_prediction",
+                "network_prediction",
+                "linear_residual",
+                "network_residual",
+            ],
+        )
+        writer.writeheader()
+        for row, linear_prediction, network_prediction in zip(ns["test_rows"], ns["linear_predictions"], ns["network_predictions"]):
+            writer.writerow({
+                "sample_id": row["sample_id"],
+                "true_y": row["target_y"],
+                "linear_prediction": round(linear_prediction, 5),
+                "network_prediction": round(network_prediction, 5),
+                "linear_residual": round(linear_prediction - row["target_y"], 5),
+                "network_residual": round(network_prediction - row["target_y"], 5),
+            })
+
+    with (results_dir / "training_loss_snapshots.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["epoch", "mean_training_loss"])
+        writer.writeheader()
+        for epoch, loss_value in sorted(training_snapshots.items()):
+            writer.writerow({"epoch": epoch, "mean_training_loss": round(loss_value, 8)})
+
+    probe_rows = []
+    for point in [-1.5, -0.5, 0.0, 0.8, 1.6]:
+        prediction, hidden_act = ns["network_predict"](point)
+        probe_rows.append({
+            "feature_x": point,
+            "prediction": round(prediction, 5),
+            "hidden_activations": " ".join(f"{value:.4f}" for value in hidden_act),
+        })
+    with (results_dir / "hidden_activation_probe.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["feature_x", "prediction", "hidden_activations"])
+        writer.writeheader()
+        writer.writerows(probe_rows)
+
+    try:
+        import matplotlib.pyplot as plt
+
+        train_xs = ns["train_xs"]
+        train_ys = ns["train_ys"]
+        test_xs = ns["test_xs"]
+        test_ys = ns["test_ys"]
+        grid_xs = [min(train_xs) + 0.05 * index for index in range(int((max(test_xs) - min(train_xs)) / 0.05) + 1)]
+        linear_grid = [ns["linear_intercept"] + ns["linear_slope"] * x for x in grid_xs]
+        network_grid = [ns["network_predict"](x)[0] for x in grid_xs]
+
+        figure, axis = plt.subplots(figsize=(7.2, 4.2))
+        axis.scatter(train_xs, train_ys, color="#2f6b99", label="train")
+        axis.scatter(test_xs, test_ys, color="#c97a00", marker="s", label="test")
+        axis.plot(grid_xs, linear_grid, linestyle="--", color="#b03a2e", label="linear baseline")
+        axis.plot(grid_xs, network_grid, color="#1f7a4d", label="single hidden layer")
+        axis.set_xlabel("feature_x")
+        axis.set_ylabel("target_y")
+        axis.set_title("Ch30 nonlinear baseline vs neural network")
+        axis.grid(alpha=0.25)
+        axis.legend()
+        figure.tight_layout()
+        figure.savefig(figures_dir / "baseline_vs_network.png", dpi=160)
+        plt.close(figure)
+    except Exception as exc:  # pragma: no cover - optional plotting path
+        print(f"Optional neural-network figure export skipped: {exc}")
+
+    _write_text(results_dir / "deep_learning_model_card_single_hidden_layer.md", f"""
+# Deep Learning Model Card: Single-Hidden-Layer Network
+
+## Model
+- Name: single-hidden-layer tanh network
+- Task type: regression
+- Astronomy / physics use case: teaching proxy for nonlinear calibration or color-to-quantity mapping
+
+## Input Structure
+- Input object: one scalar feature per sample
+- Shape: `(n_samples, 1)`
+- Units / normalization: unitless teaching feature, standardized using train-set mean and standard deviation
+- Train-only preprocessing: feature mean `{ns["feature_mean"]:.5f}`, feature std `{ns["feature_std"]:.5f}` computed from train rows only
+
+## Architecture
+- Main layers: linear hidden layer with {hidden_size} units, tanh activation, linear output head
+- Nonlinearities: tanh
+- Pooling / bottleneck / attention, if any: none
+- Output head: scalar regression output
+
+## Training Objective
+- Loss: mean squared error
+- Optimizer: manual batch gradient descent
+- Epochs / batch size / learning rate: 6000 epochs, full-batch, learning rate {ns["learning_rate"]}
+- Early stopping or validation rule: not used in this tiny concept demo
+
+## What It Learns
+- Representation learned: nonlinear basis functions over the scalar input
+- Local / global structure captured: saturation at both ends and sharper central transition
+- Relation to baseline: linear RMSE {linear_rmse:.4f}; network RMSE {network_rmse:.4f}
+
+## Diagnostics
+- Training vs validation curve: `training_loss_snapshots.csv`
+- Main evaluation metric: MAE/RMSE on held-out test rows
+- Error / residual / review artifact: `test_predictions.csv`
+- Representation or activation check: `hidden_activation_probe.csv`
+
+## Failure Modes
+- Data issue: tiny synthetic dataset and no real uncertainty model
+- Model issue: hidden units can overfit if scaled up without validation
+- Interpretation issue: better fit does not prove a physical mechanism
+
+## Scientific Boundary
+- Supported claim: a nonlinear hidden representation improves this toy regression over a straight-line baseline.
+- Unsupported claim: neural networks are always better, or this model has learned a physical law.
+- Human review needed: any extrapolation outside the training feature range
+""")
+
+    _write_text(results_dir / "model_experiment_record_neural_network_basics.md", f"""
+# Model Experiment Record: Neural Network Basics
+
+## 1. Task
+- Scientific question: can a minimal neural network represent a nonlinear response that a straight line misses?
+- ML task: regression
+- Prediction target / discovery goal: `target_y`
+- Intended use: concept demonstration for deep learning foundations
+
+## 2. Dataset Contract
+- Dataset Contract link: teaching dataset in `data/small/{data_name}`
+- Data Card link: small teaching data README
+- Key Evidence Records: notebook execution and exported diagnostics
+
+## 3. Split / Role Assignment
+- Train / validation / test split: train/test only
+- Split unit: sample ID
+- Random seed: deterministic manual initialization
+- When was the test set opened? after fitting the linear baseline and neural network
+
+## 4. Baseline
+- Baseline type: least-squares straight line
+- Baseline reason: minimum interpretable regression reference
+- Baseline result: MAE {linear_mae:.4f}, RMSE {linear_rmse:.4f}
+
+## 5. Model
+- Model family: single-hidden-layer tanh neural network
+- Key parameters / hyperparameters: hidden units {hidden_size}, learning rate {ns["learning_rate"]}, epochs 6000
+- Deep Learning Model Card link: `deep_learning_model_card_single_hidden_layer.md`
+- Training entry point: `ch30_neural_network_basics.ipynb`
+
+## 6. Evaluation
+- Metrics: MAE and RMSE
+- Threshold, if any: none
+- Scientific cost: overclaiming nonlinear fit as physical explanation
+- Main diagnostic figure: `figures/baseline_vs_network.png`
+
+## 7. Error Analysis
+- Main failure cases: extrapolation beyond the training feature range
+- Error concentration: linear baseline misses saturation; network reduces this residual in the toy data
+- Relation to data quality / physical regime: no real noise model; teaching-only data
+
+## 8. Limit
+- Supported claim: the hidden layer provides nonlinear basis functions that improve this toy regression.
+- Unsupported claim: this network has discovered a physical law or validates deep learning for real survey data.
+- Known leakage / selection / extrapolation risk: train-only standardization is used, but the dataset is tiny and synthetic.
+
+## 9. Reproducibility
+- Script / notebook: `ch30_neural_network_basics.ipynb`
+- Output files: `test_predictions.csv`, `training_loss_snapshots.csv`, `hidden_activation_probe.csv`
+- Code version / tag: record current git commit when used in a report
+""")
+
+    _write_text(results_dir / "trust_statement_neural_network_basics.md", f"""
+# Trust Statement: Neural Network Basics
+
+## Model Output
+- Result: network RMSE {network_rmse:.4f} vs linear RMSE {linear_rmse:.4f}
+- Main metric / diagnostic: test-set residual comparison and hidden activation probe
+
+## Distribution Status
+- In-distribution / out-of-distribution / unclear: in-distribution within the toy feature range
+- Evidence: explicit train/test rows from `data/small/{data_name}`
+
+## Uncertainty
+- Main uncertainty source: tiny synthetic dataset and fixed deterministic initialization
+- Estimated by: held-out test rows only
+
+## Interpretability
+- Main feature dependence: tanh hidden units form nonlinear basis functions over `feature_x`
+- Interpretation method: hidden activation probe and baseline comparison
+- Why this is not causal proof: activations are fitted functions, not physical variables
+
+## Failure Boundary
+- Known failure region: extrapolation outside training feature range
+- Human review needed: any scientific interpretation beyond the toy demonstration
+
+## Claim Boundary
+- Supported claim: a minimal neural network can improve a nonlinear toy regression when compared with a line.
+- Unsupported claim: neural networks should replace baseline models by default.
+""")
+
+    print(f"Exported Ch30 neural-network basics delivery package to {results_dir}")
+
+
 def export_ch31_cnn_delivery(ns: dict) -> None:
     results_dir = Path("results/ch31_cnn_delivery")
     figures_dir = results_dir / "figures"
@@ -90,6 +306,54 @@ def export_ch31_cnn_delivery(ns: dict) -> None:
     ready_count = sum(item["route"] == "ready_for_science" for item in target_predictions)
     data_name = ns["WORKFLOW_DATA_PATH"].name
 
+    _write_text(results_dir / "deep_learning_model_card_cnn_transfer.md", f"""
+# Deep Learning Model Card: Tiny CNN Transfer Workflow
+
+## Model
+- Name: tiny Conv2d-style backbone with target prototype head
+- Task type: image classification / review routing
+- Astronomy / physics use case: galaxy morphology cutout classification with a conservative review gate
+
+## Input Structure
+- Input object: one small 6x6 image cutout per sample
+- Shape: `(n_samples, 6, 6)`
+- Units / normalization: toy pixel intensities from `data/small/{data_name}`
+- Train-only preprocessing: source-domain feature learning and validation-calibrated ready threshold
+
+## Architecture
+- Main layers: local convolutional filters, nonlinear feature map, frozen target-domain prototype head
+- Nonlinearities: tiny teaching activation inside the hand-written workflow
+- Pooling / bottleneck / attention, if any: local feature aggregation
+- Output head: nearest target prototype plus confidence route
+
+## Training Objective
+- Loss / rule: source-domain local feature learning followed by target prototype adaptation
+- Optimizer: hand-written teaching update
+- Epochs / batch size / learning rate: epochs {ns["WORKFLOW_EPOCHS"]}, learning rate {ns["WORKFLOW_LEARNING_RATE"]}
+- Early stopping or validation rule: ready threshold {workflow_ready_threshold:.4f} calibrated on target validation rows
+
+## What It Learns
+- Representation learned: local morphology patterns that transfer better than flattened raw pixels
+- Local / global structure captured: compact cores, elongated disks, and double-source-like local patterns
+- Relation to baseline: raw-pixel source baseline accuracy {source_raw_accuracy:.3f}; target workflow accuracy {target_accuracy:.3f}
+
+## Diagnostics
+- Training vs validation curve: validation predictions and threshold calibration
+- Main evaluation metric: target accuracy and ready/review routing
+- Error / residual / review artifact: `review_queue.csv`
+- Representation or activation check: target routing confidence figure
+
+## Failure Modes
+- Data issue: low-quality, neighbor-contaminated, or off-center cutouts
+- Model issue: tiny synthetic domain shift and prototype head can overstate confidence
+- Scientific interpretation issue: morphology labels are teaching labels, not final physical classes
+
+## Scientific Boundary
+- Supported claim: local CNN-style representations can be safer than raw pixels in this toy routing workflow.
+- Unsupported claim: this validates a production survey morphology classifier.
+- Human review needed: all low-quality or below-threshold cutouts
+""")
+
     _write_text(results_dir / "dataset_contract_cnn_transfer.md", f"""
 # Dataset Contract: CNN Transfer Workflow
 
@@ -152,7 +416,7 @@ def export_ch31_cnn_delivery(ns: dict) -> None:
 ## 5. Model
 - Model family: tiny Conv2d backbone plus frozen target prototype head
 - Key parameters / hyperparameters: filters={ns["WORKFLOW_FILTERS"]}, epochs={ns["WORKFLOW_EPOCHS"]}, lr={ns["WORKFLOW_LEARNING_RATE"]}
-- Algorithm Card link: CNN / transfer-learning sidebar in Ch31
+- Deep Learning Model Card link: `deep_learning_model_card_cnn_transfer.md`
 - Training entry point: this notebook
 
 ## 6. Evaluation
@@ -531,6 +795,54 @@ def export_ch32_spectral_conv_delivery(ns: dict) -> None:
     model_accuracy = ns["accuracy"](ns["trainable_test_predictions"])
     data_name = ns["WORKFLOW_DATA_PATH"].name
 
+    _write_text(results_dir / "deep_learning_model_card_spectral_conv1d.md", f"""
+# Deep Learning Model Card: Tiny Spectral Conv1d
+
+## Model
+- Name: tiny trainable Conv1d spectral classifier
+- Task type: spectral classification / review routing
+- Astronomy / physics use case: local line-pattern recognition in short teaching spectra
+
+## Input Structure
+- Input object: one normalized toy spectrum per sample
+- Shape: `(n_samples, wavelength_bins)`
+- Units / normalization: continuum-normalized teaching flux windows from `data/small/{data_name}`
+- Train-only preprocessing: validation threshold selected before opening test/review routes
+
+## Architecture
+- Main layers: one-dimensional local filters plus a lightweight classification head
+- Nonlinearities: teaching-size nonlinear response after local filtering
+- Pooling / bottleneck / attention, if any: local window aggregation
+- Output head: spectral class probabilities and ready/review route
+
+## Training Objective
+- Loss / rule: supervised classification on training spectra
+- Optimizer: hand-written tiny training loop in the notebook
+- Epochs / batch size / learning rate: epochs {ns["TRAINABLE_EPOCHS"]}, kernel size {ns["TRAINABLE_KERNEL_SIZE"]}
+- Early stopping or validation rule: ready threshold {ns["workflow_trainable_ready_threshold"]:.4f}
+
+## What It Learns
+- Representation learned: local spectral-line patterns that tolerate small shifts better than raw windows
+- Local / global structure captured: short wavelength neighborhoods rather than whole-spectrum averages
+- Relation to baseline: normalized raw-window baseline accuracy {baseline_accuracy:.3f}; Conv1d clean-test accuracy {model_accuracy:.3f}
+
+## Diagnostics
+- Training vs validation curve: validation summaries
+- Main evaluation metric: clean-test accuracy and route confidence
+- Error / residual / review artifact: `trainable_conv1d_routes.csv`
+- Representation or activation check: route confidence figure
+
+## Failure Modes
+- Data issue: low S/N, bad pixels, artifacts, or wavelength-grid mismatch
+- Model issue: filters may learn toy line positions that do not transfer
+- Scientific interpretation issue: a class prediction is not a physical explanation of the spectrum
+
+## Scientific Boundary
+- Supported claim: local Conv1d filters improve this toy shifted-line workflow.
+- Unsupported claim: this is a production spectral classifier.
+- Human review needed: all non-clean or low-confidence spectra
+""")
+
     _write_text(results_dir / "dataset_contract_spectral_conv1d.md", f"""
 # Dataset Contract: Spectral Conv1d Workflow
 
@@ -580,7 +892,7 @@ def export_ch32_spectral_conv_delivery(ns: dict) -> None:
 ## 5. Model
 - Model family: tiny trainable Conv1d plus linear head
 - Key parameters / hyperparameters: filters={ns["TRAINABLE_FILTERS"]}, kernel_size={ns["TRAINABLE_KERNEL_SIZE"]}, epochs={ns["TRAINABLE_EPOCHS"]}
-- Algorithm Card link: 1D convolution sidebar in Ch32
+- Deep Learning Model Card link: `deep_learning_model_card_spectral_conv1d.md`
 - Training entry point: this notebook
 
 ## 6. Evaluation
@@ -659,6 +971,83 @@ def export_ch33_autoencoder_delivery(ns: dict) -> None:
         route_counts[item["route"]] = route_counts.get(item["route"], 0) + 1
     data_name = ns["DATA_PATH"].name
 
+    _write_text(results_dir / "dataset_contract_autoencoder.md", f"""
+# Dataset Contract: Autoencoder Anomaly Workflow
+
+## 1. Task Definition
+- ML task: representation learning / anomaly review routing
+- Scientific question: which toy spectra are poorly supported by the learned normal-spectrum representation?
+- Prediction target: route label, not a physical anomaly class
+- Intended use: teaching package for reconstruction error and latent-support review
+
+## 2. Sample Definition
+- One sample is one toy spectrum row from `data/small/{data_name}`.
+- Sample ID: `sample_id`
+
+## 3. Input Features
+- Input array: normalized flux bins from the teaching spectrum table.
+- Quality / role metadata: train, validation, held-out normal, or anomaly/review role as defined in the notebook.
+
+## 4. Target / Label
+- Target used for training: input reconstruction of normal-like spectra.
+- Label leakage risk: anomaly labels must not be used to set the normal reconstruction threshold.
+
+## 5. Selection and Split
+- Thresholds are calibrated from normal validation rows before held-out routes are interpreted.
+
+## 6. Known Limits
+- Tiny synthetic spectra.
+- Reconstruction error is a triage signal, not a discovery claim.
+""")
+
+    _write_text(results_dir / "deep_learning_model_card_autoencoder.md", f"""
+# Deep Learning Model Card: Tiny Spectral Autoencoder
+
+## Model
+- Name: tiny Conv1d-style autoencoder
+- Task type: representation learning / anomaly candidate ranking
+- Astronomy / physics use case: spectral anomaly triage through reconstruction and latent support
+
+## Input Structure
+- Input object: one normalized toy spectrum per sample
+- Shape: `(n_samples, wavelength_bins)`
+- Units / normalization: teaching normalized flux from `data/small/{data_name}`
+- Train-only preprocessing: thresholds calibrated on normal validation rows
+
+## Architecture
+- Main layers: encoder, low-dimensional bottleneck / latent representation, decoder
+- Nonlinearities: teaching-size nonlinear encoding and reconstruction
+- Pooling / bottleneck / attention, if any: compact latent bottleneck
+- Output head: reconstructed spectrum and reconstruction-error route
+
+## Training Objective
+- Loss: reconstruction error on normal-like spectra
+- Optimizer: hand-written teaching workflow in the notebook
+- Epochs / batch size / learning rate: see notebook settings
+- Early stopping or validation rule: ready threshold {ns["conv1d_ready_threshold"]:.4f}; anomaly threshold {ns["conv1d_anomaly_threshold"]:.4f}
+
+## What It Learns
+- Representation learned: compressed normal-spectrum structure
+- Local / global structure captured: broad continuum shape and local residual windows
+- Relation to baseline: mean-spectrum baseline is the minimum reconstruction reference
+
+## Diagnostics
+- Training vs validation curve: validation-threshold summary in notebook outputs
+- Main evaluation metric: reconstruction error and latent nearest-neighbor support
+- Error / residual / review artifact: `autoencoder_routes.csv`, `latent_retrieval_triage.csv`
+- Representation or activation check: latent retrieval triage
+
+## Failure Modes
+- Data issue: artifacts can look like anomalies
+- Model issue: manifold-edge normal spectra may receive high reconstruction error
+- Scientific interpretation issue: high error is a review flag, not a new-object declaration
+
+## Scientific Boundary
+- Supported claim: the autoencoder can rank toy spectra for review.
+- Unsupported claim: reconstruction error proves a new physical class.
+- Human review needed: manual_review and anomaly_candidate rows
+""")
+
     _write_text(results_dir / "model_experiment_record_autoencoder.md", f"""
 # Model Experiment Record: Autoencoder Anomaly Workflow
 
@@ -669,6 +1058,7 @@ def export_ch33_autoencoder_delivery(ns: dict) -> None:
 - Intended use: Part V representation-learning delivery example.
 
 ## 2. Dataset Contract
+- Dataset Contract link: `dataset_contract_autoencoder.md`
 - Data Card link: teaching data in `data/small/{data_name}`
 - Key Evidence Records: exported reconstruction routes and latent retrieval triage.
 
@@ -683,7 +1073,7 @@ def export_ch33_autoencoder_delivery(ns: dict) -> None:
 
 ## 5. Model
 - Model family: tiny Conv1d-style autoencoder
-- Algorithm Card link: autoencoder sidebar in Ch33
+- Deep Learning Model Card link: `deep_learning_model_card_autoencoder.md`
 - Training entry point: this notebook
 
 ## 6. Evaluation
@@ -753,6 +1143,85 @@ def export_ch34_attention_delivery(ns: dict) -> None:
     review_count = sum(item["route"] == "manual_review" for item in routes)
     data_name = ns["PATCH_WORKFLOW_DATA_PATH"].name
 
+    _write_text(results_dir / "dataset_contract_attention.md", f"""
+# Dataset Contract: Masked-Patch Attention Workflow
+
+## 1. Task Definition
+- ML task: masked patch prediction / representation learning
+- Scientific question: can ordered context recover a hidden patch when bag-of-patches cannot?
+- Prediction target: masked target patch and ready/review route
+- Intended use: teaching package for attention and foundation-model pretraining boundaries
+
+## 2. Sample Definition
+- One sample is one token / patch sequence row from `data/small/{data_name}`.
+- Sample ID: `sample_id`
+
+## 3. Input Features
+- Visible token / patch sequence.
+- Position metadata implied by sequence order.
+- Review metadata for boundary rows.
+
+## 4. Target / Label
+- Target: masked patch value or class.
+- Label leakage risk: the masked target must not appear in visible input features.
+
+## 5. Selection and Split
+- Split roles: train, validation, clean test, review.
+- Threshold is calibrated on validation rows before clean-test and review interpretation.
+
+## 6. Known Limits
+- Tiny synthetic token/patch data.
+- Attention weights explain model routing behavior, not physical causality.
+""")
+
+    _write_text(results_dir / "deep_learning_model_card_attention.md", f"""
+# Deep Learning Model Card: Tiny Masked-Patch Attention
+
+## Model
+- Name: tiny two-head masked-patch attention learner
+- Task type: masked patch prediction / representation learning
+- Astronomy / physics use case: toy bridge from sequence context to scientific foundation-model ideas
+
+## Input Structure
+- Input object: one visible token / patch sequence per sample
+- Shape: `(n_samples, sequence_length, patch_features)`
+- Units / normalization: teaching token/patch values from `data/small/{data_name}`
+- Train-only preprocessing: validation threshold selected before test/review routes
+
+## Architecture
+- Main layers: patch tokens, positional context, two attention heads, masked-patch output head
+- Nonlinearities: softmax attention weights
+- Pooling / bottleneck / attention, if any: multi-head attention over visible patches
+- Output head: masked-patch prediction and confidence route
+
+## Training Objective
+- Loss: masked-patch prediction loss
+- Optimizer: hand-written tiny learner in the notebook
+- Epochs / batch size / learning rate: heads {ns["PATCH_WORKFLOW_HEADS"]}, epochs {ns["PATCH_WORKFLOW_EPOCHS"]}
+- Early stopping or validation rule: ready threshold {ns["patch_workflow_ready_threshold"]:.4f}
+
+## What It Learns
+- Representation learned: ordered context for recovering a masked patch
+- Local / global structure captured: position-aware dependencies that bag-of-patches discards
+- Relation to baseline: bag-of-patches accuracy {baseline_accuracy:.3f}; attention clean-test accuracy {model_accuracy:.3f}
+
+## Diagnostics
+- Training vs validation curve: masked-patch validation summary
+- Main evaluation metric: clean-test accuracy and confidence routing
+- Error / residual / review artifact: `masked_patch_routes.csv`
+- Representation or activation check: attention head peak positions in notebook outputs
+
+## Failure Modes
+- Data issue: blended anchors or repeated masks
+- Model issue: attention may overfit synthetic token rules
+- Scientific interpretation issue: attention weights are model-behavior evidence, not causal proof
+
+## Scientific Boundary
+- Supported claim: attention can use ordered context in this toy masked-patch task.
+- Unsupported claim: foundation-model outputs are automatically trustworthy or physically causal.
+- Human review needed: all manual_review rows
+""")
+
     _write_text(results_dir / "model_experiment_record_attention.md", f"""
 # Model Experiment Record: Masked-Patch Attention Workflow
 
@@ -763,6 +1232,7 @@ def export_ch34_attention_delivery(ns: dict) -> None:
 - Intended use: Part V attention / foundation-model boundary example.
 
 ## 2. Dataset Contract
+- Dataset Contract link: `dataset_contract_attention.md`
 - Data Card link: teaching data in `data/small/{data_name}`
 - Key Evidence Records: masked-patch routes and validation artifacts.
 
@@ -779,7 +1249,7 @@ def export_ch34_attention_delivery(ns: dict) -> None:
 ## 5. Model
 - Model family: tiny two-head masked-patch attention learner
 - Key parameters / hyperparameters: heads={ns["PATCH_WORKFLOW_HEADS"]}, epochs={ns["PATCH_WORKFLOW_EPOCHS"]}
-- Algorithm Card link: attention / transformer sidebar in Ch34
+- Deep Learning Model Card link: `deep_learning_model_card_attention.md`
 - Training entry point: this notebook
 
 ## 6. Evaluation

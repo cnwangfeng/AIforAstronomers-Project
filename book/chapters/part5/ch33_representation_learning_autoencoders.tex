@@ -114,6 +114,17 @@ reconstruction = W_dec * latent + b_dec
 
 在当前教学数据上，notebook 还会进一步检查 latent 轴与两个教学代理量的关系：第一维主要沿着连续谱斜率展开，第二维则更多对应 Balmer 吸收深度的变化。这让学生更容易把“抽象表示”重新翻译回可解释的光谱变化方向。
 
+\begin{examplebox}[Deep Learning Model Card：自编码器]
+\begin{itemize}
+    \item 输入结构：图像、光谱或其他高维数组。
+    \item 模型结构：编码器 $\rightarrow$ 低维 latent bottleneck $\rightarrow$ 解码器。
+    \item 训练目标：最小化输入与重构之间的误差。
+    \item 学到什么：训练数据中最容易被压缩和重构的常见结构。
+    \item 主要失败模式：训练集被异常污染、瓶颈过大导致异常也能被重构、预处理不一致导致假异常。
+    \item 科学边界：重构误差可以排序候选，不能单独宣布新发现。
+\end{itemize}
+\end{examplebox}
+
 \section{为什么这已经是一种自监督学习}
 
 这个案例虽然很小，但它已经体现了自监督学习最核心的想法：\textbf{训练目标来自输入本身，而不是来自外部标签。}
